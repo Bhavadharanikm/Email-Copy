@@ -31,7 +31,10 @@ export const handler = async (event) => {
   // ── POST: n8n delivers completed copy ─────────────────────────────────────
   if (event.httpMethod === 'POST') {
     try {
-      const payload = JSON.parse(event.body)
+      const rawBody = event.isBase64Encoded
+        ? Buffer.from(event.body, 'base64').toString('utf-8')
+        : event.body
+      const payload = JSON.parse(rawBody)
       const { jobId, ...copy } = payload
 
       if (!jobId) {
