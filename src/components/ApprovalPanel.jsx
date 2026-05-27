@@ -34,16 +34,20 @@ export default function ApprovalPanel() {
     setLoading(true)
     setApproval('approved', notes)
     try {
-      // 1. Push HTML to GHL
+      // 1. Push HTML to GHL (critical — must succeed)
       const ghlResult = await pushToGHL({ client: selectedClient, renderedHtml, generatedCopy })
       setGhlPushResult(ghlResult)
 
-      // 2. Notify Google Chat
-      await notifyChat({
-        clientName:  selectedClient.name,
-        previewUrl:  ghlResult.previewUrl,
-        approvedBy:  'Team',
-      })
+      // 2. Notify Google Chat (non-critical — log failure but don't block)
+      try {
+        await notifyChat({
+          clientName:  selectedClient.name,
+          previewUrl:  ghlResult.previewUrl,
+          approvedBy:  'Team',
+        })
+      } catch (chatErr) {
+        console.warn('[ApprovalPanel] Chat notification failed (non-fatal):', chatErr.message)
+      }
 
       setDone(true)
     } catch (e) {
