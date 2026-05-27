@@ -98,12 +98,15 @@ export const handler = async (event) => {
     // ── Create campaign draft in GHL ─────────────────────────────────────────
     const campaignName = `[HGM] ${client.name} — ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
 
-    const res     = await fetch(`${GHL_BASE}/email-marketing/campaigns`, {
+    const folderId = client?.ghl?.folderId
+
+    const res     = await fetch(`${GHL_BASE}/emails/`, {
       method:  'POST',
       headers: ghlHeaders(apiKey),
       body: JSON.stringify({
         locationId,
-        name:        campaignName,
+        ...(folderId && { folderId }),
+        title:       campaignName,
         subject:     generatedCopy.subjectLine,
         previewText: generatedCopy.previewText || '',
         html:        filledHtml,
