@@ -98,7 +98,7 @@ export const handler = async (event) => {
     // ── Create campaign draft in GHL ─────────────────────────────────────────
     const campaignName = `[HGM] ${client.name} — ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
 
-    const res = await fetch(`${GHL_BASE}/email-marketing/campaigns`, {
+    const res     = await fetch(`${GHL_BASE}/email-marketing/campaigns`, {
       method:  'POST',
       headers: ghlHeaders(apiKey),
       body: JSON.stringify({
@@ -111,12 +111,14 @@ export const handler = async (event) => {
       }),
     })
 
-    const data = await res.json()
+    const resText = await res.text()
+    console.log(`[push-to-ghl] GHL response ${res.status}:`, resText.slice(0, 300))
 
     if (!res.ok) {
-      console.error('[push-to-ghl] GHL API error:', JSON.stringify(data))
-      throw new Error(data.message || `GHL returned ${res.status}`)
+      throw new Error(`GHL returned ${res.status}: ${resText || '(empty body)'}`)
     }
+
+    const data = resText ? JSON.parse(resText) : {}
 
     const campaignId = data.id || data.campaign?.id || data.data?.id
     const previewUrl = `https://app.gohighlevel.com/v2/location/${locationId}/marketing/emails/scheduled`
