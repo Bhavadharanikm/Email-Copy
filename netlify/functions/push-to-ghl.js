@@ -73,7 +73,7 @@ export const handler = async (event) => {
       ? Buffer.from(event.body, 'base64').toString('utf-8')
       : event.body
 
-    const { client, generatedCopy, selectedImages } = JSON.parse(rawBody)
+    const { client, renderedHtml, generatedCopy } = JSON.parse(rawBody)
 
     const apiKey     = process.env.GHL_API_KEY
     const locationId = client?.ghl?.locationId
@@ -81,18 +81,23 @@ export const handler = async (event) => {
     if (!apiKey)     throw new Error('GHL_API_KEY env var not set')
     if (!locationId) throw new Error('No locationId for this client')
 
-    // ── Load and fill HTML template ──────────────────────────────────────────
-    const templateUrl = TEMPLATE_MAP[client.id]
+    // ── Use the already-rendered HTML from the frontend preview ─────────────
+    // The frontend already fetched the template and filled all [[VARIABLES]]
+    // including the selected images — so we use that directly.
+    // Fall back to fresh template fetch only if renderedHtml wasn't provided.
     let filledHtml
 
-    if (templateUrl) {
-      const templateRes  = await fetch(templateUrl)
-      const templateHtml = await templateRes.text()
-      const heroImageUrl = selectedImages?.[0]?.url || ''
-      filledHtml = fillTemplate(templateHtml, generatedCopy, heroImageUrl)
+    if (renderedHtml && renderedHtml.trim().length > 100) {
+      filledHtml = renderedHtml
     } else {
-      // Fallback: plain HTML for clients without a template yet
-      filledHtml = buildPlainHtml(generatedCopy)
+      const templateUrl = TEMPLATE_MAP[client.id]
+      if (templateUrl) {
+        const templateRes  = await fetch(templateUrl)
+        const templateHtml = await templateRes.text()
+        filledHtml = fillTemplate(templateHtml, generatedCopy)
+      } else {
+        filledHtml = buildPlainHtml(generatedCopy)
+      }
     }
 
     // ── Create campaign draft in GHL ─────────────────────────────────────────
@@ -124,7 +129,10 @@ export const handler = async (event) => {
     const data = resText ? JSON.parse(resText) : {}
 
     const campaignId = data.id || data.campaign?.id || data.data?.id
-    const previewUrl = `https://app.gohighlevel.com/v2/location/${locationId}/marketing/emails/scheduled`
+    const emailsBase = `https://app.gohighlevel.com/v2/location/${locationId}/marketing/emails/all`
+    const previewUrl = folderId
+      ? `${emailsBase}?folderId=${folderId}&pageNumber=1`
+      : `${emailsBase}?pageNumber=1`
 
     console.log(`[push-to-ghl] Created campaign ${campaignId} for ${client.name}`)
 
