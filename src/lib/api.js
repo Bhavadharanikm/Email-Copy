@@ -30,8 +30,8 @@ export const fetchClients = () =>
   get('/clients')
 
 // ── Claude copy generation ───────────────────────────────────────
-export const generateCopy = ({ client, brief }) =>
-  post('/generate-copy', { client, brief })
+export const generateCopy = ({ client, prompt }) =>
+  post('/generate-copy', { client, prompt })
 
 // ── Google Drive images ──────────────────────────────────────────
 export const fetchDriveImages = ({ folderId }) =>
