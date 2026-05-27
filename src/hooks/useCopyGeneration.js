@@ -40,7 +40,7 @@ export function useCopyGeneration() {
     setStep:          s.setStep,
   }))
 
-  const generate = useCallback(async ({ client, brief }) => {
+  const generate = useCallback(async ({ client, prompt }) => {
     setGenerating(true)
     setError(null)
 
@@ -49,7 +49,7 @@ export function useCopyGeneration() {
       // Falls back to stub if Netlify functions aren't running (local Vite dev)
       let jobId, _stub
       try {
-        const res = await generateCopy({ client, brief })
+        const res = await generateCopy({ client, prompt })
         jobId = res.jobId
         _stub = res._stub
       } catch {

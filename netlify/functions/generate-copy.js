@@ -21,7 +21,7 @@ export const handler = async (event) => {
   }
 
   try {
-    const { client, brief } = JSON.parse(event.body)
+    const { client, prompt } = JSON.parse(event.body)
     const n8nWebhookUrl     = process.env.N8N_COPY_WEBHOOK_URL
 
     // ── Stub mode (no webhook URL set) ───────────────────────────────────
@@ -44,18 +44,14 @@ export const handler = async (event) => {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        jobId,                              // n8n must include this when it calls /copy-callback
+        jobId,
         callbackUrl: `${process.env.URL}/.netlify/functions/copy-callback`,
-        clientId:    client.id,
-        clientName:  client.name,
-        brandVoice:  client.brand?.voice     || '',
-        brandTone:   client.brand?.tone      || '',
-        doNotUse:    client.brand?.doNotUse  || [],
-        emailType:   brief.emailType,
-        goal:        brief.goal,
-        tone:        brief.tone,
-        offer:       brief.offer,
-        notes:       brief.additionalNotes,
+        // Raw prompt sent exactly as typed — matches your n8n workflow's input format
+        prompt,
+        // Extra context n8n can use if needed
+        clientId:   client.id,
+        clientName: client.name,
+        brandVoice: client.brand?.voice || '',
       }),
     })
 

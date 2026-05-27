@@ -1,56 +1,42 @@
 /**
- * NewCampaign
- * 7-step wizard that walks through the full email production flow.
- * Steps: Client → Brief → Generate Copy → Pick Images → Preview → Approve → Done
+ * NewCampaign — simplified wizard
+ * Steps: 1 Prompt → 2 Copy → 3 Images → 4 Preview → 5 Approve
  */
-import { useNavigate } from 'react-router-dom'
 import { useCampaignStore } from '../store/campaignStore'
 import { useCopyGeneration } from '../hooks/useCopyGeneration'
 
-import ClientSelector    from '../components/ClientSelector'
-import CampaignBriefForm from '../components/CampaignBriefForm'
-import CopyEditor        from '../components/CopyEditor'
-import ImagePicker       from '../components/ImagePicker'
-import TemplatePreview   from '../components/TemplatePreview'
-import ApprovalPanel     from '../components/ApprovalPanel'
+import PromptForm      from '../components/PromptForm'
+import CopyEditor      from '../components/CopyEditor'
+import ImagePicker     from '../components/ImagePicker'
+import TemplatePreview from '../components/TemplatePreview'
+import ApprovalPanel   from '../components/ApprovalPanel'
 
 const STEPS = [
-  { id: 1, label: 'Client'   },
-  { id: 2, label: 'Brief'    },
-  { id: 3, label: 'Copy'     },
-  { id: 4, label: 'Images'   },
-  { id: 5, label: 'Preview'  },
-  { id: 6, label: 'Approve'  },
+  { id: 1, label: 'Brief'   },
+  { id: 2, label: 'Copy'    },
+  { id: 3, label: 'Images'  },
+  { id: 4, label: 'Preview' },
+  { id: 5, label: 'Approve' },
 ]
 
 export default function NewCampaign() {
-  const navigate = useNavigate()
   const { generate } = useCopyGeneration()
 
-  const {
-    currentStep, setStep,
-    selectedClient, brief,
-    error,
-  } = useCampaignStore((s) => ({
+  const { currentStep, setStep, selectedClient, prompt, error } = useCampaignStore((s) => ({
     currentStep:    s.currentStep,
     setStep:        s.setStep,
     selectedClient: s.selectedClient,
-    brief:          s.brief,
+    prompt:         s.prompt,
     error:          s.error,
   }))
 
-  async function handleBriefSubmit() {
-    // useCopyGeneration handles: calling n8n, polling if async, updating store, advancing step
-    await generate({ client: selectedClient, brief })
-  }
-
-  function canProceed() {
-    if (currentStep === 1) return !!selectedClient
-    return true
+  async function handleGenerate() {
+    await generate({ client: selectedClient, prompt })
   }
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
+
       {/* Step progress bar */}
       <div className="flex items-center gap-1">
         {STEPS.map((s, i) => (
@@ -59,9 +45,9 @@ export default function NewCampaign() {
               onClick={() => currentStep > s.id && setStep(s.id)}
               className={[
                 'step-badge shrink-0',
-                currentStep === s.id  ? 'bg-brand-700 text-white' :
-                currentStep  > s.id  ? 'bg-brand-100 text-brand-700 cursor-pointer hover:bg-brand-200' :
-                                       'bg-gray-100 text-gray-400 cursor-default',
+                currentStep === s.id ? 'bg-brand-700 text-white' :
+                currentStep  > s.id ? 'bg-brand-100 text-brand-700 cursor-pointer hover:bg-brand-200' :
+                                      'bg-gray-100 text-gray-400 cursor-default',
               ].join(' ')}
             >
               {s.id}
@@ -84,74 +70,62 @@ export default function NewCampaign() {
 
       {/* Step content */}
       <div className="card">
+
+        {/* ── Step 1: Client + Prompt ── */}
         {currentStep === 1 && (
           <>
-            <h2 className="text-lg font-semibold mb-4">Select a Client</h2>
-            <ClientSelector />
-            <div className="mt-5 flex justify-end">
-              <button
-                disabled={!canProceed()}
-                onClick={() => setStep(2)}
-                className="btn-primary"
-              >
-                Next: Campaign Brief →
-              </button>
-            </div>
+            <h2 className="text-lg font-semibold mb-5">Campaign Brief</h2>
+            <PromptForm onGenerate={handleGenerate} />
           </>
         )}
 
+        {/* ── Step 2: Edit copy variations ── */}
         {currentStep === 2 && (
           <>
-            <h2 className="text-lg font-semibold mb-4">Campaign Brief</h2>
-            <CampaignBriefForm onNext={handleBriefSubmit} />
-            <div className="mt-3">
-              <button onClick={() => setStep(1)} className="btn-secondary text-sm">← Back</button>
-            </div>
-          </>
-        )}
-
-        {currentStep === 3 && (
-          <>
-            <h2 className="text-lg font-semibold mb-4">Edit Generated Copy</h2>
+            <h2 className="text-lg font-semibold mb-4">Generated Copy</h2>
             <CopyEditor />
             <div className="mt-5 flex justify-between">
-              <button onClick={() => setStep(2)} className="btn-secondary text-sm">← Back</button>
-              <button onClick={() => setStep(4)} className="btn-primary">Next: Pick Images →</button>
+              <button onClick={() => setStep(1)} className="btn-secondary text-sm">← Back</button>
+              <button onClick={() => setStep(3)} className="btn-primary">Next: Pick Images →</button>
             </div>
           </>
         )}
 
-        {currentStep === 4 && (
+        {/* ── Step 3: Images ── */}
+        {currentStep === 3 && (
           <>
             <h2 className="text-lg font-semibold mb-4">Pick Images</h2>
             <ImagePicker />
             <div className="mt-5 flex justify-between">
-              <button onClick={() => setStep(3)} className="btn-secondary text-sm">← Back</button>
-              <button onClick={() => setStep(5)} className="btn-primary">Next: Preview →</button>
+              <button onClick={() => setStep(2)} className="btn-secondary text-sm">← Back</button>
+              <button onClick={() => setStep(4)} className="btn-primary">Next: Preview →</button>
             </div>
           </>
         )}
 
-        {currentStep === 5 && (
+        {/* ── Step 4: Preview ── */}
+        {currentStep === 4 && (
           <>
             <h2 className="text-lg font-semibold mb-4">Live Preview</h2>
             <TemplatePreview />
             <div className="mt-5 flex justify-between">
-              <button onClick={() => setStep(4)} className="btn-secondary text-sm">← Back</button>
-              <button onClick={() => setStep(6)} className="btn-primary">Looks Good — Approve →</button>
+              <button onClick={() => setStep(3)} className="btn-secondary text-sm">← Back</button>
+              <button onClick={() => setStep(5)} className="btn-primary">Looks Good — Approve →</button>
             </div>
           </>
         )}
 
-        {currentStep === 6 && (
+        {/* ── Step 5: Approve & push ── */}
+        {currentStep === 5 && (
           <>
-            <h2 className="text-lg font-semibold mb-4">Approve & Push</h2>
+            <h2 className="text-lg font-semibold mb-4">Approve & Push to GHL</h2>
             <ApprovalPanel />
             <div className="mt-3">
-              <button onClick={() => setStep(5)} className="btn-secondary text-sm">← Back to Preview</button>
+              <button onClick={() => setStep(4)} className="btn-secondary text-sm">← Back to Preview</button>
             </div>
           </>
         )}
+
       </div>
     </div>
   )

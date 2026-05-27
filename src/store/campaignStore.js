@@ -9,14 +9,8 @@ const INITIAL_STATE = {
   // Step 1 — client
   selectedClient: null,       // full client object from clients.json
 
-  // Step 2 — brief
-  brief: {
-    emailType:   '',          // e.g. "Promotional", "Newsletter", "Event Announcement"
-    goal:        '',          // e.g. "Drive bookings for Valentine's weekend"
-    tone:        '',          // e.g. "Warm & romantic"
-    offer:       '',          // e.g. "15% off + complimentary breakfast"
-    additionalNotes: '',
-  },
+  // Step 2 — free-text prompt sent directly to n8n
+  prompt: '',
 
   // Step 3 — all variations returned by n8n (array of 3)
   variations: [],
@@ -60,8 +54,8 @@ export const useCampaignStore = create((set) => ({
   ...INITIAL_STATE,
 
   // Actions
-  setClient:        (client)  => set({ selectedClient: client, currentStep: 2 }),
-  setBrief:         (brief)   => set({ brief }),
+  setClient:        (client)  => set({ selectedClient: client }),
+  setPrompt:        (prompt)  => set({ prompt }),
   setVariations:    (variations) => set({
     variations,
     selectedVariation: 0,
