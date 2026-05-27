@@ -13,7 +13,12 @@ import { getStore } from '@netlify/blobs'
 const TTL_MS = 10 * 60 * 1000  // 10 minutes
 
 function store() {
-  return getStore('copy-results')
+  // NETLIFY_SITE_ID and NETLIFY_TOKEN must be set as env vars in Netlify dashboard
+  return getStore({
+    name:   'copy-results',
+    siteID: process.env.NETLIFY_SITE_ID || process.env.SITE_ID,
+    token:  process.env.NETLIFY_TOKEN,
+  })
 }
 
 export const handler = async (event) => {
