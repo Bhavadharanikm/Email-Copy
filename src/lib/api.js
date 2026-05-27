@@ -7,12 +7,14 @@
 const BASE = '/.netlify/functions'
 
 async function post(path, body) {
-  const res = await fetch(`${BASE}${path}`, {
+  const res  = await fetch(`${BASE}${path}`, {
     method:  'POST',
     headers: { 'Content-Type': 'application/json' },
     body:    JSON.stringify(body),
   })
-  const data = await res.json()
+  const text = await res.text()
+  if (!text) throw new Error(`Empty response from ${path} (status ${res.status}) — check Netlify function logs`)
+  const data = JSON.parse(text)
   if (!res.ok) throw new Error(data.error || `Request failed: ${res.status}`)
   return data
 }
