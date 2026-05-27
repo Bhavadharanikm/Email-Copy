@@ -5,25 +5,27 @@
  * n8n POSTs the finished copy here when done (async Option B).
  * Dashboard polls GET /copy-callback?jobId=XXX every 2s until result arrives.
  *
- * Storage: Netlify Blobs — persists across serverless function instances.
- * Results expire after 10 minutes automatically.
+ * Storage: Upstash Redis REST API — no extra npm package needed, just fetch.
+ * Required env vars: UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN
  */
-import { getStore } from '@netlify/blobs'
 
-const TTL_MS = 10 * 60 * 1000  // 10 minutes
+const TTL_SECONDS = 600  // 10 minutes
 
-function store() {
-  // NETLIFY_SITE_ID and NETLIFY_TOKEN must be set as env vars in Netlify dashboard
-  return getStore({
-    name:   'copy-results',
-    siteID: process.env.NETLIFY_SITE_ID || process.env.SITE_ID,
-    token:  process.env.NETLIFY_TOKEN,
+async function redisCmd(command) {
+  const res = await fetch(process.env.UPSTASH_REDIS_REST_URL, {
+    method:  'POST',
+    headers: {
+      Authorization:  `Bearer ${process.env.UPSTASH_REDIS_REST_TOKEN}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(command),
   })
+  return res.json()
 }
 
 export const handler = async (event) => {
 
-  // ── POST: n8n delivers completed copy ──────────────────────────────────
+  // ── POST: n8n delivers completed copy ─────────────────────────────────────
   if (event.httpMethod === 'POST') {
     try {
       const payload = JSON.parse(event.body)
@@ -33,11 +35,10 @@ export const handler = async (event) => {
         return { statusCode: 400, body: JSON.stringify({ error: 'jobId required' }) }
       }
 
-      await store().setJSON(jobId, {
-        status:      'done',
-        copy,
-        completedAt: Date.now(),
-      })
+      const value = JSON.stringify({ status: 'done', copy, completedAt: Date.now() })
+
+      // SET key value EX 600
+      await redisCmd(['SET', jobId, value, 'EX', String(TTL_SECONDS)])
 
       console.log(`[copy-callback] Stored result for jobId: ${jobId}`)
 
@@ -52,7 +53,7 @@ export const handler = async (event) => {
     }
   }
 
-  // ── GET: dashboard polls for result ────────────────────────────────────
+  // ── GET: dashboard polls for result ───────────────────────────────────────
   if (event.httpMethod === 'GET') {
     const jobId = event.queryStringParameters?.jobId
 
@@ -61,17 +62,21 @@ export const handler = async (event) => {
     }
 
     try {
-      const result = await store().get(jobId, { type: 'json' })
+      const result = await redisCmd(['GET', jobId])
 
-      // Auto-cleanup: delete after retrieval if older than TTL
-      if (result && Date.now() - result.completedAt > TTL_MS) {
-        await store().delete(jobId)
+      if (!result.result) {
+        return {
+          statusCode: 200,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'pending' }),
+        }
       }
 
+      const data = JSON.parse(result.result)
       return {
         statusCode: 200,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(result ?? { status: 'pending' }),
+        body: JSON.stringify(data),
       }
     } catch (err) {
       console.error('[copy-callback] GET error:', err.message)
