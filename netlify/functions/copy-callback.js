@@ -2,15 +2,19 @@
  * copy-callback.js
  * /.netlify/functions/copy-callback
  *
- * n8n POSTs the finished copy here when done.
+ * n8n POSTs the finished copy here when done (async Option B).
  * Dashboard polls GET /copy-callback?jobId=XXX every 2s until result arrives.
  *
- * Local dev: uses an in-memory Map (lives as long as netlify dev is running).
- * Production: swap the Map for Netlify Blobs or a DB of your choice.
+ * Storage: Netlify Blobs — persists across serverless function instances.
+ * Results expire after 10 minutes automatically.
  */
+import { getStore } from '@netlify/blobs'
 
-// In-memory store — persists across requests within the same process
-const results = new Map()
+const TTL_MS = 10 * 60 * 1000  // 10 minutes
+
+function store() {
+  return getStore('copy-results')
+}
 
 export const handler = async (event) => {
 
@@ -18,13 +22,18 @@ export const handler = async (event) => {
   if (event.httpMethod === 'POST') {
     try {
       const payload = JSON.parse(event.body)
-      const { jobId, ...rest } = payload
+      const { jobId, ...copy } = payload
 
       if (!jobId) {
         return { statusCode: 400, body: JSON.stringify({ error: 'jobId required' }) }
       }
 
-      results.set(jobId, { status: 'done', copy: rest, completedAt: Date.now() })
+      await store().setJSON(jobId, {
+        status:      'done',
+        copy,
+        completedAt: Date.now(),
+      })
+
       console.log(`[copy-callback] Stored result for jobId: ${jobId}`)
 
       return {
@@ -33,6 +42,7 @@ export const handler = async (event) => {
         body: JSON.stringify({ ok: true }),
       }
     } catch (err) {
+      console.error('[copy-callback] POST error:', err.message)
       return { statusCode: 500, body: JSON.stringify({ error: err.message }) }
     }
   }
@@ -45,12 +55,22 @@ export const handler = async (event) => {
       return { statusCode: 400, body: JSON.stringify({ error: 'jobId required' }) }
     }
 
-    const result = results.get(jobId)
+    try {
+      const result = await store().get(jobId, { type: 'json' })
 
-    return {
-      statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(result ?? { status: 'pending' }),
+      // Auto-cleanup: delete after retrieval if older than TTL
+      if (result && Date.now() - result.completedAt > TTL_MS) {
+        await store().delete(jobId)
+      }
+
+      return {
+        statusCode: 200,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(result ?? { status: 'pending' }),
+      }
+    } catch (err) {
+      console.error('[copy-callback] GET error:', err.message)
+      return { statusCode: 500, body: JSON.stringify({ error: err.message }) }
     }
   }
 
