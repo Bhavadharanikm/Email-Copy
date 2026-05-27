@@ -1,0 +1,62 @@
+[
+  {
+    "id": "c1",
+    "name": "FLOHOM",
+    "ghl": {
+      "locationId": "REPLACE_WITH_GHL_LOCATION_ID",
+      "templateId":  "REPLACE_WITH_GHL_TEMPLATE_ID"
+    },
+    "googleDrive": {
+      "folderId": "REPLACE_WITH_GOOGLE_DRIVE_FOLDER_ID"
+    },
+    "brand": {
+      "primaryColor": "#2D6A4F",
+      "accentColor":  "#B7E4C7",
+      "logoUrl":      "",
+      "voice": "Modern, design-forward, aspirational. Speaks to homeowners who value style and simplicity.",
+      "tone":  "Clean and confident. Never pushy.",
+      "doNotUse": ["cheap", "deal", "buy now"]
+    },
+    "emailTemplateHtml": ""
+  },
+  {
+    "id": "c2",
+    "name": "The Cohost Company",
+    "ghl": {
+      "locationId": "REPLACE_WITH_GHL_LOCATION_ID",
+      "templateId":  "REPLACE_WITH_GHL_TEMPLATE_ID"
+    },
+    "googleDrive": {
+      "folderId": "REPLACE_WITH_GOOGLE_DRIVE_FOLDER_ID"
+    },
+    "brand": {
+      "primaryColor": "#1A4B8C",
+      "accentColor":  "#D0E4F7",
+      "logoUrl":      "",
+      "voice": "Professional, trustworthy, friendly. Speaks to Airbnb hosts looking to scale their business.",
+      "tone":  "Helpful and direct. Like a knowledgeable business partner.",
+      "doNotUse": ["guaranteed", "risk-free"]
+    },
+    "emailTemplateHtml": ""
+  },
+  {
+    "id": "c3",
+    "name": "Evergreen Cabins",
+    "ghl": {
+      "locationId": "REPLACE_WITH_GHL_LOCATION_ID",
+      "templateId":  "REPLACE_WITH_GHL_TEMPLATE_ID"
+    },
+    "googleDrive": {
+      "folderId": "REPLACE_WITH_GOOGLE_DRIVE_FOLDER_ID"
+    },
+    "brand": {
+      "primaryColor": "#3A5A40",
+      "accentColor":  "#D8F3DC",
+      "logoUrl":      "",
+      "voice": "Warm, rustic, nature-inspired. Speaks to couples and families seeking a peaceful outdoor escape.",
+      "tone":  "Storytelling and evocative. Paint a picture.",
+      "doNotUse": ["cheap", "discount", "sale"]
+    },
+    "emailTemplateHtml": ""
+  }
+]
