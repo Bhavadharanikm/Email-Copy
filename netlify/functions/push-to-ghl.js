@@ -7,17 +7,15 @@
  * Required env var: GHL_API_KEY (Private Integration token)
  */
 
-import { readFileSync } from 'fs'
-import { join }         from 'path'
-
 const GHL_BASE    = 'https://services.leadconnectorhq.com'
 const GHL_VERSION = '2021-07-28'
+const SITE_URL    = process.env.URL || 'https://hgm-email.netlify.app'
 
-// ── Template file map (add new clients here) ────────────────────────────────
+// ── Template URL map — served from /public/templates/ ───────────────────────
 const TEMPLATE_MAP = {
-  c1: 'flohom-template.html',   // FLOHOM
-  c2: null,                      // The Cohost Company — coming soon
-  c3: null,                      // Evergreen Cabins — coming soon
+  c1: `${SITE_URL}/templates/flohom.html`,   // FLOHOM
+  c2: null,                                   // The Cohost Company — coming soon
+  c3: null,                                   // Evergreen Cabins — coming soon
 }
 
 function ghlHeaders(apiKey) {
@@ -84,12 +82,12 @@ export const handler = async (event) => {
     if (!locationId) throw new Error('No locationId for this client')
 
     // ── Load and fill HTML template ──────────────────────────────────────────
-    const templateFile = TEMPLATE_MAP[client.id]
+    const templateUrl = TEMPLATE_MAP[client.id]
     let filledHtml
 
-    if (templateFile) {
-      const templatePath = join('/var/task', 'clients', templateFile)
-      const templateHtml = readFileSync(templatePath, 'utf-8')
+    if (templateUrl) {
+      const templateRes  = await fetch(templateUrl)
+      const templateHtml = await templateRes.text()
       const heroImageUrl = selectedImages?.[0]?.url || ''
       filledHtml = fillTemplate(templateHtml, generatedCopy, heroImageUrl)
     } else {
