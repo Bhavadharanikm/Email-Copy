@@ -3,6 +3,9 @@
   publish   = "dist"
   functions = "netlify/functions"
 
+[build.environment]
+  NPM_FLAGS = "--include=dev"
+
 [dev]
   command     = "npm run dev"
   port        = 8888
@@ -10,17 +13,11 @@
   framework   = "#custom"
 
 # Redirect all routes to index.html for React Router (SPA)
+# The /.netlify/functions/* redirect is handled by Netlify automatically — do NOT add it here
 [[redirects]]
   from   = "/*"
   to     = "/index.html"
   status = 200
-
-# Keep API calls going to Functions, not the SPA redirect
-[[redirects]]
-  from   = "/.netlify/functions/*"
-  to     = "/.netlify/functions/:splat"
-  status = 200
-  force  = true
 
 [functions]
   node_bundler = "esbuild"
