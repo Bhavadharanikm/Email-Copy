@@ -23,7 +23,7 @@ function supabase(path, method = 'GET', body = null) {
     },
   }
   if (body) opts.body = JSON.stringify(body)
-  return fetch(`${SUPABASE_URL}/rest/v1/${path}`, opts).then(r => r.json())
+  return fetch(`${SUPABASE_URL}/rest/v1/${path}`, opts).then(r => r.text().then(t => t ? JSON.parse(t) : null))
 }
 
 export const handler = async (event) => {
