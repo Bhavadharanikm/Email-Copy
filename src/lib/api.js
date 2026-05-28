@@ -48,5 +48,7 @@ export const notifyChat = ({ clientName, previewUrl, approvedBy }) =>
   post('/notify-chat', { clientName, previewUrl, approvedBy })
 
 // ── Google Sheets logging ─────────────────────────────────────────
-export const logToSheets = ({ client, generatedCopy, variationLabel }) =>
-  post('/log-to-sheets', { client, generatedCopy, variationLabel })
+// Pass { client, variations } to log all 3 at once (after generation)
+// Pass { client, generatedCopy, variationLabel } to log the selected one (on approval)
+export const logToSheets = (payload) =>
+  post('/log-to-sheets', payload)

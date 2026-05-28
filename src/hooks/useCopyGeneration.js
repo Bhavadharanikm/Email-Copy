@@ -12,7 +12,7 @@
  */
 import { useCallback } from 'react'
 import { useCampaignStore } from '../store/campaignStore'
-import { generateCopy } from '../lib/api'
+import { generateCopy, logToSheets } from '../lib/api'
 
 const POLL_INTERVAL_MS  = 2_000   // poll every 2 seconds
 const POLL_MAX_ATTEMPTS = 90      // give up after 3 minutes (90 × 2s)
@@ -32,12 +32,13 @@ async function pollForResult(jobId) {
 }
 
 export function useCopyGeneration() {
-  const { setVariations, setGeneratedCopy, setGenerating, setError, setStep } = useCampaignStore((s) => ({
+  const { setVariations, setGeneratedCopy, setGenerating, setError, setStep, selectedClient } = useCampaignStore((s) => ({
     setVariations:    s.setVariations,
     setGeneratedCopy: s.setGeneratedCopy,
     setGenerating:    s.setGenerating,
     setError:         s.setError,
     setStep:          s.setStep,
+    selectedClient:   s.selectedClient,
   }))
 
   const generate = useCallback(async ({ client, prompt }) => {
@@ -109,6 +110,10 @@ export function useCopyGeneration() {
       // n8n returns { variations: [...] } — store all 3, default to first
       if (result.variations?.length) {
         setVariations(result.variations)
+
+        // Log all 3 variations to Google Sheet (non-blocking)
+        logToSheets({ client: selectedClient, variations: result.variations })
+          .catch(e => console.warn('[useCopyGeneration] Sheet log failed (non-fatal):', e.message))
       } else {
         // Fallback: n8n returned flat copy object (no variations)
         setGeneratedCopy(result)
