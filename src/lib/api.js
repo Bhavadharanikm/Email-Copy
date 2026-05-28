@@ -46,3 +46,7 @@ export const pushToGHL = ({ client, renderedHtml, generatedCopy }) =>
 // ── Google Chat notification ─────────────────────────────────────
 export const notifyChat = ({ clientName, previewUrl, approvedBy }) =>
   post('/notify-chat', { clientName, previewUrl, approvedBy })
+
+// ── Google Sheets logging ─────────────────────────────────────────
+export const logToSheets = ({ client, generatedCopy, variationLabel }) =>
+  post('/log-to-sheets', { client, generatedCopy, variationLabel })

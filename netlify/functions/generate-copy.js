@@ -45,12 +45,13 @@ export const handler = async (event) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         jobId,
-        callbackUrl: `${process.env.URL}/.netlify/functions/copy-callback`,
+        callbackUrl: `${process.env.CALLBACK_BASE_URL || process.env.URL}/.netlify/functions/copy-callback`,
         // Raw prompt sent exactly as typed — matches your n8n workflow's input format
         prompt,
         // Extra context n8n can use if needed
         clientId:   client.id,
         clientName: client.name,
+        locationId: client.ghl?.locationId || '',
         brandVoice: client.brand?.voice || '',
       }),
     })

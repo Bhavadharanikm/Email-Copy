@@ -5,7 +5,7 @@
  */
 import { useState } from 'react'
 import { useCampaignStore } from '../store/campaignStore'
-import { pushToGHL, notifyChat } from '../lib/api'
+import { pushToGHL, notifyChat, logToSheets } from '../lib/api'
 
 export default function ApprovalPanel() {
   const [notes, setNotes] = useState('')
@@ -38,7 +38,18 @@ export default function ApprovalPanel() {
       const ghlResult = await pushToGHL({ client: selectedClient, renderedHtml, generatedCopy })
       setGhlPushResult(ghlResult)
 
-      // 2. Notify Google Chat (non-critical — log failure but don't block)
+      // 2. Log selected variation to Google Sheet (non-critical)
+      try {
+        await logToSheets({
+          client:         selectedClient,
+          generatedCopy,
+          variationLabel: 'Variation - Selected',
+        })
+      } catch (sheetErr) {
+        console.warn('[ApprovalPanel] Sheet log failed (non-fatal):', sheetErr.message)
+      }
+
+      // 3. Notify Google Chat (non-critical)
       try {
         await notifyChat({
           clientName:  selectedClient.name,
