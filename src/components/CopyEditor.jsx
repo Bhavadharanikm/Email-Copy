@@ -108,7 +108,7 @@ export default function CopyEditor() {
   const cardBg      = dark ? '#161616' : '#ffffff'
   const cardBgSel   = dark ? '#1c1800' : '#f0f6ff'
   const fieldBorder = dark ? 'rgba(255,255,255,0.06)' : '#eeeff1'
-  const labelColor  = dark ? 'rgba(255,255,255,0.28)' : '#a0a6b1'
+  const labelColor  = dark ? 'rgba(255,255,255,0.75)' : '#111827'
   const hintColor   = dark ? 'rgba(255,255,255,0.16)' : '#c4c8d0'
   const inputBg     = dark ? '#1f1f1f' : '#f8f9fa'
   const inputBgSel  = dark ? '#242010' : '#fff'
@@ -128,7 +128,7 @@ export default function CopyEditor() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           {FIELDS.map(({ key, label, hint }) => (
             <div key={key}>
-              <label style={{ display: 'block', fontSize: 14, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 5, color: labelColor }}>
+              <label style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 5, color: labelColor }}>
                 {label}{hint && <span style={{ marginLeft: 6, fontWeight: 400, textTransform: 'none', letterSpacing: 0, color: hintColor }}>{hint}</span>}
               </label>
               <AutoTextarea
@@ -159,8 +159,8 @@ export default function CopyEditor() {
         Edit any variation — click <strong style={{ color: dark ? 'rgba(255,255,255,0.55)' : '#374151' }}>Select</strong> to use it for the next step.
       </p>
 
-      {/* ── 3 column cards ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12 }}>
+      {/* ── 3 independent column cards ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12, alignItems: 'start' }}>
         {cols.map((v, i) => {
           const sel = selectedVariation === i
           return (
@@ -175,18 +175,18 @@ export default function CopyEditor() {
               {/* Card header */}
               <div style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                padding: '12px 16px',
+                padding: '12px 16px', minHeight: 52,
                 background: sel
                   ? (dark ? 'rgba(245,158,11,0.12)' : 'rgba(59,130,246,0.08)')
                   : (dark ? 'rgba(255,255,255,0.03)' : '#f8f9fa'),
                 borderBottom: `1px solid ${sel ? (dark ? 'rgba(245,158,11,0.2)' : 'rgba(59,130,246,0.15)') : fieldBorder}`,
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                   <span style={{ fontSize: 15, fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', color: sel ? accent : labelColor }}>
                     V{i + 1}
                   </span>
                   {v.name && (
-                    <span style={{ fontSize: 14, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: sel ? accent : labelColor }}>
+                    <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: sel ? accent : labelColor }}>
                       {v.name}
                     </span>
                   )}
@@ -194,8 +194,9 @@ export default function CopyEditor() {
                 <button
                   onClick={() => selectVariation(i)}
                   style={{
-                    fontSize: 15, fontWeight: 700, padding: '4px 12px', borderRadius: 8,
+                    fontSize: 12, fontWeight: 700, padding: '4px 12px', borderRadius: 8,
                     cursor: 'pointer', transition: 'all 0.15s', fontFamily: 'Inter, sans-serif',
+                    flexShrink: 0,
                     background: sel ? accent : 'transparent',
                     color: sel ? (dark ? '#111827' : '#fff') : labelColor,
                     border: `1.5px solid ${sel ? accent : (dark ? 'rgba(255,255,255,0.15)' : '#d1d5db')}`,
@@ -206,14 +207,14 @@ export default function CopyEditor() {
               </div>
 
               {/* Fields */}
-              {FIELDS.map(({ key, label, hint }, fi) => (
+              {FIELDS.map(({ key, label, hint, minH }, fi) => (
                 <div key={key} style={{
                   padding: '10px 14px',
                   borderBottom: fi < FIELDS.length - 1 ? `1px solid ${fieldBorder}` : 'none',
                 }}>
-                  <label style={{ display: 'block', fontSize: 15, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 5, color: labelColor }}>
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 5, color: labelColor }}>
                     {label}
-                    {hint && <span style={{ marginLeft: 4, fontWeight: 400, textTransform: 'none', letterSpacing: 0, fontSize: 15, color: hintColor }}>{hint}</span>}
+                    {hint && <span style={{ marginLeft: 4, fontWeight: 400, textTransform: 'none', letterSpacing: 0, fontSize: 11, color: hintColor }}>{hint}</span>}
                   </label>
                   <AutoTextarea
                     value={v[key] || ''}

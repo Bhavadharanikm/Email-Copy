@@ -93,7 +93,7 @@ export default function PromptForm({ onGenerate, dark = false }) {
     fontSize: 14,
     fontWeight: 600,
     marginBottom: 6,
-    color: dark ? 'rgba(255,255,255,0.5)' : '#374151',
+    color: dark ? 'rgba(255,255,255,0.9)' : '#374151',
     letterSpacing: '0.02em',
   }
 

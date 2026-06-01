@@ -84,7 +84,7 @@ function StepHeading({ title1, title2, sub, dark }) {
       </motion.h1>
       <motion.p
         variants={fadeUp} initial="hidden" animate="visible" custom={2}
-        style={{ fontSize: 17, color: dark ? 'rgba(255,255,255,0.45)' : '#6b7280', fontWeight: 500, letterSpacing: '0.01em', paddingBottom: 15 }}
+        style={{ fontSize: 15, color: dark ? 'rgba(255,255,255,0.45)' : '#6b7280', fontWeight: 500, letterSpacing: '0.01em', paddingBottom: 15 }}
       >
         {sub}
       </motion.p>

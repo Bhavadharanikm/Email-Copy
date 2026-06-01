@@ -65,7 +65,7 @@ export default function HeroGeometric({ badge = "Hidden Gem Media", title1 = "Em
 
           {/* Subtext */}
           <motion.div custom={2} variants={fadeUpVariants} initial="hidden" animate="visible">
-            <p style={{ fontSize: 'clamp(14px, 2vw, 18px)', color: dark ? 'rgba(255,255,255,0.35)' : '#9ca3af', fontWeight: 300, letterSpacing: '0.02em', lineHeight: 1.7, maxWidth: 420, margin: '0 auto 24px' }}>
+            <p style={{ fontSize: 'clamp(12px, 1.4vw, 15px)', color: dark ? 'rgba(255,255,255,0.5)' : '#6b7280', fontWeight: 500, letterSpacing: '0.02em', lineHeight: 1.7, maxWidth: 420, margin: '0 auto 24px' }}>
               Generate on-brand copy and publish directly to GoHighLevel in 8 seamless steps.
             </p>
           </motion.div>
