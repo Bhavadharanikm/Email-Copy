@@ -1,34 +1,77 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  html, body, #root {
+    font-family: 'Inter', sans-serif;
+    background: transparent;
+    min-height: 100%;
+  }
   body {
-    @apply bg-gray-50 text-gray-900 font-sans antialiased;
+    @apply text-gray-900 antialiased;
   }
 }
 
 @layer components {
-  /* Reusable card surface */
+  /* Frosted glass card — works on the gradient background */
   .card {
-    @apply bg-white rounded-2xl shadow-sm border border-gray-100 p-6;
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-radius: 16px;
+    border: 1px solid rgba(0, 0, 0, 0.07);
+    padding: 24px;
+    box-shadow: 0 2px 24px rgba(59, 130, 246, 0.06);
   }
 
-  /* Primary action button */
   .btn-primary {
-    @apply inline-flex items-center gap-2 px-5 py-2.5 bg-brand-700 text-white
-           font-medium rounded-xl hover:bg-brand-900 transition-colors
-           disabled:opacity-50 disabled:cursor-not-allowed;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #3b82f6;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 9px 18px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.18s;
+    box-shadow: 0 2px 12px rgba(59, 130, 246, 0.25);
   }
+  .btn-primary:hover { background: #2563eb; box-shadow: 0 4px 16px rgba(59, 130, 246, 0.35); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
 
-  /* Secondary / ghost button */
   .btn-secondary {
-    @apply inline-flex items-center gap-2 px-5 py-2.5 border border-gray-300
-           text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-colors;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 18px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #374151;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.18s;
   }
+  .btn-secondary:hover { background: rgba(255, 255, 255, 0.95); border-color: rgba(59, 130, 246, 0.2); }
 
-  /* Step badge used in the wizard header */
   .step-badge {
     @apply flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold;
+  }
+
+  /* Frosted divider line */
+  .frosted-divider {
+    border: none;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
   }
 }

@@ -1,22 +1,16 @@
 /**
  * POST /.netlify/functions/push-to-ghl
- * Body: { client, renderedHtml, generatedCopy }
- * Returns: { success, campaignId, previewUrl }
+ * Body: { client, generatedCopy, selectedImages }
+ * Returns: { success, previewUrl }
  *
- * Loads client HTML template, fills copy fields, creates a GHL campaign draft.
+ * Updates GHL Custom Values with generated copy + selected images.
+ * The builder template uses {{custom_values.xxx}} and stays untouched.
+ *
  * Required env var: GHL_API_KEY (Private Integration token)
  */
 
 const GHL_BASE    = 'https://services.leadconnectorhq.com'
 const GHL_VERSION = '2021-07-28'
-const SITE_URL    = process.env.URL || 'https://hgm-email.netlify.app'
-
-// ── Template URL map — served from /public/templates/ ───────────────────────
-const TEMPLATE_MAP = {
-  c1: `${SITE_URL}/templates/flohom.html`,   // FLOHOM
-  c2: null,                                   // The Cohost Company — coming soon
-  c3: null,                                   // Evergreen Cabins — coming soon
-}
 
 function ghlHeaders(apiKey) {
   return {
@@ -26,43 +20,58 @@ function ghlHeaders(apiKey) {
   }
 }
 
-function fillTemplate(templateHtml, copy, imageUrl = '') {
-  // Build optional body block 2 section
-  const block2Section = copy.bodyBlock2Title ? `
-    <tr>
-      <td align="left" style="font-size:0px;padding:12px 32px 4px 32px;word-break:break-word;">
-        <div style="font-family:arial,helvetica,sans-serif;font-size:14px;line-height:1.25;text-align:left;color:#000000;">
-          <p style="margin:0;line-height:1.5;">
-            <span style="color:{{ brandboards.b975 }} !important;font-size:18px;font-family:arial,helvetica,sans-serif;font-weight:600;">${copy.bodyBlock2Title}</span>
-          </p>
-        </div>
-      </td>
-    </tr>
-    <tr>
-      <td align="left" style="font-size:0px;padding:4px 32px 12px 32px;word-break:break-word;">
-        <div style="font-family:arial,helvetica,sans-serif;font-size:14px;line-height:1.25;text-align:left;color:#000000;">
-          <p style="margin:0;line-height:1.6;">
-            <span style="color:{{ brandboards.b975 }} !important;font-size:16px;font-family:arial,helvetica,sans-serif;">${copy.bodyBlock2 || ''}</span>
-          </p>
-        </div>
-      </td>
-    </tr>` : ''
-
-  // Replace newlines in body text with <br> tags
-  const bodyHtml = (copy.bodyText || '').replace(/\n/g, '<br>')
-
-  return templateHtml
-    .replace(/\[\[PREVIEW_TEXT\]\]/g,        copy.previewText     || '')
-    .replace(/\[\[HEADLINE_TEXT\]\]/g,        copy.headlineText    || '')
-    .replace(/\[\[SUBHEAD\]\]/g,              copy.subhead         || '')
-    .replace(/\[\[BODY_TEXT\]\]/g,            bodyHtml)
-    .replace(/\[\[BODY_BLOCK_2_SECTION\]\]/g, block2Section)
-    .replace(/\[\[CLOSING_LINE\]\]/g,         copy.closingLine     || '')
-    .replace(/\[\[CTA_TEXT\]\]/g,             copy.ctaText         || 'Book Now')
-    .replace(/\[\[CTA_URL\]\]/g,              copy.ctaUrl          || '#')
-    .replace(/\[\[HERO_IMAGE_URL\]\]/g,       imageUrl             || 'https://assets.cdn.filesafe.space/CZvj81MucHmlUc96LpJS/media/69fb4a579594baa062dffd33.png')
+// ── Key slugs we care about (matches GHL fieldKey suffix) ────────────────────
+const KEY_TO_FIELD = {
+  hero_headline:      'hero_headline',
+  subject_line:       'subject_line',
+  preview_text:       'preview_text',
+  subhead:            'subhead',
+  body:               'body',
+  body_block_title_2: 'body_block_title_2',
+  body_block_body_2:  'body_block_body_2',
+  cta:                'cta',
+  closing_line:       'closing_line',
+  hero_image:         'hero_image',
+  sub_image_1:        'sub_image_1',
+  sub_image_2:        'sub_image_2',
 }
 
+// ── Fetch all custom values for a location and return a fieldKey→{id,name} map
+async function fetchCustomValueMap(apiKey, locationId) {
+  const res = await fetch(
+    `${GHL_BASE}/locations/${locationId}/customValues`,
+    { headers: ghlHeaders(apiKey) }
+  )
+  if (!res.ok) throw new Error(`Failed to fetch custom values: ${res.status}`)
+  const data = await res.json()
+  const map = {}
+  for (const cv of (data.customValues || [])) {
+    // fieldKey is like "custom_values.hero_headline" — extract the slug after the dot
+    const match = (cv.fieldKey || '').match(/custom_values\.(\w+)/)
+    const slug = match ? match[1] : ''
+    if (slug) map[slug] = { id: cv.id, name: cv.name }
+  }
+  return map
+}
+
+// ── Update a single custom value ─────────────────────────────────────────────
+async function updateCustomValue(apiKey, locationId, { id, name }, value) {
+  const res = await fetch(
+    `${GHL_BASE}/locations/${locationId}/customValues/${id}`,
+    {
+      method:  'PUT',
+      headers: ghlHeaders(apiKey),
+      body:    JSON.stringify({ name, value: value || '' }),
+    }
+  )
+  if (!res.ok) {
+    const text = await res.text()
+    throw new Error(`Failed to update custom value ${id}: ${res.status} ${text}`)
+  }
+  return res.json()
+}
+
+// ── Handler ──────────────────────────────────────────────────────────────────
 export const handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' }
@@ -73,73 +82,57 @@ export const handler = async (event) => {
       ? Buffer.from(event.body, 'base64').toString('utf-8')
       : event.body
 
-    const { client, renderedHtml, generatedCopy } = JSON.parse(rawBody)
+    const { client, generatedCopy, selectedImages = [], templateId, locationId: urlLocationId } = JSON.parse(rawBody)
 
-    const apiKey     = process.env.GHL_API_KEY
-    const locationId = client?.ghl?.locationId
+    // Use client's own API key from sheet, fall back to env var
+    const apiKey     = client?.ghlApiKey || process.env.GHL_API_KEY
+    // Use locationId from pasted URL first, fall back to client config
+    const locationId = urlLocationId || client?.ghl?.locationId
+    const resolvedTemplateId = templateId || client?.ghl?.templateId || null
 
     if (!apiKey)     throw new Error('GHL_API_KEY env var not set')
     if (!locationId) throw new Error('No locationId for this client')
 
-    // ── Use the already-rendered HTML from the frontend preview ─────────────
-    // The frontend already fetched the template and filled all [[VARIABLES]]
-    // including the selected images — so we use that directly.
-    // Fall back to fresh template fetch only if renderedHtml wasn't provided.
-    let filledHtml
+    // ── Fetch this location's custom value IDs dynamically ───────────────────
+    const cvMap = await fetchCustomValueMap(apiKey, locationId)
 
-    if (renderedHtml && renderedHtml.trim().length > 100) {
-      filledHtml = renderedHtml
-    } else {
-      const templateUrl = TEMPLATE_MAP[client.id]
-      if (templateUrl) {
-        const templateRes  = await fetch(templateUrl)
-        const templateHtml = await templateRes.text()
-        filledHtml = fillTemplate(templateHtml, generatedCopy)
-      } else {
-        filledHtml = buildPlainHtml(generatedCopy)
-      }
+    // ── Build the values to update ────────────────────────────────────────────
+    const updates = {
+      hero_headline:      generatedCopy.headlineText    || '',
+      subject_line:       generatedCopy.subjectLine     || '',
+      preview_text:       generatedCopy.previewText     || '',
+      subhead:            generatedCopy.subhead          || '',
+      body:               generatedCopy.bodyText         || '',
+      body_block_title_2: generatedCopy.bodyBlock2Title  || '',
+      body_block_body_2:  generatedCopy.bodyBlock2       || '',
+      cta:                generatedCopy.ctaText          || '',
+      closing_line:       generatedCopy.closingLine      || '',
+      hero_image:         selectedImages[0]?.url         || '',
+      sub_image_1:        selectedImages[1]?.url         || '',
+      sub_image_2:        selectedImages[2]?.url         || '',
     }
 
-    // ── Create campaign draft in GHL ─────────────────────────────────────────
-    const campaignName = `[HGM] ${client.name} — ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
+    // ── Update all custom values in parallel ──────────────────────────────────
+    await Promise.all(
+      Object.entries(updates).map(([key, value]) => {
+        const cv = cvMap[KEY_TO_FIELD[key]]
+        if (!cv) { console.warn(`[push-to-ghl] Custom value not found for key: ${key}`); return }
+        return updateCustomValue(apiKey, locationId, cv, value)
+      })
+    )
 
-    const folderId = client?.ghl?.folderId
+    console.log(`[push-to-ghl] Updated ${Object.keys(updates).length} custom values for ${client.name}`)
 
-    const res     = await fetch(`${GHL_BASE}/emails/`, {
-      method:  'POST',
-      headers: ghlHeaders(apiKey),
-      body: JSON.stringify({
-        locationId,
-        ...(folderId && { folderId }),
-        title:       campaignName,
-        subject:     generatedCopy.subjectLine,
-        previewText: generatedCopy.previewText || '',
-        html:        filledHtml,
-        status:      'draft',
-      }),
-    })
-
-    const resText = await res.text()
-    console.log(`[push-to-ghl] GHL response ${res.status}:`, resText.slice(0, 300))
-
-    if (!res.ok) {
-      throw new Error(`GHL returned ${res.status}: ${resText || '(empty body)'}`)
-    }
-
-    const data = resText ? JSON.parse(resText) : {}
-
-    const campaignId = data.id || data.campaign?.id || data.data?.id
-    const emailsBase = `https://app.gohighlevel.com/v2/location/${locationId}/marketing/emails/all`
-    const previewUrl = folderId
-      ? `${emailsBase}?folderId=${folderId}&pageNumber=1`
-      : `${emailsBase}?pageNumber=1`
-
-    console.log(`[push-to-ghl] Created campaign ${campaignId} for ${client.name}`)
+    // Build preview URL — link directly to the template if we have its ID
+    const emailsBase = `https://app.gohighlevel.com/v2/location/${locationId}/marketing/emails`
+    const previewUrl = resolvedTemplateId
+      ? `${emailsBase}/builder/${resolvedTemplateId}`
+      : `${emailsBase}/all?pageNumber=1`
 
     return {
       statusCode: 200,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ success: true, campaignId, previewUrl }),
+      body: JSON.stringify({ success: true, previewUrl }),
     }
 
   } catch (err) {
@@ -149,16 +142,4 @@ export const handler = async (event) => {
       body: JSON.stringify({ error: err.message }),
     }
   }
-}
-
-function buildPlainHtml(copy) {
-  return `<!DOCTYPE html><html><body style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:20px;">
-    <h1 style="font-size:28px;">${copy.headlineText || ''}</h1>
-    <p style="font-size:18px;font-weight:600;">${copy.subhead || ''}</p>
-    <p style="font-size:16px;line-height:1.6;">${(copy.bodyText || '').replace(/\n/g,'<br>')}</p>
-    ${copy.bodyBlock2Title ? `<h2 style="font-size:20px;margin-top:32px;">${copy.bodyBlock2Title}</h2>` : ''}
-    ${copy.bodyBlock2 ? `<p style="font-size:16px;line-height:1.6;">${copy.bodyBlock2}</p>` : ''}
-    <p style="font-style:italic;">${copy.closingLine || ''}</p>
-    <a href="${copy.ctaUrl||'#'}" style="display:inline-block;margin-top:24px;padding:14px 28px;background:#2D6A4F;color:#fff;text-decoration:none;border-radius:999px;">${copy.ctaText||'Book Now'}</a>
-  </body></html>`
 }

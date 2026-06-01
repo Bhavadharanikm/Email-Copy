@@ -7,9 +7,9 @@
   NPM_FLAGS = "--include=dev"
 
 [dev]
-  command     = "npm run dev"
-  port        = 8888
-  targetPort  = 3000
+  command     = "npm run dev -- --port 3001"
+  port        = 8889
+  targetPort  = 3001
   framework   = "#custom"
 
 # Redirect all routes to index.html for React Router (SPA)

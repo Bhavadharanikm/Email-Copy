@@ -1,60 +1,76 @@
 /**
- * CopyEditor — Step 3
- * Shows all 3 n8n-generated variations as tabs.
- * User picks one, then can tweak any field inline before moving to images.
+ * CopyEditor — Step 2
+ * 3 variations side-by-side in a solid outer container, each as a full column card.
  */
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useCampaignStore } from '../store/campaignStore'
+import { useTheme } from '../context/ThemeContext'
 
 const FIELDS = [
-  { key: 'subjectLine',     label: 'Subject Line',       tag: 'input',    hint: 'Keep under 50 chars' },
-  { key: 'previewText',     label: 'Preview Text',        tag: 'input',    hint: 'Shows below subject in inbox' },
-  { key: 'headlineText',    label: 'Hero Headline',       tag: 'input',    hint: '' },
-  { key: 'subhead',         label: 'Subhead',             tag: 'input',    hint: '' },
-  { key: 'bodyText',        label: 'Body Copy',           tag: 'textarea', hint: '' },
-  { key: 'bodyBlock2Title', label: 'Body Block 2 Title',  tag: 'input',    hint: '' },
-  { key: 'bodyBlock2',      label: 'Body Block 2',        tag: 'textarea', hint: '' },
-  { key: 'ctaText',         label: 'CTA Button Text',     tag: 'input',    hint: 'e.g. "Reserve Your Cabin →"' },
-  { key: 'ctaUrl',          label: 'CTA URL',             tag: 'input',    hint: 'Full URL with https://' },
-  { key: 'closingLine',     label: 'Closing Line',        tag: 'input',    hint: '' },
+  { key: 'subjectLine',     label: 'Subject Line',      hint: 'Keep under 50 chars'         },
+  { key: 'previewText',     label: 'Preview Text',       hint: 'Shows below subject in inbox' },
+  { key: 'headlineText',    label: 'Hero Headline',      hint: ''                            },
+  { key: 'subhead',         label: 'Subhead',            hint: ''                            },
+  { key: 'bodyText',        label: 'Body Copy',          hint: ''                            },
+  { key: 'bodyBlock2Title', label: 'Body Block 2 Title', hint: ''                            },
+  { key: 'bodyBlock2',      label: 'Body Block 2',       hint: ''                            },
+  { key: 'ctaText',         label: 'CTA Button Text',    hint: 'e.g. "Reserve Your Cabin →"' },
+  { key: 'ctaUrl',          label: 'CTA URL',            hint: 'Full URL with https://'      },
+  { key: 'closingLine',     label: 'Closing Line',       hint: ''                            },
 ]
 
-// ── Elapsed timer shown while n8n is running ──────────────────────────────
-function GeneratingSpinner() {
+function AutoTextarea({ value, onChange, style }) {
+  const ref = useRef(null)
+  useEffect(() => {
+    if (ref.current) {
+      ref.current.style.height = 'auto'
+      ref.current.style.height = ref.current.scrollHeight + 'px'
+    }
+  }, [value])
+  return (
+    <textarea ref={ref} value={value} onChange={onChange} rows={2}
+      style={{ overflow: 'hidden', ...style }} />
+  )
+}
+
+function GeneratingSpinner({ dark }) {
   const [elapsed, setElapsed] = useState(0)
   useEffect(() => {
-    const t = setInterval(() => setElapsed((s) => s + 1), 1000)
+    const t = setInterval(() => setElapsed(s => s + 1), 1000)
     return () => clearInterval(t)
   }, [])
-
   const msg =
     elapsed < 10 ? 'Sending brief to n8n…' :
     elapsed < 20 ? 'n8n is researching your brand…' :
     elapsed < 35 ? 'Writing copy variations…' :
                    'Almost done, finishing variation 3…'
-
+  const accent = dark ? '#f59e0b' : '#3b82f6'
   return (
-    <div className="flex flex-col items-center justify-center py-16 gap-4 text-gray-500">
-      <div className="w-10 h-10 border-4 border-brand-500 border-t-transparent rounded-full animate-spin" />
-      <p className="text-sm font-medium">{msg}</p>
-      <p className="text-xs text-gray-400">{elapsed}s elapsed</p>
-      <div className="w-48 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-        <div
-          className="h-full bg-brand-500 rounded-full transition-all duration-1000"
-          style={{ width: `${Math.min((elapsed / 45) * 100, 95)}%` }}
-        />
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '64px 0', gap: 16 }}>
+      <div style={{
+        width: 40, height: 40, borderRadius: '50%',
+        border: `4px solid ${dark ? 'rgba(245,158,11,0.2)' : 'rgba(59,130,246,0.2)'}`,
+        borderTopColor: accent,
+        animation: 'spin 0.8s linear infinite',
+      }} />
+      <p style={{ fontSize: 14, fontWeight: 500, color: dark ? 'rgba(255,255,255,0.6)' : '#6b7280' }}>{msg}</p>
+      <p style={{ fontSize: 12, color: dark ? 'rgba(255,255,255,0.3)' : '#9ca3af' }}>{elapsed}s elapsed</p>
+      <div style={{ width: 180, height: 4, background: dark ? 'rgba(255,255,255,0.08)' : '#e5e7eb', borderRadius: 4, overflow: 'hidden' }}>
+        <div style={{ height: '100%', background: accent, borderRadius: 4, transition: 'width 1s', width: `${Math.min((elapsed / 45) * 100, 95)}%` }} />
       </div>
+      <style>{`@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}`}</style>
     </div>
   )
 }
 
-// ── Main component ────────────────────────────────────────────────────────
 export default function CopyEditor() {
+  const { theme } = useTheme()
+  const dark = theme === 'dark'
+
   const {
     variations, selectedVariation, pickVariation,
-    generatedCopy, setGeneratedCopy,
-    isGenerating,
-  } = useCampaignStore((s) => ({
+    generatedCopy, setGeneratedCopy, isGenerating,
+  } = useCampaignStore(s => ({
     variations:        s.variations,
     selectedVariation: s.selectedVariation,
     pickVariation:     s.pickVariation,
@@ -63,75 +79,161 @@ export default function CopyEditor() {
     isGenerating:      s.isGenerating,
   }))
 
-  function update(field, value) {
-    setGeneratedCopy({ ...generatedCopy, [field]: value })
+  const [localVars, setLocalVars] = useState(null)
+
+  useEffect(() => {
+    if (variations.length > 0 && !localVars)
+      setLocalVars(variations.map(v => ({ ...v })))
+  }, [variations])
+
+  function updateLocal(varIndex, field, value) {
+    setLocalVars(prev => {
+      const updated = prev.map((v, i) => i === varIndex ? { ...v, [field]: value } : v)
+      if (varIndex === selectedVariation)
+        setGeneratedCopy({ ...generatedCopy, [field]: value })
+      return updated
+    })
   }
 
-  if (isGenerating) return <GeneratingSpinner />
+  function selectVariation(i) {
+    pickVariation(i)
+    if (localVars?.[i]) setGeneratedCopy({ ...localVars[i] })
+  }
+
+  const accent = dark ? '#f59e0b' : '#3b82f6'
+
+  /* ── Outer + inner colors ── */
+  const outerBg     = dark ? '#0f0f0f' : '#f1f3f5'
+  const outerBorder = dark ? 'rgba(255,255,255,0.07)' : '#e2e4e7'
+  const cardBg      = dark ? '#161616' : '#ffffff'
+  const cardBgSel   = dark ? '#1c1800' : '#f0f6ff'
+  const fieldBorder = dark ? 'rgba(255,255,255,0.06)' : '#eeeff1'
+  const labelColor  = dark ? 'rgba(255,255,255,0.28)' : '#a0a6b1'
+  const hintColor   = dark ? 'rgba(255,255,255,0.16)' : '#c4c8d0'
+  const inputBg     = dark ? '#1f1f1f' : '#f8f9fa'
+  const inputBgSel  = dark ? '#242010' : '#fff'
+  const inputBorder = dark ? 'rgba(255,255,255,0.08)' : '#e5e7eb'
+  const inputBorderSel = dark ? 'rgba(245,158,11,0.3)' : '#bfdbfe'
+  const textColor   = dark ? 'rgba(255,255,255,0.85)' : '#111827'
+
+  if (isGenerating) return <GeneratingSpinner dark={dark} />
+
+  /* ── Single variation ── */
+  if (variations.length <= 1) {
+    return (
+      <div style={{ maxWidth: 680, margin: '0 auto',
+        background: outerBg, border: `1px solid ${outerBorder}`,
+        borderRadius: 20, padding: 24,
+      }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {FIELDS.map(({ key, label, hint }) => (
+            <div key={key}>
+              <label style={{ display: 'block', fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 5, color: labelColor }}>
+                {label}{hint && <span style={{ marginLeft: 6, fontWeight: 400, textTransform: 'none', letterSpacing: 0, color: hintColor }}>{hint}</span>}
+              </label>
+              <AutoTextarea
+                value={generatedCopy[key] || ''}
+                onChange={e => setGeneratedCopy({ ...generatedCopy, [key]: e.target.value })}
+                style={{ width: '100%', padding: '8px 12px', borderRadius: 10, fontSize: 13, fontFamily: 'Inter, sans-serif', outline: 'none', resize: 'none', backgroundColor: inputBg, border: `1px solid ${inputBorder}`, color: textColor }}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  const cols = localVars || variations
 
   return (
-    <div className="space-y-5">
+    /* ── Outer shell ── */
+    <div style={{
+      background: outerBg,
+      border: `1px solid ${outerBorder}`,
+      borderRadius: 22,
+      padding: 16,
+      maxWidth: 1160,
+      margin: '0 auto',
+    }}>
+      <p style={{ fontSize: 12, color: labelColor, textAlign: 'center', marginBottom: 14 }}>
+        Edit any variation — click <strong style={{ color: dark ? 'rgba(255,255,255,0.55)' : '#374151' }}>Select</strong> to use it for the next step.
+      </p>
 
-      {/* Variation tabs — only show if n8n returned multiple */}
-      {variations.length > 1 && (
-        <div>
-          <p className="text-sm font-medium text-gray-700 mb-2">
-            n8n generated {variations.length} variations — pick one to work with:
-          </p>
-          <div className="flex gap-2 flex-wrap">
-            {variations.map((v, i) => (
-              <button
-                key={v.id}
-                onClick={() => pickVariation(i)}
-                className={[
-                  'px-4 py-2 rounded-xl border-2 text-sm font-medium transition-all text-left',
-                  selectedVariation === i
-                    ? 'border-brand-700 bg-brand-50 text-brand-900'
-                    : 'border-gray-200 text-gray-600 hover:border-brand-300',
-                ].join(' ')}
-              >
-                <span className="font-semibold">V{v.id}</span>
-                {v.name && <span className="ml-1 text-xs font-normal opacity-70">— {v.name}</span>}
-                {/* Subject line preview */}
-                {v.subjectLine && (
-                  <p className="text-xs text-gray-400 mt-0.5 truncate max-w-[180px]">
-                    {v.subjectLine}
-                  </p>
-                )}
-              </button>
-            ))}
-          </div>
-          <p className="text-xs text-gray-400 mt-2">
-            Selected: <strong>Variation {selectedVariation + 1}</strong> — all fields below are editable.
-          </p>
-        </div>
-      )}
+      {/* ── 3 column cards ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12 }}>
+        {cols.map((v, i) => {
+          const sel = selectedVariation === i
+          return (
+            <div key={i} style={{
+              background: sel ? cardBgSel : cardBg,
+              border: `2px solid ${sel ? accent : outerBorder}`,
+              borderRadius: 16,
+              overflow: 'hidden',
+              transition: 'border-color 0.18s, background 0.18s',
+            }}>
 
-      {/* Editable fields for the selected variation */}
-      <div className="space-y-4">
-        {FIELDS.map(({ key, label, tag, hint }) => (
-          <div key={key}>
-            <label className="block text-sm font-medium mb-1">
-              {label}
-              {hint && <span className="ml-2 text-xs text-gray-400 font-normal">{hint}</span>}
-            </label>
-            {tag === 'textarea' ? (
-              <textarea
-                rows={key === 'bodyText' ? 6 : 3}
-                value={generatedCopy[key] || ''}
-                onChange={(e) => update(key, e.target.value)}
-                className="w-full border border-gray-300 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none resize-none"
-              />
-            ) : (
-              <input
-                type="text"
-                value={generatedCopy[key] || ''}
-                onChange={(e) => update(key, e.target.value)}
-                className="w-full border border-gray-300 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none"
-              />
-            )}
-          </div>
-        ))}
+              {/* Card header */}
+              <div style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                padding: '12px 16px',
+                background: sel
+                  ? (dark ? 'rgba(245,158,11,0.12)' : 'rgba(59,130,246,0.08)')
+                  : (dark ? 'rgba(255,255,255,0.03)' : '#f8f9fa'),
+                borderBottom: `1px solid ${sel ? (dark ? 'rgba(245,158,11,0.2)' : 'rgba(59,130,246,0.15)') : fieldBorder}`,
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', color: sel ? accent : labelColor }}>
+                    V{i + 1}
+                  </span>
+                  {v.name && (
+                    <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: sel ? accent : labelColor }}>
+                      {v.name}
+                    </span>
+                  )}
+                </div>
+                <button
+                  onClick={() => selectVariation(i)}
+                  style={{
+                    fontSize: 11, fontWeight: 700, padding: '4px 12px', borderRadius: 8,
+                    cursor: 'pointer', transition: 'all 0.15s', fontFamily: 'Inter, sans-serif',
+                    background: sel ? accent : 'transparent',
+                    color: sel ? (dark ? '#111827' : '#fff') : labelColor,
+                    border: `1.5px solid ${sel ? accent : (dark ? 'rgba(255,255,255,0.15)' : '#d1d5db')}`,
+                  }}
+                >
+                  {sel ? '✓ Selected' : 'Select'}
+                </button>
+              </div>
+
+              {/* Fields */}
+              {FIELDS.map(({ key, label, hint }, fi) => (
+                <div key={key} style={{
+                  padding: '10px 14px',
+                  borderBottom: fi < FIELDS.length - 1 ? `1px solid ${fieldBorder}` : 'none',
+                }}>
+                  <label style={{ display: 'block', fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 5, color: labelColor }}>
+                    {label}
+                    {hint && <span style={{ marginLeft: 4, fontWeight: 400, textTransform: 'none', letterSpacing: 0, fontSize: 9, color: hintColor }}>{hint}</span>}
+                  </label>
+                  <AutoTextarea
+                    value={v[key] || ''}
+                    onChange={e => updateLocal(i, key, e.target.value)}
+                    style={{
+                      width: '100%', padding: '7px 10px', borderRadius: 8,
+                      fontSize: 12, fontFamily: 'Inter, sans-serif',
+                      outline: 'none', resize: 'none',
+                      backgroundColor: sel ? inputBgSel : inputBg,
+                      border: `1px solid ${sel ? inputBorderSel : inputBorder}`,
+                      color: textColor,
+                      lineHeight: 1.5,
+                      transition: 'border-color 0.15s, background-color 0.15s',
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+          )
+        })}
       </div>
     </div>
   )

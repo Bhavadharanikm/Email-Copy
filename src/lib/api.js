@@ -39,9 +39,13 @@ export const generateCopy = ({ client, prompt }) =>
 export const fetchDriveImages = ({ folderId }) =>
   get('/get-drive-images', { folderId })
 
+// ── GHL Media Library images ─────────────────────────────────────
+export const fetchGhlImages = ({ locationId, apiKey }) =>
+  get('/fetch-ghl-images', { locationId, apiKey })
+
 // ── Push to GHL ──────────────────────────────────────────────────
-export const pushToGHL = ({ client, renderedHtml, generatedCopy }) =>
-  post('/push-to-ghl', { client, renderedHtml, generatedCopy })
+export const pushToGHL = ({ client, renderedHtml, generatedCopy, selectedImages, templateId, locationId }) =>
+  post('/push-to-ghl', { client, renderedHtml, generatedCopy, selectedImages, templateId, locationId })
 
 // ── Google Chat notification ─────────────────────────────────────
 export const notifyChat = ({ clientName, previewUrl, approvedBy }) =>

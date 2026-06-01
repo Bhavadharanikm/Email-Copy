@@ -15,7 +15,7 @@ import { useCampaignStore } from '../store/campaignStore'
 import { generateCopy, logToSheets } from '../lib/api'
 
 const POLL_INTERVAL_MS  = 2_000   // poll every 2 seconds
-const POLL_MAX_ATTEMPTS = 90      // give up after 3 minutes (90 × 2s)
+const POLL_MAX_ATTEMPTS = 45      // give up after 90 seconds (45 × 2s)
 
 async function pollForResult(jobId) {
   for (let attempt = 0; attempt < POLL_MAX_ATTEMPTS; attempt++) {
@@ -28,7 +28,7 @@ async function pollForResult(jobId) {
     if (data.status === 'error') throw new Error(data.error || 'n8n workflow failed')
     // status === 'pending' → keep polling
   }
-  throw new Error('Copy generation timed out after 3 minutes. Check your n8n workflow logs.')
+  throw new Error('No response after 90 seconds. Check that your n8n workflow is active and the tunnel is running.')
 }
 
 export function useCopyGeneration() {
@@ -100,7 +100,7 @@ export function useCopyGeneration() {
             closingLine:     "You don't need a special occasion to book this — needing a break is reason enough.",
           },
         ])
-        setStep(3)
+        setStep(2)
         return
       }
 

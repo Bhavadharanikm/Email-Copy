@@ -11,10 +11,14 @@
   },
   "dependencies": {
     "@netlify/blobs": "^10.7.8",
+    "@tabler/icons-react": "^3.44.0",
     "clsx": "^2.1.1",
+    "framer-motion": "^12.40.0",
+    "lucide-react": "^1.17.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.23.1",
+    "tailwind-merge": "^3.6.0",
     "zustand": "^4.5.2"
   },
   "devDependencies": {
