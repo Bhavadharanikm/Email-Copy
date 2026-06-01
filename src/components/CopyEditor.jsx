@@ -54,7 +54,7 @@ function GeneratingSpinner({ dark }) {
         animation: 'spin 0.8s linear infinite',
       }} />
       <p style={{ fontSize: 14, fontWeight: 500, color: dark ? 'rgba(255,255,255,0.6)' : '#6b7280' }}>{msg}</p>
-      <p style={{ fontSize: 12, color: dark ? 'rgba(255,255,255,0.3)' : '#9ca3af' }}>{elapsed}s elapsed</p>
+      <p style={{ fontSize: 14, color: dark ? 'rgba(255,255,255,0.3)' : '#9ca3af' }}>{elapsed}s elapsed</p>
       <div style={{ width: 180, height: 4, background: dark ? 'rgba(255,255,255,0.08)' : '#e5e7eb', borderRadius: 4, overflow: 'hidden' }}>
         <div style={{ height: '100%', background: accent, borderRadius: 4, transition: 'width 1s', width: `${Math.min((elapsed / 45) * 100, 95)}%` }} />
       </div>
@@ -128,13 +128,13 @@ export default function CopyEditor() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           {FIELDS.map(({ key, label, hint }) => (
             <div key={key}>
-              <label style={{ display: 'block', fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 5, color: labelColor }}>
+              <label style={{ display: 'block', fontSize: 14, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 5, color: labelColor }}>
                 {label}{hint && <span style={{ marginLeft: 6, fontWeight: 400, textTransform: 'none', letterSpacing: 0, color: hintColor }}>{hint}</span>}
               </label>
               <AutoTextarea
                 value={generatedCopy[key] || ''}
                 onChange={e => setGeneratedCopy({ ...generatedCopy, [key]: e.target.value })}
-                style={{ width: '100%', padding: '8px 12px', borderRadius: 10, fontSize: 13, fontFamily: 'Inter, sans-serif', outline: 'none', resize: 'none', backgroundColor: inputBg, border: `1px solid ${inputBorder}`, color: textColor }}
+                style={{ width: '100%', padding: '8px 12px', borderRadius: 10, fontSize: 15, fontFamily: 'Inter, sans-serif', outline: 'none', resize: 'none', backgroundColor: inputBg, border: `1px solid ${inputBorder}`, color: textColor }}
               />
             </div>
           ))}
@@ -155,7 +155,7 @@ export default function CopyEditor() {
       maxWidth: 1160,
       margin: '0 auto',
     }}>
-      <p style={{ fontSize: 12, color: labelColor, textAlign: 'center', marginBottom: 14 }}>
+      <p style={{ fontSize: 14, color: labelColor, textAlign: 'center', marginBottom: 14 }}>
         Edit any variation — click <strong style={{ color: dark ? 'rgba(255,255,255,0.55)' : '#374151' }}>Select</strong> to use it for the next step.
       </p>
 
@@ -182,11 +182,11 @@ export default function CopyEditor() {
                 borderBottom: `1px solid ${sel ? (dark ? 'rgba(245,158,11,0.2)' : 'rgba(59,130,246,0.15)') : fieldBorder}`,
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', color: sel ? accent : labelColor }}>
+                  <span style={{ fontSize: 15, fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', color: sel ? accent : labelColor }}>
                     V{i + 1}
                   </span>
                   {v.name && (
-                    <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: sel ? accent : labelColor }}>
+                    <span style={{ fontSize: 14, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: sel ? accent : labelColor }}>
                       {v.name}
                     </span>
                   )}
@@ -194,7 +194,7 @@ export default function CopyEditor() {
                 <button
                   onClick={() => selectVariation(i)}
                   style={{
-                    fontSize: 11, fontWeight: 700, padding: '4px 12px', borderRadius: 8,
+                    fontSize: 15, fontWeight: 700, padding: '4px 12px', borderRadius: 8,
                     cursor: 'pointer', transition: 'all 0.15s', fontFamily: 'Inter, sans-serif',
                     background: sel ? accent : 'transparent',
                     color: sel ? (dark ? '#111827' : '#fff') : labelColor,
@@ -211,16 +211,16 @@ export default function CopyEditor() {
                   padding: '10px 14px',
                   borderBottom: fi < FIELDS.length - 1 ? `1px solid ${fieldBorder}` : 'none',
                 }}>
-                  <label style={{ display: 'block', fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 5, color: labelColor }}>
+                  <label style={{ display: 'block', fontSize: 15, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 5, color: labelColor }}>
                     {label}
-                    {hint && <span style={{ marginLeft: 4, fontWeight: 400, textTransform: 'none', letterSpacing: 0, fontSize: 9, color: hintColor }}>{hint}</span>}
+                    {hint && <span style={{ marginLeft: 4, fontWeight: 400, textTransform: 'none', letterSpacing: 0, fontSize: 15, color: hintColor }}>{hint}</span>}
                   </label>
                   <AutoTextarea
                     value={v[key] || ''}
                     onChange={e => updateLocal(i, key, e.target.value)}
                     style={{
                       width: '100%', padding: '7px 10px', borderRadius: 8,
-                      fontSize: 12, fontFamily: 'Inter, sans-serif',
+                      fontSize: 14, fontFamily: 'Inter, sans-serif',
                       outline: 'none', resize: 'none',
                       backgroundColor: sel ? inputBgSel : inputBg,
                       border: `1px solid ${sel ? inputBorderSel : inputBorder}`,

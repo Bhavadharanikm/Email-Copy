@@ -79,7 +79,7 @@ export default function PromptForm({ onGenerate, dark = false }) {
     width: '100%',
     padding: '10px 14px',
     borderRadius: 12,
-    fontSize: 13,
+    fontSize: 15,
     fontFamily: 'Inter, sans-serif',
     outline: 'none',
     transition: 'border-color 0.18s',
@@ -90,7 +90,7 @@ export default function PromptForm({ onGenerate, dark = false }) {
 
   const labelStyle = {
     display: 'block',
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: 600,
     marginBottom: 6,
     color: dark ? 'rgba(255,255,255,0.5)' : '#374151',
@@ -98,7 +98,7 @@ export default function PromptForm({ onGenerate, dark = false }) {
   }
 
   const hintStyle = {
-    fontSize: 11,
+    fontSize: 13,
     color: dark ? 'rgba(255,255,255,0.25)' : '#9ca3af',
     fontWeight: 400,
   }

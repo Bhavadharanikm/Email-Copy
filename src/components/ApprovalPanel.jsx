@@ -72,7 +72,7 @@ export default function ApprovalPanel() {
       <div style={{ textAlign: 'center', padding: '48px 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
         <div style={{ fontSize: 48 }}>✅</div>
         <p style={{ fontSize: 20, fontWeight: 700, color: accent }}>Email pushed to GHL!</p>
-        <p style={{ fontSize: 13, color: mutedText }}>Google Chat notification sent.</p>
+        <p style={{ fontSize: 15, color: mutedText }}>Google Chat notification sent.</p>
         {previewUrl && (
           <a
             href={previewUrl}
@@ -81,7 +81,7 @@ export default function ApprovalPanel() {
             style={{
               marginTop: 8,
               display: 'inline-flex', alignItems: 'center', gap: 6,
-              padding: '10px 20px', borderRadius: 10, fontSize: 13, fontWeight: 600,
+              padding: '10px 20px', borderRadius: 10, fontSize: 15, fontWeight: 600,
               fontFamily: 'Inter, sans-serif', textDecoration: 'none',
               background: accent,
               color: dark ? '#111827' : '#fff',
@@ -100,12 +100,12 @@ export default function ApprovalPanel() {
       <div style={{ textAlign: 'center', padding: '48px 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
         <div style={{ fontSize: 48 }}>🔄</div>
         <p style={{ fontSize: 20, fontWeight: 700, color: dark ? 'rgba(255,255,255,0.7)' : '#374151' }}>Sent back for revision</p>
-        <p style={{ fontSize: 13, color: mutedText }}>Notes: {notes || '—'}</p>
+        <p style={{ fontSize: 15, color: mutedText }}>Notes: {notes || '—'}</p>
         <button
           onClick={() => setApproval('pending', '')}
           style={{
             display: 'inline-flex', alignItems: 'center', gap: 8,
-            padding: '9px 20px', fontSize: 13, fontWeight: 500, fontFamily: 'Inter, sans-serif',
+            padding: '9px 20px', fontSize: 15, fontWeight: 500, fontFamily: 'Inter, sans-serif',
             borderRadius: 10, cursor: 'pointer', transition: 'all 0.18s',
             background: dark ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.8)',
             color: dark ? 'rgba(255,255,255,0.7)' : '#374151',
@@ -124,10 +124,10 @@ export default function ApprovalPanel() {
 
       {/* Review summary */}
       <div style={cardStyle}>
-        <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: mutedText, marginBottom: 14 }}>
+        <p style={{ fontSize: 15, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: mutedText, marginBottom: 14 }}>
           Review Summary
         </p>
-        <dl style={{ fontSize: 13, display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <dl style={{ fontSize: 15, display: 'flex', flexDirection: 'column', gap: 8 }}>
           {[
             { label: 'Client',  value: selectedClient?.name },
             { label: 'Subject', value: generatedCopy.subjectLine },
@@ -143,7 +143,7 @@ export default function ApprovalPanel() {
 
       {/* Notes */}
       <div>
-        <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 6, color: dark ? 'rgba(255,255,255,0.5)' : '#374151', letterSpacing: '0.02em' }}>
+        <label style={{ display: 'block', fontSize: 14, fontWeight: 600, marginBottom: 6, color: dark ? 'rgba(255,255,255,0.5)' : '#374151', letterSpacing: '0.02em' }}>
           Notes <span style={{ fontWeight: 400, color: mutedText }}>(optional)</span>
         </label>
         <textarea
@@ -152,7 +152,7 @@ export default function ApprovalPanel() {
           onChange={(e) => setNotes(e.target.value)}
           placeholder="Any feedback for the record…"
           style={{
-            width: '100%', padding: '10px 14px', borderRadius: 12, fontSize: 13,
+            width: '100%', padding: '10px 14px', borderRadius: 12, fontSize: 15,
             fontFamily: 'Inter, sans-serif', resize: 'none', outline: 'none',
             background: dark ? 'rgba(255,255,255,0.06)' : '#fff',
             border: `1px solid ${dark ? 'rgba(255,255,255,0.1)' : '#e5e7eb'}`,

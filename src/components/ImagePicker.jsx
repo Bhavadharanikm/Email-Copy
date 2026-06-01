@@ -65,9 +65,9 @@ export default function ImagePicker() {
   const accent = dark ? '#f59e0b' : '#3b82f6'
   const mutedText = dark ? 'rgba(255,255,255,0.3)' : '#9ca3af'
 
-  if (loading) return <p style={{ fontSize: 13, color: mutedText }}>Loading images from GHL Media Library…</p>
-  if (error)   return <p style={{ fontSize: 13, color: dark ? '#f87171' : '#ef4444' }}>{error}</p>
-  if (!images.length) return <p style={{ fontSize: 13, color: mutedText }}>No images found. Upload photos in GHL → Media Storage.</p>
+  if (loading) return <p style={{ fontSize: 15, color: mutedText }}>Loading images from GHL Media Library…</p>
+  if (error)   return <p style={{ fontSize: 15, color: dark ? '#f87171' : '#ef4444' }}>{error}</p>
+  if (!images.length) return <p style={{ fontSize: 15, color: mutedText }}>No images found. Upload photos in GHL → Media Storage.</p>
 
   const allFull = slots.every(s => s !== null)
 
@@ -93,7 +93,7 @@ export default function ImagePicker() {
                     position: 'absolute', top: 10, right: 10, width: 28, height: 28,
                     background: accent, borderRadius: '50%',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 13, fontWeight: 700, color: dark ? '#111827' : '#fff', boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                    fontSize: 15, fontWeight: 700, color: dark ? '#111827' : '#fff', boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
                   }}>✓</div>
                   {/* Remove button */}
                   <button
@@ -109,8 +109,8 @@ export default function ImagePicker() {
                     title="Remove"
                   >×</button>
                   <div style={{ padding: '10px 14px', background: dark ? 'rgba(255,255,255,0.04)' : '#fff' }}>
-                    <p style={{ fontSize: 12, fontWeight: 700, color: dark ? 'rgba(255,255,255,0.85)' : '#111827' }}>{slot.label}</p>
-                    <p style={{ fontSize: 10, color: mutedText, marginTop: 2 }}>{filled.name.replace(/\.[^.]+$/, '')}</p>
+                    <p style={{ fontSize: 14, fontWeight: 700, color: dark ? 'rgba(255,255,255,0.85)' : '#111827' }}>{slot.label}</p>
+                    <p style={{ fontSize: 14, color: mutedText, marginTop: 2 }}>{filled.name.replace(/\.[^.]+$/, '')}</p>
                   </div>
                 </div>
               ) : (
@@ -124,10 +124,10 @@ export default function ImagePicker() {
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     marginBottom: 10,
                   }}>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: dark ? 'rgba(255,255,255,0.2)' : '#d1d5db' }}>{i + 1}</span>
+                    <span style={{ fontSize: 15, fontWeight: 700, color: dark ? 'rgba(255,255,255,0.2)' : '#d1d5db' }}>{i + 1}</span>
                   </div>
-                  <p style={{ fontSize: 12, fontWeight: 600, color: dark ? 'rgba(255,255,255,0.5)' : '#6b7280' }}>{slot.label}</p>
-                  <p style={{ fontSize: 10, color: mutedText, marginTop: 4, textAlign: 'center', padding: '0 16px' }}>{slot.desc}</p>
+                  <p style={{ fontSize: 14, fontWeight: 600, color: dark ? 'rgba(255,255,255,0.5)' : '#6b7280' }}>{slot.label}</p>
+                  <p style={{ fontSize: 14, color: mutedText, marginTop: 4, textAlign: 'center', padding: '0 16px' }}>{slot.desc}</p>
                 </div>
               )}
             </div>
@@ -137,7 +137,7 @@ export default function ImagePicker() {
 
       {/* ── Right: Media library ── */}
       <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: mutedText, marginBottom: 12 }}>
+        <p style={{ fontSize: 14, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: mutedText, marginBottom: 12 }}>
           Media Library
         </p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 8, maxHeight: 580, overflowY: 'auto', paddingRight: 4 }}>
@@ -170,7 +170,7 @@ export default function ImagePicker() {
                   <img src={img.thumbnailUrl} alt={img.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} loading="lazy" />
                 </div>
                 <div style={{ padding: '6px 8px', background: dark ? 'rgba(255,255,255,0.04)' : '#fff' }}>
-                  <p style={{ fontSize: 10, color: mutedText, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <p style={{ fontSize: 14, color: mutedText, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {img.name.replace(/\.[^.]+$/, '')}
                   </p>
                 </div>
@@ -179,7 +179,7 @@ export default function ImagePicker() {
                     position: 'absolute', top: 6, right: 6, width: 20, height: 20,
                     background: accent, borderRadius: '50%',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 10, fontWeight: 700, color: dark ? '#111827' : '#fff',
+                    fontSize: 14, fontWeight: 700, color: dark ? '#111827' : '#fff',
                     boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
                   }}>✓</div>
                 )}

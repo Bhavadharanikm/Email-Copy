@@ -49,7 +49,7 @@ function StepNav({ step, dark, left, right }) {
           background: dark ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.8)',
           border: `1px solid ${dark ? 'rgba(255,255,255,0.1)' : 'rgba(59,130,246,0.18)'}`,
           backdropFilter: 'blur(8px)',
-          fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase',
+          fontSize: 14, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase',
           color: dark ? 'rgba(255,255,255,0.4)' : '#6b7280',
         }}
       >
@@ -68,7 +68,7 @@ function StepHeading({ title1, title2, sub, dark }) {
     <div style={{ textAlign: 'center', marginBottom: 28 }}>
       <motion.h1
         variants={fadeUp} initial="hidden" animate="visible" custom={1}
-        style={{ fontSize: 'clamp(24px, 3.5vw, 38px)', fontWeight: 800, lineHeight: 1.1, letterSpacing: '-0.03em', marginBottom: 8 }}
+        style={{ fontSize: 'clamp(30px, 4vw, 48px)', fontWeight: 800, lineHeight: 1.1, letterSpacing: '-0.03em', marginBottom: 8 }}
       >
         <span className={`bg-clip-text text-transparent ${dark
           ? 'bg-gradient-to-b from-white to-white/75'
@@ -84,7 +84,7 @@ function StepHeading({ title1, title2, sub, dark }) {
       </motion.h1>
       <motion.p
         variants={fadeUp} initial="hidden" animate="visible" custom={2}
-        style={{ fontSize: 12, color: dark ? 'rgba(255,255,255,0.35)' : '#9ca3af', fontWeight: 300, letterSpacing: '0.01em' }}
+        style={{ fontSize: 17, color: dark ? 'rgba(255,255,255,0.45)' : '#6b7280', fontWeight: 500, letterSpacing: '0.01em', paddingBottom: 15 }}
       >
         {sub}
       </motion.p>
@@ -147,7 +147,7 @@ export default function NewCampaign() {
               <button onClick={() => currentStep > s.id && setStep(s.id)} style={{
                 width: 30, height: 30, borderRadius: '50%',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                fontSize: 12, fontWeight: 700, border: 'none',
+                fontSize: 14, fontWeight: 700, border: 'none',
                 cursor: currentStep > s.id ? 'pointer' : 'default', transition: 'all 0.18s',
                 background: currentStep === s.id ? (dark ? '#f59e0b' : '#3b82f6') :
                             currentStep  > s.id ? (dark ? 'rgba(245,158,11,0.2)' : '#dbeafe') :
@@ -157,7 +157,7 @@ export default function NewCampaign() {
                        (dark ? 'rgba(255,255,255,0.3)' : '#9ca3af'),
               }}>{s.id}</button>
               <span style={{
-                fontSize: 11, fontWeight: currentStep === s.id ? 600 : 400, display: 'none',
+                fontSize: 15, fontWeight: currentStep === s.id ? 600 : 400, display: 'none',
                 color: currentStep === s.id ? (dark ? '#f59e0b' : '#1d4ed8') : (dark ? 'rgba(255,255,255,0.3)' : '#9ca3af'),
               }} className="sm:inline truncate">{s.label}</span>
               {i < STEPS.length - 1 && <div style={{ flex: 1, height: 1, margin: '0 4px', background: dark ? 'rgba(255,255,255,0.08)' : '#e5e7eb' }} />}
@@ -188,7 +188,7 @@ export default function NewCampaign() {
       <div style={{ width: '100%', maxWidth: isWideStep ? '100%' : 1100, margin: '0 auto', padding: '0 28px 48px' }}>
 
         {error && (
-          <div style={{ background: 'rgba(254,242,242,0.85)', backdropFilter: 'blur(8px)', border: '1px solid rgba(252,165,165,0.5)', borderRadius: 12, padding: '12px 16px', fontSize: 13, color: '#b91c1c', marginBottom: 16 }}>
+          <div style={{ background: 'rgba(254,242,242,0.85)', backdropFilter: 'blur(8px)', border: '1px solid rgba(252,165,165,0.5)', borderRadius: 12, padding: '12px 16px', fontSize: 15, color: '#b91c1c', marginBottom: 16 }}>
             {error}
           </div>
         )}
