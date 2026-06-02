@@ -5,9 +5,10 @@
  *
  * Order: Casa · Tropica · Refined · Newsletter · MasterClass · Blueprint
  */
-import { useMemo, useState, useEffect } from 'react'
+import { useMemo, useState, useEffect, useCallback } from 'react'
 import { useCampaignStore }  from '../store/campaignStore'
 import { useTheme } from '../context/ThemeContext'
+import { recommendTemplate } from '../lib/api'
 
 /* ─────────────────────── shared email-client header ─────────────────────── */
 function emailClientHeader({ client, copy }) {
@@ -545,10 +546,92 @@ function buildHeaderBar(style, client) {
   </div>`
 }
 
-function buildTemplateHero({ client, copy, images, headerStyle = 3 }) {
+function imgBox(url, w, h, label='Image') {
+  return url
+    ? `<img src="${url}" alt="" style="width:${w};height:${h}px;object-fit:cover;display:block"/>`
+    : `<div style="width:${w};height:${h}px;background:#ddd;display:flex;align-items:center;justify-content:center;font-size:12px;color:#aaa;font-family:Arial,sans-serif">${label}</div>`
+}
+
+function buildImageSection(imageStyle, sub1Img, sub2Img, sub3Img, sub4Img) {
+  if (imageStyle === 1) {
+    // Style 1 — 2×2 grid of 4 images
+    const imgs = [sub1Img, sub2Img, sub3Img, sub4Img]
+    if (imgs.every(i => !i)) return ''
+    return `
+  <!-- 2x2 grid -->
+  <div style="padding:0 0 32px">
+    <div style="display:flex;gap:4px;margin-bottom:4px">
+      <div style="flex:1;overflow:hidden">${imgBox(imgs[0], '100%', 200, 'Image 1')}</div>
+      <div style="flex:1;overflow:hidden">${imgBox(imgs[1], '100%', 200, 'Image 2')}</div>
+    </div>
+    <div style="display:flex;gap:4px">
+      <div style="flex:1;overflow:hidden">${imgBox(imgs[2], '100%', 200, 'Image 3')}</div>
+      <div style="flex:1;overflow:hidden">${imgBox(imgs[3], '100%', 200, 'Image 4')}</div>
+    </div>
+  </div>`
+  }
+
+  if (imageStyle === 2) {
+    // Style 2 — Two tilted polaroid photos side-by-side ("Favorite Memories" — already in CSS)
+    if (!sub1Img && !sub2Img) return ''
+    return `
+  <!-- Polaroid collage -->
+  <div class="gallery-wrap">
+    <div class="gallery-row">
+      <div class="polaroid p1">
+        ${sub1Img ? `<img src="${sub1Img}" alt=""/>` : `<div class="polaroid-ph">Image</div>`}
+      </div>
+      <div class="polaroid p2">
+        ${sub2Img ? `<img src="${sub2Img}" alt=""/>` : `<div class="polaroid-ph">Image</div>`}
+      </div>
+    </div>
+    <div class="fav-label">Favorite<br>Memories</div>
+  </div>`
+  }
+
+  if (imageStyle === 3) {
+    // Style 3 — Two overlapping tilted photos with Favorite Memories script underneath
+    if (!sub1Img && !sub2Img) return ''
+    return `
+  <!-- Overlapping tilted photos + script label -->
+  <div style="background:#faf9f7;padding:48px 32px 36px;text-align:center">
+    <div style="position:relative;display:inline-block;width:320px;height:240px;margin:0 auto">
+      <!-- Back photo (left, rotated more) -->
+      <div style="position:absolute;left:0;top:20px;width:200px;transform:rotate(-8deg);background:#fff;padding:8px 8px 32px;box-shadow:0 4px 20px rgba(0,0,0,0.18)">
+        ${sub1Img
+          ? `<img src="${sub1Img}" alt="" style="width:100%;height:155px;object-fit:cover;display:block"/>`
+          : `<div style="width:100%;height:155px;background:#ddd;display:flex;align-items:center;justify-content:center;font-size:12px;color:#aaa;font-family:Arial,sans-serif">Image</div>`}
+      </div>
+      <!-- Front photo (right, rotated less) -->
+      <div style="position:absolute;right:0;top:0;width:200px;transform:rotate(6deg);background:#fff;padding:8px 8px 32px;box-shadow:0 6px 24px rgba(0,0,0,0.22)">
+        ${sub2Img
+          ? `<img src="${sub2Img}" alt="" style="width:100%;height:155px;object-fit:cover;display:block"/>`
+          : `<div style="width:100%;height:155px;background:#ddd;display:flex;align-items:center;justify-content:center;font-size:12px;color:#aaa;font-family:Arial,sans-serif">Image</div>`}
+      </div>
+    </div>
+    <div style="margin-top:32px;font-family:'Dancing Script',cursive,'Brush Script MT',cursive;font-size:34px;color:#b07a50;line-height:1.2">
+      Favorite Memories
+    </div>
+  </div>`
+  }
+
+  // Style 4 — Single large image in a circular frame
+  if (!sub1Img) return ''
+  return `
+  <!-- Circular feature image -->
+  <div style="background:#faf9f7;padding:40px 32px 36px;display:flex;flex-direction:column;align-items:center">
+    <div style="width:280px;height:280px;border-radius:50%;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.18)">
+      <img src="${sub1Img}" alt="" style="width:100%;height:100%;object-fit:cover;display:block"/>
+    </div>
+  </div>`
+}
+
+function buildTemplateHero({ client, copy, images, headerStyle = 3, imageStyle = 2 }) {
   const heroImg  = images?.[0]?.url || ''
   const sub1Img  = images?.[1]?.url || ''
   const sub2Img  = images?.[2]?.url || ''
+  const sub3Img  = images?.[3]?.url || ''
+  const sub4Img  = images?.[4]?.url || ''
   const logoUrl  = client?.logoUrl  || ''
   const headline = copy.headlineText || ''
   const subhead  = copy.subhead      || ''
@@ -691,23 +774,7 @@ ${emailClientHeader({ client, copy })}
     <p>${body}</p>
   </div>` : ''}
 
-  <!-- Polaroid gallery -->
-  ${(sub1Img || sub2Img) ? `
-  <div class="gallery-wrap">
-    <div class="gallery-row">
-      <div class="polaroid p1">
-        ${sub1Img
-          ? `<img src="${sub1Img}" alt=""/>`
-          : `<div class="polaroid-ph">Image</div>`}
-      </div>
-      <div class="polaroid p2">
-        ${sub2Img
-          ? `<img src="${sub2Img}" alt=""/>`
-          : `<div class="polaroid-ph">Image</div>`}
-      </div>
-    </div>
-    <div class="fav-label">Favorite<br>Memories</div>
-  </div>` : ''}
+  ${buildImageSection(imageStyle, sub1Img, sub2Img, sub3Img, sub4Img)}
 
   <!-- Closing block: BB2 title + body + closing line + CTA -->
   ${(b2title || b2body || closing || ctaText) ? `
@@ -742,20 +809,23 @@ export default function TemplatePreview() {
   const { theme } = useTheme()
   const dark = theme === 'dark'
 
-  const { selectedClient, generatedCopy, selectedImages, setRenderedHtml, headerStyle } = useCampaignStore(s => ({
-    selectedClient:  s.selectedClient,
-    generatedCopy:   s.generatedCopy,
-    selectedImages:  s.selectedImages,
-    setRenderedHtml: s.setRenderedHtml,
-    headerStyle:     s.headerStyle,
+  const { selectedClient, generatedCopy, selectedImages, setRenderedHtml, headerStyle, imageStyle, aiReasoning, aiRecommendDone } = useCampaignStore(s => ({
+    selectedClient:   s.selectedClient,
+    generatedCopy:    s.generatedCopy,
+    selectedImages:   s.selectedImages,
+    setRenderedHtml:  s.setRenderedHtml,
+    headerStyle:      s.headerStyle,
+    imageStyle:       s.imageStyle,
+    aiReasoning:      s.aiReasoning,
+    aiRecommendDone:  s.aiRecommendDone,
   }))
 
   const tpl = TEMPLATES[active]
 
   const baseHtml = useMemo(() => {
     if (!generatedCopy?.headlineText) return null
-    return tpl.build({ client:selectedClient, copy:generatedCopy, images:selectedImages, headerStyle })
-  }, [active, selectedClient, generatedCopy, selectedImages, headerStyle])
+    return tpl.build({ client:selectedClient, copy:generatedCopy, images:selectedImages, headerStyle, imageStyle })
+  }, [active, selectedClient, generatedCopy, selectedImages, headerStyle, imageStyle])
 
   // Keep store in sync so ApprovalPanel always has the latest HTML
   useEffect(() => {
@@ -768,7 +838,32 @@ export default function TemplatePreview() {
     return baseHtml.replace('<body', `<body style="zoom:${zoom}"`)
   }, [baseHtml, zoom])
 
-  const { setHeaderStyle } = useCampaignStore(s => ({ setHeaderStyle: s.setHeaderStyle }))
+  const { setHeaderStyle, setImageStyle, setTemplateStyle } = useCampaignStore(s => ({
+    setHeaderStyle:  s.setHeaderStyle,
+    setImageStyle:   s.setImageStyle,
+    setTemplateStyle: s.setTemplateStyle,
+  }))
+  const [aiLoading, setAiLoading] = useState(false)
+  const [aiError,   setAiError]   = useState(null)
+
+  const handleAiRecommend = useCallback(async () => {
+    setAiLoading(true)
+    setAiError(null)
+    try {
+      const result = await recommendTemplate({ copy: generatedCopy })
+      setTemplateStyle({
+        headerStyle: result.headerStyle,
+        imageStyle:  result.imageStyle,
+        aiReasoning: result.reasoning,
+        boldedCopy:  result.boldedCopy,
+      })
+    } catch (err) {
+      setAiError(err.message)
+    } finally {
+      setAiLoading(false)
+    }
+  }, [generatedCopy, setTemplateStyle])
+
   const accent = dark ? '#f59e0b' : '#3b82f6'
 
   const HEADER_STYLES = [
@@ -776,6 +871,13 @@ export default function TemplatePreview() {
     { id: 2, label: '🌲 Forest',       color: '#2d5a27' },
     { id: 3, label: '🌊 Ocean/Water',  color: '#3d2314' },
     { id: 4, label: '🏜 Desert',       color: '#b5622a' },
+  ]
+
+  const IMAGE_STYLES = [
+    { id: 1, label: '▦ Grid 2×2'  },
+    { id: 2, label: '📸 Polaroids' },
+    { id: 3, label: '🌀 Overlap'   },
+    { id: 4, label: '⭕ Circle'    },
   ]
 
   if (!previewHtml) {
@@ -813,30 +915,92 @@ export default function TemplatePreview() {
         })}
       </div>
 
-      {/* Header style picker — only for Hero Header */}
+      {/* Header + Image style pickers + AI button — only for Hero Header */}
       {isHeroHeader && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-          <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: dark ? 'rgba(255,255,255,0.28)' : '#a0a6b1', marginRight: 4 }}>
-            Header:
-          </span>
-          {HEADER_STYLES.map(h => {
-            const sel = headerStyle === h.id
-            return (
-              <button
-                key={h.id}
-                onClick={() => setHeaderStyle(h.id)}
-                style={{
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+
+          {/* Row 1 — Header style */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: dark ? 'rgba(255,255,255,0.28)' : '#a0a6b1', width: 52 }}>
+              Header:
+            </span>
+            {HEADER_STYLES.map(h => {
+              const sel = headerStyle === h.id
+              return (
+                <button key={h.id} onClick={() => setHeaderStyle(h.id)} style={{
                   padding: '6px 14px', borderRadius: 8, fontSize: 12, fontWeight: 600,
                   fontFamily: 'Inter, sans-serif', cursor: 'pointer', transition: 'all 0.15s',
                   background: sel ? h.color : (dark ? 'rgba(255,255,255,0.05)' : '#fff'),
                   color: sel ? '#fff' : (dark ? 'rgba(255,255,255,0.55)' : '#6b7280'),
                   border: `1.5px solid ${sel ? h.color : (dark ? 'rgba(255,255,255,0.1)' : '#e2e4e7')}`,
-                }}
-              >
-                {h.label}
-              </button>
-            )
-          })}
+                }}>
+                  {h.label}
+                </button>
+              )
+            })}
+          </div>
+
+          {/* Row 2 — Image style */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: dark ? 'rgba(255,255,255,0.28)' : '#a0a6b1', width: 52 }}>
+              Images:
+            </span>
+            {IMAGE_STYLES.map(im => {
+              const sel = imageStyle === im.id
+              return (
+                <button key={im.id} onClick={() => setImageStyle(im.id)} style={{
+                  padding: '6px 14px', borderRadius: 8, fontSize: 12, fontWeight: 600,
+                  fontFamily: 'Inter, sans-serif', cursor: 'pointer', transition: 'all 0.15s',
+                  background: sel ? accent : (dark ? 'rgba(255,255,255,0.05)' : '#fff'),
+                  color: sel ? (dark ? '#111827' : '#fff') : (dark ? 'rgba(255,255,255,0.55)' : '#6b7280'),
+                  border: `1.5px solid ${sel ? accent : (dark ? 'rgba(255,255,255,0.1)' : '#e2e4e7')}`,
+                  boxShadow: sel ? `0 2px 8px ${dark ? 'rgba(245,158,11,0.2)' : 'rgba(59,130,246,0.18)'}` : 'none',
+                }}>
+                  {im.label}
+                </button>
+              )
+            })}
+
+            {/* AI recommend button */}
+            <button
+              onClick={handleAiRecommend}
+              disabled={aiLoading}
+              style={{
+                marginLeft: 8, padding: '6px 16px', borderRadius: 8, fontSize: 12, fontWeight: 700,
+                fontFamily: 'Inter, sans-serif', cursor: aiLoading ? 'wait' : 'pointer',
+                background: aiLoading ? (dark ? '#2a2a2a' : '#f3f4f6') : 'linear-gradient(135deg,#7c3aed,#4f46e5)',
+                color: aiLoading ? (dark ? '#666' : '#aaa') : '#fff',
+                border: 'none',
+                boxShadow: aiLoading ? 'none' : '0 2px 10px rgba(79,70,229,0.35)',
+                transition: 'all 0.15s',
+              }}
+            >
+              {aiLoading ? '✨ Thinking…' : '✨ Auto-style'}
+            </button>
+          </div>
+
+          {/* AI reasoning chip */}
+          {aiRecommendDone && aiReasoning && (
+            <div style={{
+              display: 'flex', alignItems: 'flex-start', gap: 8,
+              padding: '8px 14px', borderRadius: 8,
+              background: dark ? 'rgba(124,58,237,0.12)' : 'rgba(124,58,237,0.06)',
+              border: `1px solid ${dark ? 'rgba(124,58,237,0.25)' : 'rgba(124,58,237,0.18)'}`,
+              fontSize: 12, color: dark ? 'rgba(255,255,255,0.55)' : '#6b7280',
+              fontFamily: 'Inter, sans-serif', lineHeight: 1.5,
+            }}>
+              <span style={{ fontSize: 14 }}>🤖</span>
+              <span>{aiReasoning}</span>
+            </div>
+          )}
+
+          {/* AI error */}
+          {aiError && (
+            <div style={{ fontSize: 11, color: '#ef4444', fontFamily: 'Inter, sans-serif' }}>
+              AI error: {aiError}
+            </div>
+          )}
+
         </div>
       )}
 
