@@ -479,15 +479,20 @@ ${emailClientHeader({client,copy})}
    ══════════════════════════════════════════════════════════════════════════ */
 function buildTemplateHero({ client, copy, images }) {
   const heroImg  = images?.[0]?.url || ''
+  const sub1Img  = images?.[1]?.url || ''
+  const sub2Img  = images?.[2]?.url || ''
   const logoUrl  = client?.logoUrl  || ''
   const headline = copy.headlineText || ''
   const subhead  = copy.subhead      || ''
   const ctaText  = copy.ctaText      || ''
   const ctaUrl   = copy.ctaUrl       || '#'
+  const body     = (copy.bodyText    || '').replace(/\n/g, '<br>')
+  const b2title  = copy.bodyBlock2Title || ''
+  const b2body   = (copy.bodyBlock2  || '').replace(/\n/g, '<br>')
 
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Dancing+Script:wght@600&display=swap');
   *{box-sizing:border-box;margin:0;padding:0}
   body{background:#f5f5f5;font-family:'Georgia',serif}
   .wrap{max-width:640px;margin:0 auto;background:#fff}
@@ -544,6 +549,35 @@ function buildTemplateHero({ client, copy, images }) {
     text-decoration:none;border-radius:6px;
     letter-spacing:.04em;
   }
+  /* ── body text ── */
+  .body-block{padding:0 48px 32px;font-size:15px;line-height:1.75;color:#333;font-family:'Georgia',serif}
+  .body-block p{margin-bottom:16px}
+  .b2title{font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:8px;font-family:'Georgia',serif}
+  /* ── polaroid gallery ── */
+  .gallery-wrap{
+    position:relative;
+    padding:40px 24px 80px;
+    background:#faf9f7;
+    overflow:hidden;
+    min-height:320px;
+  }
+  .polaroid{
+    position:relative;display:inline-block;
+    background:#fff;
+    padding:10px 10px 32px;
+    box-shadow:0 4px 18px rgba(0,0,0,0.18);
+  }
+  .polaroid img{display:block;width:260px;height:190px;object-fit:cover}
+  .polaroid-ph{width:260px;height:190px;background:#ddd;display:flex;align-items:center;justify-content:center;font-size:12px;color:#aaa;font-family:Arial,sans-serif}
+  .p1{transform:rotate(-4deg);position:absolute;left:32px;top:40px;z-index:2}
+  .p2{transform:rotate(3deg);position:absolute;left:220px;top:20px;z-index:1}
+  .fav-label{
+    position:absolute;right:40px;bottom:28px;
+    font-family:'Dancing Script',cursive,'Brush Script MT',cursive;
+    font-size:30px;color:#b07a50;
+    line-height:1.2;text-align:center;
+    z-index:3;
+  }
   /* footer */
   .foot{background:#3d2314;padding:20px 40px;text-align:center;font-size:10px;color:#a08070;font-family:Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase}
   .foot a{color:#a08070}
@@ -581,6 +615,30 @@ ${emailClientHeader({ client, copy })}
   <div class="sub-cta">
     ${subhead  ? `<p class="subhead">${subhead}</p>` : ''}
     ${ctaText  ? `<a href="${ctaUrl}" class="cta-btn">${ctaText} →</a>` : ''}
+  </div>` : ''}
+
+  <!-- Body text -->
+  ${(body || b2title || b2body) ? `
+  <div class="body-block">
+    ${body    ? `<p>${body}</p>` : ''}
+    ${b2title ? `<p class="b2title">${b2title}</p>` : ''}
+    ${b2body  ? `<p>${b2body}</p>` : ''}
+  </div>` : ''}
+
+  <!-- Polaroid gallery -->
+  ${(sub1Img || sub2Img) ? `
+  <div class="gallery-wrap">
+    <div class="polaroid p1">
+      ${sub1Img
+        ? `<img src="${sub1Img}" alt=""/>`
+        : `<div class="polaroid-ph">Image</div>`}
+    </div>
+    <div class="polaroid p2">
+      ${sub2Img
+        ? `<img src="${sub2Img}" alt=""/>`
+        : `<div class="polaroid-ph">Image</div>`}
+    </div>
+    <div class="fav-label">Favorite<br>Memories</div>
   </div>` : ''}
 
   <!-- Footer -->
