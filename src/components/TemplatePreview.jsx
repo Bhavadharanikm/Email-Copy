@@ -614,10 +614,11 @@ ${emailClientHeader({ client, copy })}
     </div>
   </div>
 
-  <!-- Subhead -->
-  ${subhead ? `
+  <!-- Subhead + first CTA -->
+  ${(subhead || ctaText) ? `
   <div class="sub-cta">
-    <p class="subhead">${subhead}</p>
+    ${subhead ? `<p class="subhead">${subhead}</p>` : ''}
+    ${ctaText ? `<a href="${ctaUrl}" class="cta-btn">${ctaText} →</a>` : ''}
   </div>` : ''}
 
   <!-- Body text -->
