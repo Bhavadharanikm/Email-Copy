@@ -28,7 +28,7 @@ export default function ImagePicker() {
   const [clientLogoUrl, setClientLogoUrl] = useState('')
   const logoInputRef = useRef(null)
 
-  const { selectedClient, locationId, selectedImages, setSelectedImages, setClient } = useCampaignStore((s) => ({
+  const { selectedClient, locationId: storeLocationId, selectedImages, setSelectedImages, setClient } = useCampaignStore((s) => ({
     selectedClient:    s.selectedClient,
     locationId:        s.locationId,
     selectedImages:    s.selectedImages,
@@ -36,14 +36,20 @@ export default function ImagePicker() {
     setClient:         s.setClient,
   }))
 
+  // Always prefer the client's own locationId from the sheet; fall back to whatever the store has
+  const locationId = selectedClient?.ghl?.locationId || storeLocationId
+
   useEffect(() => {
     setClientLogoUrl(selectedClient?.logoUrl || '')
   }, [selectedClient])
 
   useEffect(() => {
     const apiKey = selectedClient?.ghlApiKey
-    if (!locationId) { setError('Paste a GHL template URL or folder URL on Step 1 to load images.'); setLoading(false); return }
-    if (!apiKey)     { setError('No API key found for this client.'); setLoading(false); return }
+    if (!selectedClient) { setError('Select a client on Step 1.'); setLoading(false); return }
+    if (!locationId)     { setError('No Location ID found for this client — check the Google Sheet (Column C).'); setLoading(false); return }
+    if (!apiKey)         { setError('No API key found for this client.'); setLoading(false); return }
+    setError(null)
+    setLoading(true)
     fetchGhlImages({ locationId, apiKey })
       .then(d => setImages(d.images || []))
       .catch(e => setError(e.message))
