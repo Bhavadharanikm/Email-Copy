@@ -5,7 +5,7 @@
  */
 import { useState } from 'react'
 import { useCampaignStore } from '../store/campaignStore'
-import { pushToGHL, notifyChat, logToSheets } from '../lib/api'
+import { pushHtmlToGHL, notifyChat, logToSheets } from '../lib/api'
 import { useTheme } from '../context/ThemeContext'
 
 export default function ApprovalPanel() {
@@ -38,7 +38,7 @@ export default function ApprovalPanel() {
     setLoading(true)
     setApproval('approved', notes)
     try {
-      const ghlResult = await pushToGHL({ client: selectedClient, renderedHtml, generatedCopy, selectedImages, templateId, locationId })
+      const ghlResult = await pushHtmlToGHL({ client: selectedClient, renderedHtml, generatedCopy, templateId, locationId })
       setGhlPushResult(ghlResult)
       setPreviewUrl(templateUrl || ghlResult.previewUrl || '')
       try {
