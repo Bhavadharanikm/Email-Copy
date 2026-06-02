@@ -67,7 +67,11 @@ export const useCampaignStore = create(
       ...INITIAL_STATE,
 
       // Actions
-      setClient:         (client)   => set({ selectedClient: client }),
+      setClient:         (client)   => set((s) => ({
+        selectedClient: client,
+        // Seed locationId from the sheet so images load without needing a template URL
+        locationId: s.locationId || client?.ghl?.locationId || '',
+      })),
       setTemplateUrl:    (url)      => {
         // Extract templateId (24-char hex) and locationId from GHL URL
         const templateMatch  = url.match(/([a-f0-9]{24})/i)
