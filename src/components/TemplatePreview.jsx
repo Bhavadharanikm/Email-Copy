@@ -573,7 +573,7 @@ function buildTemplateHero({ client, copy, images }) {
   .p1{transform:rotate(-4deg);margin-top:20px}
   .p2{transform:rotate(3deg)}
   .fav-label{
-    margin-top:28px;text-align:right;padding-right:24px;
+    margin-top:28px;text-align:center;
     font-family:'Dancing Script',cursive,'Brush Script MT',cursive;
     font-size:32px;color:#b07a50;line-height:1.2;
   }
