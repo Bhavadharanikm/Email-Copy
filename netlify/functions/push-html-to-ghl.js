@@ -53,7 +53,9 @@ export const handler = async (event) => {
       url    = `${GHL_BASE}/emails/public/v2/locations/${locationId}/templates`
     }
 
-    const templateBody = { name: templateName, html: renderedHtml }
+    // GHL requires editorType:"html" + editorContent when creating templates
+    // (editorType required especially when folderId is provided)
+    const templateBody = { name: templateName, editorType: 'html', editorContent: renderedHtml }
     if (folderId && method === 'POST') templateBody.folderId = folderId
 
     console.log(`[push-html-to-ghl] ${method} ${url}`)
