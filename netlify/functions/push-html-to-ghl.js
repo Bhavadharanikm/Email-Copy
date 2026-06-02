@@ -56,10 +56,8 @@ export const handler = async (event) => {
     // GHL requires editorType:"html" + editorContent when creating templates
     // (editorType required especially when folderId is provided)
     const templateBody = { name: templateName, editorType: 'html', editorContent: renderedHtml }
-    if (folderId && method === 'POST') templateBody.folderId = folderId
 
     console.log(`[push-html-to-ghl] ${method} ${url}`)
-    console.log(`[push-html-to-ghl] body keys: ${Object.keys(templateBody).join(', ')}`)
 
     const res = await fetch(url, {
       method,
@@ -68,7 +66,7 @@ export const handler = async (event) => {
     })
 
     const responseText = await res.text()
-    console.log(`[push-html-to-ghl] GHL response ${res.status}: ${responseText.slice(0, 500)}`)
+    console.log(`[push-html-to-ghl] GHL response ${res.status}: ${responseText.slice(0, 300)}`)
 
     if (!res.ok) {
       throw new Error(`GHL template push failed: ${res.status} ${responseText}`)
@@ -76,7 +74,19 @@ export const handler = async (event) => {
 
     const data = JSON.parse(responseText)
     newTemplateId = data?.id || data?.template?.id || data?.data?.id || templateId || ''
-    console.log(`[push-html-to-ghl] newTemplateId=${newTemplateId}, full keys: ${Object.keys(data || {}).join(', ')}`)
+    console.log(`[push-html-to-ghl] newTemplateId=${newTemplateId}`)
+
+    // GHL ignores folderId in POST body — move to folder via separate PATCH
+    if (folderId && method === 'POST' && newTemplateId) {
+      const moveUrl = `${GHL_BASE}/emails/public/v2/locations/${locationId}/templates/${newTemplateId}`
+      const moveRes = await fetch(moveUrl, {
+        method:  'PATCH',
+        headers: ghlHeaders(apiKey),
+        body:    JSON.stringify({ parentFolderId: folderId }),
+      })
+      const moveText = await moveRes.text()
+      console.log(`[push-html-to-ghl] Move to folder ${folderId}: ${moveRes.status} ${moveText.slice(0, 100)}`)
+    }
 
     const emailsBase = `https://app.gohighlevel.com/v2/location/${locationId}/marketing/emails`
     const previewUrl = newTemplateId
