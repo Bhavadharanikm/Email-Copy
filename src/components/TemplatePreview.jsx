@@ -486,46 +486,16 @@ function buildHeaderBar(style, client) {
     : `<span style="position:relative;z-index:1;font-size:14px;letter-spacing:.28em;text-transform:uppercase;color:#fff;font-family:Arial,sans-serif;font-weight:700">${brandName}</span>`
 
   if (style === 1) {
-    // Mountain — illustrated rolling hills landscape with wave-cut bottom
+    // Mountain — slate blue with mountain silhouette
     return `
-    <div style="position:relative;line-height:0;overflow:hidden">
-      <svg viewBox="0 0 640 340" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%" preserveAspectRatio="xMidYMid slice">
-        <!-- Sky gradient -->
-        <defs>
-          <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#b8d9f0"/>
-            <stop offset="100%" stop-color="#ddeeff"/>
-          </linearGradient>
-          <linearGradient id="hill1" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#9dcc6a"/>
-            <stop offset="100%" stop-color="#6b9e30"/>
-          </linearGradient>
-          <linearGradient id="hill2" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#7ab840"/>
-            <stop offset="100%" stop-color="#4f8020"/>
-          </linearGradient>
-        </defs>
-        <!-- Sky -->
-        <rect width="640" height="340" fill="url(#sky)"/>
-        <!-- Cloud -->
-        <ellipse cx="300" cy="80" rx="60" ry="36" fill="#fff" opacity="0.95"/>
-        <ellipse cx="260" cy="96" rx="38" ry="26" fill="#fff" opacity="0.95"/>
-        <ellipse cx="344" cy="96" rx="34" ry="24" fill="#fff" opacity="0.95"/>
-        <ellipse cx="220" cy="106" rx="24" ry="18" fill="#fff" opacity="0.9"/>
-        <!-- Far hill (lighter) -->
-        <path d="M0,200 Q80,140 160,170 Q240,200 320,155 Q400,110 480,160 Q560,200 640,165 L640,340 L0,340 Z" fill="url(#hill1)"/>
-        <!-- Near hill (darker) -->
-        <path d="M0,260 Q60,220 140,240 Q220,260 300,225 Q380,190 460,240 Q540,270 640,235 L640,340 L0,340 Z" fill="url(#hill2)"/>
-        <!-- Wave cut at bottom (white) -->
-        <path d="M0,310 C80,330 160,295 240,315 C320,335 400,298 480,318 C560,335 610,308 640,318 L640,340 L0,340 Z" fill="#ffffff"/>
-      </svg>
-      <!-- Logo overlaid -->
-      <div style="position:absolute;top:16px;left:0;right:0;display:flex;justify-content:center;align-items:center;z-index:2">
-        ${logoUrl
-          ? `<img src="${logoUrl}" alt="${brandName}" style="height:52px;width:auto;object-fit:contain;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.3))"/>`
-          : `<span style="font-size:14px;letter-spacing:.28em;text-transform:uppercase;color:#2d5a27;font-family:Arial,sans-serif;font-weight:700;text-shadow:0 1px 4px rgba(255,255,255,0.8)">${brandName}</span>`
-        }
+    <div style="background:#2c4a6e;padding:0 0 0 0;position:relative;overflow:hidden">
+      <div style="padding:22px 40px;display:flex;align-items:center;justify-content:center;position:relative;z-index:2">
+        ${logo}
       </div>
+      <svg viewBox="0 0 640 48" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;margin-top:-2px" preserveAspectRatio="none">
+        <polygon points="0,48 0,32 80,10 160,30 240,8 320,28 400,6 480,26 560,4 640,22 640,48" fill="rgba(255,255,255,0.08)"/>
+        <polygon points="0,48 0,40 100,18 200,36 300,14 400,32 500,12 600,30 640,20 640,48" fill="rgba(255,255,255,0.06)"/>
+      </svg>
     </div>`
   }
 
