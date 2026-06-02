@@ -672,7 +672,7 @@ ${emailClientHeader({ client, copy })}
     <!-- Wave bottom -->
     <div class="wave-wrap">
       ${headerStyle === 1
-        ? `<svg viewBox="0 0 640 65" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><polygon points="0,65 0,48 55,8 110,44 175,14 230,50 295,4 355,46 415,18 470,52 525,10 585,42 640,20 640,65" fill="#ffffff"/></svg>`
+        ? `<svg viewBox="0 0 640 80" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><polygon points="0,80 0,62 18,55 30,35 42,58 58,50 68,22 78,48 92,38 105,60 118,30 128,52 142,42 155,65 172,28 183,54 196,18 208,50 218,40 232,62 248,44 260,10 270,46 282,34 296,58 310,20 322,52 334,38 348,62 362,30 374,55 388,16 400,48 414,36 428,60 440,24 452,50 466,40 478,62 492,28 504,52 516,44 530,68 545,32 558,54 572,22 584,50 596,38 612,60 626,44 640,56 640,80" fill="#ffffff"/></svg>`
         : `<svg viewBox="0 0 640 40" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M0,20 C80,40 160,0 240,20 C320,40 400,0 480,20 C560,40 620,10 640,20 L640,40 L0,40 Z" fill="#ffffff"/></svg>`
       }
     </div>
