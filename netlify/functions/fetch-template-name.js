@@ -47,7 +47,7 @@ export const handler = async (event) => {
       return {
         statusCode: 200,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: match.name || 'Untitled' }),
+        body: JSON.stringify({ name: match.name || 'Untitled', editorType: match.editorType }),
       }
     }
 
@@ -58,10 +58,11 @@ export const handler = async (event) => {
     for (const folder of folders) {
       match = await searchInFolder(folder.id)
       if (match) {
+        console.log(`[fetch-template-name] Found in folder ${folder.id}: editorType=${match.editorType}`)
         return {
           statusCode: 200,
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: match.name || 'Untitled' }),
+          body: JSON.stringify({ name: match.name || 'Untitled', editorType: match.editorType }),
         }
       }
     }
