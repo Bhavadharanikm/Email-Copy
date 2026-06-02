@@ -661,8 +661,8 @@ ${emailClientHeader({ client, copy })}
     </div>
     <!-- Wave bottom -->
     <div class="wave-wrap">
-      <svg viewBox="0 0 640 50" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-        <path d="M0,32 C30,18 55,38 80,28 C105,18 125,36 155,24 C180,14 205,34 235,22 C260,12 285,30 315,20 C340,10 368,32 395,22 C420,13 445,35 475,25 C500,16 525,36 555,24 C578,15 608,34 640,22 L640,50 L0,50 Z" fill="#ffffff"/>
+      <svg viewBox="0 0 640 70" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+        <path d="M0,45 C15,28 35,52 60,34 C78,20 95,48 120,30 C138,16 158,44 185,26 C205,12 228,42 255,24 C272,10 295,40 322,18 C342,2 368,38 395,20 C414,6 438,44 465,28 C482,16 505,46 530,30 C550,17 572,42 600,26 C618,14 632,36 640,28 L640,70 L0,70 Z" fill="#ffffff"/>
       </svg>
     </div>
   </div>
