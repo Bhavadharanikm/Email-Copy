@@ -5,7 +5,7 @@
  *
  * Order: Casa · Tropica · Refined · Newsletter · MasterClass · Blueprint
  */
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { useCampaignStore }  from '../store/campaignStore'
 import { useTheme } from '../context/ThemeContext'
 
@@ -474,14 +474,130 @@ ${emailClientHeader({client,copy})}
 </div></body></html>`
 }
 
+/* ══════════════════════════════════════════════════════════════════════════
+   T7 · HERO HEADER  (Logo + full-bleed hero image + text overlay + wave)
+   ══════════════════════════════════════════════════════════════════════════ */
+function buildTemplateHero({ client, copy, images }) {
+  const heroImg  = images?.[0]?.url || ''
+  const logoUrl  = client?.logoUrl  || ''
+  const headline = copy.headlineText || ''
+  const subhead  = copy.subhead      || ''
+  const ctaText  = copy.ctaText      || ''
+  const ctaUrl   = copy.ctaUrl       || '#'
+
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#f5f5f5;font-family:'Georgia',serif}
+  .wrap{max-width:640px;margin:0 auto;background:#fff}
+  /* ── logo bar ── */
+  .logo-bar{
+    background:#3d2314;
+    padding:22px 40px;
+    display:flex;align-items:center;justify-content:center;
+    position:relative;
+  }
+  .logo-bar::before,.logo-bar::after{
+    content:'';position:absolute;top:50%;
+    width:22%;height:1px;background:rgba(255,255,255,0.35);
+  }
+  .logo-bar::before{left:24px}
+  .logo-bar::after{right:24px}
+  .logo-bar img{height:64px;width:auto;object-fit:contain;position:relative;z-index:1}
+  .logo-bar .brand-text{
+    font-size:15px;letter-spacing:.28em;text-transform:uppercase;
+    color:#fff;font-family:Arial,sans-serif;font-weight:700;
+    position:relative;z-index:1;
+  }
+  /* ── hero ── */
+  .hero-wrap{position:relative;line-height:0}
+  .hero-wrap img{width:100%;height:580px;object-fit:cover;display:block}
+  .hero-ph{width:100%;height:580px;background:#c8b8a2;display:flex;align-items:center;justify-content:center;color:#8a7a68;font-family:Arial,sans-serif;font-size:13px}
+  /* overlay */
+  .hero-overlay{
+    position:absolute;inset:0;
+    background:linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.1) 60%, rgba(0,0,0,0) 100%);
+    display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+    padding:36px 40px 32px;text-align:center;
+  }
+  .hero-headline{
+    font-size:32px;font-weight:900;line-height:1.15;
+    color:#fff;font-family:'Playfair Display',Georgia,serif;
+    text-shadow:0 2px 16px rgba(0,0,0,0.6);
+    letter-spacing:-0.2px;
+  }
+  /* wave */
+  .wave-wrap{position:absolute;bottom:-1px;left:0;right:0;line-height:0}
+  .wave-wrap svg{display:block;width:100%}
+  /* ── subhead + CTA block ── */
+  .sub-cta{padding:36px 48px 32px;text-align:center}
+  .subhead{
+    font-size:18px;line-height:1.6;color:#2d2d2d;
+    font-family:'Georgia',serif;margin-bottom:28px;
+  }
+  .cta-btn{
+    display:inline-block;
+    padding:14px 36px;
+    background:#3d2314;color:#fff;
+    font-family:Arial,sans-serif;font-size:15px;font-weight:700;
+    text-decoration:none;border-radius:6px;
+    letter-spacing:.04em;
+  }
+  /* footer */
+  .foot{background:#3d2314;padding:20px 40px;text-align:center;font-size:10px;color:#a08070;font-family:Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase}
+  .foot a{color:#a08070}
+</style></head><body>
+${emailClientHeader({ client, copy })}
+<div class="wrap">
+
+  <!-- Logo bar -->
+  <div class="logo-bar">
+    ${logoUrl
+      ? `<img src="${logoUrl}" alt="${client?.name || 'Logo'}"/>`
+      : `<span class="brand-text">${client?.name || 'Brand'}</span>`
+    }
+  </div>
+
+  <!-- Hero image + overlay -->
+  <div class="hero-wrap">
+    ${heroImg
+      ? `<img src="${heroImg}" alt=""/>`
+      : `<div class="hero-ph">Hero image will appear here</div>`
+    }
+    <div class="hero-overlay">
+      ${headline ? `<div class="hero-headline">${headline}</div>` : ''}
+    </div>
+    <!-- Wave bottom -->
+    <div class="wave-wrap">
+      <svg viewBox="0 0 640 40" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+        <path d="M0,20 C80,40 160,0 240,20 C320,40 400,0 480,20 C560,40 620,10 640,20 L640,40 L0,40 Z" fill="#ffffff"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Subhead + CTA -->
+  ${(subhead || ctaText) ? `
+  <div class="sub-cta">
+    ${subhead  ? `<p class="subhead">${subhead}</p>` : ''}
+    ${ctaText  ? `<a href="${ctaUrl}" class="cta-btn">${ctaText} →</a>` : ''}
+  </div>` : ''}
+
+  <!-- Footer -->
+  <div class="foot">© ${client?.name || ''} &nbsp;·&nbsp; <a href="#">Unsubscribe</a></div>
+
+</div></body></html>`
+}
+
 /* ─────────────────────────── registry ──────────────────────────────────── */
 const TEMPLATES = [
-  { id:1, label:'Casa',       build:buildTemplate5  },
-  { id:2, label:'Tropica',    build:buildTemplate4  },
-  { id:3, label:'Refined',    build:buildTemplate1  },
-  { id:4, label:'Newsletter', build:buildTemplate3  },
-  { id:5, label:'Getaway',    build:buildTemplate12 },
-  { id:6, label:'Forest',     build:buildTemplate14 },
+  { id:7, label:'Hero Header', build:buildTemplateHero },
+  { id:1, label:'Casa',        build:buildTemplate5  },
+  { id:2, label:'Tropica',     build:buildTemplate4  },
+  { id:3, label:'Refined',     build:buildTemplate1  },
+  { id:4, label:'Newsletter',  build:buildTemplate3  },
+  { id:5, label:'Getaway',     build:buildTemplate12 },
+  { id:6, label:'Forest',      build:buildTemplate14 },
 ]
 
 /* ─────────────────────────── component ─────────────────────────────────── */
@@ -491,10 +607,11 @@ export default function TemplatePreview() {
   const { theme } = useTheme()
   const dark = theme === 'dark'
 
-  const { selectedClient, generatedCopy, selectedImages } = useCampaignStore(s => ({
-    selectedClient: s.selectedClient,
-    generatedCopy:  s.generatedCopy,
-    selectedImages: s.selectedImages,
+  const { selectedClient, generatedCopy, selectedImages, setRenderedHtml } = useCampaignStore(s => ({
+    selectedClient:  s.selectedClient,
+    generatedCopy:   s.generatedCopy,
+    selectedImages:  s.selectedImages,
+    setRenderedHtml: s.setRenderedHtml,
   }))
 
   const tpl = TEMPLATES[active]
@@ -503,6 +620,11 @@ export default function TemplatePreview() {
     if (!generatedCopy?.headlineText) return null
     return tpl.build({ client:selectedClient, copy:generatedCopy, images:selectedImages })
   }, [active, selectedClient, generatedCopy, selectedImages])
+
+  // Keep store in sync so ApprovalPanel always has the latest HTML
+  useEffect(() => {
+    if (baseHtml) setRenderedHtml(baseHtml)
+  }, [baseHtml])
 
   // Inject zoom into the email body — iframe stays full size, content scales
   const previewHtml = useMemo(() => {
