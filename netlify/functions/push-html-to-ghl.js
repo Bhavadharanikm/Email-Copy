@@ -31,9 +31,11 @@ export const handler = async (event) => {
     const apiKey     = client?.ghlApiKey || process.env.GHL_API_KEY
     const locationId = urlLocationId || client?.ghl?.locationId
 
-    if (!apiKey)      throw new Error('No GHL API key available')
-    if (!locationId)  throw new Error('No locationId available')
-    if (!renderedHtml) throw new Error('No HTML to push')
+    if (!apiKey)       throw new Error('No GHL API key available')
+    if (!locationId)   throw new Error('No locationId available')
+    if (!renderedHtml) throw new Error('No HTML to push — make sure you preview the template before approving')
+
+    console.log(`[push-html-to-ghl] htmlLength=${renderedHtml.length} templateId=${templateId || '(new)'} locationId=${locationId} folderId=${folderId || '(none)'}`)
 
     const templateName = `${client?.name || 'Campaign'} — ${(generatedCopy?.subjectLine || 'Email').slice(0, 50)} (${new Date().toISOString().slice(0, 10)})`
 
@@ -51,8 +53,11 @@ export const handler = async (event) => {
       url    = `${GHL_BASE}/emails/public/v2/locations/${locationId}/templates`
     }
 
-    const templateBody = { name: templateName, editorType: 'html', editorContent: renderedHtml }
+    const templateBody = { name: templateName, editorType: 'HTML', editorContent: renderedHtml }
     if (folderId && method === 'POST') templateBody.folderId = folderId
+
+    console.log(`[push-html-to-ghl] ${method} ${url}`)
+    console.log(`[push-html-to-ghl] body keys: ${Object.keys(templateBody).join(', ')}`)
 
     const res = await fetch(url, {
       method,
@@ -60,13 +65,16 @@ export const handler = async (event) => {
       body: JSON.stringify(templateBody),
     })
 
+    const responseText = await res.text()
+    console.log(`[push-html-to-ghl] GHL response ${res.status}: ${responseText.slice(0, 500)}`)
+
     if (!res.ok) {
-      const text = await res.text()
-      throw new Error(`GHL template push failed: ${res.status} ${text}`)
+      throw new Error(`GHL template push failed: ${res.status} ${responseText}`)
     }
 
-    const data = await res.json()
-    newTemplateId = data?.id || data?.template?.id || templateId || ''
+    const data = JSON.parse(responseText)
+    newTemplateId = data?.id || data?.template?.id || data?.data?.id || templateId || ''
+    console.log(`[push-html-to-ghl] newTemplateId=${newTemplateId}, full keys: ${Object.keys(data || {}).join(', ')}`)
 
     const emailsBase = `https://app.gohighlevel.com/v2/location/${locationId}/marketing/emails`
     const previewUrl = newTemplateId
