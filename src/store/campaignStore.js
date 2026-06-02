@@ -81,10 +81,18 @@ export const useCampaignStore = create(
       setFolderUrl:      (url)      => {
         // Extract folderId from GHL folder URL
         // Handles: ?folderId=abc123  OR  /folders/abc123  OR  /folder/abc123
-        const qsMatch   = url.match(/[?&]folderId=([A-Za-z0-9_-]+)/)
-        const pathMatch = url.match(/\/folders?\/([A-Za-z0-9_-]+)/)
-        const folderId  = (qsMatch || pathMatch)?.[1] || ''
-        set({ folderUrl: url, folderId })
+        const qsMatch      = url.match(/[?&]folderId=([A-Za-z0-9_-]+)/)
+        const pathMatch    = url.match(/\/folders?\/([A-Za-z0-9_-]+)/)
+        const folderId     = (qsMatch || pathMatch)?.[1] || ''
+        // Also extract locationId from folder URL as fallback
+        const locationMatch = url.match(/\/location\/([A-Za-z0-9]+)/)
+        const locFromFolder = locationMatch?.[1] || ''
+        set((s) => ({
+          folderUrl: url,
+          folderId,
+          // Use locationId from folder URL only if no template URL has set it yet
+          locationId: s.locationId || locFromFolder,
+        }))
       },
       setPrompt:         (prompt)   => set({ prompt }),
       setVariations:     (variations) => set({

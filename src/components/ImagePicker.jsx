@@ -3,9 +3,9 @@
  * Left: large named slots (Hero, Sub 1, Sub 2) — positions stay fixed on remove.
  * Right: compact scrollable image grid to pick from.
  */
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useCampaignStore } from '../store/campaignStore'
-import { fetchGhlImages } from '../lib/api'
+import { fetchGhlImages, uploadLogo } from '../lib/api'
 import { useTheme } from '../context/ThemeContext'
 
 const SLOTS = [
@@ -22,16 +22,27 @@ export default function ImagePicker() {
   const [loading, setLoading] = useState(true)
   const [error, setError]     = useState(null)
 
-  const { selectedClient, locationId, selectedImages, setSelectedImages } = useCampaignStore((s) => ({
+  const [logoUploading, setLogoUploading] = useState(false)
+  const [logoStatus, setLogoStatus]       = useState('')
+  const [logoMsg, setLogoMsg]             = useState('')
+  const [clientLogoUrl, setClientLogoUrl] = useState('')
+  const logoInputRef = useRef(null)
+
+  const { selectedClient, locationId, selectedImages, setSelectedImages, setClient } = useCampaignStore((s) => ({
     selectedClient:    s.selectedClient,
     locationId:        s.locationId,
     selectedImages:    s.selectedImages,
     setSelectedImages: s.setSelectedImages,
+    setClient:         s.setClient,
   }))
 
   useEffect(() => {
+    setClientLogoUrl(selectedClient?.logoUrl || '')
+  }, [selectedClient])
+
+  useEffect(() => {
     const apiKey = selectedClient?.ghlApiKey
-    if (!locationId) { setError('Paste a GHL template URL on Step 1 to load images.'); setLoading(false); return }
+    if (!locationId) { setError('Paste a GHL template URL or folder URL on Step 1 to load images.'); setLoading(false); return }
     if (!apiKey)     { setError('No API key found for this client.'); setLoading(false); return }
     fetchGhlImages({ locationId, apiKey })
       .then(d => setImages(d.images || []))
@@ -62,6 +73,37 @@ export default function ImagePicker() {
     const next = [...slots]; next[i] = null; save(next)
   }
 
+  async function handleLogoUpload(e) {
+    const file = e.target.files?.[0]
+    if (!file || !selectedClient) return
+    setLogoUploading(true); setLogoStatus(''); setLogoMsg('')
+    try {
+      const base64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload  = () => resolve(reader.result.split(',')[1])
+        reader.onerror = reject
+        reader.readAsDataURL(file)
+      })
+      const rowIndex = parseInt(selectedClient.id.replace('client-', ''), 10)
+      const result = await uploadLogo({
+        base64, mimeType: file.type, fileName: file.name,
+        locationId: selectedClient.ghl?.locationId,
+        apiKey: selectedClient.ghlApiKey,
+        clientRowIndex: rowIndex,
+      })
+      setClientLogoUrl(result.logoUrl)
+      setLogoStatus('success')
+      setLogoMsg('Logo saved!')
+      setClient({ ...selectedClient, logoUrl: result.logoUrl })
+    } catch (err) {
+      setLogoStatus('error')
+      setLogoMsg(err.message || 'Upload failed')
+    } finally {
+      setLogoUploading(false)
+      if (logoInputRef.current) logoInputRef.current.value = ''
+    }
+  }
+
   const accent = dark ? '#f59e0b' : '#3b82f6'
   const mutedText = dark ? 'rgba(255,255,255,0.3)' : '#9ca3af'
 
@@ -76,6 +118,46 @@ export default function ImagePicker() {
 
       {/* ── Left: Named slots ── */}
       <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 12, width: 230 }}>
+
+        {/* Logo slot */}
+        <div style={{
+          borderRadius: 12, overflow: 'hidden',
+          border: `2px solid ${dark ? 'rgba(255,255,255,0.08)' : '#e5e7eb'}`,
+          background: dark ? 'rgba(255,255,255,0.03)' : '#f9fafb',
+        }}>
+          <div style={{ padding: '10px 12px', borderBottom: `1px solid ${dark ? 'rgba(255,255,255,0.06)' : '#f0f0f0'}` }}>
+            <p style={{ fontSize: 12, fontWeight: 700, color: mutedText, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Client Logo</p>
+          </div>
+          <div style={{ padding: 12, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+            {clientLogoUrl ? (
+              <div style={{ width: '100%', height: 80, background: '#1a1a1a', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 12 }}>
+                <img src={clientLogoUrl} alt="Logo" style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }} />
+              </div>
+            ) : (
+              <div style={{ width: '100%', height: 80, borderRadius: 8, border: `1.5px dashed ${dark ? 'rgba(255,255,255,0.15)' : '#d1d5db'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span style={{ fontSize: 11, color: mutedText }}>No logo yet</span>
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={() => logoInputRef.current?.click()}
+              disabled={logoUploading}
+              style={{
+                width: '100%', fontSize: 12, fontWeight: 600, padding: '7px 0', borderRadius: 8,
+                cursor: logoUploading ? 'not-allowed' : 'pointer', opacity: logoUploading ? 0.6 : 1,
+                border: `1px solid ${dark ? 'rgba(255,255,255,0.15)' : '#d1d5db'}`,
+                background: dark ? 'rgba(255,255,255,0.06)' : '#fff',
+                color: dark ? 'rgba(255,255,255,0.7)' : '#374151',
+                fontFamily: 'Inter, sans-serif',
+              }}
+            >
+              {logoUploading ? 'Uploading…' : clientLogoUrl ? '↑ Replace' : '↑ Upload Logo'}
+            </button>
+            {logoStatus === 'success' && <span style={{ fontSize: 11, color: '#34d399' }}>✓ {logoMsg}</span>}
+            {logoStatus === 'error'   && <span style={{ fontSize: 11, color: '#f87171' }}>⚠ {logoMsg}</span>}
+          </div>
+          <input ref={logoInputRef} type="file" accept="image/png,image/jpeg,image/svg+xml,image/webp" style={{ display: 'none' }} onChange={handleLogoUpload} />
+        </div>
         {SLOTS.map((slot, i) => {
           const filled = slots[i]
           return (
