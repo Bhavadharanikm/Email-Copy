@@ -486,16 +486,26 @@ function buildHeaderBar(style, client) {
     : `<span style="position:relative;z-index:1;font-size:14px;letter-spacing:.28em;text-transform:uppercase;color:#fff;font-family:Arial,sans-serif;font-weight:700">${brandName}</span>`
 
   if (style === 1) {
-    // Mountain — slate blue with mountain silhouette
+    // Mountain — dark navy with layered geometric mountain silhouettes
     return `
-    <div style="background:#2c4a6e;padding:0 0 0 0;position:relative;overflow:hidden">
-      <div style="padding:22px 40px;display:flex;align-items:center;justify-content:center;position:relative;z-index:2">
-        ${logo}
-      </div>
-      <svg viewBox="0 0 640 48" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;margin-top:-2px" preserveAspectRatio="none">
-        <polygon points="0,48 0,32 80,10 160,30 240,8 320,28 400,6 480,26 560,4 640,22 640,48" fill="rgba(255,255,255,0.08)"/>
-        <polygon points="0,48 0,40 100,18 200,36 300,14 400,32 500,12 600,30 640,20 640,48" fill="rgba(255,255,255,0.06)"/>
+    <div style="position:relative;line-height:0;overflow:hidden;background:#1e2e45">
+      <svg viewBox="0 0 640 120" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%" preserveAspectRatio="none">
+        <!-- Sky background -->
+        <rect width="640" height="120" fill="#1e2e45"/>
+        <!-- Far mountains (lightest) -->
+        <polygon points="0,120 0,80 60,30 120,75 180,25 240,70 300,20 360,68 420,22 480,72 540,18 600,65 640,30 640,120" fill="rgba(255,255,255,0.07)"/>
+        <!-- Mid mountains -->
+        <polygon points="0,120 0,90 80,45 160,85 240,40 320,80 400,38 480,82 560,42 640,78 640,120" fill="rgba(255,255,255,0.10)"/>
+        <!-- Near mountains (darkest overlay) -->
+        <polygon points="0,120 0,100 100,62 200,95 300,58 400,92 500,55 600,88 640,68 640,120" fill="rgba(30,46,69,0.6)"/>
       </svg>
+      <!-- Logo overlaid in centre -->
+      <div style="position:absolute;top:18px;left:0;right:0;display:flex;justify-content:center;align-items:center;z-index:2">
+        ${logoUrl
+          ? `<img src="${logoUrl}" alt="${brandName}" style="height:52px;width:auto;object-fit:contain;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.5))"/>`
+          : `<span style="font-size:14px;letter-spacing:.28em;text-transform:uppercase;color:#fff;font-family:Arial,sans-serif;font-weight:700;text-shadow:0 1px 6px rgba(0,0,0,0.5)">${brandName}</span>`
+        }
+      </div>
     </div>`
   }
 
@@ -662,7 +672,7 @@ ${emailClientHeader({ client, copy })}
     <!-- Wave bottom -->
     <div class="wave-wrap">
       ${headerStyle === 1
-        ? `<svg viewBox="0 0 640 70" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M0,45 C15,28 35,52 60,34 C78,20 95,48 120,30 C138,16 158,44 185,26 C205,12 228,42 255,24 C272,10 295,40 322,18 C342,2 368,38 395,20 C414,6 438,44 465,28 C482,16 505,46 530,30 C550,17 572,42 600,26 C618,14 632,36 640,28 L640,70 L0,70 Z" fill="#ffffff"/></svg>`
+        ? `<svg viewBox="0 0 640 60" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><polygon points="0,60 0,40 80,5 160,38 260,8 360,42 440,10 540,38 640,12 640,60" fill="#ffffff"/></svg>`
         : `<svg viewBox="0 0 640 40" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M0,20 C80,40 160,0 240,20 C320,40 400,0 480,20 C560,40 620,10 640,20 L640,40 L0,40 Z" fill="#ffffff"/></svg>`
       }
     </div>
