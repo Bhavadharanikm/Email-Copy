@@ -51,7 +51,7 @@ export const handler = async (event) => {
       url    = `${GHL_BASE}/emails/public/v2/locations/${locationId}/templates`
     }
 
-    const templateBody = { name: templateName, html: renderedHtml, editorType: 'html' }
+    const templateBody = { name: templateName, editorType: 'html', editorContent: renderedHtml }
     if (folderId && method === 'POST') templateBody.folderId = folderId
 
     const res = await fetch(url, {
