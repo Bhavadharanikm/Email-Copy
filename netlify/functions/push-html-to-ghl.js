@@ -53,7 +53,7 @@ export const handler = async (event) => {
       url    = `${GHL_BASE}/emails/public/v2/locations/${locationId}/templates`
     }
 
-    const templateBody = { name: templateName, editorType: 'HTML', editorContent: renderedHtml }
+    const templateBody = { name: templateName, html: renderedHtml }
     if (folderId && method === 'POST') templateBody.folderId = folderId
 
     console.log(`[push-html-to-ghl] ${method} ${url}`)
