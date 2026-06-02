@@ -487,8 +487,6 @@ function buildTemplateHero({ client, copy, images }) {
   const ctaText  = copy.ctaText      || ''
   const ctaUrl   = copy.ctaUrl       || '#'
   const body     = (copy.bodyText    || '').replace(/\n/g, '<br>')
-  const b2title  = copy.bodyBlock2Title || ''
-  const b2body   = (copy.bodyBlock2  || '').replace(/\n/g, '<br>')
 
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>
@@ -618,11 +616,9 @@ ${emailClientHeader({ client, copy })}
   </div>` : ''}
 
   <!-- Body text -->
-  ${(body || b2title || b2body) ? `
+  ${body ? `
   <div class="body-block">
-    ${body    ? `<p>${body}</p>` : ''}
-    ${b2title ? `<p class="b2title">${b2title}</p>` : ''}
-    ${b2body  ? `<p>${b2body}</p>` : ''}
+    <p>${body}</p>
   </div>` : ''}
 
   <!-- Polaroid gallery -->
