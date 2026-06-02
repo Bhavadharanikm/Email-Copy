@@ -553,28 +553,26 @@ function buildTemplateHero({ client, copy, images }) {
   .b2title{font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:8px;font-family:'Georgia',serif}
   /* ── polaroid gallery ── */
   .gallery-wrap{
-    position:relative;
-    padding:40px 24px 80px;
+    padding:40px 32px 36px;
     background:#faf9f7;
-    overflow:hidden;
-    min-height:320px;
+  }
+  .gallery-row{
+    display:flex;align-items:flex-start;justify-content:center;gap:24px;
   }
   .polaroid{
-    position:relative;display:inline-block;
     background:#fff;
-    padding:10px 10px 32px;
-    box-shadow:0 4px 18px rgba(0,0,0,0.18);
+    padding:10px 10px 36px;
+    box-shadow:0 4px 20px rgba(0,0,0,0.18);
+    flex:1;max-width:260px;
   }
-  .polaroid img{display:block;width:260px;height:190px;object-fit:cover}
-  .polaroid-ph{width:260px;height:190px;background:#ddd;display:flex;align-items:center;justify-content:center;font-size:12px;color:#aaa;font-family:Arial,sans-serif}
-  .p1{transform:rotate(-4deg);position:absolute;left:32px;top:40px;z-index:2}
-  .p2{transform:rotate(3deg);position:absolute;left:220px;top:20px;z-index:1}
+  .polaroid img{display:block;width:100%;height:190px;object-fit:cover}
+  .polaroid-ph{width:100%;height:190px;background:#ddd;display:flex;align-items:center;justify-content:center;font-size:12px;color:#aaa;font-family:Arial,sans-serif}
+  .p1{transform:rotate(-4deg);margin-top:20px}
+  .p2{transform:rotate(3deg)}
   .fav-label{
-    position:absolute;right:40px;bottom:28px;
+    margin-top:28px;text-align:right;padding-right:24px;
     font-family:'Dancing Script',cursive,'Brush Script MT',cursive;
-    font-size:30px;color:#b07a50;
-    line-height:1.2;text-align:center;
-    z-index:3;
+    font-size:32px;color:#b07a50;line-height:1.2;
   }
   /* footer */
   .foot{background:#3d2314;padding:20px 40px;text-align:center;font-size:10px;color:#a08070;font-family:Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase}
@@ -624,15 +622,17 @@ ${emailClientHeader({ client, copy })}
   <!-- Polaroid gallery -->
   ${(sub1Img || sub2Img) ? `
   <div class="gallery-wrap">
-    <div class="polaroid p1">
-      ${sub1Img
-        ? `<img src="${sub1Img}" alt=""/>`
-        : `<div class="polaroid-ph">Image</div>`}
-    </div>
-    <div class="polaroid p2">
-      ${sub2Img
-        ? `<img src="${sub2Img}" alt=""/>`
-        : `<div class="polaroid-ph">Image</div>`}
+    <div class="gallery-row">
+      <div class="polaroid p1">
+        ${sub1Img
+          ? `<img src="${sub1Img}" alt=""/>`
+          : `<div class="polaroid-ph">Image</div>`}
+      </div>
+      <div class="polaroid p2">
+        ${sub2Img
+          ? `<img src="${sub2Img}" alt=""/>`
+          : `<div class="polaroid-ph">Image</div>`}
+      </div>
     </div>
     <div class="fav-label">Favorite<br>Memories</div>
   </div>` : ''}
