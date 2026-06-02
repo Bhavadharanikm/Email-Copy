@@ -44,6 +44,12 @@ const INITIAL_STATE = {
   // Step 4 — images
   selectedImages: [],
 
+  // Step 4b — AI template recommendation
+  headerStyle:      1,   // 1–4
+  imageStyle:       2,   // 1–4
+  aiReasoning:      '',
+  aiRecommendDone:  false,
+
   // Step 5 — rendered HTML
   renderedHtml: '',
 
@@ -110,6 +116,20 @@ export const useCampaignStore = create(
       })),
       setGeneratedCopy:  (copy)     => set({ generatedCopy: copy }),
       setSelectedImages: (images)   => set({ selectedImages: images }),
+      setTemplateStyle:  ({ headerStyle, imageStyle, aiReasoning, boldedCopy }) =>
+        set((s) => ({
+          headerStyle,
+          imageStyle,
+          aiReasoning,
+          aiRecommendDone: true,
+          // Merge bolded copy fields over the existing generatedCopy
+          generatedCopy: {
+            ...s.generatedCopy,
+            ...(boldedCopy || {}),
+          },
+        })),
+      setHeaderStyle:    (v) => set({ headerStyle: v }),
+      setImageStyle:     (v) => set({ imageStyle: v }),
       setRenderedHtml:   (html)     => set({ renderedHtml: html }),
       setApproval:       (status, notes) => set({ approvalStatus: status, approvalNotes: notes }),
       setGhlPushResult:  (result)   => set({ ghlPushResult: result }),

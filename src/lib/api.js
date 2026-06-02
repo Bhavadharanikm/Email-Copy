@@ -59,6 +59,10 @@ export const notifyChat = ({ clientName, previewUrl, approvedBy }) =>
 export const uploadLogo = ({ base64, mimeType, fileName, locationId, apiKey, clientRowIndex }) =>
   post('/upload-logo', { base64, mimeType, fileName, locationId, apiKey, clientRowIndex })
 
+// ── AI template recommendation + auto-bold ───────────────────────
+export const recommendTemplate = ({ copy }) =>
+  post('/recommend-template', { copy })
+
 // ── Google Sheets logging ─────────────────────────────────────────
 // Pass { client, variations } to log all 3 at once (after generation)
 // Pass { client, generatedCopy, variationLabel } to log the selected one (on approval)
