@@ -661,9 +661,10 @@ ${emailClientHeader({ client, copy })}
     </div>
     <!-- Wave bottom -->
     <div class="wave-wrap">
-      <svg viewBox="0 0 640 70" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-        <path d="M0,45 C15,28 35,52 60,34 C78,20 95,48 120,30 C138,16 158,44 185,26 C205,12 228,42 255,24 C272,10 295,40 322,18 C342,2 368,38 395,20 C414,6 438,44 465,28 C482,16 505,46 530,30 C550,17 572,42 600,26 C618,14 632,36 640,28 L640,70 L0,70 Z" fill="#ffffff"/>
-      </svg>
+      ${headerStyle === 1
+        ? `<svg viewBox="0 0 640 70" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M0,45 C15,28 35,52 60,34 C78,20 95,48 120,30 C138,16 158,44 185,26 C205,12 228,42 255,24 C272,10 295,40 322,18 C342,2 368,38 395,20 C414,6 438,44 465,28 C482,16 505,46 530,30 C550,17 572,42 600,26 C618,14 632,36 640,28 L640,70 L0,70 Z" fill="#ffffff"/></svg>`
+        : `<svg viewBox="0 0 640 40" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M0,20 C80,40 160,0 240,20 C320,40 400,0 480,20 C560,40 620,10 640,20 L640,40 L0,40 Z" fill="#ffffff"/></svg>`
+      }
     </div>
   </div>
 
