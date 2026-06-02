@@ -477,7 +477,65 @@ ${emailClientHeader({client,copy})}
 /* ══════════════════════════════════════════════════════════════════════════
    T7 · HERO HEADER  (Logo + full-bleed hero image + text overlay + wave)
    ══════════════════════════════════════════════════════════════════════════ */
-function buildTemplateHero({ client, copy, images }) {
+/* ── Header bar styles (1–4) ─────────────────────────────────────── */
+function buildHeaderBar(style, client) {
+  const logoUrl   = client?.logoUrl || ''
+  const brandName = client?.name    || 'Brand'
+  const logo      = logoUrl
+    ? `<img src="${logoUrl}" alt="${brandName}" style="height:56px;width:auto;object-fit:contain;position:relative;z-index:1"/>`
+    : `<span style="position:relative;z-index:1;font-size:14px;letter-spacing:.28em;text-transform:uppercase;color:#fff;font-family:Arial,sans-serif;font-weight:700">${brandName}</span>`
+
+  if (style === 1) {
+    // Mountain — slate blue with mountain silhouette
+    return `
+    <div style="background:#2c4a6e;padding:0 0 0 0;position:relative;overflow:hidden">
+      <div style="padding:22px 40px;display:flex;align-items:center;justify-content:center;position:relative;z-index:2">
+        ${logo}
+      </div>
+      <svg viewBox="0 0 640 48" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;margin-top:-2px" preserveAspectRatio="none">
+        <polygon points="0,48 0,32 80,10 160,30 240,8 320,28 400,6 480,26 560,4 640,22 640,48" fill="rgba(255,255,255,0.08)"/>
+        <polygon points="0,48 0,40 100,18 200,36 300,14 400,32 500,12 600,30 640,20 640,48" fill="rgba(255,255,255,0.06)"/>
+      </svg>
+    </div>`
+  }
+
+  if (style === 2) {
+    // Forest — deep green with pine silhouette
+    return `
+    <div style="background:#2d5a27;padding:0 0 0 0;position:relative;overflow:hidden">
+      <div style="padding:22px 40px;display:flex;align-items:center;justify-content:center;position:relative;z-index:2">
+        ${logo}
+      </div>
+      <svg viewBox="0 0 640 40" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%" preserveAspectRatio="none">
+        <path d="M0,40 L0,28 L20,28 L10,16 L22,16 L12,6 L24,6 L34,16 L46,16 L36,28 L56,28 L56,40Z M80,40 L80,30 L98,30 L88,20 L100,20 L90,10 L102,10 L112,20 L124,20 L114,30 L132,30 L132,40Z M160,40 L160,26 L178,26 L168,14 L180,14 L170,4 L182,4 L192,14 L204,14 L194,26 L212,26 L212,40Z M240,40 L240,30 L255,30 L247,22 L257,22 L249,14 L259,14 L267,22 L277,22 L269,30 L284,30 L284,40Z M320,40 L320,28 L338,28 L328,16 L340,16 L330,6 L342,6 L352,16 L364,16 L354,28 L372,28 L372,40Z M400,40 L400,30 L415,30 L407,22 L417,22 L409,14 L419,14 L427,22 L437,22 L429,30 L444,30 L444,40Z M480,40 L480,26 L498,26 L488,14 L500,14 L490,4 L502,4 L512,14 L524,14 L514,26 L532,26 L532,40Z M560,40 L560,30 L575,30 L567,22 L577,22 L569,14 L579,14 L587,22 L597,22 L589,30 L604,30 L604,40Z M0,40 L640,40Z" fill="rgba(255,255,255,0.10)"/>
+      </svg>
+    </div>`
+  }
+
+  if (style === 3) {
+    // Ocean/Water — dark brown with decorative lines (existing style)
+    return `
+    <div style="background:#3d2314;padding:22px 40px;display:flex;align-items:center;justify-content:center;position:relative">
+      <div style="position:absolute;top:50%;left:24px;width:22%;height:1px;background:rgba(255,255,255,0.35)"></div>
+      <div style="position:absolute;top:50%;right:24px;width:22%;height:1px;background:rgba(255,255,255,0.35)"></div>
+      ${logo}
+    </div>`
+  }
+
+  // style === 4 — Desert — warm terracotta with dune silhouette
+  return `
+  <div style="background:#b5622a;padding:0 0 0 0;position:relative;overflow:hidden">
+    <div style="padding:22px 40px;display:flex;align-items:center;justify-content:center;position:relative;z-index:2">
+      ${logo}
+    </div>
+    <svg viewBox="0 0 640 36" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%" preserveAspectRatio="none">
+      <path d="M0,36 L0,22 Q80,2 160,18 Q240,34 320,16 Q400,0 480,18 Q560,34 640,20 L640,36 Z" fill="rgba(255,255,255,0.09)"/>
+      <path d="M0,36 L0,28 Q100,10 200,26 Q300,40 400,22 Q500,6 640,28 L640,36 Z" fill="rgba(255,255,255,0.06)"/>
+    </svg>
+  </div>`
+}
+
+function buildTemplateHero({ client, copy, images, headerStyle = 3 }) {
   const heroImg  = images?.[0]?.url || ''
   const sub1Img  = images?.[1]?.url || ''
   const sub2Img  = images?.[2]?.url || ''
@@ -589,13 +647,8 @@ function buildTemplateHero({ client, copy, images }) {
 ${emailClientHeader({ client, copy })}
 <div class="wrap">
 
-  <!-- Logo bar -->
-  <div class="logo-bar">
-    ${logoUrl
-      ? `<img src="${logoUrl}" alt="${client?.name || 'Logo'}"/>`
-      : `<span class="brand-text">${client?.name || 'Brand'}</span>`
-    }
-  </div>
+  <!-- Header bar (style ${headerStyle}) -->
+  ${buildHeaderBar(headerStyle, client)}
 
   <!-- Hero image + overlay -->
   <div class="hero-wrap">
@@ -678,19 +731,20 @@ export default function TemplatePreview() {
   const { theme } = useTheme()
   const dark = theme === 'dark'
 
-  const { selectedClient, generatedCopy, selectedImages, setRenderedHtml } = useCampaignStore(s => ({
+  const { selectedClient, generatedCopy, selectedImages, setRenderedHtml, headerStyle } = useCampaignStore(s => ({
     selectedClient:  s.selectedClient,
     generatedCopy:   s.generatedCopy,
     selectedImages:  s.selectedImages,
     setRenderedHtml: s.setRenderedHtml,
+    headerStyle:     s.headerStyle,
   }))
 
   const tpl = TEMPLATES[active]
 
   const baseHtml = useMemo(() => {
     if (!generatedCopy?.headlineText) return null
-    return tpl.build({ client:selectedClient, copy:generatedCopy, images:selectedImages })
-  }, [active, selectedClient, generatedCopy, selectedImages])
+    return tpl.build({ client:selectedClient, copy:generatedCopy, images:selectedImages, headerStyle })
+  }, [active, selectedClient, generatedCopy, selectedImages, headerStyle])
 
   // Keep store in sync so ApprovalPanel always has the latest HTML
   useEffect(() => {
@@ -703,11 +757,21 @@ export default function TemplatePreview() {
     return baseHtml.replace('<body', `<body style="zoom:${zoom}"`)
   }, [baseHtml, zoom])
 
+  const { setHeaderStyle } = useCampaignStore(s => ({ setHeaderStyle: s.setHeaderStyle }))
   const accent = dark ? '#f59e0b' : '#3b82f6'
+
+  const HEADER_STYLES = [
+    { id: 1, label: '🏔 Mountain',     color: '#2c4a6e' },
+    { id: 2, label: '🌲 Forest',       color: '#2d5a27' },
+    { id: 3, label: '🌊 Ocean/Water',  color: '#3d2314' },
+    { id: 4, label: '🏜 Desert',       color: '#b5622a' },
+  ]
 
   if (!previewHtml) {
     return <p style={{ fontSize: 13, color: dark ? 'rgba(255,255,255,0.3)' : '#9ca3af', padding: '16px 0' }}>No copy generated yet — go back and generate copy first.</p>
   }
+
+  const isHeroHeader = TEMPLATES[active]?.label === 'Hero Header'
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 14, maxWidth: 860, margin: '0 auto' }}>
@@ -737,6 +801,33 @@ export default function TemplatePreview() {
           )
         })}
       </div>
+
+      {/* Header style picker — only for Hero Header */}
+      {isHeroHeader && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: dark ? 'rgba(255,255,255,0.28)' : '#a0a6b1', marginRight: 4 }}>
+            Header:
+          </span>
+          {HEADER_STYLES.map(h => {
+            const sel = headerStyle === h.id
+            return (
+              <button
+                key={h.id}
+                onClick={() => setHeaderStyle(h.id)}
+                style={{
+                  padding: '6px 14px', borderRadius: 8, fontSize: 12, fontWeight: 600,
+                  fontFamily: 'Inter, sans-serif', cursor: 'pointer', transition: 'all 0.15s',
+                  background: sel ? h.color : (dark ? 'rgba(255,255,255,0.05)' : '#fff'),
+                  color: sel ? '#fff' : (dark ? 'rgba(255,255,255,0.55)' : '#6b7280'),
+                  border: `1.5px solid ${sel ? h.color : (dark ? 'rgba(255,255,255,0.1)' : '#e2e4e7')}`,
+                }}
+              >
+                {h.label}
+              </button>
+            )
+          })}
+        </div>
+      )}
 
       {/* Browser chrome + iframe */}
       <div style={{
