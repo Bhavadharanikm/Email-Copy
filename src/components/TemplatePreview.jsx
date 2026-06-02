@@ -487,6 +487,9 @@ function buildTemplateHero({ client, copy, images }) {
   const ctaText  = copy.ctaText      || ''
   const ctaUrl   = copy.ctaUrl       || '#'
   const body     = (copy.bodyText    || '').replace(/\n/g, '<br>')
+  const b2title  = copy.bodyBlock2Title || ''
+  const b2body   = (copy.bodyBlock2  || '').replace(/\n/g, '<br>')
+  const closing  = copy.closingLine  || ''
 
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>
@@ -574,6 +577,11 @@ function buildTemplateHero({ client, copy, images }) {
     font-family:'Dancing Script',cursive,'Brush Script MT',cursive;
     font-size:32px;color:#b07a50;line-height:1.2;
   }
+  /* ── closing block ── */
+  .closing-block{padding:36px 48px 32px;text-align:center}
+  .b2-title{font-size:17px;font-weight:700;color:#1a1a1a;font-family:'Georgia',serif;margin-bottom:18px}
+  .b2-body{font-size:15px;line-height:1.75;color:#333;font-family:'Georgia',serif;margin-bottom:24px;text-align:left}
+  .closing-line{font-size:15px;line-height:1.7;color:#333;font-family:'Georgia',serif;margin-bottom:28px;text-align:left}
   /* footer */
   .foot{background:#3d2314;padding:20px 40px;text-align:center;font-size:10px;color:#a08070;font-family:Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase}
   .foot a{color:#a08070}
@@ -606,11 +614,10 @@ ${emailClientHeader({ client, copy })}
     </div>
   </div>
 
-  <!-- Subhead + CTA -->
-  ${(subhead || ctaText) ? `
+  <!-- Subhead -->
+  ${subhead ? `
   <div class="sub-cta">
-    ${subhead  ? `<p class="subhead">${subhead}</p>` : ''}
-    ${ctaText  ? `<a href="${ctaUrl}" class="cta-btn">${ctaText} →</a>` : ''}
+    <p class="subhead">${subhead}</p>
   </div>` : ''}
 
   <!-- Body text -->
@@ -635,6 +642,15 @@ ${emailClientHeader({ client, copy })}
       </div>
     </div>
     <div class="fav-label">Favorite<br>Memories</div>
+  </div>` : ''}
+
+  <!-- Closing block: BB2 title + body + closing line + CTA -->
+  ${(b2title || b2body || closing || ctaText) ? `
+  <div class="closing-block">
+    ${b2title  ? `<p class="b2-title">${b2title}</p>` : ''}
+    ${b2body   ? `<p class="b2-body">${b2body}</p>` : ''}
+    ${closing  ? `<p class="closing-line">${closing}</p>` : ''}
+    ${ctaText  ? `<a href="${ctaUrl}" class="cta-btn">${ctaText} →</a>` : ''}
   </div>` : ''}
 
   <!-- Footer -->
