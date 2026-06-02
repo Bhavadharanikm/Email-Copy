@@ -19,7 +19,7 @@ export default function ApprovalPanel() {
 
   const {
     selectedClient, generatedCopy, selectedImages, renderedHtml,
-    templateId, locationId, templateUrl, approvalStatus, setApproval, setGhlPushResult, setError,
+    templateId, locationId, templateUrl, folderId, approvalStatus, setApproval, setGhlPushResult, setError,
   } = useCampaignStore((s) => ({
     selectedClient:   s.selectedClient,
     generatedCopy:    s.generatedCopy,
@@ -28,6 +28,7 @@ export default function ApprovalPanel() {
     templateId:       s.templateId,
     locationId:       s.locationId,
     templateUrl:      s.templateUrl,
+    folderId:         s.folderId,
     approvalStatus:   s.approvalStatus,
     setApproval:      s.setApproval,
     setGhlPushResult: s.setGhlPushResult,
@@ -38,7 +39,7 @@ export default function ApprovalPanel() {
     setLoading(true)
     setApproval('approved', notes)
     try {
-      const ghlResult = await pushHtmlToGHL({ client: selectedClient, renderedHtml, generatedCopy, templateId, locationId })
+      const ghlResult = await pushHtmlToGHL({ client: selectedClient, renderedHtml, generatedCopy, templateId, locationId, folderId })
       setGhlPushResult(ghlResult)
       setPreviewUrl(templateUrl || ghlResult.previewUrl || '')
       try {

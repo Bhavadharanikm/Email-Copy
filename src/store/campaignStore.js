@@ -16,6 +16,10 @@ const INITIAL_STATE = {
   templateId:  '',
   locationId:  '',
 
+  // Step 1 — GHL folder (URL pasted by user, folderId extracted)
+  folderUrl: '',
+  folderId:  '',
+
   // Step 2 — free-text prompt sent directly to n8n
   prompt: '',
 
@@ -73,6 +77,14 @@ export const useCampaignStore = create(
           templateId:  templateMatch ? templateMatch[1] : '',
           locationId:  locationMatch ? locationMatch[1] : '',
         })
+      },
+      setFolderUrl:      (url)      => {
+        // Extract folderId from GHL folder URL
+        // Handles: ?folderId=abc123  OR  /folders/abc123  OR  /folder/abc123
+        const qsMatch   = url.match(/[?&]folderId=([A-Za-z0-9_-]+)/)
+        const pathMatch = url.match(/\/folders?\/([A-Za-z0-9_-]+)/)
+        const folderId  = (qsMatch || pathMatch)?.[1] || ''
+        set({ folderUrl: url, folderId })
       },
       setPrompt:         (prompt)   => set({ prompt }),
       setVariations:     (variations) => set({

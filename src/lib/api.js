@@ -43,13 +43,21 @@ export const fetchDriveImages = ({ folderId }) =>
 export const fetchGhlImages = ({ locationId, apiKey }) =>
   get('/fetch-ghl-images', { locationId, apiKey })
 
-// ── Push to GHL ──────────────────────────────────────────────────
+// ── Push custom values to GHL (legacy) ───────────────────────────
 export const pushToGHL = ({ client, renderedHtml, generatedCopy, selectedImages, templateId, locationId }) =>
   post('/push-to-ghl', { client, renderedHtml, generatedCopy, selectedImages, templateId, locationId })
+
+// ── Push full HTML template to GHL ───────────────────────────────
+export const pushHtmlToGHL = ({ client, renderedHtml, generatedCopy, templateId, locationId, folderId }) =>
+  post('/push-html-to-ghl', { client, renderedHtml, generatedCopy, templateId, locationId, folderId })
 
 // ── Google Chat notification ─────────────────────────────────────
 export const notifyChat = ({ clientName, previewUrl, approvedBy }) =>
   post('/notify-chat', { clientName, previewUrl, approvedBy })
+
+// ── Logo upload → GHL media library + save URL to Sheet ──────────
+export const uploadLogo = ({ base64, mimeType, fileName, locationId, apiKey, clientRowIndex }) =>
+  post('/upload-logo', { base64, mimeType, fileName, locationId, apiKey, clientRowIndex })
 
 // ── Google Sheets logging ─────────────────────────────────────────
 // Pass { client, variations } to log all 3 at once (after generation)

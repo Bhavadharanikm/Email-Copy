@@ -2,12 +2,17 @@
  * PromptForm
  * Step 1 — select client + write the prompt that goes directly to n8n.
  */
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useCampaignStore } from '../store/campaignStore'
-import { fetchClients } from '../lib/api'
+import { fetchClients, uploadLogo } from '../lib/api'
 
 export default function PromptForm({ onGenerate, dark = false }) {
-  const [clients, setClients] = useState([])
+  const [clients, setClients]             = useState([])
+  const [logoUploading, setLogoUploading] = useState(false)
+  const [logoStatus, setLogoStatus]       = useState('') // '' | 'success' | 'error'
+  const [logoMsg, setLogoMsg]             = useState('')
+  const [clientLogoUrl, setClientLogoUrl] = useState('')
+  const logoInputRef = useRef(null)
   const [loadingClients, setLoadingClients] = useState(true)
   const [templateName, setTemplateName] = useState('')
   const [templateNameLoading, setTemplateNameLoading] = useState(false)
@@ -15,6 +20,7 @@ export default function PromptForm({ onGenerate, dark = false }) {
   const {
     selectedClient, setClient,
     templateUrl, setTemplateUrl, templateId, locationId,
+    folderUrl, setFolderUrl, folderId,
     prompt, setPrompt,
     isGenerating, error, setError,
   } = useCampaignStore((s) => ({
@@ -24,6 +30,9 @@ export default function PromptForm({ onGenerate, dark = false }) {
     setTemplateUrl:  s.setTemplateUrl,
     templateId:      s.templateId,
     locationId:      s.locationId,
+    folderUrl:       s.folderUrl,
+    setFolderUrl:    s.setFolderUrl,
+    folderId:        s.folderId,
     prompt:          s.prompt,
     setPrompt:       s.setPrompt,
     isGenerating:    s.isGenerating,
@@ -52,6 +61,7 @@ export default function PromptForm({ onGenerate, dark = false }) {
     if (matchedClient && matchedClient.id !== selectedClient?.id) {
       setClient(matchedClient)
       setPrompt(`Client Name: ${matchedClient.name}\nTheme: \nAudience: `)
+      setClientLogoUrl(matchedClient.logoUrl || '')
     }
     const apiKey = matchedClient?.ghlApiKey || selectedClient?.ghlApiKey
     if (!apiKey) { setTemplateName(''); return }
@@ -69,7 +79,46 @@ export default function PromptForm({ onGenerate, dark = false }) {
     if (!client) return
     setClient(client)
     setError(null)
+    setLogoStatus('')
+    setLogoMsg('')
+    setClientLogoUrl(client.logoUrl || '')
     setPrompt(`Client Name: ${client.name}\nTheme: \nAudience: `)
+  }
+
+  async function handleLogoUpload(e) {
+    const file = e.target.files?.[0]
+    if (!file || !selectedClient) return
+    setLogoUploading(true)
+    setLogoStatus('')
+    setLogoMsg('')
+    try {
+      const base64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload  = () => resolve(reader.result.split(',')[1])
+        reader.onerror = reject
+        reader.readAsDataURL(file)
+      })
+      const rowIndex = parseInt(selectedClient.id.replace('client-', ''), 10)
+      const result = await uploadLogo({
+        base64,
+        mimeType: file.type,
+        fileName: file.name,
+        locationId: selectedClient.ghl?.locationId,
+        apiKey: selectedClient.ghlApiKey,
+        clientRowIndex: rowIndex,
+      })
+      setClientLogoUrl(result.logoUrl)
+      setLogoStatus('success')
+      setLogoMsg('Logo uploaded & saved!')
+      // Update the local client object so the template preview uses it immediately
+      setClient({ ...selectedClient, logoUrl: result.logoUrl })
+    } catch (err) {
+      setLogoStatus('error')
+      setLogoMsg(err.message || 'Upload failed')
+    } finally {
+      setLogoUploading(false)
+      if (logoInputRef.current) logoInputRef.current.value = ''
+    }
   }
 
   const canGenerate = selectedClient && prompt.trim().length > 20 && !isGenerating
@@ -140,6 +189,47 @@ export default function PromptForm({ onGenerate, dark = false }) {
             ))}
           </select>
         )}
+
+        {/* Logo upload — shown when client is selected */}
+        {selectedClient && (
+          <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            {clientLogoUrl ? (
+              <img src={clientLogoUrl} alt="Logo" style={{ height: 36, maxWidth: 120, objectFit: 'contain', borderRadius: 6, border: `1px solid ${dark ? 'rgba(255,255,255,0.1)' : '#e5e7eb'}`, background: '#fff', padding: 4 }} />
+            ) : (
+              <div style={{ width: 36, height: 36, borderRadius: 6, border: `1px dashed ${dark ? 'rgba(255,255,255,0.2)' : '#d1d5db'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span style={{ fontSize: 18, color: dark ? 'rgba(255,255,255,0.2)' : '#d1d5db' }}>🖼</span>
+              </div>
+            )}
+            <div>
+              <button
+                type="button"
+                onClick={() => logoInputRef.current?.click()}
+                disabled={logoUploading}
+                style={{
+                  fontSize: 12, fontWeight: 600, padding: '6px 14px', borderRadius: 8,
+                  cursor: logoUploading ? 'not-allowed' : 'pointer',
+                  border: `1px solid ${dark ? 'rgba(255,255,255,0.15)' : '#d1d5db'}`,
+                  background: dark ? 'rgba(255,255,255,0.06)' : '#f9fafb',
+                  color: dark ? 'rgba(255,255,255,0.7)' : '#374151',
+                  fontFamily: 'Inter, sans-serif',
+                  opacity: logoUploading ? 0.6 : 1,
+                }}
+              >
+                {logoUploading ? 'Uploading…' : clientLogoUrl ? '↑ Replace Logo' : '↑ Upload Logo'}
+              </button>
+              {logoStatus === 'success' && <span style={{ fontSize: 11, color: '#34d399', marginLeft: 8 }}>✓ {logoMsg}</span>}
+              {logoStatus === 'error'   && <span style={{ fontSize: 11, color: '#f87171', marginLeft: 8 }}>⚠ {logoMsg}</span>}
+              {!logoStatus && <span style={{ fontSize: 11, color: dark ? 'rgba(255,255,255,0.25)' : '#9ca3af', marginLeft: 8 }}>saved once per client</span>}
+            </div>
+            <input
+              ref={logoInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/svg+xml,image/webp"
+              style={{ display: 'none' }}
+              onChange={handleLogoUpload}
+            />
+          </div>
+        )}
       </div>
 
       {/* GHL Template URL */}
@@ -166,6 +256,30 @@ export default function PromptForm({ onGenerate, dark = false }) {
             {templateId && !templateNameLoading && !templateName && (
               <span style={{ color: '#34d399' }}>✓ ID extracted: {templateId}</span>
             )}
+          </div>
+        )}
+      </div>
+
+      {/* GHL Folder URL */}
+      <div>
+        <label style={labelStyle}>
+          GHL Folder URL{' '}
+          <span style={hintStyle}>paste the folder link — new template will be created inside it</span>
+        </label>
+        <input
+          type="text"
+          value={folderUrl}
+          onChange={(e) => setFolderUrl(e.target.value)}
+          disabled={isGenerating}
+          placeholder="https://app.gohighlevel.com/v2/location/.../marketing/emails/all?folderId=..."
+          style={{ ...inputStyle, opacity: isGenerating ? 0.5 : 1 }}
+        />
+        {folderUrl && (
+          <div style={{ fontSize: 11, marginTop: 6 }}>
+            {folderId
+              ? <span style={{ color: '#34d399' }}>✓ Folder ID: <strong>{folderId}</strong></span>
+              : <span style={{ color: '#f87171' }}>⚠ No folder ID found in this URL</span>
+            }
           </div>
         )}
       </div>
