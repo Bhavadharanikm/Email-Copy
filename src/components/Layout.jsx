@@ -1,8 +1,171 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useState, useRef, useEffect } from 'react'
 import { useCampaignStore } from '../store/campaignStore'
-import { IconDiamond, IconSun, IconMoon } from '@tabler/icons-react'
+import { IconDiamond, IconSun, IconMoon, IconMessageCircle, IconCalendar, IconX, IconCheck } from '@tabler/icons-react'
 import { useTheme } from '../context/ThemeContext'
+
+const SECTIONS = [
+  'Subject Line',
+  'Preview Text',
+  'Hero Headline',
+  'Subhead',
+  'Body Text',
+  'Body Block 2 Title',
+  'Body Block 2',
+  'CTA',
+  'Closing Line',
+  'Hero Image',
+  'Polaroid / Gallery Images',
+  'Logo',
+  'Overall Email',
+]
+
+function FeedbackModal({ dark, onClose }) {
+  const [section,  setSection]  = useState('')
+  const [feedback, setFeedback] = useState('')
+  const [sent,     setSent]     = useState(false)
+  const modalRef = useRef(null)
+
+  // Close on outside click
+  useEffect(() => {
+    function handleClick(e) {
+      if (modalRef.current && !modalRef.current.contains(e.target)) onClose()
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [onClose])
+
+  function handleSubmit(e) {
+    e.preventDefault()
+    if (!section || !feedback.trim()) return
+    console.log('[Feedback]', { section, feedback })
+    setSent(true)
+    setTimeout(() => { setSent(false); setSection(''); setFeedback(''); onClose() }, 1800)
+  }
+
+  const border  = dark ? 'rgba(255,255,255,0.1)'  : '#e5e7eb'
+  const bg      = dark ? '#141414'                 : '#ffffff'
+  const textCol = dark ? 'rgba(255,255,255,0.85)'  : '#111827'
+  const subCol  = dark ? 'rgba(255,255,255,0.35)'  : '#9ca3af'
+  const inputBg = dark ? 'rgba(255,255,255,0.05)'  : '#f9fafb'
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -8, scale: 0.97 }}
+      animate={{ opacity: 1, y: 0,  scale: 1     }}
+      exit={{    opacity: 0, y: -8, scale: 0.97  }}
+      transition={{ duration: 0.18, ease: 'easeOut' }}
+      ref={modalRef}
+      style={{
+        position: 'absolute', top: 52, right: 0, zIndex: 200,
+        width: 340,
+        background: bg,
+        border: `1.5px solid ${border}`,
+        borderRadius: 16,
+        boxShadow: dark
+          ? '0 20px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04)'
+          : '0 20px 60px rgba(0,0,0,0.12), 0 4px 16px rgba(0,0,0,0.06)',
+        padding: '20px 20px 16px',
+        fontFamily: 'Inter, sans-serif',
+      }}
+    >
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+        <div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: textCol, letterSpacing: '-0.01em' }}>Leave Feedback</div>
+          <div style={{ fontSize: 11, color: subCol, marginTop: 2 }}>Flag a section for revision</div>
+        </div>
+        <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, borderRadius: 6, display: 'flex', color: subCol }}>
+          <IconX size={16} stroke={2} />
+        </button>
+      </div>
+
+      {sent ? (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, padding: '20px 0' }}>
+          <div style={{ width: 40, height: 40, borderRadius: '50%', background: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <IconCheck size={20} color="#fff" stroke={2.5} />
+          </div>
+          <span style={{ fontSize: 13, fontWeight: 600, color: textCol }}>Feedback noted!</span>
+        </div>
+      ) : (
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+
+          {/* Section picker */}
+          <div>
+            <label style={{ fontSize: 11, fontWeight: 600, color: subCol, textTransform: 'uppercase', letterSpacing: '0.07em', display: 'block', marginBottom: 6 }}>
+              Section
+            </label>
+            <select
+              value={section}
+              onChange={e => setSection(e.target.value)}
+              required
+              style={{
+                width: '100%', padding: '9px 12px', borderRadius: 9,
+                background: inputBg, border: `1.5px solid ${border}`,
+                color: section ? textCol : subCol,
+                fontSize: 13, fontFamily: 'Inter, sans-serif',
+                outline: 'none', cursor: 'pointer',
+                appearance: 'none',
+                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'right 10px center',
+                paddingRight: 32,
+              }}
+            >
+              <option value="" disabled>Select a section…</option>
+              {SECTIONS.map(s => (
+                <option key={s} value={s} style={{ background: bg, color: textCol }}>{s}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Feedback textarea */}
+          <div>
+            <label style={{ fontSize: 11, fontWeight: 600, color: subCol, textTransform: 'uppercase', letterSpacing: '0.07em', display: 'block', marginBottom: 6 }}>
+              Feedback
+            </label>
+            <textarea
+              value={feedback}
+              onChange={e => setFeedback(e.target.value)}
+              required
+              placeholder="What needs to change?"
+              rows={4}
+              style={{
+                width: '100%', padding: '9px 12px', borderRadius: 9,
+                background: inputBg, border: `1.5px solid ${border}`,
+                color: textCol, fontSize: 13, fontFamily: 'Inter, sans-serif',
+                resize: 'vertical', outline: 'none', lineHeight: 1.6,
+                boxSizing: 'border-box',
+              }}
+              onFocus={e  => e.target.style.borderColor = dark ? 'rgba(255,255,255,0.3)' : '#6b7280'}
+              onBlur={e   => e.target.style.borderColor = border}
+            />
+          </div>
+
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={!section || !feedback.trim()}
+            style={{
+              padding: '9px 0', borderRadius: 9, border: 'none',
+              background: section && feedback.trim()
+                ? (dark ? '#f59e0b' : '#111827')
+                : (dark ? 'rgba(255,255,255,0.06)' : '#e5e7eb'),
+              color: section && feedback.trim()
+                ? (dark ? '#111827' : '#ffffff')
+                : subCol,
+              fontSize: 13, fontWeight: 700, cursor: section && feedback.trim() ? 'pointer' : 'not-allowed',
+              transition: 'all 0.15s',
+            }}
+          >
+            Submit Feedback
+          </button>
+        </form>
+      )}
+    </motion.div>
+  )
+}
 
 /* ─── Floating pill shape ─────────────────────────────────────── */
 function BgShape({ className, delay = 0, width = 260, height = 55, rotate = 0, gradient }) {
@@ -36,6 +199,9 @@ export default function Layout() {
   const navigate = useNavigate()
   const { theme, toggle } = useTheme()
   const dark = theme === 'dark'
+  const [feedbackOpen, setFeedbackOpen] = useState(false)
+
+  function handleCalendar() { navigate('/calendar') }
 
   function handleNewCampaign() {
     resetCampaign()
@@ -134,6 +300,49 @@ export default function Layout() {
               : <IconMoon size={16} color="#6b7280"               stroke={1.8} />
             }
           </button>
+
+          {/* Calendar button */}
+          <button
+            onClick={handleCalendar}
+            title="Content Calendar"
+            style={{
+              width: 36, height: 36, borderRadius: 10,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: dark ? 'rgba(255,255,255,0.06)' : '#f3f4f6',
+              border: dark ? '1px solid rgba(255,255,255,0.1)' : '1px solid #e5e7eb',
+              cursor: 'pointer', transition: 'all 0.18s',
+            }}
+            onMouseEnter={e => e.currentTarget.style.background = dark ? 'rgba(255,255,255,0.12)' : '#e5e7eb'}
+            onMouseLeave={e => e.currentTarget.style.background = dark ? 'rgba(255,255,255,0.06)' : '#f3f4f6'}
+          >
+            <IconCalendar size={16} color={dark ? 'rgba(255,255,255,0.7)' : '#6b7280'} stroke={1.8} />
+          </button>
+
+          {/* Feedback button */}
+          <div style={{ position: 'relative' }}>
+            <button
+              onClick={() => setFeedbackOpen(o => !o)}
+              title="Leave feedback"
+              style={{
+                width: 36, height: 36, borderRadius: 10,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: feedbackOpen
+                  ? (dark ? 'rgba(245,158,11,0.15)' : '#eff6ff')
+                  : (dark ? 'rgba(255,255,255,0.06)' : '#f3f4f6'),
+                border: feedbackOpen
+                  ? `1px solid ${dark ? 'rgba(245,158,11,0.4)' : '#bfdbfe'}`
+                  : `1px solid ${dark ? 'rgba(255,255,255,0.1)' : '#e5e7eb'}`,
+                cursor: 'pointer', transition: 'all 0.18s',
+              }}
+              onMouseEnter={e => { if (!feedbackOpen) e.currentTarget.style.background = dark ? 'rgba(255,255,255,0.12)' : '#e5e7eb' }}
+              onMouseLeave={e => { if (!feedbackOpen) e.currentTarget.style.background = dark ? 'rgba(255,255,255,0.06)' : '#f3f4f6' }}
+            >
+              <IconMessageCircle size={16} color={feedbackOpen ? (dark ? '#f59e0b' : '#3b82f6') : (dark ? 'rgba(255,255,255,0.7)' : '#6b7280')} stroke={1.8} />
+            </button>
+            <AnimatePresence>
+              {feedbackOpen && <FeedbackModal dark={dark} onClose={() => setFeedbackOpen(false)} />}
+            </AnimatePresence>
+          </div>
 
           {/* New Campaign */}
           <button

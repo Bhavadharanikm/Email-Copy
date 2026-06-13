@@ -23,6 +23,7 @@ export default function PromptForm({ onGenerate, dark = false }) {
     folderUrl, setFolderUrl, folderId,
     prompt, setPrompt,
     isGenerating, error, setError,
+    setVariations, setStep,
   } = useCampaignStore((s) => ({
     selectedClient:  s.selectedClient,
     setClient:       s.setClient,
@@ -38,6 +39,8 @@ export default function PromptForm({ onGenerate, dark = false }) {
     isGenerating:    s.isGenerating,
     error:           s.error,
     setError:        s.setError,
+    setVariations:   s.setVariations,
+    setStep:         s.setStep,
   }))
 
   const [clientLoadError, setClientLoadError] = useState('')
@@ -56,13 +59,20 @@ export default function PromptForm({ onGenerate, dark = false }) {
   }, [])
 
   useEffect(() => {
-    if (!locationId || !templateId) { setTemplateName(''); return }
+    if (!locationId) { setTemplateName(''); return }
+
+    // Auto-select client + pre-fill prompt whenever locationId is known,
+    // but ONLY if no client has been manually selected yet
     const matchedClient = clients.find(c => c.ghl?.locationId === locationId)
-    if (matchedClient && matchedClient.id !== selectedClient?.id) {
+    if (matchedClient && !selectedClient) {
       setClient(matchedClient)
       setPrompt(`Client Name: ${matchedClient.name}\nTheme: \nAudience: `)
       setClientLogoUrl(matchedClient.logoUrl || '')
     }
+
+    // Template name lookup only makes sense when a template ID is also present
+    if (!templateId) { setTemplateName(''); return }
+
     const apiKey = matchedClient?.ghlApiKey || selectedClient?.ghlApiKey
     if (!apiKey) { setTemplateName(''); return }
     setTemplateNameLoading(true)
@@ -190,46 +200,6 @@ export default function PromptForm({ onGenerate, dark = false }) {
           </select>
         )}
 
-        {/* Logo upload — shown when client is selected */}
-        {selectedClient && (
-          <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-            {clientLogoUrl ? (
-              <img src={clientLogoUrl} alt="Logo" style={{ height: 36, maxWidth: 120, objectFit: 'contain', borderRadius: 6, border: `1px solid ${dark ? 'rgba(255,255,255,0.1)' : '#e5e7eb'}`, background: '#fff', padding: 4 }} />
-            ) : (
-              <div style={{ width: 36, height: 36, borderRadius: 6, border: `1px dashed ${dark ? 'rgba(255,255,255,0.2)' : '#d1d5db'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <span style={{ fontSize: 18, color: dark ? 'rgba(255,255,255,0.2)' : '#d1d5db' }}>🖼</span>
-              </div>
-            )}
-            <div>
-              <button
-                type="button"
-                onClick={() => logoInputRef.current?.click()}
-                disabled={logoUploading}
-                style={{
-                  fontSize: 12, fontWeight: 600, padding: '6px 14px', borderRadius: 8,
-                  cursor: logoUploading ? 'not-allowed' : 'pointer',
-                  border: `1px solid ${dark ? 'rgba(255,255,255,0.15)' : '#d1d5db'}`,
-                  background: dark ? 'rgba(255,255,255,0.06)' : '#f9fafb',
-                  color: dark ? 'rgba(255,255,255,0.7)' : '#374151',
-                  fontFamily: 'Inter, sans-serif',
-                  opacity: logoUploading ? 0.6 : 1,
-                }}
-              >
-                {logoUploading ? 'Uploading…' : clientLogoUrl ? '↑ Replace Logo' : '↑ Upload Logo'}
-              </button>
-              {logoStatus === 'success' && <span style={{ fontSize: 11, color: '#34d399', marginLeft: 8 }}>✓ {logoMsg}</span>}
-              {logoStatus === 'error'   && <span style={{ fontSize: 11, color: '#f87171', marginLeft: 8 }}>⚠ {logoMsg}</span>}
-              {!logoStatus && <span style={{ fontSize: 11, color: dark ? 'rgba(255,255,255,0.25)' : '#9ca3af', marginLeft: 8 }}>saved once per client</span>}
-            </div>
-            <input
-              ref={logoInputRef}
-              type="file"
-              accept="image/png,image/jpeg,image/svg+xml,image/webp"
-              style={{ display: 'none' }}
-              onChange={handleLogoUpload}
-            />
-          </div>
-        )}
       </div>
 
       {/* GHL Template URL */}
@@ -380,6 +350,41 @@ export default function PromptForm({ onGenerate, dark = false }) {
         ) : (
           'Generate Copy with n8n →'
         )}
+      </button>
+
+      {/* Dev shortcut — skip n8n and load placeholder copy */}
+      <button
+        onClick={() => {
+          // Auto-select the client with this location ID (HiddenGem Test default)
+          const DEFAULT_LOCATION = 'VWszdEOrmbETl88rx85j'
+          const devClient = clients.find(c => c.ghl?.locationId === DEFAULT_LOCATION) || clients[0]
+          if (devClient) setClient(devClient)
+
+          const placeholder = {
+            subjectLine:   'Winter Looks Different From Here.',
+            previewText:   'Couples are finding FLOHOM\'s waterfront suites hit differently in winter.',
+            headlineText:  'Winter Looks Different From Here.',
+            subhead:       'For couples ready to feel the season, FLOHOM is where winter finally earns its place.',
+            bodyText:      'The air is colder and the water is quieter. Step out onto the rooftop deck and the marina around you has settled into something slower, something easier to breathe in.\n\nLight the fire pit table. Pull a wool blanket across both of you. Wrap yourself in a kimono robe after a long shower and decide that tonight you\'re going exactly nowhere.\n\nWinter has never felt this good.',
+            ctaText:       'Book Your Winter Escape',
+            closingLine:   'Some seasons are made for slowing down.',
+            body2Title:    'The Season Nobody Plans For — Until Now',
+            body2Text:     'Most people spend winter waiting for it to end. A few discover that the right place changes everything.',
+            variationName: 'The Scene Setter',
+          }
+          setVariations([placeholder, placeholder, placeholder])
+          setStep(2)
+        }}
+        style={{
+          marginTop: 8, width: '100%', padding: '10px',
+          fontSize: 12, fontWeight: 600, fontFamily: 'Inter, sans-serif',
+          borderRadius: 10, cursor: 'pointer',
+          background: 'transparent',
+          border: `1.5px dashed ${dark ? 'rgba(255,255,255,0.15)' : '#d1d5db'}`,
+          color: dark ? 'rgba(255,255,255,0.3)' : '#9ca3af',
+        }}
+      >
+        ⚡ Dev: Skip n8n — use test data
       </button>
 
       <style>{`@keyframes spin { from { transform: rotate(0deg) } to { transform: rotate(360deg) } }`}</style>

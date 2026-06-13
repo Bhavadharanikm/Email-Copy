@@ -1,54 +1,71 @@
 /**
- * GET /.netlify/functions/fetch-ghl-images?locationId=XXX
- * Returns images from the GHL Media Library for a given location.
+ * GET /.netlify/functions/fetch-ghl-images
+ *
+ * ?locationId=XXX              → returns { folders, images } (root level)
+ * ?locationId=XXX&folderId=YYY → returns { images } inside that folder
  */
 
 const GHL_BASE    = 'https://services.leadconnectorhq.com'
 const GHL_VERSION = '2021-07-28'
-
-// SVGs excluded — they don't work as email images
 const IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/gif']
 
-export const handler = async (event) => {
-  if (event.httpMethod !== 'GET') {
-    return { statusCode: 405, body: 'Method Not Allowed' }
-  }
+async function ghlGet(path, apiKey) {
+  const res = await fetch(`${GHL_BASE}${path}`, {
+    headers: {
+      Authorization:  `Bearer ${apiKey}`,
+      Version:        GHL_VERSION,
+      'Content-Type': 'application/json',
+    },
+  })
+  return res.json()
+}
 
-  const locationId = event.queryStringParameters?.locationId
-  const apiKey     = event.queryStringParameters?.apiKey || process.env.GHL_API_KEY
+export const handler = async (event) => {
+  if (event.httpMethod !== 'GET') return { statusCode: 405, body: 'Method Not Allowed' }
+
+  const { locationId, folderId, apiKey: qApiKey } = event.queryStringParameters || {}
+  const apiKey = qApiKey || process.env.GHL_API_KEY
 
   if (!locationId) return { statusCode: 400, body: JSON.stringify({ error: 'locationId required' }) }
   if (!apiKey)     return { statusCode: 500, body: JSON.stringify({ error: 'GHL_API_KEY not set' }) }
 
   try {
-    const res  = await fetch(
-      `${GHL_BASE}/medias/files?locationId=${locationId}&type=file&limit=100&sortBy=updatedAt&sortOrder=desc`,
-      {
-        headers: {
-          Authorization:  `Bearer ${apiKey}`,
-          Version:        GHL_VERSION,
-          'Content-Type': 'application/json',
-        },
+    if (folderId) {
+      // ── Fetch images inside a specific folder ──────────────────────────
+      const data = await ghlGet(
+        `/medias/files?locationId=${locationId}&type=file&parentId=${folderId}&limit=200&sortBy=updatedAt&sortOrder=desc`,
+        apiKey
+      )
+      const images = (data.files || [])
+        .filter(f => IMAGE_TYPES.includes(f.contentType))
+        .map(f => ({ id: f._id, name: f.name, url: f.url, thumbnailUrl: f.url, contentType: f.contentType }))
+
+      return {
+        statusCode: 200,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ images }),
       }
-    )
+    }
 
-    const data = await res.json()
+    // ── Fetch root: folders + root-level images in parallel ────────────
+    const [folderData, fileData] = await Promise.all([
+      ghlGet(`/medias/files?locationId=${locationId}&type=folder&limit=100&sortBy=name&sortOrder=asc`, apiKey),
+      ghlGet(`/medias/files?locationId=${locationId}&type=file&limit=200&sortBy=updatedAt&sortOrder=desc`, apiKey),
+    ])
 
-    // Filter to images only and shape for the picker
-    const images = (data.files || [])
+    const folders = (folderData.files || []).map(f => ({
+      id:   f._id,
+      name: f.name,
+    }))
+
+    const images = (fileData.files || [])
       .filter(f => IMAGE_TYPES.includes(f.contentType))
-      .map(f => ({
-        id:           f._id,
-        name:         f.name,
-        url:          f.url,
-        thumbnailUrl: f.url,   // GHL CDN URLs work directly as thumbnails
-        contentType:  f.contentType,
-      }))
+      .map(f => ({ id: f._id, name: f.name, url: f.url, thumbnailUrl: f.url, contentType: f.contentType }))
 
     return {
       statusCode: 200,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ images }),
+      body: JSON.stringify({ folders, images }),
     }
 
   } catch (err) {

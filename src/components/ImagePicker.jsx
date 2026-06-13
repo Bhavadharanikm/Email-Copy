@@ -1,26 +1,32 @@
 /**
  * ImagePicker — Step 3
- * Left: large named slots (Hero, Sub 1, Sub 2) — positions stay fixed on remove.
+ * Left: large named slots (Hero, Sub 1–4) — positions stay fixed on remove.
  * Right: compact scrollable image grid to pick from.
  */
 import { useEffect, useState, useRef } from 'react'
 import { useCampaignStore } from '../store/campaignStore'
-import { fetchGhlImages, uploadLogo } from '../lib/api'
+import { fetchGhlImages, uploadLogo, analyzeImageFocal } from '../lib/api'
 import { useTheme } from '../context/ThemeContext'
 
 const SLOTS = [
-  { key: 'hero', label: 'Hero Image',  desc: 'Main banner at the top' },
-  { key: 'sub1', label: 'Sub Image 1', desc: 'Secondary image in body' },
-  { key: 'sub2', label: 'Sub Image 2', desc: 'Closing visual'          },
+  { key: 'hero', label: 'Hero Image',  desc: 'Main banner at the top'     },
+  { key: 'sub1', label: 'Sub Image 1', desc: 'Body image · slot 1'        },
+  { key: 'sub2', label: 'Sub Image 2', desc: 'Body image · slot 2'        },
+  { key: 'sub3', label: 'Sub Image 3', desc: 'Body image · slot 3 (grid)' },
+  { key: 'sub4', label: 'Sub Image 4', desc: 'Body image · slot 4 (grid)' },
 ]
 
 export default function ImagePicker() {
   const { theme } = useTheme()
   const dark = theme === 'dark'
 
-  const [images, setImages]   = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError]     = useState(null)
+  const [folders,  setFolders]  = useState([])
+  const [images,   setImages]   = useState([])
+  const [loading,  setLoading]  = useState(true)
+  const [error,    setError]    = useState(null)
+
+  // Folder navigation
+  const [activeFolder, setActiveFolder] = useState(null) // null = root
 
   const [logoUploading, setLogoUploading] = useState(false)
   const [logoStatus, setLogoStatus]       = useState('')
@@ -43,6 +49,7 @@ export default function ImagePicker() {
     setClientLogoUrl(selectedClient?.logoUrl || '')
   }, [selectedClient])
 
+
   useEffect(() => {
     const apiKey = selectedClient?.ghlApiKey
     if (!selectedClient) { setError('Select a client on Step 1.'); setLoading(false); return }
@@ -50,16 +57,21 @@ export default function ImagePicker() {
     if (!apiKey)         { setError('No API key found for this client.'); setLoading(false); return }
     setError(null)
     setLoading(true)
-    fetchGhlImages({ locationId, apiKey })
-      .then(d => setImages(d.images || []))
+    fetchGhlImages({ locationId, apiKey, folderId: activeFolder?.id })
+      .then(d => {
+        setFolders(d.folders || [])
+        setImages(d.images   || [])
+      })
       .catch(e => setError(e.message))
       .finally(() => setLoading(false))
-  }, [locationId, selectedClient])
+  }, [locationId, selectedClient, activeFolder])
 
   const slots = [
     selectedImages[0] ?? null,
     selectedImages[1] ?? null,
     selectedImages[2] ?? null,
+    selectedImages[3] ?? null,
+    selectedImages[4] ?? null,
   ]
 
   function save(next) { setSelectedImages(next) }
@@ -67,11 +79,29 @@ export default function ImagePicker() {
   function handleImageClick(img) {
     const slotIndex = slots.findIndex(s => s?.id === img.id)
     if (slotIndex !== -1) {
+      // Deselect
       const next = [...slots]; next[slotIndex] = null; save(next)
     } else {
       const emptyIndex = slots.findIndex(s => s === null)
       if (emptyIndex === -1) return
+      // Place image immediately, then enrich with focal point in background
       const next = [...slots]; next[emptyIndex] = img; save(next)
+      const urlToAnalyze = img.url || img.thumbnailUrl
+      if (urlToAnalyze) {
+        analyzeImageFocal({ imageUrl: urlToAnalyze })
+          .then(({ focalX, focalY }) => {
+            // Re-read current slots from store and update this slot
+            const current = useCampaignStore.getState().selectedImages
+            const updated = [...current]
+            // Find the slot that still has this image id
+            const idx = updated.findIndex(s => s?.id === img.id)
+            if (idx !== -1) {
+              updated[idx] = { ...updated[idx], focalX, focalY }
+              setSelectedImages(updated)
+            }
+          })
+          .catch(() => {}) // fail silently — default centering is fine
+      }
     }
   }
 
@@ -113,9 +143,10 @@ export default function ImagePicker() {
   const accent = dark ? '#f59e0b' : '#3b82f6'
   const mutedText = dark ? 'rgba(255,255,255,0.3)' : '#9ca3af'
 
-  if (loading) return <p style={{ fontSize: 15, color: mutedText }}>Loading images from GHL Media Library…</p>
-  if (error)   return <p style={{ fontSize: 15, color: dark ? '#f87171' : '#ef4444' }}>{error}</p>
-  if (!images.length) return <p style={{ fontSize: 15, color: mutedText }}>No images found. Upload photos in GHL → Media Storage.</p>
+  if (error) return <p style={{ fontSize: 15, color: dark ? '#f87171' : '#ef4444' }}>{error}</p>
+
+  // Show loading only if nothing to display yet
+  if (loading && !images.length && !folders.length) return <p style={{ fontSize: 15, color: mutedText }}>Loading images from GHL Media Library…</p>
 
   const allFull = slots.every(s => s !== null)
 
@@ -225,9 +256,80 @@ export default function ImagePicker() {
 
       {/* ── Right: Media library ── */}
       <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontSize: 14, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: mutedText, marginBottom: 12 }}>
-          Media Library
-        </p>
+        {/* Header row: title + breadcrumb */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+          <p style={{ fontSize: 14, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: mutedText, margin: 0 }}>
+            Media Library
+          </p>
+          {activeFolder && (
+            <>
+              <span style={{ fontSize: 13, color: mutedText }}>›</span>
+              <span style={{ fontSize: 13, fontWeight: 600, color: dark ? 'rgba(255,255,255,0.7)' : '#374151' }}>{activeFolder.name}</span>
+              <button
+                type="button"
+                onClick={() => setActiveFolder(null)}
+                style={{
+                  marginLeft: 'auto', fontSize: 12, fontWeight: 600,
+                  padding: '4px 10px', borderRadius: 6, cursor: 'pointer',
+                  border: `1px solid ${dark ? 'rgba(255,255,255,0.15)' : '#d1d5db'}`,
+                  background: dark ? 'rgba(255,255,255,0.06)' : '#fff',
+                  color: dark ? 'rgba(255,255,255,0.6)' : '#6b7280',
+                  fontFamily: 'Inter, sans-serif',
+                }}
+              >← All folders</button>
+            </>
+          )}
+        </div>
+
+        {/* Folder chips — only at root level */}
+        {!activeFolder && folders.length > 0 && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 12 }}>
+            {folders.map(folder => (
+              <button
+                key={folder.id}
+                type="button"
+                onClick={() => setActiveFolder(folder)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 5,
+                  fontSize: 12, fontWeight: 600, padding: '5px 12px', borderRadius: 20,
+                  cursor: 'pointer',
+                  border: `1px solid ${dark ? 'rgba(255,255,255,0.15)' : '#d1d5db'}`,
+                  background: dark ? 'rgba(255,255,255,0.06)' : '#f3f4f6',
+                  color: dark ? 'rgba(255,255,255,0.75)' : '#374151',
+                  fontFamily: 'Inter, sans-serif',
+                  transition: 'all 0.15s',
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = dark ? 'rgba(255,255,255,0.12)' : '#e5e7eb'
+                  e.currentTarget.style.borderColor = dark ? 'rgba(255,255,255,0.3)' : '#9ca3af'
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = dark ? 'rgba(255,255,255,0.06)' : '#f3f4f6'
+                  e.currentTarget.style.borderColor = dark ? 'rgba(255,255,255,0.15)' : '#d1d5db'
+                }}
+              >
+                <span style={{ fontSize: 13 }}>📁</span>
+                {folder.name}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Loading spinner inside folder */}
+        {loading && (
+          <p style={{ fontSize: 13, color: mutedText, marginBottom: 10 }}>Loading…</p>
+        )}
+
+        {/* Empty folder message */}
+        {!loading && activeFolder && !images.length && (
+          <p style={{ fontSize: 14, color: mutedText, marginTop: 8 }}>No images in this folder.</p>
+        )}
+
+        {/* Empty root message (no folders, no images) */}
+        {!loading && !activeFolder && !images.length && !folders.length && (
+          <p style={{ fontSize: 14, color: mutedText, marginTop: 8 }}>No images found. Upload photos in GHL → Media Storage.</p>
+        )}
+
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 8, maxHeight: 580, overflowY: 'auto', paddingRight: 4 }}>
           {images.map(img => {
             const slotIndex = slots.findIndex(s => s?.id === img.id)

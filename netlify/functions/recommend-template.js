@@ -30,24 +30,28 @@ export const handler = async (event) => {
     const apiKey   = process.env.OPENROUTER_API_KEY
     if (!apiKey) throw new Error('OPENROUTER_API_KEY not set')
 
+    // Pick a random seed combo to force the AI to explore different options each call
+    const seedH = Math.ceil(Math.random() * 4)
+    const seedI = Math.ceil(Math.random() * 4)
+
     const prompt = `You are an email design assistant for a short-term rental / hospitality brand.
 
 Given the following email copy, do TWO things:
 
-1. Recommend the best HEADER STYLE and IMAGE STYLE from the options below.
-2. Return the copy fields with important phrases wrapped in <strong> tags (max 3–4 bolded phrases total, only truly key words like a property name, season, strong action phrase).
+1. Choose a HEADER STYLE and IMAGE STYLE. You MUST explore the full range — consider all 4 options for each and pick the most creative fit for this specific copy. Do NOT default to the same combination every time. Today's exploration seed: header ${seedH}, image ${seedI} — use this as inspiration to try a fresh angle.
+2. Return the copy fields with important phrases wrapped in <strong> tags (max 3–4 bolded phrases total, only truly key words like a property name, season, or strong action phrase).
 
 HEADER STYLES:
-1 — Dark branded logo bar (luxury, premium feel)
-2 — Minimal centered logo on white (clean, editorial)
-3 — Full-width colour band with large headline text (bold, campaign-style)
-4 — Split layout: logo left + tagline right (modern, informational)
+1 — Mountain: dark navy overlay with rugged/luxury feel
+2 — Forest: deep green overlay, earthy and grounded
+3 — Ocean/Water: warm brown tones, coastal or romantic
+4 — Desert: terracotta warmth, sunset adventurous feel
 
 IMAGE STYLES:
-1 — Single hero full-width banner (dramatic, one strong image)
-2 — Polaroid collage with "Favorite Memories" label (nostalgic, lifestyle)
-3 — Side-by-side two equal images (comparison, showcase)
-4 — Mosaic: one large left + two stacked right (editorial, variety)
+1 — 2×2 grid of 4 photos (great for showcasing multiple spaces or moments)
+2 — Polaroid collage "Favorite Memories" (nostalgic, lifestyle, emotional)
+3 — Two overlapping tilted photos (intimate, editorial)
+4 — Single circular feature image (bold, focused, modern)
 
 EMAIL COPY:
 Subject: ${copy.subjectLine || ''}
@@ -61,7 +65,7 @@ Respond ONLY with valid JSON in this exact shape:
 {
   "headerStyle": <1|2|3|4>,
   "imageStyle": <1|2|3|4>,
-  "reasoning": "<one sentence why>",
+  "reasoning": "<one sentence why this specific combination fits>",
   "boldedCopy": {
     "headlineText": "<headline with <strong> tags>",
     "subhead": "<subhead with <strong> tags>",
@@ -81,7 +85,7 @@ Respond ONLY with valid JSON in this exact shape:
       body: JSON.stringify({
         model: MODEL,
         messages: [{ role: 'user', content: prompt }],
-        temperature: 0.3,
+        temperature: 0.9,
         max_tokens: 800,
       }),
     })

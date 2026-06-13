@@ -66,6 +66,15 @@ export const handler = async () => {
       .filter(row => row[0]?.trim()) // must have at minimum a name
       .map((row, i) => {
         console.log(`[clients] Row ${i + 2}: name="${row[0]}" apiKey="${row[1]?.substring(0,10)}..." locationId="${row[2]}"`)
+        // Parse brand colors from col E (JSON string)
+        let brandColors = null
+        try {
+          const raw = row[4]?.trim()
+          if (raw) brandColors = JSON.parse(raw)
+        } catch (e) {
+          console.warn(`[clients] Could not parse brandColors for row ${i + 2}:`, row[4])
+        }
+
         return {
           id:         `client-${i}`,
           name:       row[0]?.trim() || '',
@@ -73,6 +82,8 @@ export const handler = async () => {
           ghl: {
             locationId: row[2]?.trim() || '',
           },
+          logoUrl:     row[3]?.trim() || '',
+          brandColors: brandColors,
           brand: {},
         }
       })

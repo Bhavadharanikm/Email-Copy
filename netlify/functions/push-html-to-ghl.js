@@ -26,7 +26,7 @@ export const handler = async (event) => {
       ? Buffer.from(event.body, 'base64').toString('utf-8')
       : event.body
 
-    const { client, renderedHtml, generatedCopy, templateId, locationId: urlLocationId, folderId } = JSON.parse(rawBody)
+    const { client, renderedHtml, generatedCopy, templateId, locationId: urlLocationId, folderId, templateLabel } = JSON.parse(rawBody)
 
     const apiKey     = client?.ghlApiKey || process.env.GHL_API_KEY
     const locationId = urlLocationId || client?.ghl?.locationId
@@ -37,7 +37,9 @@ export const handler = async (event) => {
 
     console.log(`[push-html-to-ghl] htmlLength=${renderedHtml.length} templateId=${templateId || '(new)'} locationId=${locationId} folderId=${folderId || '(none)'}`)
 
-    const templateName = `${client?.name || 'Campaign'} — ${(generatedCopy?.subjectLine || 'Email').slice(0, 50)} (${new Date().toISOString().slice(0, 10)})`
+    const clientName   = client?.name || 'Campaign'
+    const tplLabel     = templateLabel || 'Email'
+    const templateName = `${clientName} - ${tplLabel}`
 
     let newTemplateId
     let method

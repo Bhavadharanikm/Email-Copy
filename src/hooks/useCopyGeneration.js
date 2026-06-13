@@ -24,6 +24,7 @@ async function pollForResult(jobId) {
     const res  = await fetch(`/.netlify/functions/copy-callback?jobId=${encodeURIComponent(jobId)}`)
     const data = await res.json()
 
+    // Return the full copy payload so callers can access selectedVariation too
     if (data.status === 'done')  return data.copy
     if (data.status === 'error') throw new Error(data.error || 'n8n workflow failed')
     // status === 'pending' → keep polling
@@ -32,12 +33,14 @@ async function pollForResult(jobId) {
 }
 
 export function useCopyGeneration() {
-  const { setVariations, setGeneratedCopy, setGenerating, setError, setStep, selectedClient } = useCampaignStore((s) => ({
+  const { setVariations, pickVariation, setGeneratedCopy, setGenerating, setError, setStep, setClientFooter, selectedClient } = useCampaignStore((s) => ({
     setVariations:    s.setVariations,
+    pickVariation:    s.pickVariation,
     setGeneratedCopy: s.setGeneratedCopy,
     setGenerating:    s.setGenerating,
     setError:         s.setError,
     setStep:          s.setStep,
+    setClientFooter:  s.setClientFooter,
     selectedClient:   s.selectedClient,
   }))
 
@@ -53,6 +56,11 @@ export function useCopyGeneration() {
         const res = await generateCopy({ client, prompt })
         jobId = res.jobId
         _stub = res._stub
+        // Apply brand data from Google Sheet immediately (arrives with the jobId)
+        if (res.brandData?.found) {
+          setClientFooter(res.brandData)
+          console.log('[useCopyGeneration] Brand data applied from sheet:', res.brandData)
+        }
       } catch {
         _stub = true   // Netlify functions not running — use stub variations
       }
@@ -107,9 +115,18 @@ export function useCopyGeneration() {
       // Step 3 — poll until n8n delivers the copy (handles 35–45s easily)
       const result = await pollForResult(jobId)
 
-      // n8n returns { variations: [...] } — store all 3, default to first
+      // n8n returns { variations: [...], selectedVariation?: N } — store all 3
       if (result.variations?.length) {
+        // Load all 3 variations (defaults selectedVariation to 0)
         setVariations(result.variations)
+
+        // If AI Agent2 picked a variation, apply it now (overrides the 0 default)
+        if (typeof result.selectedVariation === 'number' &&
+            result.selectedVariation >= 0 &&
+            result.selectedVariation < result.variations.length) {
+          console.log(`[useCopyGeneration] AI picked variation ${result.selectedVariation}: "${result.variations[result.selectedVariation]?.variationName}"`)
+          pickVariation(result.selectedVariation)
+        }
 
         // Log all 3 variations to Google Sheet (non-blocking)
         logToSheets({ client: selectedClient, variations: result.variations })
@@ -125,7 +142,7 @@ export function useCopyGeneration() {
     } finally {
       setGenerating(false)
     }
-  }, [setGeneratedCopy, setGenerating, setError, setStep])
+  }, [setVariations, pickVariation, setGeneratedCopy, setGenerating, setError, setStep])
 
   return { generate }
 }

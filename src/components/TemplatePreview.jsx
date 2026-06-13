@@ -8,7 +8,7 @@
 import { useMemo, useState, useEffect, useCallback } from 'react'
 import { useCampaignStore }  from '../store/campaignStore'
 import { useTheme } from '../context/ThemeContext'
-import { recommendTemplate } from '../lib/api'
+import { recommendTemplate, analyzeImageFocal, htmlToImage, fetchFooterData } from '../lib/api'
 
 /* ─────────────────────── shared email-client header ─────────────────────── */
 function emailClientHeader({ client, copy }) {
@@ -34,15 +34,121 @@ function emailClientHeader({ client, copy }) {
   </div>`
 }
 
+/* ─── focal-point helper ─────────────────────────────────────────────────── */
+// Returns "object-position: X% Y%" string from an image object's focal data
+function focalPos(imgObj) {
+  const x = imgObj?.focalX ?? 50
+  const y = imgObj?.focalY ?? 50
+  return `${x}% ${y}%`
+}
+
+/* ─── text-on-background contrast helper ────────────────────────────────── */
+// Returns '#1a1a1a' (dark) for light backgrounds, '#ffffff' for dark ones.
+// Used throughout the 70/20/10 color system.
+function textOn(hex) {
+  const h = (hex || '').replace('#', '')
+  if (h.length < 6) return '#1a1a1a'
+  const r = parseInt(h.slice(0, 2), 16)
+  const g = parseInt(h.slice(2, 4), 16)
+  const b = parseInt(h.slice(4, 6), 16)
+  return (0.299 * r + 0.587 * g + 0.114 * b) > 160 ? '#1a1a1a' : '#ffffff'
+}
+// Muted variant — 60% opacity over transparent
+function mutedOn(hex) {
+  return textOn(hex) === '#1a1a1a' ? 'rgba(26,26,26,0.62)' : 'rgba(255,255,255,0.62)'
+}
+// Hairline divider colour
+function divOn(hex) {
+  return textOn(hex) === '#1a1a1a' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.12)'
+}
+
+/* ─── footer builder ────────────────────────────────────────────────────── */
+// Generates a branded footer block for every template.
+// footerData comes from the brand board Google Sheet (fetch-footer-data endpoint).
+// Falls back gracefully when footerData is null or fields are empty.
+function buildFooter(client, footerData = null, options = {}) {
+  const fd          = footerData || {}
+  const bgRaw       = fd.bgColor      || options.defaultBg  || '#1c1c1c'
+  const btnColor    = fd.buttonColor  || options.defaultBtn || '#b07a50'
+  const contactInfo = fd.contactInfo  || ''
+  const footerText  = fd.footerText   || ''
+  const instagram   = fd.instagramUrl || ''
+  const facebook    = fd.facebookUrl  || ''
+  const tiktok      = fd.tiktokUrl    || ''
+  const website     = fd.websiteUrl   || ''
+  const logoUrl     = client?.logoUrl || ''
+  const name        = client?.name    || ''
+
+  // Decide text colour based on bg brightness (simple luminance check)
+  // If bg is a light hex colour use dark text, otherwise white
+  function isLight(hex) {
+    const h = hex.replace('#','')
+    if (h.length < 6) return false
+    const r = parseInt(h.slice(0,2),16)
+    const g = parseInt(h.slice(2,4),16)
+    const b = parseInt(h.slice(4,6),16)
+    return (0.299*r + 0.587*g + 0.114*b) > 160
+  }
+  const light    = isLight(bgRaw)
+  const textCol  = light ? 'rgba(0,0,0,0.55)'  : 'rgba(255,255,255,0.55)'
+  const linkCol  = light ? 'rgba(0,0,0,0.4)'   : 'rgba(255,255,255,0.35)'
+  const divCol   = light ? 'rgba(0,0,0,0.08)'  : 'rgba(255,255,255,0.1)'
+
+  // Social icon URLs (GHL CDN circular icons)
+  const CDN = 'https://storage.googleapis.com/preview-production-assets/email/img/hl_default_img/social'
+  const socialIcons = [
+    { url: instagram, icon: `${CDN}/instagram_circle_grey.png`, label: 'Instagram' },
+    { url: facebook,  icon: `${CDN}/facebook_circle_grey.png`,  label: 'Facebook'  },
+    { url: tiktok,    icon: `${CDN}/tiktok_circle_grey.png`,    label: 'TikTok'    },
+    { url: website,   icon: `${CDN}/website_circle_grey.png`,   label: 'Website'   },
+  ].filter(s => s.url)
+
+  const socialHtml = socialIcons.length ? `
+    <div style="margin:0 0 14px;text-align:center;font-size:0">
+      ${socialIcons.map(s =>
+        `<a href="${s.url}" target="_blank" rel="noopener" style="display:inline-block;line-height:0;margin:0 5px">
+           <img src="${s.icon}" alt="${s.label}" width="32" height="32" style="display:block;width:32px;height:32px;border-radius:50%"/>
+         </a>`
+      ).join('')}
+    </div>` : ''
+
+  const logoHtml = logoUrl
+    ? `<div style="margin:0 0 12px;text-align:center"><img src="${logoUrl}" alt="${name}" style="height:36px;width:auto;object-fit:contain;display:inline-block;${light ? '' : 'filter:brightness(0) invert(1);'}opacity:.8"/></div>`
+    : `<div style="margin:0 0 12px;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:${textCol};font-family:Arial,sans-serif">${name}</div>`
+
+  const contactHtml = contactInfo
+    ? `<div style="font-size:11px;color:${textCol};font-family:Arial,sans-serif;margin-bottom:8px">${contactInfo}</div>`
+    : ''
+
+  const footerTextHtml = footerText
+    ? `<div style="font-size:10px;color:${linkCol};font-family:Arial,sans-serif;margin-bottom:12px;max-width:440px;margin-left:auto;margin-right:auto;line-height:1.5">${footerText}</div>`
+    : ''
+
+  return `
+  <!-- Footer -->
+  <div style="background:${bgRaw};padding:28px 40px 24px;text-align:center;border-top:1px solid ${divCol}">
+    ${logoHtml}
+    ${socialHtml}
+    ${contactHtml}
+    ${footerTextHtml}
+    <div style="font-size:10px;color:${linkCol};font-family:Arial,sans-serif;letter-spacing:.08em">
+      <a href="{{email.view_in_browser_url}}" style="color:${linkCol};text-decoration:underline">View in browser</a>
+      &nbsp;·&nbsp;
+      <a href="{{email.unsubscribe_link}}" style="color:${linkCol};text-decoration:underline">Unsubscribe</a>
+    </div>
+  </div>`
+}
+
 /* ══════════════════════════════════════════════════════════════════════════
    T1 · REFINED  (Hermès / Design Within Reach)
    Cream · serif · outlined CTA · generous white space
    ══════════════════════════════════════════════════════════════════════════ */
-function buildTemplate1({ client, copy, images }) {
-  const heroImg = images?.[0]?.url||''
-  const img1    = images?.[1]?.url||''
-  const img2    = images?.[2]?.url||''
-  const body    = (copy.bodyText||'').replace(/\n/g,'<br>')
+function buildTemplate1({ client, copy, images, footerData }) {
+  const heroObj  = images?.[0]; const heroImg = heroObj?.url||''
+  const img1Obj  = images?.[1]; const img1    = img1Obj?.url||''
+  const img2Obj  = images?.[2]; const img2    = img2Obj?.url||''
+  const body     = (copy.bodyText||'').replace(/\n/g,'<br>')
+  const logoUrl  = client?.logoUrl||''
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
@@ -71,8 +177,11 @@ function buildTemplate1({ client, copy, images }) {
 </style></head><body>
 ${emailClientHeader({client,copy})}
 <div class="wrap">
-  <div class="topbar"><div class="brand">${client?.name||'Brand'}</div><div class="brand-r">Exclusive Collection</div></div>
-  <div class="hero">${heroImg?`<img src="${heroImg}" alt=""/>`:`<div class="hero-ph">Hero image</div>`}</div>
+  <div class="topbar">
+    <div class="brand">${logoUrl ? `<img src="${logoUrl}" alt="${client?.name||''}" style="height:36px;width:auto;object-fit:contain;display:block"/>` : (client?.name||'Brand')}</div>
+    <div class="brand-r">Exclusive Collection</div>
+  </div>
+  <div class="hero">${heroImg?`<img src="${heroImg}" alt="" style="object-position:${focalPos(heroObj)}"/>`:`<div class="hero-ph">Hero image</div>`}</div>
   <div class="content">
     ${copy.subjectLine?`<div class="eyebrow">${copy.subjectLine}</div>`:''}
     <h1>${copy.headlineText||''}</h1>
@@ -82,8 +191,8 @@ ${emailClientHeader({client,copy})}
     ${copy.ctaText?`<div class="cta-w"><a class="cta" href="${copy.ctaUrl||'#'}">${copy.ctaText}</a></div>`:''}
     ${copy.bodyBlock2Title||copy.bodyBlock2?`<div class="b2">${copy.bodyBlock2Title?`<div class="b2t">${copy.bodyBlock2Title}</div>`:''} ${copy.bodyBlock2?`<div class="b2b">${copy.bodyBlock2}</div>`:''}</div>`:''}
   </div>
-  ${img1||img2?`<div class="pair">${img1?`<img src="${img1}" alt=""/>`:''}${img2?`<img src="${img2}" alt=""/>`:''}  </div>`:''}
-  <div class="foot">© ${client?.name||''} &nbsp;·&nbsp; <a href="#">Unsubscribe</a></div>
+  ${img1||img2?`<div class="pair">${img1?`<img src="${img1}" alt="" style="object-position:${focalPos(img1Obj)}"/>`:''}${img2?`<img src="${img2}" alt="" style="object-position:${focalPos(img2Obj)}"/>`:''}  </div>`:''}
+  ${buildFooter(client, footerData, { defaultBg: '#1c1c1c' })}
 </div></body></html>`
 }
 
@@ -91,11 +200,12 @@ ${emailClientHeader({client,copy})}
    T3 · NEWSLETTER  (user approved)
    Newspaper masthead · ruled lines · gold badge · editorial serif
    ══════════════════════════════════════════════════════════════════════════ */
-function buildTemplate3({ client, copy, images }) {
-  const heroImg = images?.[0]?.url||''
-  const img1    = images?.[1]?.url||''
-  const img2    = images?.[2]?.url||''
-  const body    = (copy.bodyText||'').replace(/\n/g,'<br>')
+function buildTemplate3({ client, copy, images, footerData }) {
+  const heroObj  = images?.[0]; const heroImg = heroObj?.url||''
+  const img1Obj  = images?.[1]; const img1    = img1Obj?.url||''
+  const img2Obj  = images?.[2]; const img2    = img2Obj?.url||''
+  const body     = (copy.bodyText||'').replace(/\n/g,'<br>')
+  const logoUrl  = client?.logoUrl||''
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
@@ -132,10 +242,10 @@ ${emailClientHeader({client,copy})}
 <div class="wrap">
   <div class="mast">
     <div class="mt"><div class="ml"></div><div class="mb">✦ Member Edition ✦</div><div class="ml"></div></div>
-    <div class="mn">${client?.name||'The Digest'}</div>
+    <div class="mn">${logoUrl ? `<img src="${logoUrl}" alt="${client?.name||''}" style="height:48px;width:auto;object-fit:contain;display:block;margin:0 auto"/>` : (client?.name||'The Digest')}</div>
     <div class="mm"><span>${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</span><span class="dot"></span><span>Exclusive Update</span></div>
   </div>
-  <div class="hero">${heroImg?`<img src="${heroImg}" alt=""/>`:`<div class="hero-ph">Hero image</div>`}</div>
+  <div class="hero">${heroImg?`<img src="${heroImg}" alt="" style="object-position:${focalPos(heroObj)}"/>`:`<div class="hero-ph">Hero image</div>`}</div>
   ${copy.subjectLine?`<div class="cap">${copy.subjectLine}</div>`:''}
   <div class="body">
     <div class="stag">Featured Story</div>
@@ -147,8 +257,8 @@ ${emailClientHeader({client,copy})}
     ${copy.ctaText?`<div class="cta-w"><a class="cta" href="${copy.ctaUrl||'#'}">${copy.ctaText} →</a></div>`:''}
     ${copy.bodyBlock2Title||copy.bodyBlock2?`<div class="b2">${copy.bodyBlock2Title?`<div class="b2t">${copy.bodyBlock2Title}</div>`:''} ${copy.bodyBlock2?`<div class="b2b">${copy.bodyBlock2}</div>`:''}</div>`:''}
   </div>
-  ${img1||img2?`<div class="cinema">${img1?`<img src="${img1}" alt=""/>`:''}${img2?`<img src="${img2}" alt=""/>`:''}  </div>`:''}
-  <div class="foot">${client?.name||''} &nbsp;·&nbsp; <a href="#">Unsubscribe</a></div>
+  ${img1||img2?`<div class="cinema">${img1?`<img src="${img1}" alt="" style="object-position:${focalPos(img1Obj)}"/>`:''}${img2?`<img src="${img2}" alt="" style="object-position:${focalPos(img2Obj)}"/>`:''}  </div>`:''}
+  ${buildFooter(client, footerData, { defaultBg: '#111' })}
 </div></body></html>`
 }
 
@@ -156,11 +266,12 @@ ${emailClientHeader({client,copy})}
    T4 · TROPICA  (Poolside FM / Palm Report)
    Blush bg · bold magenta masthead · images split side-by-side
    ══════════════════════════════════════════════════════════════════════════ */
-function buildTemplate4({ client, copy, images }) {
-  const heroImg = images?.[0]?.url||''
-  const img1    = images?.[1]?.url||''
-  const img2    = images?.[2]?.url||''
-  const body    = (copy.bodyText||'').replace(/\n/g,'<br>')
+function buildTemplate4({ client, copy, images, footerData }) {
+  const heroObj  = images?.[0]; const heroImg = heroObj?.url||''
+  const img1Obj  = images?.[1]; const img1    = img1Obj?.url||''
+  const img2Obj  = images?.[2]; const img2    = img2Obj?.url||''
+  const body     = (copy.bodyText||'').replace(/\n/g,'<br>')
+  const logoUrl  = client?.logoUrl||''
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
@@ -199,11 +310,13 @@ function buildTemplate4({ client, copy, images }) {
 ${emailClientHeader({client,copy})}
 <div class="wrap">
   <div class="mast">
-    <div class="script">${client?.name||'Brand'}</div>
-    <div class="bold-title">${(client?.name||'REPORT').toUpperCase()}</div>
+    ${logoUrl
+      ? `<div style="margin-bottom:12px"><img src="${logoUrl}" alt="${client?.name||''}" style="height:52px;width:auto;object-fit:contain;display:block;margin:0 auto"/></div>`
+      : `<div class="script">${client?.name||'Brand'}</div><div class="bold-title">${(client?.name||'REPORT').toUpperCase()}</div>`
+    }
     <div class="issue-line"><div class="il"></div><div class="issue-txt">${copy.subjectLine||'Special Issue'}</div><div class="il"></div></div>
   </div>
-  ${heroImg&&img1?`<div class="split-hero"><img src="${heroImg}" alt=""/><img src="${img1}" alt=""/></div>`:heroImg?`<div class="split-hero-single"><img src="${heroImg}" alt=""/></div>`:`<div class="hero-ph">Hero image</div>`}
+  ${heroImg&&img1?`<div class="split-hero"><img src="${heroImg}" alt="" style="object-position:${focalPos(heroObj)}"/><img src="${img1}" alt="" style="object-position:${focalPos(img1Obj)}"/></div>`:heroImg?`<div class="split-hero-single"><img src="${heroImg}" alt="" style="object-position:${focalPos(heroObj)}"/></div>`:`<div class="hero-ph">Hero image</div>`}
   <div class="hl-block">
     <div class="hl-italic">${copy.headlineText||''}</div>
     ${copy.subhead?`<div class="hl-bold">${copy.subhead}</div>`:''}
@@ -215,20 +328,262 @@ ${emailClientHeader({client,copy})}
     ${copy.ctaText?`<div class="cta-w"><a class="cta" href="${copy.ctaUrl||'#'}">${copy.ctaText}</a></div>`:''}
   </div>
   ${copy.bodyBlock2Title||copy.bodyBlock2?`<div class="b2-section">${copy.bodyBlock2Title?`<div class="b2t">${copy.bodyBlock2Title}</div>`:''} ${copy.bodyBlock2?`<div class="b2b">${copy.bodyBlock2}</div>`:''}</div>`:''}
-  ${img2?`<div class="mag-spread"><img src="${img2}" alt=""/></div>`:''}
-  <div class="foot">${client?.name||''} &nbsp;·&nbsp; <a href="#">Unsubscribe</a></div>
+  ${img2?`<div class="mag-spread"><img src="${img2}" alt="" style="object-position:${focalPos(img2Obj)}"/></div>`:''}
+  ${buildFooter(client, footerData, { defaultBg: '#d4006a' })}
 </div></body></html>`
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   WEEK 2  — arch hero with overlay · structured content order
+   hero(logo+hl+img) → subhead → CTA → body → b2title → images → b2body → closing → CTA
+   ══════════════════════════════════════════════════════════════════════════ */
+function buildTemplateWeek2({ client, copy, images, footerData, isHeroGenerated = false }) {
+  const heroObj  = images?.[0]; const heroImg = heroObj?.url||''
+  const img1Obj  = images?.[1]; const img1    = img1Obj?.url||''
+  const img2Obj  = images?.[2]; const img2    = img2Obj?.url||''
+  const img3Obj  = images?.[3]; const img3    = img3Obj?.url||''
+  const body     = (copy.bodyText||'').replace(/\n/g,'<br>')
+  const b2body   = (copy.bodyBlock2||'').replace(/\n/g,'<br>')
+  const logoUrl  = client?.logoUrl||''
+  const midBg      = footerData?.bgColor      || '#fff'
+  const pageBg     = '#f5f2ec'
+  const accentClr  = footerData?.buttonColor || '#d4006a'
+  const secondaryClr = footerData?.secondaryColor || accentClr
+
+  const logoOverlay = logoUrl
+    ? `<img src="${logoUrl}" alt="${client?.name||''}" style="display:block;height:40px;width:auto;max-width:160px;margin:0 auto 10px;"/>`
+    : `<div style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:#fff;margin-bottom:10px;">${client?.name||''}</div>`
+
+  return `<!DOCTYPE html><html lang="en" style="color-scheme:light"><head><meta charset="UTF-8"/>
+<meta name="color-scheme" content="light">
+<meta name="supported-color-schemes" content="light">
+<style>
+  :root{color-scheme:light}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:${pageBg}!important;font-family:Arial,sans-serif;color:#1a1a1a!important;-webkit-text-size-adjust:100%}
+  .wrap{max-width:600px;margin:0 auto 48px;background:${midBg}!important;overflow:hidden}
+  @media (prefers-color-scheme:dark){
+    html,body{background-color:${pageBg}!important;color:#1a1a1a!important}
+    .wrap{background-color:${midBg}!important}
+    [data-ogsc] body,[data-ogsc] .wrap{background-color:${midBg}!important;color:#1a1a1a!important}
+  }
+</style></head><body style="background:${pageBg}!important;margin:0;padding:0;font-family:Arial,sans-serif;color:#1a1a1a!important;">
+<div class="wrap" style="max-width:600px;margin:0 auto 48px;background:${midBg}!important;overflow:hidden;">
+
+  <!-- LOGO HEADER (always above arch) -->
+  <div style="padding:32px 32px 18px;text-align:center;background:${midBg}!important;">${logoOverlay}</div>
+
+  <!-- HERO: generated composite PNG (logo+arch+text baked in) or CSS fallback for preview -->
+  ${isHeroGenerated
+    ? `<div style="line-height:0;font-size:0;background:${midBg}!important;"><img src="${heroImg}" alt="" width="600" style="width:100%;display:block;max-width:600px;"/></div>`
+    : `<div style="position:relative;line-height:0;font-size:0;padding:0 36px;background:${midBg};height:460px;overflow:hidden;">
+    ${heroImg
+      ? `<img src="${heroImg}" alt="" style="width:100%;height:460px;object-fit:cover;display:block;border-radius:999px 999px 0 0;object-position:${focalPos(heroObj)}"/>`
+      : `<div style="width:100%;height:460px;background:#f0c8b8;border-radius:999px 999px 0 0;text-align:center;color:${accentClr};font-size:12px;font-family:Arial,sans-serif;line-height:460px;">Hero image</div>`}
+    <div style="position:absolute;top:0;left:36px;right:36px;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0) 0%,rgba(0,0,0,0) 50%,rgba(0,0,0,0.45) 100%);border-radius:999px 999px 0 0;">
+      <table width="100%" height="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;height:100%;border-collapse:collapse;">
+        <tr><td valign="bottom" align="center" style="vertical-align:bottom;text-align:center;padding:0 24px 32px;">
+          <div style="font-family:Georgia,serif;font-size:24px;font-weight:400;font-style:italic;color:#fff;line-height:1.25;text-shadow:0 2px 10px rgba(0,0,0,.3);display:inline-block;max-width:300px;">${copy.headlineText||''}</div>
+        </td></tr>
+      </table>
+    </div>
+  </div>`}
+
+  <!-- SUBHEAD -->
+  ${copy.subhead ? `<div style="padding:28px 48px 4px;text-align:center;background:${midBg}!important;"><div style="font-family:Georgia,serif;font-size:17px;font-weight:400;font-style:italic;color:#1a1a1a;line-height:1.5;">${copy.subhead}</div></div>` : ''}
+
+  <!-- CTA -->
+  ${copy.ctaText ? `<div style="padding:24px 48px 28px;text-align:center;background:${midBg}!important;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;background:${accentClr};color:#fff!important;padding:14px 40px;font-size:13px;font-weight:600;letter-spacing:.06em;text-decoration:none!important;font-family:Arial,sans-serif;border-radius:50px;">${copy.ctaText}</a></div>` : ''}
+
+  <!-- THIS WEEK divider (table-based, no flex) -->
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;background:${midBg}!important;border-collapse:collapse;">
+    <tr><td style="padding:22px 48px;">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
+        <tr>
+          <td style="vertical-align:middle;width:44%;"><div style="height:1px;width:100%;background:${accentClr};font-size:0;line-height:0;"></div></td>
+          <td style="padding:0 14px;white-space:nowrap;text-align:center;font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:${accentClr};font-family:Arial,sans-serif;">This Week</td>
+          <td style="vertical-align:middle;width:44%;"><div style="height:1px;width:100%;background:${accentClr};font-size:0;line-height:0;"></div></td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+
+  <!-- LONG IMAGE (img1) after divider -->
+  ${img1 ? `<div style="line-height:0;font-size:0;padding:0 36px 16px;background:${midBg}!important;"><img src="${img1}" alt="" style="width:100%;height:260px;object-fit:cover;display:block;border-radius:8px;object-position:${focalPos(img1Obj)}"/></div>` : ''}
+
+  <!-- BODY BLOCK -->
+  ${copy.bodyText ? `<div style="padding:24px 48px 32px;background:${midBg}!important;"><div style="font-size:15px;line-height:1.8;color:#3a3028!important;margin-bottom:18px;font-family:Arial,sans-serif;">${body}</div></div>` : ''}
+
+  <!-- STRIP IMAGES (img2 + img3) — table layout, no flex -->
+  ${img2 ? `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;background:${midBg}!important;">
+    <tr><td style="padding:0 36px 24px;">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;line-height:0;font-size:0;">
+        <tr>
+          ${img2 ? `<td width="49%" style="padding-right:4px;vertical-align:top;"><img src="${img2}" alt="" width="100%" style="width:100%;height:220px;object-fit:cover;display:block;border-radius:6px;object-position:${focalPos(img2Obj)}"/></td>` : ''}
+          ${img3 ? `<td width="49%" style="padding-left:4px;vertical-align:top;"><img src="${img3}" alt="" width="100%" style="width:100%;height:220px;object-fit:cover;display:block;border-radius:6px;object-position:${focalPos(img3Obj)}"/></td>` : ''}
+        </tr>
+      </table>
+    </td></tr>
+  </table>` : ''}
+
+  <!-- BODY BLOCK 2: title + body2 + closing + CTA -->
+  ${(copy.bodyBlock2Title || copy.bodyBlock2 || copy.closingLine) ? `
+  <div style="background:${midBg}!important;padding:8px 36px 0;">
+    <div style="background:#ffffff!important;border-radius:10px;padding:16px 20px;">
+      ${copy.bodyBlock2Title ? `<div style="font-size:11px;font-weight:700;font-family:Arial,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:${accentClr}!important;margin-bottom:6px;text-align:left;">${copy.bodyBlock2Title}</div>` : ''}
+      ${copy.bodyBlock2 ? `<div style="font-size:15px;line-height:1.8;color:#3a3028!important;margin-bottom:18px;font-family:Arial,sans-serif;">${b2body}</div>` : ''}
+      ${copy.closingLine ? `<div style="font-size:14px;line-height:1.7;color:#888!important;font-style:italic;margin-bottom:24px;font-family:Georgia,serif;">${copy.closingLine}</div>` : ''}
+    </div>
+    ${copy.ctaText ? `<div style="padding:16px 0 36px;text-align:center;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;background:${accentClr};color:#fff!important;padding:14px 40px;font-size:13px;font-weight:600;letter-spacing:.06em;text-decoration:none!important;font-family:Arial,sans-serif;border-radius:50px;">${copy.ctaText}</a></div>` : ''}
+  </div>` : ''}
+
+  ${buildFooter(client, footerData, { defaultBg: '#d4006a' })}
+</div></body></html>`
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   WEEK 3  ·  Full-bleed hero + white-fade + stacked cards
+   Inspired by Wander / Endless Stays editorial style
+   ══════════════════════════════════════════════════════════════════════════ */
+function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated = false }) {
+  const heroObj  = images?.[0]; const heroImg = heroObj?.url||''
+  const img1Obj  = images?.[1]; const img1    = img1Obj?.url||''
+  const img2Obj  = images?.[2]; const img2    = img2Obj?.url||''
+  const img3Obj  = images?.[3]; const img3    = img3Obj?.url||''
+  const img4Obj  = images?.[4]; const img4    = img4Obj?.url||''
+  const body     = (copy.bodyText||'').replace(/\n/g,'<br>')
+  const b2body   = (copy.bodyBlock2||'').replace(/\n/g,'<br>')
+  const logoUrl  = client?.logoUrl||''
+  const pageBg     = footerData?.bgColor || '#f5f4f2'
+  const cardBg     = '#ffffff'
+  const accentClr  = footerData?.buttonColor || '#1a1a1a'
+  const secondaryClr = footerData?.secondaryColor || accentClr
+
+  const logoHtml = logoUrl
+    ? `<img src="${logoUrl}" alt="${client?.name||''}" style="height:44px;width:auto;max-width:180px;display:inline-block;filter:brightness(0) invert(1);vertical-align:middle;"/>`
+    : `<span style="font-family:Arial,sans-serif;font-size:15px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff;">${client?.name||''}</span>`
+
+  // Stacked image section: generated PNG (email-safe) or CSS preview (browser)
+  // Right card falls back to img1 if img2 isn't selected
+  const card2Src = img2 || img1
+  const card2Obj = img2 ? img2Obj : img1Obj
+
+  const stackedSection = isHeroGenerated && img4
+    ? `<tr><td style="padding:32px 0 8px;text-align:center;background:${cardBg}!important;line-height:0;font-size:0;">
+        <img src="${img4}" alt="" width="600" style="width:600px;max-width:100%;display:inline-block;"/>
+      </td></tr>`
+    : img1
+      ? `<tr><td style="padding:32px 0 8px;text-align:center;background:${cardBg}!important;line-height:0;font-size:0;">
+          <div style="position:relative;width:600px;height:420px;background:${cardBg};">
+            <div style="position:absolute;left:28px;top:24px;width:272px;height:372px;border-radius:20px;transform:rotate(-3deg);transform-origin:center center;box-shadow:4px 0 20px rgba(0,0,0,0.18);overflow:hidden;z-index:1;">
+              <img src="${img1}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:${focalPos(img1Obj)};"/>
+            </div>
+            <div style="position:absolute;left:296px;top:24px;width:272px;height:372px;border-radius:20px;transform:rotate(3deg);transform-origin:center center;box-shadow:-4px 0 20px rgba(0,0,0,0.18);overflow:hidden;z-index:2;">
+              <img src="${card2Src}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:${focalPos(card2Obj)};"/>
+            </div>
+          </div>
+        </td></tr>`
+      : ''
+
+  return `<!DOCTYPE html><html lang="en" style="color-scheme:light"><head><meta charset="UTF-8"/>
+<meta name="color-scheme" content="light">
+<meta name="supported-color-schemes" content="light">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&display=swap"/>
+<style>
+  :root{color-scheme:light}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:${pageBg}!important;font-family:Arial,sans-serif;color:#1a1a1a!important;-webkit-text-size-adjust:100%}
+  @media (prefers-color-scheme:dark){
+    html,body{background-color:${pageBg}!important;color:#1a1a1a!important}
+  }
+</style></head><body style="background:${pageBg}!important;margin:0;padding:0;">
+
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;background:${pageBg}!important;border-collapse:collapse;">
+<tr><td align="center" style="padding:24px 0 48px;">
+
+  <table width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:600px;background:${cardBg};border-collapse:collapse;border-radius:20px;overflow:hidden;">
+
+    <!-- ── HERO ── -->
+    ${isHeroGenerated
+      ? `<tr><td style="line-height:0;font-size:0;padding:0;border-radius:20px 20px 0 0;overflow:hidden;">
+          <img src="${heroImg}" alt="" width="600" style="width:100%;display:block;max-width:600px;border-radius:20px 20px 0 0;"/>
+        </td></tr>`
+      : `<tr><td style="position:relative;line-height:0;font-size:0;padding:0;height:600px;overflow:hidden;background:#1a1a1a;border-radius:20px 20px 0 0;">
+          ${heroImg ? `<img src="${heroImg}" alt="" style="width:100%;height:600px;object-fit:cover;display:block;border-radius:20px 20px 0 0;object-position:${focalPos(heroObj)};"/>` : `<div style="width:100%;height:600px;background:#2a2a2a;border-radius:20px 20px 0 0;"></div>`}
+          <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.7) 0%,rgba(0,0,0,0.25) 40%,rgba(0,0,0,0) 62%);border-radius:20px 20px 0 0;">
+            <div style="text-align:center;padding:40px 48px 0;">${logoHtml}</div>
+            <div style="text-align:center;padding:14px 52px 0;">
+              <div style="font-family:'Playfair Display',Georgia,serif;font-size:40px;font-weight:600;line-height:1.12;color:#fff;text-shadow:0 2px 20px rgba(0,0,0,0.4);">${copy.headlineText||''}</div>
+            </div>
+          </div>
+          <div style="position:absolute;bottom:0;left:0;right:0;height:160px;background:linear-gradient(to bottom,rgba(255,255,255,0),rgba(255,255,255,1));pointer-events:none;"></div>
+        </td></tr>`}
+
+    <!-- ── SUBHEAD + CTA ── -->
+    <tr><td style="padding:${isHeroGenerated ? '40px' : '10px'} 52px 36px;text-align:center;background:${cardBg}!important;">
+      ${copy.subhead ? `<div style="font-family:Georgia,serif;font-size:18px;font-style:italic;color:#1a1a1a!important;line-height:1.6;margin-bottom:32px;max-width:460px;margin-left:auto;margin-right:auto;">${copy.subhead}</div>` : ''}
+      ${copy.ctaText ? `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accentClr};border-radius:100px;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:16px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff!important;text-decoration:none!important;letter-spacing:.04em;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>` : ''}
+    </td></tr>
+
+    <!-- ── DIVIDER ── -->
+    <tr><td style="padding:0 48px;background:${cardBg}!important;">
+      <div style="height:1px;width:100%;background:rgba(0,0,0,0.1);font-size:0;line-height:0;"></div>
+    </td></tr>
+
+    <!-- ── IMAGE ── -->
+    ${stackedSection}
+
+    <!-- ── BODY TEXT ── -->
+    <tr><td style="padding:36px 52px 24px;background:${cardBg}!important;text-align:center;">
+      ${copy.bodyText ? `<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.9;color:#555!important;max-width:460px;margin-left:auto;margin-right:auto;">${body}</div>` : ''}
+    </td></tr>
+
+    <!-- ── DIVIDER 2 ── -->
+    <tr><td style="padding:0 48px;background:${cardBg}!important;">
+      <div style="height:1px;width:100%;background:rgba(0,0,0,0.1);font-size:0;line-height:0;"></div>
+    </td></tr>
+
+    <!-- ── BODY BLOCK 2 TITLE + IMAGE + TEXT ── -->
+    ${copy.bodyBlock2Title ? `
+    <tr><td style="padding:36px 52px 0;background:${cardBg}!important;text-align:center;">
+      <div style="font-family:Arial,sans-serif;font-size:16px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:${secondaryClr}!important;margin-bottom:0;">${copy.bodyBlock2Title}</div>
+    </td></tr>` : ''}
+
+    ${(img3 || img1) ? `
+    <tr><td style="padding:20px 40px 0;background:${cardBg}!important;line-height:0;font-size:0;">
+      <img src="${img3 || img1}" alt="" width="520" style="width:100%;max-width:520px;height:320px;object-fit:cover;display:block;border-radius:14px;object-position:${focalPos(img3 ? img3Obj : img1Obj)};"/>
+    </td></tr>` : ''}
+
+    ${(copy.bodyBlock2 || copy.closingLine) ? `
+    <tr><td style="padding:28px 52px 0;background:${cardBg}!important;text-align:center;">
+      ${copy.bodyBlock2 ? `<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.9;color:#555!important;margin-bottom:18px;max-width:460px;margin-left:auto;margin-right:auto;">${b2body}</div>` : ''}
+      ${copy.closingLine ? `<div style="font-family:Georgia,serif;font-size:15px;font-style:italic;color:#1a1a1a!important;margin-bottom:28px;">${copy.closingLine}</div>` : ''}
+    </td></tr>` : ''}
+
+    <!-- ── REPEAT CTA ── -->
+    ${copy.ctaText ? `
+    <tr><td style="padding:8px 52px 44px;text-align:center;background:${cardBg}!important;">
+      <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accentClr};border-radius:100px;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:16px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff!important;text-decoration:none!important;letter-spacing:.04em;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>
+    </td></tr>` : ''}
+
+    <tr><td style="padding:0;line-height:0;font-size:0;">${buildFooter(client, footerData, { defaultBg: '#1a1a1a' })}</td></tr>
+  </table>
+
+</td></tr>
+</table>
+</body></html>`
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
    T5 · CASA  (WatchHouse + Scottsdale Plaza)
    Cream · terracotta border · centered brand · alternating sections
    ══════════════════════════════════════════════════════════════════════════ */
-function buildTemplate5({ client, copy, images }) {
-  const heroImg = images?.[0]?.url||''
-  const img1    = images?.[1]?.url||''
-  const img2    = images?.[2]?.url||''
-  const body    = (copy.bodyText||'').replace(/\n/g,'<br>')
+function buildTemplate5({ client, copy, images, footerData }) {
+  const heroObj  = images?.[0]; const heroImg = heroObj?.url||''
+  const img1Obj  = images?.[1]; const img1    = img1Obj?.url||''
+  const img2Obj  = images?.[2]; const img2    = img2Obj?.url||''
+  const body     = (copy.bodyText||'').replace(/\n/g,'<br>')
+  const logoUrl  = client?.logoUrl||''
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
@@ -263,7 +618,7 @@ function buildTemplate5({ client, copy, images }) {
 ${emailClientHeader({client,copy})}
 <div class="wrap">
   <div class="header">
-    <div class="brand">${client?.name||'Brand'}</div>
+    ${logoUrl ? `<img src="${logoUrl}" alt="${client?.name||''}" style="height:44px;width:auto;object-fit:contain;display:block;margin:0 auto 6px"/>` : `<div class="brand">${client?.name||'Brand'}</div>`}
     <div class="date-stamp">${new Date().toLocaleDateString('en-US',{day:'2-digit',month:'2-digit',year:'2-digit'})}</div>
   </div>
   <div class="hl-block">
@@ -271,20 +626,20 @@ ${emailClientHeader({client,copy})}
     <h1>${copy.headlineText||''}</h1>
     ${copy.subhead?`<div class="sub">${copy.subhead}</div>`:''}
   </div>
-  <div class="img-block">${heroImg?`<img src="${heroImg}" alt=""/>`:`<div class="img-ph">Hero image</div>`}</div>
+  <div class="img-block">${heroImg?`<img src="${heroImg}" alt="" style="object-position:${focalPos(heroObj)}"/>`:`<div class="img-ph">Hero image</div>`}</div>
   <div class="body">
     ${copy.bodyText?`<div class="text">${body}</div>`:''}
     ${copy.closingLine?`<div class="closing">${copy.closingLine}</div>`:''}
     ${copy.ctaText?`<div class="cta-w"><a class="cta" href="${copy.ctaUrl||'#'}">${copy.ctaText}</a></div>`:''}
   </div>
-  ${img1?`<div style="background:#f5f0e6;padding:0 20px 24px"><img src="${img1}" alt="" style="width:100%;height:220px;object-fit:cover;display:block;border-radius:4px"/></div>`:''}
+  ${img1?`<div style="background:#f5f0e6;padding:0 20px 24px"><img src="${img1}" alt="" style="width:100%;height:220px;object-fit:cover;display:block;border-radius:4px;object-position:${focalPos(img1Obj)}"/></div>`:''}
   ${copy.bodyBlock2Title||copy.bodyBlock2?`<div class="div"></div><div class="b2">${copy.bodyBlock2Title?`<div class="b2t">${copy.bodyBlock2Title}</div>`:''} ${copy.bodyBlock2?`<div class="b2b">${copy.bodyBlock2}</div>`:''}</div>`:''}
   <div class="community">
     <div class="comm-title">Join the ${client?.name||'Brand'} community.</div>
     <div class="comm-sub">Stay connected and be the first to know about exclusive offers.</div>
     <a class="comm-cta" href="#">Learn More</a>
   </div>
-  <div class="foot">© ${client?.name||''} &nbsp;·&nbsp; <a href="#">Unsubscribe</a></div>
+  ${buildFooter(client, footerData, { defaultBg: '#1a1a1a' })}
 </div></body></html>`
 }
 
@@ -293,59 +648,63 @@ ${emailClientHeader({client,copy})}
    Beige bg · top nav · italic serif headline on hero · orange pill CTA
    Dark forest-green lower section · 3-image grid · yellow pill CTA
    ══════════════════════════════════════════════════════════════════════════ */
-function buildTemplate12({ client, copy, images }) {
-  const heroImg = images?.[0]?.url||''
-  const img1    = images?.[1]?.url||''
-  const img2    = images?.[2]?.url||''
-  const body    = (copy.bodyText||'').replace(/\n/g,'<br>')
+function buildTemplate12({ client, copy, images, footerData, heroScale=1, heroX=0, heroY=0, textSize=34, textTop=32, textLeft=36, logoColor='original', logoTop=24, logoRight=36, logoSize=70 }) {
+  const heroObj  = images?.[0]; const heroImg = heroObj?.url||''
+  const img1Obj  = images?.[1]; const img1    = img1Obj?.url||''
+  const img2Obj  = images?.[2]; const img2    = img2Obj?.url||''
+  const body     = (copy.bodyText||'').replace(/\n/g,'<br>')
+  const logoUrl  = client?.logoUrl||''
+  const creamBg  = footerData?.bgColor || '#f5f0e8'
+  const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
 
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
-  body{background:#ede9e0;font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;color:#1a1a1a}
-  .wrap{max-width:600px;margin:0 auto 48px;background:#ede9e0}
+  body{background:#e8e5e0;font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;color:#1a1a1a}
+  .wrap{max-width:600px;margin:0 auto 48px;background:${creamBg}}
   /* nav */
-  .nav{padding:14px 24px;display:flex;align-items:center;justify-content:space-between;background:#ede9e0}
+  .nav{padding:14px 24px;display:flex;align-items:center;justify-content:space-between;background:#f5f0e8}
   .nav-links{display:flex;gap:18px}
   .nav-links a{font-size:12px;color:#666;text-decoration:none}
   .nav-brand{font-size:24px;font-weight:700;color:#1a1a1a;font-family:'Georgia',serif;font-style:italic;letter-spacing:-.3px}
-  /* hero */
-  .hero{position:relative;line-height:0}
-  .hero img{width:100%;height:420px;object-fit:cover;display:block}
-  .hero-ph{width:100%;height:360px;background:#2a4a2a;display:flex;align-items:center;justify-content:center;color:#5a8a5a;font-size:12px}
-  .hero-text{position:absolute;top:28px;left:36px;right:36px}
-  .hero-hl{font-size:50px;font-weight:700;color:#fff;line-height:1.05;font-family:'Georgia',serif;font-style:italic;text-shadow:0 2px 16px rgba(0,0,0,.3)}
+  /* hero — Canva-style: image-wrap clips image, overlays sit on top unclipped */
+  .hero{position:relative;height:560px;line-height:0}
+  .hero-img-wrap{position:absolute;top:0;left:0;right:0;bottom:0;overflow:hidden}
+  .hero-img-wrap img{position:absolute;width:${heroScale*100}%;height:${heroScale*100}%;min-width:100%;min-height:100%;object-fit:cover;display:block;left:50%;top:50%;transform:translate(calc(-50% + ${heroX}px),calc(-50% + ${heroY}px))}
+  .hero-ph{width:100%;height:560px;background:#2a4a2a;display:flex;align-items:center;justify-content:center;color:#5a8a5a;font-size:12px}
+  .hero-text{position:absolute;top:${textTop}px;left:${textLeft}px;right:36px;z-index:2}
+  .hero-logo-text{font-size:10px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:#fff;margin-bottom:12px;display:block}
+  .hero-hl{font-size:${textSize}px;font-weight:400;color:#fff;line-height:1.15;font-family:'Georgia',serif;font-style:italic;text-shadow:0 2px 16px rgba(0,0,0,.3);max-width:260px}
   /* cream content */
-  .content{padding:44px 56px;text-align:center;background:#ede9e0}
+  .content{padding:44px 56px;text-align:center;background:${creamBg}}
   .text{font-size:15px;line-height:1.85;color:#3a3028;margin-bottom:16px}
   .closing{font-size:14px;color:#777;font-style:italic;margin-bottom:32px}
   .cta-w{margin-bottom:0}
   .cta{display:inline-block;background:#e05a28;color:#fff;padding:15px 52px;border-radius:50px;font-size:15px;font-weight:700;text-decoration:none}
   /* dark section */
-  .dark{background:#2d4a30;padding:44px 36px;text-align:center}
-  .dark-head{font-size:34px;font-weight:700;color:#fff;font-family:'Georgia',serif;margin-bottom:28px}
-  .grid3{display:flex;gap:4px;margin-bottom:28px}
-  .grid3 img{flex:1;width:33.33%;height:180px;object-fit:cover;display:block}
-  .grid3-ph{flex:1;height:180px;background:#1a3a1a;display:flex;align-items:center;justify-content:center;color:#4a7a4a;font-size:11px}
-  .dark-body{font-size:15px;line-height:1.75;color:rgba(255,255,255,.75);margin-bottom:28px;max-width:440px;margin-left:auto;margin-right:auto}
+  .dark{background:#2d4a30;padding:44px 0;text-align:center;overflow:hidden}
+  .dark-head{font-size:27px;font-weight:700;color:#fff;font-family:'Georgia',serif;margin-bottom:28px;padding:0 36px}
+  .grid3{display:flex;gap:6px;margin-bottom:28px;margin-left:-12px;margin-right:-12px}
+  .grid3 img{flex:1;width:33.33%;height:230px;object-fit:cover;display:block;border-radius:10px}
+  .grid3-ph{flex:1;height:230px;background:#1a3a1a;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#4a7a4a;font-size:11px}
+  .dark-body{font-size:15px;line-height:1.75;color:rgba(255,255,255,.75);margin-bottom:28px;max-width:440px;margin-left:auto;margin-right:auto;padding:0 36px}
   .dark-cta{display:inline-block;background:#f0c040;color:#1a1a1a;padding:15px 52px;border-radius:50px;font-size:15px;font-weight:800;text-decoration:none}
   /* social */
   .social{padding:22px;text-align:center;background:#2d4a30;border-top:1px solid rgba(255,255,255,.08)}
   .soc{display:inline-block;width:30px;height:30px;border-radius:50%;border:1.5px solid rgba(255,255,255,.3);color:rgba(255,255,255,.5);font-size:12px;line-height:28px;text-align:center;margin:0 4px;font-family:Arial,sans-serif;text-decoration:none}
   /* footer */
-  .foot{background:#ede9e0;padding:20px 36px;text-align:center;font-size:11px;color:#aaa;letter-spacing:.06em}
+  .foot{background:${creamBg};padding:20px 36px;text-align:center;font-size:11px;color:#aaa;letter-spacing:.06em}
   .foot a{color:#aaa}
 </style></head><body>
-${emailClientHeader({client,copy})}
 <div class="wrap">
-  <div class="nav">
-    <div class="nav-links"><a href="#">The Journal</a><a href="#">Groups</a></div>
-    <div class="nav-brand">${client?.name||'Brand'}</div>
-    <div class="nav-links"><a href="#">Refer a Friend</a><a href="#">Packs</a></div>
-  </div>
   <div class="hero">
-    ${heroImg?`<img src="${heroImg}" alt=""/>`:`<div class="hero-ph">Hero image</div>`}
-    <div class="hero-text"><div class="hero-hl">${copy.headlineText||''}</div></div>
+    <div class="hero-img-wrap">${heroImg?`<img src="${heroImg}" alt="" style="object-position:${focalPos(heroObj)}"/>`:`<div class="hero-ph">Hero image</div>`}</div>
+    <div style="position:absolute;top:${logoTop}px;right:${logoRight}px;z-index:2;">
+      ${logoUrl ? `<img src="${logoUrl}" alt="${client?.name||''}" style="display:block;height:${logoSize}px;width:auto;max-width:240px;filter:${logoFilter};"/>` : `<span class="hero-logo-text">${client?.name||''}</span>`}
+    </div>
+    <div class="hero-text">
+      <div class="hero-hl">${copy.headlineText||''}</div>
+    </div>
   </div>
   <div class="content">
     ${copy.subhead?`<div class="text" style="font-weight:600;margin-bottom:20px">${copy.subhead}</div>`:''}
@@ -357,18 +716,17 @@ ${emailClientHeader({client,copy})}
     ${copy.bodyBlock2Title?`<div class="dark-head">${copy.bodyBlock2Title}</div>`:''}
     <div class="grid3">
       ${heroImg&&img1&&img2
-        ?`<img src="${heroImg}" alt=""/><img src="${img1}" alt=""/><img src="${img2}" alt=""/>`
+        ?`<img src="${heroImg}" alt="" style="object-position:${focalPos(heroObj)}"/><img src="${img1}" alt="" style="object-position:${focalPos(img1Obj)}"/><img src="${img2}" alt="" style="object-position:${focalPos(img2Obj)}"/>`
         :img1&&img2
-          ?`<img src="${img1}" alt=""/><img src="${img2}" alt=""/><div class="grid3-ph">·</div>`
+          ?`<img src="${img1}" alt="" style="object-position:${focalPos(img1Obj)}"/><img src="${img2}" alt="" style="object-position:${focalPos(img2Obj)}"/><div class="grid3-ph">·</div>`
           :img1
-            ?`<img src="${img1}" alt=""/><div class="grid3-ph">·</div><div class="grid3-ph">·</div>`
+            ?`<img src="${img1}" alt="" style="object-position:${focalPos(img1Obj)}"/><div class="grid3-ph">·</div><div class="grid3-ph">·</div>`
             :`<div class="grid3-ph">·</div><div class="grid3-ph">·</div><div class="grid3-ph">·</div>`}
     </div>
     ${copy.bodyBlock2?`<div class="dark-body">${copy.bodyBlock2}</div>`:''}
     ${copy.ctaText?`<a class="dark-cta" href="${copy.ctaUrl||'#'}">${copy.ctaText}</a>`:''}
   </div>
-  <div class="social"><a class="soc" href="#">f</a><a class="soc" href="#">in</a><a class="soc" href="#">tk</a><a class="soc" href="#">♪</a></div>
-  <div class="foot">© ${client?.name||''} &nbsp;·&nbsp; <a href="#">Unsubscribe</a></div>
+  ${buildFooter(client, footerData, { defaultBg: '#f5f0e8' })}
 </div></body></html>`
 }
 
@@ -377,11 +735,12 @@ ${emailClientHeader({client,copy})}
    Dark forest green throughout · top bar · rounded hero · white bold hl
    Green pill CTA · 1+2 mosaic grid · partner section · action list rows
    ══════════════════════════════════════════════════════════════════════════ */
-function buildTemplate14({ client, copy, images }) {
-  const heroImg = images?.[0]?.url||''
-  const img1    = images?.[1]?.url||''
-  const img2    = images?.[2]?.url||''
-  const body    = (copy.bodyText||'').replace(/\n/g,'<br>')
+function buildTemplate14({ client, copy, images, footerData }) {
+  const heroObj  = images?.[0]; const heroImg = heroObj?.url||''
+  const img1Obj  = images?.[1]; const img1    = img1Obj?.url||''
+  const img2Obj  = images?.[2]; const img2    = img2Obj?.url||''
+  const body     = (copy.bodyText||'').replace(/\n/g,'<br>')
+  const logoUrl  = client?.logoUrl||''
 
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>
@@ -434,14 +793,14 @@ ${emailClientHeader({client,copy})}
 <div class="wrap">
   <div class="topbar">
     <div class="tb-brand">
-      <svg class="tb-icon" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <polygon points="10,2 18,17 2,17" fill="#5ab85a"/>
-      </svg>
-      ${client?.name||'Brand'}
+      ${logoUrl
+        ? `<img src="${logoUrl}" alt="${client?.name||''}" style="height:32px;width:auto;object-fit:contain;display:block;filter:brightness(0) invert(1)"/>`
+        : `<svg class="tb-icon" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon points="10,2 18,17 2,17" fill="#5ab85a"/></svg>${client?.name||'Brand'}`
+      }
     </div>
     <div class="tb-right">${copy.subjectLine||''}</div>
   </div>
-  <div class="hero">${heroImg?`<img src="${heroImg}" alt=""/>`:`<div class="hero-ph">Hero image</div>`}</div>
+  <div class="hero">${heroImg?`<img src="${heroImg}" alt="" style="object-position:${focalPos(heroObj)}"/>`:`<div class="hero-ph">Hero image</div>`}</div>
   <div class="hl-section">
     <div class="hl">${copy.headlineText||''}</div>
     ${copy.subhead?`<div class="sub">${copy.subhead}</div>`:''}
@@ -449,10 +808,10 @@ ${emailClientHeader({client,copy})}
   </div>
   ${img1||img2?`
   <div class="mosaic">
-    <div class="mos-main">${img1?`<img src="${img1}" alt=""/>`:`<div class="mos-main-ph">Image</div>`}</div>
+    <div class="mos-main">${img1?`<img src="${img1}" alt="" style="object-position:${focalPos(img1Obj)}"/>`:`<div class="mos-main-ph">Image</div>`}</div>
     <div class="mos-stack">
-      ${img2?`<img src="${img2}" alt=""/>`:`<div class="mos-stack-ph">Image</div>`}
-      ${heroImg&&img1&&img2?`<img src="${heroImg}" alt=""/>`:`<div class="mos-stack-ph">Image</div>`}
+      ${img2?`<img src="${img2}" alt="" style="object-position:${focalPos(img2Obj)}"/>`:`<div class="mos-stack-ph">Image</div>`}
+      ${heroImg&&img1&&img2?`<img src="${heroImg}" alt="" style="object-position:${focalPos(heroObj)}"/>`:`<div class="mos-stack-ph">Image</div>`}
     </div>
   </div>`:''}
   <div class="partner">
@@ -471,7 +830,7 @@ ${emailClientHeader({client,copy})}
     <div class="action"><div><div class="action-title">Discover</div><div class="action-sub">${client?.name||'Brand'}</div></div><div class="action-arr">→</div></div>`}
   </div>
   ${copy.ctaText?`<div class="cta-row"><a class="cta" href="${copy.ctaUrl||'#'}">${copy.ctaText}</a></div>`:''}
-  <div class="foot">© ${client?.name||''} &nbsp;·&nbsp; <a href="#">Unsubscribe</a> &nbsp;·&nbsp; <a href="#">Preferences</a></div>
+  ${buildFooter(client, footerData, { defaultBg: '#0d1f14' })}
 </div></body></html>`
 }
 
@@ -511,15 +870,10 @@ function buildHeaderBar(style, client) {
   }
 
   if (style === 2) {
-    // Forest — deep green with pine silhouette
+    // Forest — clean deep green bar, logo centred, no decorations
     return `
-    <div style="background:#2d5a27;padding:0 0 0 0;position:relative;overflow:hidden">
-      <div style="padding:22px 40px;display:flex;align-items:center;justify-content:center;position:relative;z-index:2">
-        ${logo}
-      </div>
-      <svg viewBox="0 0 640 40" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%" preserveAspectRatio="none">
-        <path d="M0,40 L0,28 L20,28 L10,16 L22,16 L12,6 L24,6 L34,16 L46,16 L36,28 L56,28 L56,40Z M80,40 L80,30 L98,30 L88,20 L100,20 L90,10 L102,10 L112,20 L124,20 L114,30 L132,30 L132,40Z M160,40 L160,26 L178,26 L168,14 L180,14 L170,4 L182,4 L192,14 L204,14 L194,26 L212,26 L212,40Z M240,40 L240,30 L255,30 L247,22 L257,22 L249,14 L259,14 L267,22 L277,22 L269,30 L284,30 L284,40Z M320,40 L320,28 L338,28 L328,16 L340,16 L330,6 L342,6 L352,16 L364,16 L354,28 L372,28 L372,40Z M400,40 L400,30 L415,30 L407,22 L417,22 L409,14 L419,14 L427,22 L437,22 L429,30 L444,30 L444,40Z M480,40 L480,26 L498,26 L488,14 L500,14 L490,4 L502,4 L512,14 L524,14 L514,26 L532,26 L532,40Z M560,40 L560,30 L575,30 L567,22 L577,22 L569,14 L579,14 L587,22 L597,22 L589,30 L604,30 L604,40Z M0,40 L640,40Z" fill="rgba(255,255,255,0.10)"/>
-      </svg>
+    <div style="background:#2d5a27;padding:22px 40px;display:flex;align-items:center;justify-content:center">
+      ${logo}
     </div>`
   }
 
@@ -546,92 +900,91 @@ function buildHeaderBar(style, client) {
   </div>`
 }
 
-function imgBox(url, w, h, label='Image') {
+// imgBox accepts either a plain URL string or an image object {url, focalX, focalY}
+function imgBox(imgOrUrl, w, h, label='Image', radius='0') {
+  const url = typeof imgOrUrl === 'string' ? imgOrUrl : imgOrUrl?.url
+  const pos = typeof imgOrUrl === 'string' ? '50% 50%' : focalPos(imgOrUrl)
   return url
-    ? `<img src="${url}" alt="" style="width:${w};height:${h}px;object-fit:cover;display:block"/>`
-    : `<div style="width:${w};height:${h}px;background:#ddd;display:flex;align-items:center;justify-content:center;font-size:12px;color:#aaa;font-family:Arial,sans-serif">${label}</div>`
+    ? `<img src="${url}" alt="" style="width:${w};height:${h}px;object-fit:cover;display:block;border-radius:${radius};object-position:${pos}"/>`
+    : `<div style="width:${w};height:${h}px;background:#e0dbd4;border-radius:${radius};display:flex;align-items:center;justify-content:center;font-size:12px;color:#aaa;font-family:Arial,sans-serif">${label}</div>`
 }
 
-function buildImageSection(imageStyle, sub1Img, sub2Img, sub3Img, sub4Img) {
+// buildImageSection accepts full image objects (with focalX/focalY) so centering is automatic
+function buildImageSection(imageStyle, sub1Obj, sub2Obj, sub3Obj, sub4Obj, theme = {}) {
+  const sub1Img = sub1Obj?.url || (typeof sub1Obj === 'string' ? sub1Obj : '')
+  const sub2Img = sub2Obj?.url || (typeof sub2Obj === 'string' ? sub2Obj : '')
+  const bg  = theme.bg  || '#ffffff'
+  const fav = theme.fav || '#b07a50'
   if (imageStyle === 1) {
-    // Style 1 — 2×2 grid of 4 images
-    const imgs = [sub1Img, sub2Img, sub3Img, sub4Img]
+    // Style 1 — Spacious 2×2 grid with rounded corners
+    const imgs = [sub1Obj, sub2Obj, sub3Obj, sub4Obj]
     if (imgs.every(i => !i)) return ''
     return `
-  <!-- 2x2 grid -->
-  <div style="padding:0 0 32px">
-    <div style="display:flex;gap:4px;margin-bottom:4px">
-      <div style="flex:1;overflow:hidden">${imgBox(imgs[0], '100%', 200, 'Image 1')}</div>
-      <div style="flex:1;overflow:hidden">${imgBox(imgs[1], '100%', 200, 'Image 2')}</div>
+  <!-- Spacious 2x2 grid -->
+  <div style="background:${bg};padding:8px 20px 36px">
+    <div style="display:flex;gap:10px;margin-bottom:10px">
+      <div style="flex:1;overflow:hidden;border-radius:14px">${imgBox(imgs[0], '100%', 195, 'Image 1', '14px')}</div>
+      <div style="flex:1;overflow:hidden;border-radius:14px">${imgBox(imgs[1], '100%', 195, 'Image 2', '14px')}</div>
     </div>
-    <div style="display:flex;gap:4px">
-      <div style="flex:1;overflow:hidden">${imgBox(imgs[2], '100%', 200, 'Image 3')}</div>
-      <div style="flex:1;overflow:hidden">${imgBox(imgs[3], '100%', 200, 'Image 4')}</div>
+    <div style="display:flex;gap:10px">
+      <div style="flex:1;overflow:hidden;border-radius:14px">${imgBox(imgs[2], '100%', 195, 'Image 3', '14px')}</div>
+      <div style="flex:1;overflow:hidden;border-radius:14px">${imgBox(imgs[3], '100%', 195, 'Image 4', '14px')}</div>
     </div>
   </div>`
   }
 
   if (imageStyle === 2) {
-    // Style 2 — Two tilted polaroid photos side-by-side ("Favorite Memories" — already in CSS)
     if (!sub1Img && !sub2Img) return ''
     return `
   <!-- Polaroid collage -->
-  <div class="gallery-wrap">
-    <div class="gallery-row">
-      <div class="polaroid p1">
-        ${sub1Img ? `<img src="${sub1Img}" alt=""/>` : `<div class="polaroid-ph">Image</div>`}
+  <div style="background:${bg};padding:40px 32px 36px">
+    <div style="display:flex;align-items:flex-start;justify-content:center;gap:24px">
+      <div style="background:#fff;padding:10px 10px 36px;box-shadow:0 4px 20px rgba(0,0,0,0.18);flex:1;max-width:260px;transform:rotate(-4deg);margin-top:20px">
+        ${sub1Img ? `<img src="${sub1Img}" alt="" style="display:block;width:100%;height:190px;object-fit:cover;object-position:${focalPos(sub1Obj)}"/>` : `<div style="width:100%;height:190px;background:#ddd;display:flex;align-items:center;justify-content:center;font-size:12px;color:#aaa;font-family:Arial,sans-serif">Image</div>`}
       </div>
-      <div class="polaroid p2">
-        ${sub2Img ? `<img src="${sub2Img}" alt=""/>` : `<div class="polaroid-ph">Image</div>`}
+      <div style="background:#fff;padding:10px 10px 36px;box-shadow:0 4px 20px rgba(0,0,0,0.18);flex:1;max-width:260px;transform:rotate(3deg)">
+        ${sub2Img ? `<img src="${sub2Img}" alt="" style="display:block;width:100%;height:190px;object-fit:cover;object-position:${focalPos(sub2Obj)}"/>` : `<div style="width:100%;height:190px;background:#ddd;display:flex;align-items:center;justify-content:center;font-size:12px;color:#aaa;font-family:Arial,sans-serif">Image</div>`}
       </div>
     </div>
-    <div class="fav-label">Favorite<br>Memories</div>
+    <div style="margin-top:28px;text-align:center;font-family:'Dancing Script',cursive,'Brush Script MT',cursive;font-size:32px;color:${fav};line-height:1.2">Favorite<br>Memories</div>
   </div>`
   }
 
   if (imageStyle === 3) {
-    // Style 3 — Two overlapping tilted photos with Favorite Memories script underneath
     if (!sub1Img && !sub2Img) return ''
     return `
-  <!-- Overlapping tilted photos + script label -->
-  <div style="background:#faf9f7;padding:48px 32px 36px;text-align:center">
-    <div style="position:relative;display:inline-block;width:320px;height:240px;margin:0 auto">
-      <!-- Back photo (left, rotated more) -->
-      <div style="position:absolute;left:0;top:20px;width:200px;transform:rotate(-8deg);background:#fff;padding:8px 8px 32px;box-shadow:0 4px 20px rgba(0,0,0,0.18)">
-        ${sub1Img
-          ? `<img src="${sub1Img}" alt="" style="width:100%;height:155px;object-fit:cover;display:block"/>`
-          : `<div style="width:100%;height:155px;background:#ddd;display:flex;align-items:center;justify-content:center;font-size:12px;color:#aaa;font-family:Arial,sans-serif">Image</div>`}
+  <!-- Overlapping tilted photos -->
+  <div style="background:${bg};padding:48px 40px 48px;text-align:center">
+    <div style="position:relative;height:260px;display:flex;align-items:center;justify-content:center">
+      <div style="position:absolute;left:30px;top:10px;width:260px;height:220px;transform:rotate(-8deg);border-radius:6px;overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,0.22)">
+        ${sub1Img ? `<img src="${sub1Img}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;object-position:${focalPos(sub1Obj)}"/>` : `<div style="width:100%;height:100%;background:#ccc;display:flex;align-items:center;justify-content:center;font-size:12px;color:#aaa;font-family:Arial,sans-serif">Image 1</div>`}
       </div>
-      <!-- Front photo (right, rotated less) -->
-      <div style="position:absolute;right:0;top:0;width:200px;transform:rotate(6deg);background:#fff;padding:8px 8px 32px;box-shadow:0 6px 24px rgba(0,0,0,0.22)">
-        ${sub2Img
-          ? `<img src="${sub2Img}" alt="" style="width:100%;height:155px;object-fit:cover;display:block"/>`
-          : `<div style="width:100%;height:155px;background:#ddd;display:flex;align-items:center;justify-content:center;font-size:12px;color:#aaa;font-family:Arial,sans-serif">Image</div>`}
+      <div style="position:absolute;right:30px;top:10px;width:260px;height:220px;transform:rotate(7deg);border-radius:6px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.28)">
+        ${sub2Img ? `<img src="${sub2Img}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;object-position:${focalPos(sub2Obj)}"/>` : `<div style="width:100%;height:100%;background:#ccc;display:flex;align-items:center;justify-content:center;font-size:12px;color:#aaa;font-family:Arial,sans-serif">Image 2</div>`}
       </div>
-    </div>
-    <div style="margin-top:32px;font-family:'Dancing Script',cursive,'Brush Script MT',cursive;font-size:34px;color:#b07a50;line-height:1.2">
-      Favorite Memories
     </div>
   </div>`
   }
 
-  // Style 4 — Single large image in a circular frame
+  // Style 4 — Circle backdrop + tilted photo card
   if (!sub1Img) return ''
   return `
-  <!-- Circular feature image -->
-  <div style="background:#faf9f7;padding:40px 32px 36px;display:flex;flex-direction:column;align-items:center">
-    <div style="width:280px;height:280px;border-radius:50%;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.18)">
-      <img src="${sub1Img}" alt="" style="width:100%;height:100%;object-fit:cover;display:block"/>
+  <!-- Circle background + tilted photo card -->
+  <div style="background:${bg};padding:32px 0 40px;display:flex;justify-content:center;align-items:center;position:relative;overflow:hidden">
+    <div style="position:absolute;width:380px;height:380px;border-radius:50%;background:rgba(217,228,234,0.35);top:50%;left:50%;transform:translate(-50%,-50%)"></div>
+    <div style="position:relative;z-index:1;transform:rotate(-4deg);background:#fff;padding:10px;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,0.22);width:300px">
+      <img src="${sub1Img}" alt="" style="width:100%;height:300px;object-fit:cover;display:block;border-radius:8px;object-position:${focalPos(sub1Obj)}"/>
     </div>
   </div>`
 }
 
-function buildTemplateHero({ client, copy, images, headerStyle = 3, imageStyle = 2 }) {
-  const heroImg  = images?.[0]?.url || ''
-  const sub1Img  = images?.[1]?.url || ''
-  const sub2Img  = images?.[2]?.url || ''
-  const sub3Img  = images?.[3]?.url || ''
-  const sub4Img  = images?.[4]?.url || ''
+function buildTemplateHero({ client, copy, images, headerStyle = 3, imageStyle = 2, footerData }) {
+  const heroObj  = images?.[0]
+  const sub1Obj  = images?.[1]
+  const sub2Obj  = images?.[2]
+  const sub3Obj  = images?.[3]
+  const sub4Obj  = images?.[4]
+  const heroImg  = heroObj?.url || ''
   const logoUrl  = client?.logoUrl  || ''
   const headline = copy.headlineText || ''
   const subhead  = copy.subhead      || ''
@@ -642,12 +995,20 @@ function buildTemplateHero({ client, copy, images, headerStyle = 3, imageStyle =
   const b2body   = (copy.bodyBlock2  || '').replace(/\n/g, '<br>')
   const closing  = copy.closingLine  || ''
 
+  // Per-style colour theme applied to the body section below the hero
+  const theme = {
+    1: { bg: '#1e2e45', text: '#f0ece4', subtext: 'rgba(240,236,228,0.75)', cta: '#c9a84c', ctaText: '#1e2e45', wave: '#1e2e45', fav: '#c9a84c' },
+    2: { bg: '#ffffff', text: '#2d2d2d', subtext: '#555',                   cta: '#2d5a27', ctaText: '#fff',    wave: '#ffffff', fav: '#b07a50' },
+    3: { bg: '#ffffff', text: '#2d2d2d', subtext: '#555',                   cta: '#3d2314', ctaText: '#fff',    wave: '#ffffff', fav: '#b07a50' },
+    4: { bg: '#2e1208', text: '#f5ede6', subtext: 'rgba(245,237,230,0.75)', cta: '#b5622a', ctaText: '#fff',    wave: '#2e1208', fav: '#d4956a' },
+  }[headerStyle] || { bg: '#ffffff', text: '#2d2d2d', subtext: '#555', cta: '#3d2314', ctaText: '#fff', wave: '#ffffff', fav: '#b07a50' }
+
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Dancing+Script:wght@600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;900&family=Dancing+Script:wght@600&display=swap');
   *{box-sizing:border-box;margin:0;padding:0}
   body{background:#f5f5f5;font-family:'Georgia',serif}
-  .wrap{max-width:640px;margin:0 auto;background:#fff}
+  .wrap{max-width:640px;margin:0 auto;background:${theme.bg}}
   /* ── logo bar ── */
   .logo-bar{
     background:#3d2314;
@@ -673,16 +1034,25 @@ function buildTemplateHero({ client, copy, images, headerStyle = 3, imageStyle =
   .hero-ph{width:100%;height:580px;background:#c8b8a2;display:flex;align-items:center;justify-content:center;color:#8a7a68;font-family:Arial,sans-serif;font-size:13px}
   /* overlay */
   .hero-overlay{
-    position:absolute;inset:0;
-    background:linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.1) 60%, rgba(0,0,0,0) 100%);
-    display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
-    padding:36px 40px 32px;text-align:center;
+    position:absolute;top:0;left:0;right:0;bottom:0;
+    background:linear-gradient(to bottom, rgba(0,0,0,0.52) 0%, rgba(0,0,0,0.05) 50%, rgba(0,0,0,0.35) 100%);
+    display:flex;flex-direction:column;align-items:center;justify-content:space-between;
+    padding:28px 40px 52px;text-align:center;box-sizing:border-box;
+  }
+  .hero-logo{
+    height:36px;width:auto;max-width:120px;object-fit:contain;
+    filter:drop-shadow(0 1px 6px rgba(0,0,0,0.5));
+  }
+  .hero-logo-text{
+    font-size:14px;letter-spacing:.28em;text-transform:uppercase;
+    color:#fff;font-family:Arial,sans-serif;font-weight:700;
+    text-shadow:0 1px 8px rgba(0,0,0,0.6);
   }
   .hero-headline{
-    font-size:32px;font-weight:900;line-height:1.15;
+    font-size:34px;font-weight:900;line-height:1.2;
     color:#fff;font-family:'Playfair Display',Georgia,serif;
-    text-shadow:0 2px 16px rgba(0,0,0,0.6);
-    letter-spacing:-0.2px;
+    text-shadow:0 2px 20px rgba(0,0,0,0.7);
+    letter-spacing:-0.3px;
   }
   /* wave */
   .wave-wrap{position:absolute;bottom:-1px;left:0;right:0;line-height:0}
@@ -740,66 +1110,916 @@ function buildTemplateHero({ client, copy, images, headerStyle = 3, imageStyle =
 ${emailClientHeader({ client, copy })}
 <div class="wrap">
 
-  <!-- Header bar (style ${headerStyle}) -->
-  ${buildHeaderBar(headerStyle, client)}
-
-  <!-- Hero image + overlay -->
+  <!-- Hero image + overlay (logo top, headline bottom) -->
   <div class="hero-wrap">
     ${heroImg
-      ? `<img src="${heroImg}" alt=""/>`
+      ? `<img src="${heroImg}" alt="" style="width:100%;height:580px;object-fit:cover;display:block;object-position:${focalPos(heroObj)}"/>`
       : `<div class="hero-ph">Hero image will appear here</div>`
     }
-    <div class="hero-overlay">
-      ${headline ? `<div class="hero-headline">${headline}</div>` : ''}
+    <div class="hero-overlay" style="
+      position:absolute;top:0;left:0;right:0;bottom:0;box-sizing:border-box;
+      display:flex;flex-direction:column;align-items:center;padding:28px 40px 52px;text-align:center;
+      justify-content:space-between;
+      background:${
+        headerStyle === 1 ? 'linear-gradient(to bottom, rgba(30,46,69,0.55) 0%, rgba(0,0,0,0.15) 40%, rgba(0,0,0,0.4) 100%)' :
+        headerStyle === 2 ? 'linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.28) 45%, rgba(0,0,0,0.1) 75%, rgba(0,0,0,0) 100%)' :
+        headerStyle === 4 ? 'linear-gradient(to bottom, rgba(181,98,42,0.5) 0%, rgba(0,0,0,0.05) 50%, rgba(0,0,0,0.45) 100%)' :
+        'linear-gradient(to bottom, rgba(0,0,0,0.52) 0%, rgba(0,0,0,0.05) 50%, rgba(0,0,0,0.45) 100%)'
+      }">
+      ${logoUrl
+        ? `<img src="${logoUrl}" alt="${client?.name||''}" style="height:44px;width:auto;max-width:160px;object-fit:contain;display:block;filter:drop-shadow(0 1px 6px rgba(0,0,0,0.5))"/>`
+        : `<span style="font-size:14px;letter-spacing:.28em;text-transform:uppercase;color:#fff;font-family:Arial,sans-serif;font-weight:700;text-shadow:0 1px 8px rgba(0,0,0,0.6)">${client?.name||''}</span>`
+      }
+      ${headline ? `<div style="font-size:34px;font-weight:900;line-height:1.2;color:#fff;font-family:'Playfair Display',Georgia,serif;text-shadow:0 2px 20px rgba(0,0,0,0.7);letter-spacing:-0.3px;text-align:center;padding:0 8px${headerStyle === 2 ? ';margin-bottom:60px' : ''}">${headline}</div>` : ''}
     </div>
-    <!-- Wave bottom -->
+    <!-- Wave / tree cutout at bottom -->
     <div class="wave-wrap">
       ${headerStyle === 1
-        ? `<svg viewBox="0 0 640 80" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><polygon points="0,80 0,62 18,55 30,35 42,58 58,50 68,22 78,48 92,38 105,60 118,30 128,52 142,42 155,65 172,28 183,54 196,18 208,50 218,40 232,62 248,44 260,10 270,46 282,34 296,58 310,20 322,52 334,38 348,62 362,30 374,55 388,16 400,48 414,36 428,60 440,24 452,50 466,40 478,62 492,28 504,52 516,44 530,68 545,32 558,54 572,22 584,50 596,38 612,60 626,44 640,56 640,80" fill="#ffffff"/></svg>`
-        : `<svg viewBox="0 0 640 40" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M0,20 C80,40 160,0 240,20 C320,40 400,0 480,20 C560,40 620,10 640,20 L640,40 L0,40 Z" fill="#ffffff"/></svg>`
+        ? `<svg viewBox="0 0 640 60" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M0,60 L0,30 C80,55 160,10 240,32 C320,54 400,8 480,28 C560,48 610,15 640,26 L640,60 Z" fill="${theme.wave}"/><path d="M0,30 C80,55 160,10 240,32 C320,54 400,8 480,28 C560,48 610,15 640,26" fill="none" stroke="#ffffff" stroke-width="2.5" vector-effect="non-scaling-stroke"/></svg>`
+        : headerStyle === 2
+        ? `<svg viewBox="0 0 640 100" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" style="overflow:visible"><path d="M0,30 Q320,120 640,30 L640,100 L0,100 Z" fill="${theme.wave}"/></svg>`
+        : headerStyle === 4
+        ? ``
+        : `<svg viewBox="0 0 640 40" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M0,20 C80,40 160,0 240,20 C320,40 400,0 480,20 C560,40 620,10 640,20 L640,40 L0,40 Z" fill="${theme.wave}"/></svg>`
       }
     </div>
   </div>
 
-  <!-- Subhead + first CTA -->
+  <!-- Subhead + first CTA — themed background -->
   ${(subhead || ctaText) ? `
-  <div class="sub-cta">
-    ${subhead ? `<p class="subhead">${subhead}</p>` : ''}
-    ${ctaText ? `<a href="${ctaUrl}" class="cta-btn">${ctaText} →</a>` : ''}
+  <div style="background:${theme.bg};padding:36px 48px 40px;text-align:center">
+    ${subhead ? `<p style="font-size:18px;line-height:1.6;color:${theme.text};font-family:'Georgia',serif;margin-bottom:28px">${subhead}</p>` : ''}
+    ${ctaText ? `<a href="${ctaUrl}" style="display:inline-block;padding:14px 36px;background:${theme.cta};color:${theme.ctaText};font-family:Arial,sans-serif;font-size:15px;font-weight:700;text-decoration:none;border-radius:6px;letter-spacing:.04em">${ctaText} →</a>` : ''}
   </div>` : ''}
 
-  <!-- Body text -->
-  ${body ? `
-  <div class="body-block">
-    <p>${body}</p>
-  </div>` : ''}
+  <!-- Body, images, closing — themed bg (white for Desert, theme color for others) -->
+  <div style="background:${headerStyle === 4 ? '#ffffff' : theme.bg};padding-bottom:8px">
 
-  ${buildImageSection(imageStyle, sub1Img, sub2Img, sub3Img, sub4Img)}
+    <!-- Body text -->
+    ${body ? `
+    <div style="padding:36px 48px 32px;font-size:15px;line-height:1.75;color:${headerStyle === 4 ? '#555' : theme.subtext};font-family:'Georgia',serif">
+      <p>${body}</p>
+    </div>` : ''}
 
-  <!-- Closing block: BB2 title + body + closing line + CTA -->
-  ${(b2title || b2body || closing || ctaText) ? `
-  <div class="closing-block">
-    ${b2title  ? `<p class="b2-title">${b2title}</p>` : ''}
-    ${b2body   ? `<p class="b2-body">${b2body}</p>` : ''}
-    ${closing  ? `<p class="closing-line">${closing}</p>` : ''}
-    ${ctaText  ? `<a href="${ctaUrl}" class="cta-btn">${ctaText} →</a>` : ''}
-  </div>` : ''}
+    ${buildImageSection(imageStyle, sub1Obj, sub2Obj, sub3Obj, sub4Obj, headerStyle === 4 ? { ...theme, bg: '#ffffff' } : theme)}
 
-  <!-- Footer -->
-  <div class="foot">© ${client?.name || ''} &nbsp;·&nbsp; <a href="#">Unsubscribe</a></div>
+    <!-- Closing block -->
+    ${(b2title || b2body || closing || ctaText) ? `
+    <div style="padding:36px 48px 32px;text-align:center">
+      ${b2title ? `<p style="font-size:17px;font-weight:700;color:${headerStyle === 4 ? '#2d2d2d' : theme.text};font-family:'Georgia',serif;margin-bottom:18px">${b2title}</p>` : ''}
+      ${b2body  ? `<p style="font-size:15px;line-height:1.75;color:${headerStyle === 4 ? '#555' : theme.subtext};font-family:'Georgia',serif;margin-bottom:24px;text-align:left">${b2body}</p>` : ''}
+      ${closing ? `<p style="font-size:15px;line-height:1.7;color:${headerStyle === 4 ? '#555' : theme.subtext};font-family:'Georgia',serif;margin-bottom:28px;text-align:left">${closing}</p>` : ''}
+      ${ctaText ? `<a href="${ctaUrl}" style="display:inline-block;padding:14px 36px;background:${theme.cta};color:${theme.ctaText};font-family:Arial,sans-serif;font-size:15px;font-weight:700;text-decoration:none;border-radius:6px;letter-spacing:.04em">${ctaText} →</a>` : ''}
+    </div>` : ''}
+
+  </div>
+
+  ${buildFooter(client, footerData, { defaultBg: theme.bg === '#ffffff' ? '#3d2314' : theme.bg })}
 
 </div></body></html>`
 }
 
+/* ══════════════════════════════════════════════════════════════════════════
+   WEEK 1 — Getaway HTML skeleton + 70 / 20 / 10 brand colours
+   Exact same nested-table / gmail_fix / blockSides structure as reference.
+   Image slices replaced with real HTML text blocks.
+
+   BG Color (70%)       = bg70  → page canvas, content sections
+   Secondary Color (20%)= sec20 → header bar + footer band
+   Button Color (10%)   = btn10 → CTA buttons + eyebrow accent only
+   ══════════════════════════════════════════════════════════════════════════ */
+function buildTemplateWeek1({ client, copy, images, footerData, heroScale=1, heroX=0, heroY=0, textSize=22, textTop=110, textLeft=48, logoColor='original', logoTop=36, logoRight=220, logoSize=56 }) {
+  const heroObj  = images?.[0]
+  const img1Obj  = images?.[1]
+  const img2Obj  = images?.[2]
+  const img3Obj  = images?.[3]
+  const heroImg  = heroObj?.url || ''
+  const img1     = img1Obj?.url || ''
+  const img2     = img2Obj?.url || ''
+  const img3     = img3Obj?.url || ''
+  const body     = (copy.bodyText   || '').replace(/\n/g, '<br>')
+  const b2body   = (copy.bodyBlock2 || '').replace(/\n/g, '<br>')
+  const logoUrl  = client?.logoUrl  || ''
+  const name     = client?.name     || 'Brand'
+
+  // ── 70 / 20 / 10 palette ─────────────────────────────────────────────
+  // pageBg = fixed neutral — ONLY the preview/page wrapper outside the email
+  // bg70   = client brand BG color — fills content sections inside the 600px column
+  // sec20  = accent band (section header + image strip)
+  // btn10  = CTA buttons + eyebrow only
+  const fd     = footerData || {}
+  const pageBg = '#f5f2ec'              // always neutral outside the email
+  const bg70   = fd.bgColor        || '#f5f0e8'
+  const sec20  = fd.secondaryColor || '#2d4a35'
+  const btn10  = fd.buttonColor    || '#e85d26'
+
+  const onSec  = textOn(sec20)
+  const muSec  = mutedOn(sec20)
+  const onBtn  = textOn(btn10)
+  const muBg   = mutedOn(bg70)
+  const onBg   = textOn(bg70)
+  const muBg2  = textOn(bg70) === '#1a1a1a' ? 'rgba(26,26,26,0.7)' : 'rgba(255,255,255,0.7)'
+
+  // ── social icons ──────────────────────────────────────────────────────
+  const CDN = 'https://storage.googleapis.com/preview-production-assets/email/img/hl_default_img/social'
+  const socials = [
+    { url: fd.facebookUrl,  img: `${CDN}/facebook_circle_grey.png`,  label: 'Facebook'  },
+    { url: fd.instagramUrl, img: `${CDN}/instagram_circle_grey.png`, label: 'Instagram' },
+    { url: fd.tiktokUrl,    img: `${CDN}/tiktok_circle_grey.png`,    label: 'TikTok'    },
+  ].filter(s => s.url)
+
+  // ── logo overlay ──────────────────────────────────────────────────────────
+  const w1LogoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
+  const logoOverlay = logoUrl
+    ? `<img src="${logoUrl}" alt="${name}" border="0" style="display:block;height:${logoSize}px;width:auto;max-width:240px;filter:${w1LogoFilter};"/>`
+    : `<span style="font-family:Arial,sans-serif;font-size:15px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#fff;">${name}</span>`
+
+  const hasB2 = !!(copy.bodyBlock2Title || b2body || copy.closingLine)
+  // How many images for strip
+  const stripImgs = [img1, img2, img3].filter(Boolean)
+
+  return `<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title></title>
+  <meta name="format-detection" content="telephone=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="supported-color-schemes" content="light">
+  <style type="text/css">
+    * { margin-top:0;margin-bottom:0;padding:0;border:none;outline:none;-webkit-text-size-adjust:none; }
+    body { margin:0!important;padding:0!important;width:100%!important;-webkit-text-size-adjust:100%!important;-ms-text-size-adjust:100%!important;-webkit-font-smoothing:antialiased!important;background-color:${pageBg}!important; }
+    img { border:0!important;display:block!important;outline:none!important; }
+    table { border-collapse:collapse;mso-table-lspace:0px;mso-table-rspace:0px; }
+    td { border-collapse:collapse;mso-line-height-rule:exactly; }
+    a { text-decoration:none; }
+    .ExternalClass { width:100%;line-height:100%; }
+    a[x-apple-data-detectors] { color:inherit!important;text-decoration:none!important;font-size:inherit!important;font-family:inherit!important;font-weight:inherit!important;line-height:inherit!important; }
+    @media only screen and (max-width:600px) {
+      .gmail_fix { width:100%!important;min-width:320px!important; }
+      .mobile_cta { width:75%!important;max-width:75%!important; }
+    }
+    @media only screen and (max-width:520px) {
+      .mobile_img  { width:100%!important;height:auto!important; }
+      .blockSides  { width:20px!important; }
+      .col3        { width:100%!important;display:block!important; }
+      .txt_12 { font-size:12px!important;line-height:16px!important; }
+      .txt_14 { font-size:14px!important;line-height:20px!important; }
+      .txt_18 { font-size:18px!important;line-height:24px!important; }
+      .txt_22 { font-size:22px!important;line-height:28px!important; }
+      .txt_26 { font-size:26px!important;line-height:32px!important; }
+    }
+  </style>
+  <!--[if mso]><style>body,table,td,a,span{font-family:Arial,sans-serif!important}</style><![endif]-->
+  <!--[if gte mso 9]><xml><o:OfficeDocumentSettings><o:AllowPNG/><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml><![endif]-->
+</head>
+<body style="margin:0;padding:0;background-color:${pageBg};">
+
+  <!-- Preheader (hidden) -->
+  <div style="display:none;max-height:0;overflow:hidden;font-size:1px;color:${pageBg};">${copy.previewText || ''}&#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847;</div>
+
+  <!-- ===== BLOCK: Hero ===== -->
+  <!-- Full-width image, gradient at top, logo + small headline overlaid -->
+  <table width="100%" cellpadding="0" cellspacing="0" bgcolor="${pageBg}">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" class="gmail_fix">
+        <tr>
+          <td style="padding:0;font-size:0;line-height:0;position:relative;background:${sec20};height:560px;">
+            <!-- Pan/zoom wrapper clips the image -->
+            <div style="position:absolute;top:0;left:0;right:0;bottom:0;overflow:hidden;">
+              ${heroImg
+                ? `<img src="${heroImg}" border="0" alt="" style="position:absolute;width:${heroScale*100}%;height:${heroScale*100}%;min-width:100%;min-height:100%;object-fit:cover;display:block;left:50%;top:50%;transform:translate(calc(-50% + ${heroX}px),calc(-50% + ${heroY}px));">`
+                : `<div style="width:100%;height:100%;background:${sec20};"></div>`}
+            </div>
+            <!-- Gradient overlay -->
+            <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(to bottom,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.18) 45%,rgba(0,0,0,0.0) 100%);pointer-events:none;"></div>
+            <!-- Logo -->
+            <div style="position:absolute;top:${logoTop}px;right:${logoRight}px;z-index:2;">${logoOverlay}</div>
+            <!-- Headline -->
+            <div style="position:absolute;top:${textTop}px;left:${textLeft}px;right:48px;z-index:2;">
+              <div style="font-family:Arial,sans-serif;font-size:${textSize}px;line-height:1.3;font-weight:800;color:#ffffff;text-shadow:0 1px 10px rgba(0,0,0,0.5);letter-spacing:-0.2px;text-align:center;" class="txt_18">${copy.headlineText || ''}</div>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+  <!-- end BLOCK: Hero -->
+
+  <!-- ===== BLOCK: subhead + CTA + body (bg70) ===== -->
+  <table width="100%" cellpadding="0" cellspacing="0" bgcolor="${pageBg}">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" class="gmail_fix">
+        <tr>
+          <td bgcolor="${bg70}">
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr><td width="60" class="blockSides">&nbsp;</td>
+                <td align="center">
+                  <table width="100%" cellpadding="0" cellspacing="0">
+                    <tr><td height="48">&nbsp;</td></tr>
+
+                    ${copy.subhead ? `<tr>
+                      <td align="center" style="font-family:Arial,sans-serif;font-size:17px;line-height:27px;font-weight:700;color:${onBg};padding-bottom:22px;" class="txt_14">${copy.subhead}</td>
+                    </tr>` : ''}
+
+                    ${copy.ctaText ? `<tr>
+                      <td align="center" style="padding-bottom:28px;">
+                        <table cellpadding="0" cellspacing="0" class="mobile_cta">
+                          <tr>
+                            <td bgcolor="${btn10}" align="center" style="border-radius:30px;">
+                              <a href="${copy.ctaUrl || '#'}" target="_blank" style="display:inline-block;padding:15px 44px;font-family:Arial,sans-serif;font-size:15px;font-weight:700;color:${onBtn};text-decoration:none;border-radius:30px;letter-spacing:.04em;">${copy.ctaText}</a>
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>` : ''}
+
+                    ${body ? `<tr>
+                      <td align="left" style="font-family:Arial,sans-serif;font-size:15px;line-height:26px;font-weight:400;color:${muBg2};padding-bottom:48px;" class="txt_14">${body}</td>
+                    </tr>` : ''}
+
+                  </table>
+                </td>
+              <td width="60" class="blockSides">&nbsp;</td></tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+  <!-- end BLOCK: subhead + CTA + body -->
+
+  ${(copy.bodyBlock2Title || stripImgs.length || b2body || copy.closingLine) ? `
+  <!-- ===== BLOCK: sec20 band — title + images + body2 + closing + CTA ===== -->
+  <table width="100%" cellpadding="0" cellspacing="0" bgcolor="${pageBg}">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" class="gmail_fix">
+        <tr>
+          <td bgcolor="${sec20}">
+            <table width="100%" cellpadding="0" cellspacing="0">
+
+              ${copy.bodyBlock2Title ? `<tr>
+                <td align="center" style="padding:44px 48px 36px;">
+                  <div style="font-family:Arial,sans-serif;font-size:26px;line-height:34px;font-weight:800;color:${onSec};letter-spacing:-0.3px;" class="txt_22">${copy.bodyBlock2Title}</div>
+                </td>
+              </tr>` : ''}
+
+              ${stripImgs.length ? `<tr>
+                <td align="center" style="padding:10px 0 40px;position:relative;">
+                  ${stripImgs.length === 1 ? `
+                    <img src="${stripImgs[0]}" width="520" border="0" style="width:87%;height:280px;object-fit:cover;display:block;border-radius:14px;margin:0 auto;object-position:${focalPos(img1Obj)};box-shadow:0 8px 32px rgba(0,0,0,0.35);" alt="">
+                  ` : stripImgs.length === 2 ? `
+                    <div style="position:relative;height:260px;width:100%;">
+                      <img src="${stripImgs[0]}" border="0" style="position:absolute;left:40px;top:16px;width:44%;height:220px;object-fit:cover;border-radius:12px;transform:rotate(-3deg);box-shadow:0 6px 20px rgba(0,0,0,0.35);object-position:${focalPos(img1Obj)};" alt="">
+                      <img src="${stripImgs[1]}" border="0" style="position:absolute;right:40px;top:0;width:44%;height:220px;object-fit:cover;border-radius:12px;transform:rotate(3deg);box-shadow:0 6px 20px rgba(0,0,0,0.35);object-position:${focalPos(img2Obj)};" alt="">
+                    </div>
+                  ` : `
+                    <div style="position:relative;height:280px;width:100%;">
+                      <img src="${stripImgs[0]}" border="0" style="position:absolute;left:20px;top:24px;width:38%;height:240px;object-fit:cover;border-radius:12px;transform:rotate(-5deg);box-shadow:0 6px 24px rgba(0,0,0,0.4);object-position:${focalPos(img1Obj)};" alt="">
+                      <img src="${stripImgs[1]}" border="0" style="position:absolute;left:50%;top:10px;width:38%;height:240px;object-fit:cover;border-radius:12px;transform:translateX(-50%);box-shadow:0 8px 28px rgba(0,0,0,0.45);object-position:${focalPos(img2Obj)};" alt="">
+                      <img src="${stripImgs[2]}" border="0" style="position:absolute;right:20px;top:24px;width:38%;height:240px;object-fit:cover;border-radius:12px;transform:rotate(5deg);box-shadow:0 6px 24px rgba(0,0,0,0.4);object-position:${focalPos(img3Obj)};" alt="">
+                    </div>
+                  `}
+                </td>
+              </tr>` : ''}
+
+              ${(b2body || copy.closingLine || copy.ctaText) ? `<tr>
+                <td>
+                  <table width="100%" cellpadding="0" cellspacing="0">
+                    <tr><td width="60" class="blockSides">&nbsp;</td>
+                      <td align="center">
+                        <table width="100%" cellpadding="0" cellspacing="0">
+                          <tr><td height="8">&nbsp;</td></tr>
+
+                          ${b2body ? `<tr>
+                            <td align="center" style="font-family:Arial,sans-serif;font-size:15px;line-height:26px;font-weight:400;color:#ffffff;padding-bottom:20px;" class="txt_14">${b2body}</td>
+                          </tr>` : ''}
+
+                          ${copy.closingLine ? `<tr>
+                            <td align="center" style="font-family:Arial,sans-serif;font-size:14px;line-height:22px;font-weight:700;color:#ffffff;padding-bottom:28px;" class="txt_12">${copy.closingLine}</td>
+                          </tr>` : ''}
+
+                          ${copy.ctaText ? `<tr>
+                            <td align="center" style="padding-bottom:48px;">
+                              <table cellpadding="0" cellspacing="0" class="mobile_cta">
+                                <tr>
+                                  <td bgcolor="${btn10}" align="center" style="border-radius:30px;">
+                                    <a href="${copy.ctaUrl || '#'}" target="_blank" style="display:inline-block;padding:15px 44px;font-family:Arial,sans-serif;font-size:15px;font-weight:700;color:${onBtn};text-decoration:none;border-radius:30px;letter-spacing:.04em;">${copy.ctaText}</a>
+                                  </td>
+                                </tr>
+                              </table>
+                            </td>
+                          </tr>` : ''}
+
+                        </table>
+                      </td>
+                    <td width="60" class="blockSides">&nbsp;</td></tr>
+                  </table>
+                </td>
+              </tr>` : ''}
+
+            </table>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+  <!-- end BLOCK: sec20 band -->` : ''}
+
+  <!-- ===== BLOCK: Social ===== -->
+  <table width="100%" cellpadding="0" cellspacing="0" bgcolor="${pageBg}">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" class="gmail_fix">
+        <tr>
+          <td bgcolor="${bg70}" align="center" style="padding:28px 40px 10px;">
+            ${socials.length ? `<table cellpadding="0" cellspacing="0" align="center">
+              <tr>
+                ${socials.map((s, i) => `${i > 0 ? '<td width="12">&nbsp;</td>' : ''}<td><a href="${s.url}" target="_blank"><img src="${s.img}" width="28" height="28" border="0" style="display:block;border-radius:50%;" alt="${s.label}"></a></td>`).join('')}
+              </tr>
+            </table>` : ''}
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+  <!-- end BLOCK: Social -->
+
+  <!-- ===== BLOCK: Fine Print + Footer ===== -->
+  <table width="100%" cellpadding="0" cellspacing="0" bgcolor="${pageBg}">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" class="gmail_fix">
+        <tr>
+          <td bgcolor="${bg70}" align="center" style="padding:12px 80px 32px;" class="paddingsides_20">
+            ${fd.footerText ? `<p style="font-family:Arial,sans-serif;font-size:11px;line-height:17px;color:${muBg};margin-bottom:16px;">${fd.footerText}</p>` : ''}
+            <p style="font-family:Arial,sans-serif;font-size:11px;line-height:18px;color:${muBg};margin-bottom:4px;">
+              <a href="{{email.view_in_browser_url}}" style="color:${muBg};text-decoration:underline;">View in browser</a>
+              &nbsp;&nbsp;·&nbsp;&nbsp;
+              <a href="{{email.unsubscribe_link}}" style="color:${muBg};text-decoration:underline;">Unsubscribe</a>
+            </p>
+            ${fd.contactInfo ? `<p style="font-family:Arial,sans-serif;font-size:11px;line-height:18px;color:${muBg};margin-top:6px;">${fd.contactInfo}</p>` : ''}
+            <p style="font-family:Arial,sans-serif;font-size:11px;line-height:18px;color:${muBg};margin-top:6px;font-weight:700;letter-spacing:.1em;">${name}</p>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+  <!-- end BLOCK: Fine Print -->
+
+</body>
+</html>`
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   WEEK 4 · Three property cards (Wander-style)
+   White cards · stacked same-image effect · serif title · pill CTA
+   ══════════════════════════════════════════════════════════════════════════ */
+
+function w4StackedImage(imgUrl, imgObj, height = 460) {
+  if (!imgUrl) return ''
+  const fp = imgObj?.focalX != null ? `${imgObj.focalX}% ${imgObj.focalY}%` : '50% 50%'
+  // Extra padding so rotated corners aren't clipped
+  return `
+  <div style="position:relative;height:${height + 48}px;padding:24px;">
+    <!-- Back card: offset + rotated so it peeks clearly on all 4 sides -->
+    <div style="position:absolute;top:24px;left:24px;right:24px;bottom:24px;border-radius:16px;overflow:hidden;transform:rotate(5deg);transform-origin:center;background:#d4d8dd;">
+      <img src="${imgUrl}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:${fp};opacity:0.45;display:block;"/>
+    </div>
+    <!-- Front card -->
+    <div style="position:absolute;top:24px;left:24px;right:24px;bottom:24px;border-radius:16px;overflow:hidden;z-index:1;">
+      <img src="${imgUrl}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:${fp};display:block;"/>
+    </div>
+  </div>`
+}
+
+function w4Card({ imgUrl, imgObj, bodyText, isLast }) {
+  const body = (bodyText||'').replace(/\n/g,'<br>')
+  return `
+    <tr><td style="padding:28px 72px 8px;background:#fff;line-height:0;font-size:0;">
+      ${w4StackedImage(imgUrl, imgObj)}
+    </td></tr>
+    ${body ? `
+    <tr><td style="padding:24px 52px ${isLast ? '40px' : '32px'};background:#fff;text-align:center;">
+      <p style="font-family:Arial,sans-serif;font-size:14px;color:#555;line-height:1.85;margin:0;">${body}</p>
+    </td></tr>` : ''}`
+}
+
+function buildTemplateWeek4({ client, copy, images, footerData, isHeroGenerated = false }) {
+  // images[0] = hero (or hero PNG when generated), images[1-3] = card photos
+  // images[4] = card1 stacked PNG (when generated), images[5] = card2 stacked PNG (when generated)
+  const heroObj = images?.[0]; const heroImg = heroObj?.url||''
+  const img1Obj = images?.[1]; const img1 = img1Obj?.url || heroImg
+  const img2Obj = images?.[2]; const img2 = img2Obj?.url || heroImg
+  const img3Obj = images?.[3]; const img3 = img3Obj?.url || heroImg
+  const eff1Obj = img1Obj?.url ? img1Obj : heroObj
+  const eff2Obj = img2Obj?.url ? img2Obj : heroObj
+  const eff3Obj = img3Obj?.url ? img3Obj : heroObj
+  const card1PngUrl = images?.[4]?.url || null
+  const card2PngUrl = images?.[5]?.url || null
+
+  const pageBg    = footerData?.bgColor || '#f5f4f2'
+  const logoUrl   = client?.logoUrl||''
+  const name      = client?.name||''
+  const location  = name
+  const accent    = footerData?.buttonColor || '#1a1a1a'
+  const secondary = footerData?.secondaryColor || accent
+  const heroFp  = heroObj?.focalX != null ? `${heroObj.focalX}% ${heroObj.focalY}%` : '50% 30%'
+
+  // Logo — white version for dark hero overlay, dark version for cards below
+  const logoHeroHtml = logoUrl
+    ? `<img src="${logoUrl}" alt="${name}" style="height:44px;width:auto;max-width:180px;display:inline-block;filter:brightness(0) invert(1);"/>`
+    : `<span style="font-family:Arial,sans-serif;font-size:15px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff;">${name}</span>`
+
+  const cards = [
+    { imgUrl:img1, imgObj:eff1Obj, bodyText:copy.bodyText||'' },
+    { imgUrl:img2, imgObj:eff2Obj, bodyText:copy.bodyBlock2||'' },
+    { imgUrl:img3, imgObj:eff3Obj, bodyText:copy.closingLine||copy.bodyText||'', isLast:true },
+  ]
+
+  return `<!DOCTYPE html><html lang="en" style="color-scheme:light"><head><meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="color-scheme" content="light">
+<meta name="supported-color-schemes" content="light">
+<style>
+  :root{color-scheme:light}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:${pageBg}!important;color:#1a1a1a!important;}
+  table{border-collapse:collapse;}
+  @media (prefers-color-scheme:dark){
+    html,body{background-color:${pageBg}!important;color:#1a1a1a!important;}
+    table,td,tr{background-color:inherit!important;color:inherit!important;}
+  }
+</style>
+</head><body style="background:${pageBg}!important;margin:0;padding:0;">
+<table width="100%" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="background:${pageBg}!important;">
+<tr><td align="center" style="padding:32px 0;background:${pageBg}!important;">
+  <table width="600" cellpadding="0" cellspacing="0" style="background:#fff!important;border-radius:20px;overflow:hidden;">
+
+    <!-- ── HERO: padded inset image + dark gradient + logo + headline ── -->
+    ${isHeroGenerated
+      ? `<tr><td style="padding:0;line-height:0;font-size:0;"><img src="${heroImg}" alt="" width="600" style="display:block;width:600px;"/></td></tr>`
+      : `<tr><td style="padding:20px 20px 0;background:#fff!important;line-height:0;font-size:0;">
+      <div style="position:relative;width:560px;height:720px;overflow:hidden;border-radius:16px;background:#1a1a1a;">
+        ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:560px;height:720px;object-fit:cover;object-position:${heroFp};display:block;"/>` : ''}
+        <!-- dark gradient top-down -->
+        <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.78) 0%,rgba(0,0,0,0.38) 45%,rgba(0,0,0,0.05) 75%,rgba(0,0,0,0) 100%);">
+          <div style="text-align:center;padding-top:40px;">${logoHeroHtml}</div>
+          <div style="text-align:center;padding:20px 48px 0;">
+            <div style="font-family:Georgia,'Times New Roman',serif;font-size:38px;font-weight:700;line-height:1.12;color:#fff;">${copy.headlineText||''}</div>
+          </div>
+        </div>
+      </div>
+    </td></tr>`}
+
+    <!-- ── Subhead + CTA after hero ── -->
+    ${copy.subhead ? `
+    <tr><td style="padding:32px 64px 4px;text-align:center;background:#fff!important;">
+      <p style="font-family:Georgia,'Times New Roman',serif;font-size:17px;font-style:italic;line-height:1.7;color:#333;margin:0;">${copy.subhead}</p>
+    </td></tr>` : ''}
+    ${copy.ctaText ? `
+    <tr><td style="padding:24px 48px 8px;text-align:center;background:#fff!important;">
+      <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr>
+        <td style="background:${accent};border-radius:999px;">
+          <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;letter-spacing:.04em;color:#fff!important;text-decoration:none!important;">${copy.ctaText} &rarr;</a>
+        </td>
+      </tr></table>
+    </td></tr>` : ''}
+    <tr><td style="padding:32px 40px 0;background:#fff!important;"><div style="height:1px;background:#e5e5e5;font-size:0;line-height:0;"></div></td></tr>
+
+    <!-- Card 1: full width -->
+    ${isHeroGenerated && card1PngUrl
+      ? `<tr><td style="padding:0;line-height:0;font-size:0;"><img src="${card1PngUrl}" alt="" width="600" style="display:block;width:600px;"/></td></tr>
+         ${cards[0].bodyText ? `<tr><td style="padding:24px 52px 32px;background:#fff!important;text-align:center;"><p style="font-family:Arial,sans-serif;font-size:14px;color:#555;line-height:1.85;margin:0;">${cards[0].bodyText.replace(/\n/g,'<br>')}</p></td></tr>` : ''}`
+      : w4Card(cards[0])}
+
+    <!-- Divider -->
+    <tr><td style="padding:0 40px;background:#fff!important;"><div style="height:1px;background:#ebebeb;font-size:0;line-height:0;"></div></td></tr>
+
+    <!-- Card 2: bodyBlock2Title + image + bodyBlock2 + closingLine + CTA -->
+    ${copy.bodyBlock2Title ? `
+    <tr><td style="padding:32px 52px 8px;background:#fff!important;text-align:center;">
+      <p style="font-family:Georgia,'Times New Roman',serif;font-size:22px;font-weight:700;color:${secondary};line-height:1.3;margin:0;">${copy.bodyBlock2Title}</p>
+    </td></tr>` : ''}
+    ${isHeroGenerated && card2PngUrl
+      ? `<tr><td style="padding:0;line-height:0;font-size:0;"><img src="${card2PngUrl}" alt="" width="600" style="display:block;width:600px;"/></td></tr>`
+      : `<tr><td style="padding:16px 72px 8px;background:#fff!important;line-height:normal;">${w4StackedImage(cards[1].imgUrl, cards[1].imgObj, 520)}</td></tr>`}
+    ${copy.bodyBlock2 ? `
+    <tr><td style="padding:20px 52px 0;background:#fff!important;text-align:center;">
+      <p style="font-family:Arial,sans-serif;font-size:14px;color:#555;line-height:1.85;margin:0;">${(copy.bodyBlock2).replace(/\n/g,'<br>')}</p>
+    </td></tr>` : ''}
+    ${copy.closingLine ? `
+    <tr><td style="padding:20px 52px 0;background:#fff!important;text-align:center;">
+      <p style="font-family:Georgia,'Times New Roman',serif;font-size:15px;font-style:italic;color:#333;line-height:1.7;margin:0;">${copy.closingLine}</p>
+    </td></tr>` : ''}
+    ${copy.ctaText ? `
+    <tr><td style="padding:24px 48px 44px;text-align:center;background:#fff!important;">
+      <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr>
+        <td style="background:${accent};border-radius:999px;">
+          <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;letter-spacing:.04em;color:#fff!important;text-decoration:none!important;">${copy.ctaText} &rarr;</a>
+        </td>
+      </tr></table>
+    </td></tr>` : ''}
+
+    <tr><td style="padding:0;line-height:0;font-size:0;">${buildFooter(client, footerData, { defaultBg: '#1a1a1a' })}</td></tr>
+  </table>
+</td></tr>
+</table>
+</body></html>`
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   WEEK 5  ·  Editorial full-bleed hero (Free People style) + property grid
+   Two font styles: italic serif intro + bold caps headline overlaid on image
+   White card background · 2×2 property grid
+   ══════════════════════════════════════════════════════════════════════════ */
+function buildTemplateWeek5({ client, copy, images, footerData, isHeroGenerated = false }) {
+  const heroObj = images?.[0]; const heroImg = heroObj?.url || ''
+  const img1Obj = images?.[1]; const img1    = img1Obj?.url || ''
+  const img2Obj = images?.[2]; const img2    = img2Obj?.url || ''
+  const img3Obj = images?.[3]; const img3    = img3Obj?.url || ''
+  const img4Obj = images?.[4]; const img4    = img4Obj?.url || ''
+  const body    = (copy.bodyText  || '').replace(/\n/g, '<br>')
+  const b2body  = (copy.bodyBlock2|| '').replace(/\n/g, '<br>')
+  const logoUrl = client?.logoUrl || ''
+  const name    = client?.name    || ''
+  const accent    = footerData?.buttonColor || '#1a1a1a'
+  const secondary = footerData?.secondaryColor || accent
+  const pageBg    = footerData?.bgColor || '#f5f4f2'
+  const cardBg    = '#ffffff'
+
+  // White version of logo for dark overlay
+  const logoHtml = logoUrl
+    ? `<img src="${logoUrl}" alt="${name}" style="height:40px;width:auto;max-width:160px;display:inline-block;filter:brightness(0) invert(1);"/>`
+    : `<span style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#fff;">${name}</span>`
+
+  // Two-font editorial headline split:
+  // first word & last word → italic serif | middle words → bold caps Arial
+  const hw5 = (copy.headlineText || '').trim().split(/\s+/).filter(Boolean)
+  const hw5First = hw5.length >= 2 ? hw5[0] : ''
+  const hw5Last  = hw5.length >= 3 ? hw5[hw5.length - 1] : ''
+  const hw5Main  = hw5.length >= 3 ? hw5.slice(1, -1).join(' ') : hw5.length === 2 ? hw5[1] : hw5[0] || ''
+
+  // 2×2 grid — uses the 4 selected images; falls back gracefully if fewer
+  const gridImgs = [
+    { obj: img1Obj, url: img1 },
+    { obj: img2Obj, url: img2 },
+    { obj: img3Obj, url: img3 },
+    { obj: img4Obj, url: img4 || img1 },
+  ]
+  const hasGrid = img1 || img2
+
+  const gridCell = (imgObj, imgUrl, label) => imgUrl
+    ? `<img src="${imgUrl}" alt="" style="width:100%;height:220px;object-fit:cover;display:block;border-radius:12px;object-position:${focalPos(imgObj)};"/>`
+    : `<div style="width:100%;height:220px;background:#e8e4de;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#aaa;font-family:Arial,sans-serif;">${label}</div>`
+
+  // Two-font headline treatment:
+  // copy.subjectLine → small italic serif intro (like "the")
+  // copy.headlineText → LARGE bold caps sans-serif (like "EVERYWHERE")
+  const heroHeroBlock = `
+    <!-- Logo: top-right -->
+    <div style="position:absolute;top:28px;right:36px;z-index:3;">${logoHtml}</div>
+    <!-- Two-font headline: centred in lower half of image -->
+    <div style="position:absolute;left:0;right:0;top:44%;padding:0 44px;">
+      ${copy.subjectLine
+        ? `<div style="font-family:Georgia,'Times New Roman',serif;font-size:26px;font-style:italic;font-weight:400;color:#fff;line-height:1.1;margin-bottom:4px;text-shadow:0 2px 16px rgba(0,0,0,.35);">${copy.subjectLine}</div>`
+        : ''}
+      <div style="font-family:Arial,'Helvetica Neue',sans-serif;font-size:64px;font-weight:900;text-transform:uppercase;color:#fff;line-height:.95;letter-spacing:-2px;text-shadow:0 2px 24px rgba(0,0,0,.25);">${copy.headlineText||''}</div>
+    </div>
+    <!-- Eyebrow label bottom-centre -->
+    ${copy.ctaText ? `
+    <div style="position:absolute;bottom:36px;left:0;right:0;text-align:center;">
+      <div style="font-family:Arial,sans-serif;font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.8);text-shadow:0 1px 8px rgba(0,0,0,.4);">${copy.ctaText.toUpperCase()}</div>
+    </div>` : ''}`
+
+  return `<!DOCTYPE html><html lang="en" style="color-scheme:light"><head><meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="color-scheme" content="light">
+<meta name="supported-color-schemes" content="light">
+<style>
+  :root{color-scheme:light}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:${pageBg}!important;font-family:Arial,sans-serif;color:#1a1a1a!important;-webkit-text-size-adjust:100%}
+  @media (prefers-color-scheme:dark){
+    html,body{background-color:${pageBg}!important;color:#1a1a1a!important}
+  }
+</style></head>
+<body style="background:${pageBg}!important;margin:0;padding:0;">
+
+<table width="100%" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="background:${pageBg}!important;border-collapse:collapse;">
+<tr><td align="center" style="padding:24px 0 48px;background:${pageBg}!important;">
+
+  <table width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;background:${cardBg}!important;border-collapse:collapse;border-radius:20px;overflow:hidden;">
+
+    <!-- ── HERO: same inset card as Week 4 ── -->
+    ${isHeroGenerated
+      ? `<tr><td style="padding:0;line-height:0;font-size:0;"><img src="${heroImg}" alt="" width="600" style="display:block;width:600px;"/></td></tr>`
+      : `<tr><td style="padding:20px 20px 0;background:${cardBg}!important;line-height:0;font-size:0;">
+      <div style="position:relative;width:560px;height:680px;overflow:hidden;border-radius:0;background:#1a1a1a;">
+        ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:560px;height:680px;object-fit:cover;object-position:${focalPos(heroObj)};display:block;"/>` : ''}
+        <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.25) 40%,rgba(0,0,0,0.45) 100%);">
+          <div style="text-align:center;padding-top:36px;">${logoHtml}</div>
+          <div style="position:absolute;left:36px;right:36px;top:32%;">
+            ${hw5First ? `<div style="font-family:Georgia,'Times New Roman',serif;font-size:42px;font-style:italic;font-weight:400;color:#fff;line-height:1;text-shadow:0 2px 12px rgba(0,0,0,.3);margin-bottom:2px;">${hw5First}</div>` : ''}
+            <div style="font-family:Arial,'Helvetica Neue',sans-serif;font-size:52px;font-weight:900;text-transform:uppercase;color:#fff;line-height:0.92;letter-spacing:-1px;text-shadow:0 2px 20px rgba(0,0,0,.25);">${hw5Main}</div>
+            ${hw5Last ? `<div style="font-family:Georgia,'Times New Roman',serif;font-size:42px;font-style:italic;font-weight:400;color:#fff;line-height:1.1;text-align:right;text-shadow:0 2px 12px rgba(0,0,0,.3);margin-top:2px;">${hw5Last}</div>` : ''}
+          </div>
+        </div>
+      </div>
+    </td></tr>`}
+
+    <!-- ── Subhead (preview text) ── -->
+    ${copy.subhead ? `
+    <tr><td style="padding:32px 52px 8px;text-align:center;background:${cardBg}!important;">
+      <p style="font-family:Georgia,'Times New Roman',serif;font-size:17px;font-style:italic;line-height:1.65;color:#444!important;margin:0;">${copy.subhead}</p>
+    </td></tr>` : ''}
+
+    <!-- ── CTA (below preview text) ── -->
+    ${copy.ctaText ? `
+    <tr><td style="padding:20px 52px 8px;text-align:center;background:${cardBg}!important;">
+      <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto;"><tr>
+        <td style="background:${accent}!important;border-radius:100px;">
+          <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:16px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff!important;text-decoration:none!important;letter-spacing:.03em;white-space:nowrap;">${copy.ctaText} &rarr;</a>
+        </td>
+      </tr></table>
+    </td></tr>` : ''}
+
+    <!-- ── Body text ── -->
+    ${copy.bodyText ? `
+    <tr><td style="padding:32px 52px 24px;text-align:center;background:${cardBg}!important;">
+      <p style="font-family:Arial,sans-serif;font-size:15px;line-height:1.85;color:#444!important;margin:0;">${body}</p>
+    </td></tr>` : ''}
+
+    <!-- ── Divider ── -->
+    <tr><td style="padding:0 48px;background:${cardBg}!important;">
+      <div style="height:1px;background:rgba(0,0,0,0.08);font-size:0;line-height:0;"></div>
+    </td></tr>
+
+    <!-- ── Body block 2 title (above grid) ── -->
+    ${copy.bodyBlock2Title ? `
+    <tr><td style="padding:32px 52px 0;text-align:center;background:${cardBg}!important;">
+      <p style="font-family:Georgia,'Times New Roman',serif;font-size:20px;font-weight:700;color:${secondary}!important;line-height:1.25;margin:0;">${copy.bodyBlock2Title}</p>
+    </td></tr>` : ''}
+
+    <!-- ── Zigzag 4-image grid ──────────────────────────────────────────
+         Row 1: [narrow 38%] | [wide 62%]
+         Row 2: [wide  62%]  | [narrow 38%]
+         Creates a visual zigzag as the eye moves down the email.
+    ─────────────────────────────────────────────────────────────────── -->
+    ${hasGrid ? `
+    <tr><td style="padding:28px 0 0;background:${cardBg}!important;">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
+
+        <!-- Row 1: wide left | narrow right -->
+        <tr>
+          <td style="width:62%;padding-right:6px;vertical-align:top;line-height:0;font-size:0;">
+            ${gridImgs[0].url
+              ? `<img src="${gridImgs[0].url}" alt="" style="width:100%;height:262px;object-fit:cover;display:block;border-radius:0;object-position:${focalPos(gridImgs[0].obj)};"/>`
+              : `<div style="width:100%;height:262px;background:#e8e4de;border-radius:0;"></div>`}
+          </td>
+          <td style="width:38%;padding-left:6px;vertical-align:top;line-height:0;font-size:0;">
+            ${gridImgs[1].url
+              ? `<img src="${gridImgs[1].url}" alt="" style="width:100%;height:262px;object-fit:cover;display:block;border-radius:0;object-position:${focalPos(gridImgs[1].obj)};"/>`
+              : `<div style="width:100%;height:262px;background:#e8e4de;border-radius:0;"></div>`}
+          </td>
+        </tr>
+
+        <!-- Row gap -->
+        <tr><td colspan="2" style="padding-top:8px;line-height:0;font-size:0;"></td></tr>
+
+        <!-- Row 2: wide left | narrow right -->
+        <tr>
+          <td style="width:62%;padding-right:6px;vertical-align:top;line-height:0;font-size:0;">
+            ${gridImgs[3].url
+              ? `<img src="${gridImgs[3].url}" alt="" style="width:100%;height:262px;object-fit:cover;display:block;border-radius:0;object-position:${focalPos(gridImgs[3].obj)};"/>`
+              : `<div style="width:100%;height:262px;background:#e8e4de;border-radius:0;"></div>`}
+          </td>
+          <td style="width:38%;padding-left:6px;vertical-align:top;line-height:0;font-size:0;">
+            ${gridImgs[2].url
+              ? `<img src="${gridImgs[2].url}" alt="" style="width:100%;height:262px;object-fit:cover;display:block;border-radius:0;object-position:${focalPos(gridImgs[2].obj)};"/>`
+              : `<div style="width:100%;height:262px;background:#e8e4de;border-radius:0;"></div>`}
+          </td>
+        </tr>
+
+      </table>
+    </td></tr>` : ''}
+
+    <!-- ── Body block 2 + closing ── -->
+    ${copy.bodyBlock2 ? `
+    <tr><td style="padding:${copy.bodyBlock2Title ? '14px' : '32px'} 52px 0;text-align:center;background:${cardBg}!important;">
+      <p style="font-family:Arial,sans-serif;font-size:15px;line-height:1.85;color:#444!important;margin:0;">${b2body}</p>
+    </td></tr>` : ''}
+
+    ${copy.closingLine ? `
+    <tr><td style="padding:20px 52px 0;text-align:center;background:${cardBg}!important;">
+      <p style="font-family:Georgia,'Times New Roman',serif;font-size:15px;font-style:italic;color:#888!important;line-height:1.7;margin:0;">${copy.closingLine}</p>
+    </td></tr>` : ''}
+
+    <!-- ── Repeat CTA ── -->
+    ${copy.ctaText ? `
+    <tr><td style="padding:28px 52px 44px;text-align:center;background:${cardBg}!important;">
+      <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto;"><tr>
+        <td style="background:${accent}!important;border-radius:100px;">
+          <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:16px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff!important;text-decoration:none!important;letter-spacing:.03em;white-space:nowrap;">${copy.ctaText} &rarr;</a>
+        </td>
+      </tr></table>
+    </td></tr>` : ''}
+
+    <tr><td style="padding:0;line-height:0;font-size:0;">${buildFooter(client, footerData, { defaultBg: '#1a1a1a' })}</td></tr>
+  </table>
+
+</td></tr>
+</table>
+</body></html>`
+}
+
+/* ─────────────────────────── Week 6 ────────────────────────────────────── */
+function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated = false }) {
+  const heroObj = images?.[0]; const heroImg = heroObj?.url || ''
+  const img1Obj = images?.[1]; const img1    = img1Obj?.url || ''
+  const img2Obj = images?.[2]; const img2    = img2Obj?.url || ''
+  const img3Obj = images?.[3]; const img3    = img3Obj?.url || ''
+  const body    = (copy.bodyText  || '').replace(/\n/g, '<br>')
+  const b2body  = (copy.bodyBlock2|| '').replace(/\n/g, '<br>')
+  const logoUrl = client?.logoUrl || ''
+  const name    = client?.name    || ''
+  const accent    = footerData?.buttonColor || '#1a1a1a'
+  const secondary = footerData?.secondaryColor || accent
+  const pageBg    = footerData?.bgColor || '#edf1f7'
+  const cardBg    = '#ffffff'
+
+  const logoHtml = logoUrl
+    ? `<img src="${logoUrl}" alt="${name}" style="height:32px;width:auto;max-width:150px;display:inline-block;"/>`
+    : `<span style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#1a1a1a;">${name}</span>`
+
+  // Headline: all words except last → bold serif | last word → italic serif emphasis
+  const hw6 = (copy.headlineText || '').trim().split(/\s+/).filter(Boolean)
+  const hw6Body = hw6.length > 1 ? hw6.slice(0, -1).join(' ') : hw6[0] || ''
+  const hw6Last = hw6.length > 1 ? hw6[hw6.length - 1] : ''
+
+  const hasGrid = img1 || img2 || img3
+
+  return `<!DOCTYPE html><html lang="en" style="color-scheme:light"><head><meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="color-scheme" content="light">
+<meta name="supported-color-schemes" content="light">
+<style>
+  :root{color-scheme:light}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:${pageBg}!important;font-family:Arial,sans-serif;color:#1a1a1a!important;-webkit-text-size-adjust:100%}
+  @media (prefers-color-scheme:dark){html,body{background-color:${pageBg}!important;color:#1a1a1a!important}}
+</style></head>
+<body style="background:${pageBg}!important;margin:0;padding:0;">
+
+<table width="100%" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="background:${pageBg}!important;border-collapse:collapse;">
+<tr><td align="center" style="padding:24px 0 48px;background:${pageBg}!important;">
+
+  <table width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;background:${cardBg}!important;border-collapse:collapse;border-radius:20px;overflow:hidden;">
+
+    <!-- ── Header + Hero: header baked into PNG when generated ── -->
+    ${isHeroGenerated
+      ? `<tr><td style="padding:0;line-height:0;font-size:0;"><img src="${heroImg}" alt="" width="600" style="display:block;width:600px;"/></td></tr>`
+      : `
+    <tr><td style="padding:28px 40px 20px;background:${cardBg}!important;">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+        <tr>
+          <td style="vertical-align:middle;">${logoHtml}</td>
+          <td style="text-align:right;vertical-align:middle;">
+            ${copy.ctaText ? `<a href="${copy.ctaUrl||'#'}" style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#1a1a1a!important;text-decoration:underline;letter-spacing:.01em;">${copy.ctaText} ›</a>` : ''}
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+    <tr><td style="padding:0;overflow:hidden;line-height:0;font-size:0;">
+        <div style="position:relative;width:600px;height:740px;overflow:hidden;">
+          ${heroImg
+            ? `<img src="${heroImg}" alt="" style="position:absolute;top:-30px;left:-30px;width:660px;height:800px;object-fit:cover;object-position:${focalPos(heroObj)};filter:blur(36px) saturate(1.4) brightness(0.82);transform:scale(1.12);display:block;"/>`
+            : `<div style="position:absolute;inset:0;background:linear-gradient(160deg,#7ab5d8,#6ba87a);"></div>`}
+
+          <!-- Inset image card -->
+          <div style="position:absolute;left:28px;top:22px;right:28px;">
+            <div style="position:relative;width:544px;height:480px;overflow:hidden;border-radius:20px;box-shadow:0 6px 40px rgba(0,0,0,0.3);border:2px solid rgba(255,255,255,0.55);">
+              ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:544px;height:480px;object-fit:cover;object-position:${focalPos(heroObj)};display:block;"/>` : ''}
+              <div style="position:absolute;top:0;left:0;right:0;height:72%;background:linear-gradient(to bottom,rgba(0,0,0,0.52) 0%,rgba(0,0,0,0.16) 65%,rgba(0,0,0,0) 100%);"></div>
+              <div style="position:absolute;top:0;left:0;right:0;padding:32px 36px 0;line-height:normal;font-size:initial;text-align:center;">
+                <div style="font-family:Georgia,'Times New Roman',serif;font-size:46px;font-weight:700;color:#fff;line-height:1.08;text-shadow:0 2px 16px rgba(0,0,0,.3);">
+                  ${hw6Body}${hw6Last ? ` <span style="font-style:italic;font-weight:400;font-size:54px;">${hw6Last}</span>` : ''}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Subhead on gradient — positioned just above CTA -->
+          ${copy.subhead ? `
+          <div style="position:absolute;top:548px;left:44px;right:44px;text-align:center;line-height:normal;font-size:initial;">
+            <p style="font-family:Georgia,'Times New Roman',serif;font-size:17px;font-style:italic;line-height:1.6;color:#fff;margin:0;text-shadow:0 1px 8px rgba(0,0,0,.25);">${copy.subhead}</p>
+          </div>` : ''}
+
+          <!-- CTA on gradient + arrow below -->
+          ${copy.ctaText ? `
+          <div style="position:absolute;top:610px;left:0;right:0;text-align:center;line-height:normal;font-size:initial;">
+            <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto;display:inline-table;"><tr>
+              <td style="background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.85)!important;border-radius:100px;">
+                <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:14px 44px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff!important;text-decoration:none!important;letter-spacing:.03em;white-space:nowrap;">${copy.ctaText}</a>
+              </td>
+            </tr></table>
+            <div style="margin-top:10px;line-height:0;font-size:0;text-align:center;">
+              <div style="display:inline-block;width:1px;height:28px;background:rgba(255,255,255,0.65);vertical-align:top;"></div>
+              <div style="width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:6px solid rgba(255,255,255,0.65);margin:0 auto;"></div>
+            </div>
+          </div>` : ''}
+        </div>
+      </td></tr>`}
+
+    <!-- ── Body text (on white, below gradient) ── -->
+    ${copy.bodyText ? `
+    <tr><td style="padding:20px 52px 8px;text-align:center;background:${cardBg}!important;">
+      <p style="font-family:Arial,sans-serif;font-size:15px;line-height:1.9;color:#444!important;margin:0;">${body}</p>
+    </td></tr>` : ''}
+
+    <!-- ── Divider ── -->
+    <tr><td style="padding:0 40px;background:${cardBg}!important;">
+      <div style="height:1px;background:rgba(0,0,0,0.08);font-size:0;line-height:0;"></div>
+    </td></tr>
+
+    <!-- ── Body block 2 title (below divider, above grid) ── -->
+    ${copy.bodyBlock2Title ? `
+    <tr><td style="padding:32px 52px 16px;text-align:center;background:${cardBg}!important;">
+      <p style="font-family:Georgia,'Times New Roman',serif;font-size:20px;font-weight:700;color:${secondary}!important;line-height:1.25;margin:0;">${copy.bodyBlock2Title}</p>
+    </td></tr>` : ''}
+
+    <!-- ── Image grid: 2-up top row + 1 full-width bottom ── -->
+    ${hasGrid ? `
+    <tr><td style="padding:32px 20px 0;background:${cardBg}!important;">
+
+      ${(img1 || img2) ? `
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+        <tr>
+          <td style="width:50%;padding-right:6px;vertical-align:top;line-height:0;font-size:0;">
+            ${img1
+              ? `<img src="${img1}" alt="" style="width:100%;height:240px;object-fit:cover;display:block;border-radius:12px;object-position:${focalPos(img1Obj)};"/>`
+              : `<div style="width:100%;height:240px;background:#e0e4ea;border-radius:12px;"></div>`}
+          </td>
+          <td style="width:50%;padding-left:6px;vertical-align:top;line-height:0;font-size:0;">
+            ${img2
+              ? `<img src="${img2}" alt="" style="width:100%;height:240px;object-fit:cover;display:block;border-radius:12px;object-position:${focalPos(img2Obj)};"/>`
+              : `<div style="width:100%;height:240px;background:#e0e4ea;border-radius:12px;"></div>`}
+          </td>
+        </tr>
+      </table>` : ''}
+
+      ${img3 ? `
+      <div style="padding-top:12px;line-height:0;font-size:0;">
+        <img src="${img3}" alt="" style="width:100%;height:300px;object-fit:cover;display:block;border-radius:12px;object-position:${focalPos(img3Obj)};"/>
+      </div>` : ''}
+
+    </td></tr>` : ''}
+
+    <!-- ── Body block 2 text ── -->
+    ${copy.bodyBlock2 ? `
+    <tr><td style="padding:32px 52px 0;text-align:center;background:${cardBg}!important;">
+      <p style="font-family:Arial,sans-serif;font-size:15px;line-height:1.85;color:#444!important;margin:0;">${b2body}</p>
+    </td></tr>` : ''}
+
+    <!-- ── Closing line ── -->
+    ${copy.closingLine ? `
+    <tr><td style="padding:20px 52px 0;text-align:center;background:${cardBg}!important;">
+      <p style="font-family:Georgia,'Times New Roman',serif;font-size:15px;font-style:italic;color:#888!important;line-height:1.7;margin:0;">${copy.closingLine}</p>
+    </td></tr>` : ''}
+
+    <!-- ── Final CTA ── -->
+    ${copy.ctaText ? `
+    <tr><td style="padding:28px 52px 44px;text-align:center;background:${cardBg}!important;">
+      <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto;"><tr>
+        <td style="border:2px solid ${accent}!important;border-radius:100px;">
+          <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:14px 44px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:${accent}!important;text-decoration:none!important;letter-spacing:.03em;white-space:nowrap;">${copy.ctaText}</a>
+        </td>
+      </tr></table>
+    </td></tr>` : '<tr><td style="padding:20px 0;background:#fff!important;font-size:0;line-height:0;"></td></tr>'}
+
+    <tr><td style="padding:0;line-height:0;font-size:0;">${buildFooter(client, footerData, { defaultBg: '#1a1a1a' })}</td></tr>
+  </table>
+
+</td></tr>
+</table>
+</body></html>`
+}
+
 /* ─────────────────────────── registry ──────────────────────────────────── */
 const TEMPLATES = [
+  { id:9,  label:'⭐ Week 1',    build:buildTemplateWeek1 },
+  { id:10, label:'⭐ Week 2',    build:buildTemplateWeek2 },
+  { id:11, label:'⭐ Week 3',    build:buildTemplateWeek3 },
+  { id:12, label:'⭐ Week 4',    build:buildTemplateWeek4 },
+  { id:13, label:'⭐ Week 5',    build:buildTemplateWeek5 },
+  { id:14, label:'⭐ Week 6',    build:buildTemplateWeek6 },
   { id:7, label:'Hero Header', build:buildTemplateHero },
   { id:1, label:'Casa',        build:buildTemplate5  },
   { id:2, label:'Tropica',     build:buildTemplate4  },
   { id:3, label:'Refined',     build:buildTemplate1  },
   { id:4, label:'Newsletter',  build:buildTemplate3  },
-  { id:5, label:'Getaway',     build:buildTemplate12 },
+  { id:5, label:'Week 1 v2',   build:buildTemplate12 },
   { id:6, label:'Forest',      build:buildTemplate14 },
+  { id:8, label:'🖼 Image Gen', build:null           },  // html2image.net
 ]
 
 /* ─────────────────────────── component ─────────────────────────────────── */
@@ -809,28 +2029,123 @@ export default function TemplatePreview() {
   const { theme } = useTheme()
   const dark = theme === 'dark'
 
-  const { selectedClient, generatedCopy, selectedImages, setRenderedHtml, headerStyle, imageStyle, aiReasoning, aiRecommendDone } = useCampaignStore(s => ({
+  const { selectedClient, generatedCopy, selectedImages, setRenderedHtml, imageGenHtml, setImageGenHtml, headerStyle, imageStyle, aiReasoning, aiRecommendDone, clientFooter, setClientFooter, setTemplateLabel, locationId } = useCampaignStore(s => ({
     selectedClient:   s.selectedClient,
     generatedCopy:    s.generatedCopy,
     selectedImages:   s.selectedImages,
     setRenderedHtml:  s.setRenderedHtml,
+    imageGenHtml:     s.imageGenHtml,
+    setImageGenHtml:  s.setImageGenHtml,
     headerStyle:      s.headerStyle,
     imageStyle:       s.imageStyle,
     aiReasoning:      s.aiReasoning,
     aiRecommendDone:  s.aiRecommendDone,
+    clientFooter:     s.clientFooter,
+    setClientFooter:  s.setClientFooter,
+    setTemplateLabel: s.setTemplateLabel,
+    locationId:       s.locationId,
   }))
 
   const tpl = TEMPLATES[active]
 
+  // Sync selected template label to store so ApprovalPanel can use it for naming
+  useEffect(() => {
+    if (tpl?.label) setTemplateLabel(tpl.label.replace(/^[⭐🖼]\s*/, '').trim())
+  }, [active])  // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Hero editor (Week 1 v2 id=5, Week 1 id=9) ────────────────────────────────
+  const isEditable = [5, 9].includes(tpl?.id)
+  const [heroScale,   setHeroScale]   = useState(1)
+  const [heroX,       setHeroX]       = useState(0)
+  const [heroY,       setHeroY]       = useState(0)
+  const [textSize,    setTextSize]    = useState(34)
+  const [textTop,     setTextTop]     = useState(32)
+  const [textLeft,    setTextLeft]    = useState(36)
+  const [logoColor,   setLogoColor]   = useState('original') // 'original' | 'white' | 'black'
+  const [logoTop,     setLogoTop]     = useState(24)
+  const [logoRight,   setLogoRight]   = useState(36)
+  const [logoSize,    setLogoSize]    = useState(70)
+
+  // Reset slider defaults when switching between editable templates
+  useEffect(() => {
+    if (!isEditable) return
+    setHeroScale(1); setHeroX(0); setHeroY(0); setLogoColor('original')
+    if (tpl?.id === 5) { setTextSize(34); setTextTop(32);  setTextLeft(36);  setLogoTop(24);  setLogoRight(36);  setLogoSize(70) }
+    if (tpl?.id === 9) { setTextSize(22); setTextTop(110); setTextLeft(48);  setLogoTop(36);  setLogoRight(220); setLogoSize(56) }
+  }, [tpl?.id])  // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Week template image generation ───────────────────────────────────────────
+  const isWeekTemplate = [9, 10, 11, 12, 13, 14, 5].includes(tpl?.id)
+  const [weekGenUrls,     setWeekGenUrls]     = useState({})  // { [tplId]: { hero, sec, ter } }
+  const [weekGenLoading,  setWeekGenLoading]  = useState(false)
+  const [weekGenError,    setWeekGenError]    = useState(null)
+  const [weekGenTrigger,  setWeekGenTrigger]  = useState(0)
+
   const baseHtml = useMemo(() => {
     if (!generatedCopy?.headlineText) return null
-    return tpl.build({ client:selectedClient, copy:generatedCopy, images:selectedImages, headerStyle, imageStyle })
-  }, [active, selectedClient, generatedCopy, selectedImages, headerStyle, imageStyle])
+    if (!tpl.build) return null  // HCTI template uses image generation, not HTML build
+    let effectiveImages = selectedImages
+    const tplUrls = weekGenUrls[tpl?.id] || {}
+    if (isWeekTemplate && (tplUrls.hero || tplUrls.sec || tplUrls.ter)) {
+      effectiveImages = [...(selectedImages || [])]
+      if (tplUrls.hero) effectiveImages[0] = { url: tplUrls.hero, focalX: 50, focalY: 50 }
+      if (tplUrls.sec)  effectiveImages[4] = { url: tplUrls.sec,  focalX: 50, focalY: 50 }
+      if (tplUrls.ter)  effectiveImages[5] = { url: tplUrls.ter,  focalX: 50, focalY: 50 }
+    }
+    const editorProps = isEditable ? { heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize } : {}
+    const isHeroGenerated = [10, 11, 12, 13, 14].includes(tpl?.id) && !!tplUrls.hero
+    console.log('[baseHtml] tplId:', tpl?.id, 'isHeroGenerated:', isHeroGenerated, 'tplUrls:', tplUrls, 'effectiveImages[4]:', effectiveImages?.[4], 'effectiveImages[5]:', effectiveImages?.[5])
+    return tpl.build({ client:selectedClient, copy:generatedCopy, images:effectiveImages, headerStyle, imageStyle, footerData: clientFooter, isHeroGenerated, ...editorProps })
+  }, [active, selectedClient, generatedCopy, selectedImages, headerStyle, imageStyle, clientFooter, weekGenUrls, heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize])
 
   // Keep store in sync so ApprovalPanel always has the latest HTML
   useEffect(() => {
     if (baseHtml) setRenderedHtml(baseHtml)
   }, [baseHtml])
+
+  // Auto-analyze focal points for selected images that haven't been analyzed yet
+  useEffect(() => {
+    const images = useCampaignStore.getState().selectedImages
+    const { setSelectedImages } = useCampaignStore.getState()
+    images.forEach((img, idx) => {
+      if (!img || img.focalX != null) return
+      const urlToUse = img.url || img.thumbnailUrl
+      if (!urlToUse) return
+      analyzeImageFocal({ imageUrl: urlToUse })
+        .then(({ focalX, focalY }) => {
+          const latest = [...useCampaignStore.getState().selectedImages]
+          if (latest[idx]?.id === img.id) {
+            latest[idx] = { ...latest[idx], focalX, focalY }
+            setSelectedImages(latest)
+          }
+        })
+        .catch(() => {})
+    })
+  }, [selectedImages])
+
+  // Fetch footer data from brand board sheet whenever the selected client changes.
+  // Falls back to a mock so templates always show a full footer preview.
+  useEffect(() => {
+    if (!selectedClient?.name) return
+    const mockFooter = {
+      found:          true,
+      bgColor:        '#1c1c1c',
+      buttonColor:    '#e84b8a',
+      secondaryColor: '#c8965a',
+      contactInfo:  `hello@${(selectedClient.name||'brand').toLowerCase().replace(/\s+/g,'')}.com`,
+      footerText:   `© ${new Date().getFullYear()} ${selectedClient.name}. All rights reserved.`,
+      instagramUrl: 'https://www.instagram.com/',
+      facebookUrl:  'https://www.facebook.com/',
+      tiktokUrl:    'https://www.tiktok.com/',
+      websiteUrl:   '',
+    }
+    fetchFooterData({ clientName: selectedClient.name })
+      .then(data => {
+        if (data?.found) setClientFooter(data)
+        else setClientFooter(mockFooter)  // sheet has no entry yet → use mock
+      })
+      .catch(() => setClientFooter(mockFooter))
+  }, [selectedClient?.name])  // eslint-disable-line react-hooks/exhaustive-deps
 
   // Inject zoom into the email body — iframe stays full size, content scales
   const previewHtml = useMemo(() => {
@@ -843,26 +2158,432 @@ export default function TemplatePreview() {
     setImageStyle:   s.setImageStyle,
     setTemplateStyle: s.setTemplateStyle,
   }))
-  const [aiLoading, setAiLoading] = useState(false)
-  const [aiError,   setAiError]   = useState(null)
+  const [aiLoading,  setAiLoading]  = useState(false)
+  const [aiError,    setAiError]    = useState(null)
+  const [aiApplied,  setAiApplied]  = useState(false)
 
-  const handleAiRecommend = useCallback(async () => {
+  // ── Image Gen (html2image.net) ────────────────────────────────────────────
+  const isHcti = tpl?.id === 8
+  const [hctiHero,     setHctiHero]     = useState(null)
+  const [hctiPolaroid, setHctiPolaroid] = useState(null)
+  const [hctiLoading,  setHctiLoading]  = useState(false)
+  const [hctiError,    setHctiError]    = useState(null)
+  const [hctiEmail,    setHctiEmail]    = useState(null)
+  const [hctiTrigger,  setHctiTrigger]  = useState(0)  // manual generate button
+
+  // Seed local state from store on mount (survives tab/step navigation)
+  useEffect(() => {
+    if (imageGenHtml && !hctiEmail) {
+      setHctiEmail(imageGenHtml)
+    }
+  }, [])  // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!isHcti) return
+    if (!generatedCopy?.headlineText) return
+    if (hctiTrigger === 0) return  // don't auto-fire — wait for user to click Generate
+    const heroImg  = selectedImages?.[0]?.url || selectedImages?.[0]?.thumbnailUrl
+    const img1     = selectedImages?.[1]?.url || selectedImages?.[1]?.thumbnailUrl
+    const img2     = selectedImages?.[2]?.url || selectedImages?.[2]?.thumbnailUrl
+    const logoUrl  = selectedClient?.logoUrl || ''
+    const headline = generatedCopy?.headlineText || ''
+    const client   = selectedClient?.name || ''
+
+    setHctiLoading(true)
+    setHctiError(null)
+    setHctiHero(null)
+    setHctiPolaroid(null)
+    setHctiEmail(null)
+
+    const heroHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;900&display=swap" rel="stylesheet">
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px}</style>
+</head><body>
+<div style="position:relative;width:600px;height:580px;overflow:hidden;">
+  ${heroImg ? `<img src="${heroImg}" style="width:100%;height:580px;object-fit:cover;display:block;" />` : `<div style="width:100%;height:580px;background:#c8c0b5;"></div>`}
+  <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.52) 0%,rgba(0,0,0,0.05) 50%,rgba(0,0,0,0.45) 100%);display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:28px 40px 72px;text-align:center;">
+    ${logoUrl ? `<img src="${logoUrl}" style="height:44px;width:auto;max-width:160px;object-fit:contain;filter:drop-shadow(0 1px 6px rgba(0,0,0,0.5));" />` : `<span style="font-size:14px;letter-spacing:.28em;text-transform:uppercase;color:#fff;font-family:Arial,sans-serif;font-weight:700;text-shadow:0 1px 8px rgba(0,0,0,0.6)">${client}</span>`}
+    <div style="font-size:38px;font-weight:900;line-height:1.2;color:#fff;font-family:'Playfair Display',Georgia,serif;text-shadow:0 2px 20px rgba(0,0,0,0.7);letter-spacing:-0.3px;padding:0 8px;">${headline}</div>
+  </div>
+  <div style="position:absolute;bottom:-1px;left:0;right:0;line-height:0;">
+    <svg viewBox="0 0 600 60" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" style="display:block;width:600px;">
+      <path d="M0,60 L0,30 C75,52 150,10 225,30 C300,50 375,8 450,26 C525,44 575,14 600,24 L600,60 Z" fill="#ffffff"/>
+    </svg>
+  </div>
+</div>
+</body></html>`
+
+    const polaroidHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:#faf9f7}</style>
+</head><body>
+<div style="padding:40px 32px 48px;background:#faf9f7;display:flex;flex-direction:column;align-items:center;">
+  <div style="display:flex;align-items:flex-start;justify-content:center;gap:24px;width:100%;">
+    <div style="background:#fff;padding:10px 10px 36px;box-shadow:0 4px 20px rgba(0,0,0,0.18);flex:1;max-width:240px;transform:rotate(-4deg);margin-top:20px;">
+      ${img1 ? `<img src="${img1}" style="display:block;width:100%;height:190px;object-fit:cover;" />` : `<div style="width:100%;height:190px;background:#ddd;"></div>`}
+    </div>
+    <div style="background:#fff;padding:10px 10px 36px;box-shadow:0 4px 20px rgba(0,0,0,0.18);flex:1;max-width:240px;transform:rotate(3deg);">
+      ${img2 ? `<img src="${img2}" style="display:block;width:100%;height:190px;object-fit:cover;" />` : `<div style="width:100%;height:190px;background:#ddd;"></div>`}
+    </div>
+  </div>
+  <div style="margin-top:36px;font-family:'Dancing Script',cursive;font-size:36px;color:#b07a50;line-height:1.2;">Favorite Memories</div>
+</div>
+</body></html>`
+
+    Promise.all([
+      htmlToImage({ html: heroHtml,     width: 600, height: 620 }),
+      htmlToImage({ html: polaroidHtml, width: 600, height: 420 }),
+    ])
+      .then(([heroRes, polaroidRes]) => {
+        setHctiHero(heroRes.url)
+        setHctiPolaroid(polaroidRes.url)
+
+        // Build the full email HTML with PNGs embedded — this is what goes to GHL
+        const copy    = generatedCopy || {}
+        const subhead = copy.subhead     || ''
+        const body    = (copy.bodyText   || '').replace(/\n/g, '<br>')
+        const cta     = copy.ctaText     || 'Book Now'
+        const closing = copy.closingLine || ''
+        const b2title = copy.body2Title  || ''
+        const b2body  = copy.body2Text   || ''
+
+        const assembledEmail = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#f5f2ed;font-family:Arial,Helvetica,sans-serif;color:#1c1c1c}
+  .wrap{max-width:600px;margin:0 auto;background:#fff}
+  .img-block{line-height:0}
+  .img-block img{width:100%;display:block}
+  .section{padding:40px 48px}
+  .subhead{font-size:18px;line-height:1.65;color:#3d3830;margin-bottom:28px;text-align:center;font-family:Arial,Helvetica,sans-serif}
+  .body-text{font-size:15px;line-height:1.85;color:#3d3830;margin-bottom:0;font-family:Arial,Helvetica,sans-serif}
+  .cta-wrap{margin:28px 0;text-align:center}
+  .cta{display:inline-block;padding:14px 40px;background:#3d2314;color:#fff;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;text-decoration:none;border-radius:6px;letter-spacing:.04em}
+  .b2-section{padding:36px 48px}
+  .b2-title{font-size:16px;font-weight:700;color:#1a1a1a;margin-bottom:12px;font-family:Arial,Helvetica,sans-serif}
+  .b2-body{font-size:15px;line-height:1.85;color:#3d3830;margin-bottom:22px;font-family:Arial,Helvetica,sans-serif}
+  .closing{font-size:15px;color:#5c5248;font-style:italic;margin-bottom:28px;font-family:Arial,Helvetica,sans-serif}
+  .footer{background:#1c1c1c;padding:20px 40px;text-align:center;font-size:10px;color:#6b6458;font-family:Arial,Helvetica,sans-serif;letter-spacing:.1em;text-transform:uppercase}
+</style></head><body>
+<div class="wrap">
+
+  <!-- 1. Hero PNG -->
+  <div class="img-block"><img src="${heroRes.url}" width="600" style="width:100%;display:block;" alt=""/></div>
+
+  <!-- 2. Subhead + CTA + Body -->
+  <div class="section">
+    ${subhead ? `<p class="subhead">${subhead}</p>` : ''}
+    ${cta     ? `<div class="cta-wrap"><a href="#" class="cta">${cta}</a></div>` : ''}
+    ${body    ? `<p class="body-text">${body}</p>` : ''}
+  </div>
+
+  <!-- 3. Polaroid PNG -->
+  <div class="img-block"><img src="${polaroidRes.url}" width="600" style="width:100%;display:block;" alt=""/></div>
+
+  <!-- 4. Body Block 2 + Closing Line + CTA -->
+  <div class="b2-section">
+    ${b2title  ? `<p class="b2-title">${b2title}</p>` : ''}
+    ${b2body   ? `<p class="b2-body">${b2body}</p>` : ''}
+    ${closing  ? `<p class="closing">${closing}</p>` : ''}
+    ${cta      ? `<div class="cta-wrap"><a href="#" class="cta">${cta}</a></div>` : ''}
+  </div>
+
+  <!-- 5. Footer -->
+  <div class="footer">© ${new Date().getFullYear()} ${selectedClient?.name || 'Brand'} &nbsp;·&nbsp; <a href="#" style="color:#6b6458">Unsubscribe</a></div>
+
+</div>
+</body></html>`
+
+        setRenderedHtml(assembledEmail)
+        setHctiEmail(assembledEmail)
+        setImageGenHtml(assembledEmail)  // persist to store — survives step/tab navigation
+      })
+      .catch(err => setHctiError(err.message))
+      .finally(() => setHctiLoading(false))
+  // Only re-run when URLs or headline actually change, or user clicks Generate
+  // NOT on focal point updates (which change selectedImages but not URLs)
+  }, [hctiTrigger])
+
+  // Calls html2image.net first; falls back to Puppeteer + GHL upload
+  const renderImage = useCallback(async ({ html, width, height }) => {
+    return await htmlToImage({ html, width, height, locationId })
+  }, [locationId])
+
+  // Week template image generation effect
+  useEffect(() => {
+    if (!isWeekTemplate) return
+    if (weekGenTrigger === 0) return
+    const heroImgUrl = selectedImages?.[0]?.url || selectedImages?.[0]?.thumbnailUrl || ''
+    const img1Url    = selectedImages?.[1]?.url || selectedImages?.[1]?.thumbnailUrl || ''
+    const img2Url    = selectedImages?.[2]?.url || selectedImages?.[2]?.thumbnailUrl || ''
+    const logoUrl    = selectedClient?.logoUrl || ''
+    const headline   = generatedCopy?.headlineText || ''
+    const clientName = selectedClient?.name || ''
+    // Week 5 two-font split
+    const w5words = headline.trim().split(/\s+/).filter(Boolean)
+    const w5First = w5words.length >= 2 ? w5words[0] : ''
+    const w5Last  = w5words.length >= 3 ? w5words[w5words.length - 1] : ''
+    const w5Main  = w5words.length >= 3 ? w5words.slice(1, -1).join(' ') : w5words.length === 2 ? w5words[1] : w5words[0] || ''
+    const midBg      = clientFooter?.bgColor || '#fff'
+
+    setWeekGenLoading(true)
+    setWeekGenError(null)
+
+    // Week 2: bake the full arch (image + gradient + headline) into a single PNG
+    // Week 3: bake full-bleed hero (image + dark gradient + white fade + logo + headline) + stacked cards
+    // Week 4: bake hero inset card + two stacked property card images
+    const isWeek2 = tpl?.id === 10
+    const isWeek3 = tpl?.id === 11
+    const isWeek4 = tpl?.id === 12
+    const isWeek5 = tpl?.id === 13
+    const isWeek6 = tpl?.id === 14
+    const logoHtml = logoUrl
+      ? `<img src="${logoUrl}" alt="" style="height:44px;width:auto;max-width:180px;display:inline-block;filter:brightness(0) invert(1);"/>`
+      : `<span style="font-family:Arial,sans-serif;font-size:15px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff;">${clientName}</span>`
+
+    const heroHtml = isWeek2
+      ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:${midBg};}</style>
+</head><body>
+<div style="width:600px;height:460px;padding:0 36px;background:${midBg};box-sizing:border-box;line-height:0;font-size:0;">
+  <div style="position:relative;width:528px;height:460px;border-radius:999px 999px 0 0;overflow:hidden;">
+    ${heroImgUrl ? `<img src="${heroImgUrl}" style="width:528px;height:460px;object-fit:cover;display:block;object-position:50% 50%;"/>` : `<div style="width:528px;height:460px;background:#c8c0b5;"></div>`}
+    <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0) 0%,rgba(0,0,0,0) 50%,rgba(0,0,0,0.45) 100%);">
+      <div style="position:absolute;bottom:32px;left:0;right:0;text-align:center;padding:0 24px;line-height:normal;">
+        <span style="font-family:Georgia,serif;font-size:24px;font-weight:400;font-style:italic;color:#fff;line-height:1.25;text-shadow:0 2px 10px rgba(0,0,0,.3);display:inline-block;max-width:300px;">${headline}</span>
+      </div>
+    </div>
+  </div>
+</div>
+</body></html>`
+      : isWeek3
+      ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;}</style>
+</head><body>
+<div style="position:relative;width:600px;height:600px;overflow:hidden;border-radius:20px 20px 0 0;background:#1a1a1a;">
+  ${heroImgUrl ? `<img src="${heroImgUrl}" style="width:600px;height:600px;object-fit:cover;display:block;"/>` : `<div style="width:600px;height:600px;background:#2a2a2a;"></div>`}
+  <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.72) 0%,rgba(0,0,0,0.28) 42%,rgba(0,0,0,0) 65%);">
+    <div style="text-align:center;padding-top:40px;">${logoHtml}</div>
+    <div style="text-align:center;padding:14px 52px 0;">
+      <div style="font-family:Georgia,serif;font-size:34px;font-weight:400;font-style:italic;line-height:1.15;color:#fff;">${headline}</div>
+    </div>
+  </div>
+  <div style="position:absolute;bottom:0;left:0;right:0;height:160px;background:linear-gradient(to bottom,rgba(255,255,255,0),rgba(255,255,255,1));"></div>
+</div>
+</body></html>`
+      : `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px}</style>
+</head><body>
+<div style="position:relative;width:600px;height:400px;overflow:hidden;">
+  ${heroImgUrl ? `<img src="${heroImgUrl}" style="width:600px;height:400px;object-fit:cover;display:block;"/>` : `<div style="width:600px;height:400px;background:#c8c0b5;"></div>`}
+</div>
+</body></html>`
+
+    // ── Week 4 hero: inset card with rounded border, dark gradient, logo + headline ──
+    const heroFp4   = selectedImages?.[0]?.focalX != null ? `${selectedImages[0].focalX}% ${selectedImages[0].focalY}%` : '50% 30%'
+    const card1Fp4  = selectedImages?.[1]?.focalX != null ? `${selectedImages[1].focalX}% ${selectedImages[1].focalY}%` : '50% 50%'
+    const card2Fp4  = selectedImages?.[2]?.focalX != null ? `${selectedImages[2].focalX}% ${selectedImages[2].focalY}%` : '50% 50%'
+    const card1ImgUrl = selectedImages?.[1]?.url || heroImgUrl
+    const card2ImgUrl = selectedImages?.[2]?.url || heroImgUrl
+
+    const week4HeroHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:#fff;}</style>
+</head><body>
+<div style="padding:20px 20px 0;background:#fff;line-height:0;font-size:0;">
+  <div style="position:relative;width:560px;height:720px;overflow:hidden;border-radius:16px;background:#1a1a1a;">
+    ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:560px;height:720px;object-fit:cover;object-position:${heroFp4};display:block;"/>` : `<div style="width:560px;height:720px;background:#2a2a2a;"></div>`}
+    <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.78) 0%,rgba(0,0,0,0.38) 45%,rgba(0,0,0,0.05) 75%,rgba(0,0,0,0) 100%);line-height:normal;font-size:initial;">
+      <div style="text-align:center;padding-top:40px;">${logoHtml}</div>
+      <div style="text-align:center;padding:20px 48px 0;">
+        <div style="font-family:Georgia,serif;font-size:38px;font-weight:700;line-height:1.12;color:#fff;">${headline}</div>
+      </div>
+    </div>
+  </div>
+</div>
+</body></html>`
+
+    // ── Week 4 stacked card PNGs (background-image approach for Chromium reliability) ──
+    // Card 1: height=460 → total stacked area = 508px, outer padding 28/8 top/bottom, 72 sides
+    const week4Card1Html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:#fff;}</style>
+</head><body>
+<div style="padding:28px 72px 8px;background:#fff;">
+  <div style="position:relative;height:508px;">
+    <div style="position:absolute;top:24px;left:24px;right:24px;bottom:24px;border-radius:16px;transform:rotate(5deg);transform-origin:center;background:url('${card1ImgUrl}') ${card1Fp4}/cover no-repeat;opacity:0.45;"></div>
+    <div style="position:absolute;top:24px;left:24px;right:24px;bottom:24px;border-radius:16px;overflow:hidden;z-index:1;background:url('${card1ImgUrl}') ${card1Fp4}/cover no-repeat;"></div>
+  </div>
+</div>
+</body></html>`
+
+    // Card 2: height=520 → total stacked area = 568px, outer padding 16/8 top/bottom, 72 sides
+    const week4Card2Html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:#fff;}</style>
+</head><body>
+<div style="padding:16px 72px 8px;background:#fff;">
+  <div style="position:relative;height:568px;">
+    <div style="position:absolute;top:24px;left:24px;right:24px;bottom:24px;border-radius:16px;transform:rotate(5deg);transform-origin:center;background:url('${card2ImgUrl}') ${card2Fp4}/cover no-repeat;opacity:0.45;"></div>
+    <div style="position:absolute;top:24px;left:24px;right:24px;bottom:24px;border-radius:16px;overflow:hidden;z-index:1;background:url('${card2ImgUrl}') ${card2Fp4}/cover no-repeat;"></div>
+  </div>
+</div>
+</body></html>`
+
+    // Right card falls back to img1 if img2 isn't selected
+    const card2Url = img2Url || img1Url
+
+    const stackedHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:#ffffff;}</style>
+</head><body>
+<div style="position:relative;width:600px;height:420px;background:#ffffff;">
+  <div style="position:absolute;left:28px;top:24px;width:272px;height:372px;border-radius:20px;transform:rotate(-3deg);transform-origin:center center;box-shadow:4px 0 20px rgba(0,0,0,0.18);z-index:1;background:${img1Url ? `url('${img1Url}') center/cover no-repeat` : '#ccc'};"></div>
+  <div style="position:absolute;left:296px;top:24px;width:272px;height:372px;border-radius:20px;transform:rotate(3deg);transform-origin:center center;box-shadow:-4px 0 20px rgba(0,0,0,0.18);z-index:2;background:${card2Url ? `url('${card2Url}') center/cover no-repeat` : '#ddd'};"></div>
+</div>
+</body></html>`
+
+    const polaroidHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:#f5f0e8}</style>
+</head><body>
+<div style="position:relative;width:600px;height:340px;overflow:hidden;">
+  ${img1Url ? `<div style="position:absolute;left:55px;top:28px;width:255px;height:280px;background:#fff;border-radius:8px;transform:rotate(-4deg);box-shadow:0 8px 24px rgba(0,0,0,0.28);overflow:hidden;"><img src="${img1Url}" style="width:100%;height:100%;object-fit:cover;display:block;"/></div>` : ''}
+  ${img2Url ? `<div style="position:absolute;right:55px;top:18px;width:255px;height:280px;background:#fff;border-radius:8px;transform:rotate(4deg);box-shadow:0 8px 24px rgba(0,0,0,0.28);overflow:hidden;"><img src="${img2Url}" style="width:100%;height:100%;object-fit:cover;display:block;"/></div>` : ''}
+</div>
+</body></html>`
+
+    // ── Week 5 hero: full-bleed image + logo top-left + white-fade + headline ──
+    // Week 5 hero: same inset card as Week 4 — padded, rounded, centered logo + serif headline
+    const heroFp5 = selectedImages?.[0]?.focalX != null ? `${selectedImages[0].focalX}% ${selectedImages[0].focalY}%` : '50% 30%'
+    const week5HeroHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:#fff;}</style>
+</head><body>
+<div style="padding:20px 20px 0;background:#fff;line-height:0;font-size:0;">
+  <div style="position:relative;width:560px;height:680px;overflow:hidden;border-radius:0;background:#1a1a1a;">
+    ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:560px;height:680px;object-fit:cover;object-position:${heroFp5};display:block;"/>` : `<div style="width:560px;height:680px;background:#2a2a2a;"></div>`}
+    <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.25) 40%,rgba(0,0,0,0.45) 100%);line-height:normal;font-size:initial;">
+      <div style="text-align:center;padding-top:36px;">${logoHtml}</div>
+      <div style="position:absolute;left:36px;right:36px;top:32%;">
+        ${w5First ? `<div style="font-family:Georgia,serif;font-size:42px;font-style:italic;font-weight:400;color:#fff;line-height:1;text-shadow:0 2px 12px rgba(0,0,0,.3);margin-bottom:2px;">${w5First}</div>` : ''}
+        <div style="font-family:Arial,'Helvetica Neue',sans-serif;font-size:52px;font-weight:900;text-transform:uppercase;color:#fff;line-height:0.92;letter-spacing:-1px;text-shadow:0 2px 20px rgba(0,0,0,.25);">${w5Main}</div>
+        ${w5Last ? `<div style="font-family:Georgia,serif;font-size:42px;font-style:italic;font-weight:400;color:#fff;line-height:1.1;text-align:right;text-shadow:0 2px 12px rgba(0,0,0,.3);margin-top:2px;">${w5Last}</div>` : ''}
+      </div>
+    </div>
+  </div>
+</div>
+</body></html>`
+
+    // ── Week 6 hero: padded inset image card with left-aligned two-font headline ──
+    const heroFp6 = selectedImages?.[0]?.focalX != null ? `${selectedImages[0].focalX}% ${selectedImages[0].focalY}%` : '50% 30%'
+    const w6words = headline.trim().split(/\s+/).filter(Boolean)
+    const w6Body  = w6words.length > 1 ? w6words.slice(0, -1).join(' ') : w6words[0] || ''
+    const w6Last  = w6words.length > 1 ? w6words[w6words.length - 1] : ''
+    const w6LogoHtml = logoUrl
+      ? `<img src="${logoUrl}" alt="" style="height:32px;width:auto;max-width:150px;display:inline-block;"/>`
+      : `<span style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#1a1a1a;">${clientName}</span>`
+    const week6HeroHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;overflow:hidden;}</style>
+</head><body>
+<!-- White header: logo left + nav link right -->
+<div style="background:#ffffff;width:600px;padding:28px 40px 20px;box-sizing:border-box;line-height:normal;font-size:initial;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;width:100%;">
+    <tr>
+      <td style="vertical-align:middle;">${w6LogoHtml}</td>
+      <td style="text-align:right;vertical-align:middle;">
+        ${generatedCopy?.ctaText ? `<span style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#1a1a1a;letter-spacing:.01em;">${generatedCopy.ctaText} ›</span>` : ''}
+      </td>
+    </tr>
+  </table>
+</div>
+<!-- Blurred hero section -->
+<div style="position:relative;width:600px;height:740px;overflow:hidden;">
+  ${heroImgUrl
+    ? `<img src="${heroImgUrl}" style="position:absolute;top:-30px;left:-30px;width:660px;height:800px;object-fit:cover;object-position:${heroFp6};filter:blur(36px) saturate(1.4) brightness(0.82);transform:scale(1.12);display:block;"/>`
+    : `<div style="position:absolute;inset:0;background:linear-gradient(160deg,#7ab5d8,#6ba87a);"></div>`}
+  <!-- Inset image card -->
+  <div style="position:absolute;left:28px;top:22px;right:28px;">
+    <div style="position:relative;width:544px;height:480px;overflow:hidden;border-radius:20px;box-shadow:0 6px 40px rgba(0,0,0,0.3);border:2px solid rgba(255,255,255,0.55);">
+      ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:544px;height:480px;object-fit:cover;object-position:${heroFp6};display:block;"/>` : ''}
+      <div style="position:absolute;top:0;left:0;right:0;height:72%;background:linear-gradient(to bottom,rgba(0,0,0,0.52) 0%,rgba(0,0,0,0.16) 65%,rgba(0,0,0,0) 100%);"></div>
+      <div style="position:absolute;top:0;left:0;right:0;padding:32px 36px 0;line-height:normal;font-size:initial;">
+        <div style="font-family:Georgia,serif;font-size:46px;font-weight:700;color:#fff;line-height:1.08;text-shadow:0 2px 16px rgba(0,0,0,.3);">
+          ${w6Body}${w6Last ? ` <span style="font-style:italic;font-weight:400;font-size:54px;">${w6Last}</span>` : ''}
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Subhead on gradient — close to CTA -->
+  <div style="position:absolute;top:548px;left:44px;right:44px;text-align:center;line-height:normal;font-size:initial;">
+    <p style="font-family:Georgia,serif;font-size:17px;font-style:italic;line-height:1.6;color:#fff;margin:0;text-shadow:0 1px 8px rgba(0,0,0,.25);">${generatedCopy?.subhead || ''}</p>
+  </div>
+  <!-- CTA on gradient + arrow below -->
+  <div style="position:absolute;top:610px;left:0;right:0;text-align:center;line-height:normal;font-size:initial;">
+    <div style="display:inline-block;background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.85);border-radius:100px;padding:14px 44px;">
+      <span style="font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff;letter-spacing:.03em;white-space:nowrap;">${generatedCopy?.ctaText || ''}</span>
+    </div>
+    <div style="margin-top:0;line-height:0;font-size:0;text-align:center;">
+      <div style="display:inline-block;width:2px;height:22px;background:rgba(255,255,255,0.7);vertical-align:top;"></div>
+      <div style="width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:10px solid rgba(255,255,255,0.7);margin:0 auto;"></div>
+    </div>
+  </div>
+</div>
+</body></html>`
+
+    const heroHeight = isWeek2 ? 460 : isWeek3 ? 600 : isWeek4 ? 740 : isWeek5 ? 720 : isWeek6 ? 820 : 400
+    const secondaryPromise = isWeek3 && (img1Url || img2Url)
+      ? renderImage({ html: stackedHtml, width: 600, height: 420 })
+      : isWeek4
+        ? renderImage({ html: week4Card1Html, width: 600, height: 544 })
+        : (!isWeek2 && !isWeek3 && !isWeek5 && !isWeek6 && (img1Url || img2Url))
+          ? renderImage({ html: polaroidHtml, width: 600, height: 340 })
+          : Promise.resolve(null)
+
+    const tertiaryPromise = isWeek4
+      ? renderImage({ html: week4Card2Html, width: 600, height: 592 })
+      : Promise.resolve(null)
+
+    const heroHtmlToUse = isWeek4 ? week4HeroHtml : isWeek5 ? week5HeroHtml : isWeek6 ? week6HeroHtml : heroHtml
+
+    Promise.all([
+      renderImage({ html: heroHtmlToUse, width: 600, height: heroHeight }),
+      secondaryPromise,
+      tertiaryPromise,
+    ])
+      .then(([heroRes, secRes, terRes]) => {
+        console.log('[WeekGen] Promise.all resolved:', { tplId: tpl?.id, heroRes, secRes, terRes })
+        const urls = { hero: heroRes?.url || null, sec: secRes?.url || null, ter: terRes?.url || null }
+        console.log('[WeekGen] Calling setWeekGenUrls with:', urls)
+        setWeekGenUrls(prev => {
+          const next = { ...prev, [tpl?.id]: urls }
+          console.log('[WeekGen] weekGenUrls updated to:', next)
+          return next
+        })
+      })
+      .catch(err => {
+        console.error('[WeekGen] Error:', err)
+        setWeekGenError(err.message)
+      })
+      .finally(() => setWeekGenLoading(false))
+  }, [weekGenTrigger, renderImage])
+
+  const handleAiRecommend = async () => {
     setAiLoading(true)
     setAiError(null)
+    setAiApplied(false)
     try {
       const result = await recommendTemplate({ copy: generatedCopy })
+      console.log('[Auto-style] result:', result)
       setTemplateStyle({
         headerStyle: result.headerStyle,
         imageStyle:  result.imageStyle,
         aiReasoning: result.reasoning,
         boldedCopy:  result.boldedCopy,
       })
+      setAiApplied(true)
+      setTimeout(() => setAiApplied(false), 3000)
     } catch (err) {
       setAiError(err.message)
     } finally {
       setAiLoading(false)
     }
-  }, [generatedCopy, setTemplateStyle])
+  }
 
   const accent = dark ? '#f59e0b' : '#3b82f6'
 
@@ -880,7 +2601,7 @@ export default function TemplatePreview() {
     { id: 4, label: '⭕ Circle'    },
   ]
 
-  if (!previewHtml) {
+  if (!previewHtml && !isHcti) {
     return <p style={{ fontSize: 13, color: dark ? 'rgba(255,255,255,0.3)' : '#9ca3af', padding: '16px 0' }}>No copy generated yet — go back and generate copy first.</p>
   }
 
@@ -914,6 +2635,40 @@ export default function TemplatePreview() {
           )
         })}
       </div>
+
+      {/* Generate Images button — Week 1, Week 1 v2, Week 2 */}
+      {isWeekTemplate && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+          <button
+            onClick={() => setWeekGenTrigger(t => t + 1)}
+            disabled={weekGenLoading}
+            style={{
+              padding: '7px 18px', borderRadius: 8, fontSize: 12, fontWeight: 700,
+              fontFamily: 'Inter, sans-serif', cursor: weekGenLoading ? 'wait' : 'pointer',
+              background: weekGenLoading ? (dark ? '#2a2a2a' : '#f3f4f6') : 'linear-gradient(135deg,#e85d26,#d4006a)',
+              color: weekGenLoading ? (dark ? '#666' : '#aaa') : '#fff',
+              border: 'none',
+              boxShadow: weekGenLoading ? 'none' : '0 2px 10px rgba(212,0,106,0.3)',
+              transition: 'all 0.2s',
+            }}
+          >
+            {weekGenLoading ? '🎨 Generating…' : '🎨 Generate Images'}
+          </button>
+          {weekGenUrls[tpl?.id]?.hero && !weekGenLoading && (
+            <span style={{ fontSize: 11, color: dark ? 'rgba(255,255,255,0.4)' : '#9ca3af', fontFamily: 'Inter, sans-serif' }}>
+              ✅ Hero
+              {weekGenUrls[tpl?.id]?.sec ? ' · Card 1' : ''}
+              {weekGenUrls[tpl?.id]?.ter ? ' · Card 2' : ''}
+              {' generated'}
+            </span>
+          )}
+          {weekGenError && (
+            <span style={{ fontSize: 11, color: '#ef4444', fontFamily: 'Inter, sans-serif' }}>
+              Error: {weekGenError}
+            </span>
+          )}
+        </div>
+      )}
 
       {/* Header + Image style pickers + AI button — only for Hero Header */}
       {isHeroHeader && (
@@ -968,14 +2723,14 @@ export default function TemplatePreview() {
               style={{
                 marginLeft: 8, padding: '6px 16px', borderRadius: 8, fontSize: 12, fontWeight: 700,
                 fontFamily: 'Inter, sans-serif', cursor: aiLoading ? 'wait' : 'pointer',
-                background: aiLoading ? (dark ? '#2a2a2a' : '#f3f4f6') : 'linear-gradient(135deg,#7c3aed,#4f46e5)',
+                background: aiApplied ? '#16a34a' : aiLoading ? (dark ? '#2a2a2a' : '#f3f4f6') : 'linear-gradient(135deg,#7c3aed,#4f46e5)',
                 color: aiLoading ? (dark ? '#666' : '#aaa') : '#fff',
                 border: 'none',
-                boxShadow: aiLoading ? 'none' : '0 2px 10px rgba(79,70,229,0.35)',
-                transition: 'all 0.15s',
+                boxShadow: aiApplied ? '0 2px 10px rgba(22,163,74,0.35)' : aiLoading ? 'none' : '0 2px 10px rgba(79,70,229,0.35)',
+                transition: 'all 0.2s',
               }}
             >
-              {aiLoading ? '✨ Thinking…' : '✨ Auto-style'}
+              {aiLoading ? '✨ Thinking…' : aiApplied ? '✅ Applied!' : '✨ Auto-style'}
             </button>
           </div>
 
@@ -1001,6 +2756,103 @@ export default function TemplatePreview() {
             </div>
           )}
 
+        </div>
+      )}
+
+      {/* ── Editor side panel — floats in left gutter (Week 1 v2 only) ── */}
+      {isEditable && (
+        <div style={{
+          position: 'fixed', left: 16, top: '50%', transform: 'translateY(-50%)',
+          width: 200, zIndex: 100,
+          background: dark ? 'rgba(20,20,20,0.95)' : 'rgba(255,255,255,0.97)',
+          backdropFilter: 'blur(12px)',
+          border: `1px solid ${dark ? 'rgba(255,255,255,0.08)' : '#e5e7eb'}`,
+          borderRadius: 14, padding: '14px 14px 18px',
+          display: 'flex', flexDirection: 'column', gap: 16,
+          fontFamily: 'Inter, sans-serif',
+          boxShadow: dark ? '0 8px 32px rgba(0,0,0,0.5)' : '0 4px 24px rgba(0,0,0,0.10)',
+        }}>
+          {/* Section header helper */}
+          {[
+            {
+              label: '🖼 Image',
+              controls: [
+                { name: 'Pan X', min: -200, max: 200, step: 4, val: heroX,     set: setHeroX,     unit: 'px' },
+                { name: 'Pan Y', min: -200, max: 200, step: 4, val: heroY,     set: setHeroY,     unit: 'px' },
+                { name: 'Zoom',  min: 1,    max: 2.5, step: 0.05, val: heroScale, set: setHeroScale, unit: 'x', toDisplay: v => v.toFixed(2) },
+              ]
+            },
+            {
+              label: '✏️ Headline',
+              controls: [
+                { name: 'Size',  min: 18, max: 56,  step: 1, val: textSize, set: setTextSize, unit: 'px' },
+                { name: 'Top',   min: 10, max: 500, step: 4, val: textTop,  set: setTextTop,  unit: 'px' },
+                { name: 'Left',  min: 0,  max: 580, step: 4, val: textLeft, set: setTextLeft, unit: 'px' },
+              ]
+            },
+          ].map(section => (
+            <div key={section.label}>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: dark ? 'rgba(255,255,255,0.3)' : '#9ca3af', marginBottom: 10 }}>
+                {section.label}
+              </div>
+              {section.controls.map(ctrl => (
+                <div key={ctrl.name} style={{ marginBottom: 10 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                    <span style={{ fontSize: 11, color: dark ? 'rgba(255,255,255,0.55)' : '#6b7280' }}>{ctrl.name}</span>
+                    <span style={{ fontSize: 11, fontWeight: 600, color: dark ? 'rgba(255,255,255,0.7)' : '#374151' }}>
+                      {ctrl.toDisplay ? ctrl.toDisplay(ctrl.val) : ctrl.val}{ctrl.unit}
+                    </span>
+                  </div>
+                  <input type="range" min={ctrl.min} max={ctrl.max} step={ctrl.step} value={ctrl.val}
+                    onChange={e => ctrl.set(Number(e.target.value))}
+                    style={{ width: '100%', accentColor: dark ? '#f59e0b' : '#3b82f6', cursor: 'pointer' }}
+                  />
+                </div>
+              ))}
+            </div>
+          ))}
+
+          {/* Logo section */}
+          <div>
+            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: dark ? 'rgba(255,255,255,0.3)' : '#9ca3af', marginBottom: 10 }}>
+              🏷 Logo
+            </div>
+            {[
+              { name: 'Size',  min: 20, max: 160, step: 2,  val: logoSize,  set: setLogoSize,  unit: 'px' },
+              { name: 'Top',   min: 0,  max: 500, step: 4,  val: logoTop,   set: setLogoTop,   unit: 'px' },
+              { name: 'Right', min: 0,  max: 580, step: 4,  val: logoRight, set: setLogoRight, unit: 'px' },
+            ].map(ctrl => (
+              <div key={ctrl.name} style={{ marginBottom: 10 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                  <span style={{ fontSize: 11, color: dark ? 'rgba(255,255,255,0.55)' : '#6b7280' }}>{ctrl.name}</span>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: dark ? 'rgba(255,255,255,0.7)' : '#374151' }}>{ctrl.val}{ctrl.unit}</span>
+                </div>
+                <input type="range" min={ctrl.min} max={ctrl.max} step={ctrl.step} value={ctrl.val}
+                  onChange={e => ctrl.set(Number(e.target.value))}
+                  style={{ width: '100%', accentColor: dark ? '#f59e0b' : '#3b82f6', cursor: 'pointer' }}
+                />
+              </div>
+            ))}
+            <div style={{ display: 'flex', gap: 6 }}>
+              {['original', 'white', 'black'].map(c => (
+                <button key={c} onClick={() => setLogoColor(c)} style={{
+                  flex: 1, padding: '5px 0', borderRadius: 6, fontSize: 10, fontWeight: 600,
+                  cursor: 'pointer', border: `1.5px solid ${logoColor === c ? (dark ? '#f59e0b' : '#3b82f6') : (dark ? 'rgba(255,255,255,0.12)' : '#e5e7eb')}`,
+                  background: c === 'white' ? '#1a1a1a' : c === 'black' ? '#f5f5f5' : (dark ? 'rgba(255,255,255,0.06)' : '#f9fafb'),
+                  color: c === 'white' ? '#fff' : c === 'black' ? '#000' : (dark ? 'rgba(255,255,255,0.6)' : '#6b7280'),
+                  textTransform: 'capitalize',
+                }}>
+                  {c}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Reset */}
+          <button onClick={() => { setHeroScale(1); setHeroX(0); setHeroY(0); setTextSize(34); setTextTop(32); setTextLeft(36); setLogoColor('original'); setLogoTop(24); setLogoRight(36); setLogoSize(70) }}
+            style={{ fontSize: 11, color: dark ? 'rgba(255,255,255,0.3)' : '#9ca3af', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', textAlign: 'left', padding: 0 }}>
+            Reset all
+          </button>
         </div>
       )}
 
@@ -1051,13 +2903,76 @@ export default function TemplatePreview() {
           </div>
         </div>
 
-        <iframe
-          key={active}
-          title="Email Preview"
-          srcDoc={previewHtml}
-          style={{ width: '100%', height: 860, border: 'none', display: 'block' }}
-          sandbox="allow-same-origin"
-        />
+        {isHcti ? (
+          hctiLoading ? (
+            /* ── Image Gen: loading ── */
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, padding: '80px 0', background: dark ? '#111' : '#fff', color: dark ? 'rgba(255,255,255,0.4)' : '#9ca3af', fontFamily: 'Inter, sans-serif', fontSize: 13 }}>
+              <div style={{ width: 32, height: 32, borderRadius: '50%', border: `3px solid ${dark ? 'rgba(255,255,255,0.1)' : '#e5e7eb'}`, borderTopColor: accent, animation: 'spin 0.8s linear infinite' }} />
+              <span>Generating images via html2image.net…</span>
+              <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+            </div>
+          ) : hctiError ? (
+            /* ── Image Gen: error ── */
+            <div style={{ padding: '40px 32px', background: dark ? '#111' : '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
+              <span style={{ fontSize: 32 }}>⚠️</span>
+              <p style={{ color: '#ef4444', fontSize: 13, fontFamily: 'Inter, sans-serif', textAlign: 'center' }}>{hctiError}</p>
+              <button onClick={() => setHctiTrigger(t => t + 1)} style={{ padding: '8px 20px', borderRadius: 8, border: 'none', cursor: 'pointer', background: accent, color: '#fff', fontSize: 12, fontWeight: 600, fontFamily: 'Inter, sans-serif' }}>
+                Try again
+              </button>
+            </div>
+          ) : hctiEmail ? (
+            /* ── Image Gen: result ── */
+            <div style={{ position: 'relative' }}>
+              <iframe
+                key="hcti-email"
+                title="Image Gen Email Preview"
+                srcDoc={hctiEmail}
+                style={{ width: '100%', height: 860, border: 'none', display: 'block' }}
+                sandbox="allow-same-origin"
+              />
+              {/* Regenerate button bottom-right */}
+              <div style={{ position: 'absolute', bottom: 16, right: 16 }}>
+                <button onClick={() => setHctiTrigger(t => t + 1)} style={{ padding: '7px 16px', borderRadius: 8, border: 'none', cursor: 'pointer', background: dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)', color: dark ? 'rgba(255,255,255,0.6)' : '#555', fontSize: 12, fontWeight: 600, fontFamily: 'Inter, sans-serif', backdropFilter: 'blur(4px)' }}>
+                  ↻ Regenerate
+                </button>
+              </div>
+            </div>
+          ) : (
+            /* ── Image Gen: idle — show Generate button ── */
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, padding: '80px 0', background: dark ? '#111' : '#fff', fontFamily: 'Inter, sans-serif' }}>
+              <span style={{ fontSize: 40 }}>🖼</span>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: dark ? 'rgba(255,255,255,0.7)' : '#374151', marginBottom: 4 }}>
+                  Ready to generate
+                </div>
+                <div style={{ fontSize: 12, color: dark ? 'rgba(255,255,255,0.3)' : '#9ca3af', marginBottom: 20 }}>
+                  Creates a hero image + polaroid gallery via html2image.net
+                </div>
+                <button
+                  onClick={() => setHctiTrigger(t => t + 1)}
+                  disabled={!generatedCopy?.headlineText}
+                  style={{
+                    padding: '10px 28px', borderRadius: 8, border: 'none',
+                    cursor: generatedCopy?.headlineText ? 'pointer' : 'not-allowed',
+                    background: generatedCopy?.headlineText ? accent : (dark ? '#2a2a2a' : '#e5e7eb'),
+                    color: generatedCopy?.headlineText ? '#fff' : (dark ? '#555' : '#aaa'),
+                    fontSize: 13, fontWeight: 700,
+                  }}
+                >
+                  Generate Images
+                </button>
+              </div>
+            </div>
+          )
+        ) : (
+          <iframe
+            key={`${active}-${weekGenUrls[tpl?.id]?.hero || 'none'}`}
+            title="Email Preview"
+            srcDoc={previewHtml}
+            style={{ width: '100%', height: 860, border: 'none', display: 'block' }}
+            sandbox="allow-same-origin"
+          />
+        )}
       </div>
 
     </div>

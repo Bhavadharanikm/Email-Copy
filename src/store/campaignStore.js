@@ -50,8 +50,12 @@ const INITIAL_STATE = {
   aiReasoning:      '',
   aiRecommendDone:  false,
 
+  // Step 4c — selected template label (e.g. "Week 1", "Week 2")
+  templateLabel: '',
+
   // Step 5 — rendered HTML
-  renderedHtml: '',
+  renderedHtml:   '',
+  imageGenHtml:   '',   // html2image.net assembled email — persists across nav
 
   // Step 6 — approval
   approvalStatus: 'pending',
@@ -59,6 +63,9 @@ const INITIAL_STATE = {
 
   // Step 7 — push result
   ghlPushResult: null,
+
+  // Footer data fetched from brand board sheet
+  clientFooter: null,
 
   // UI state — NOT persisted (always reset on page load)
   currentStep:  1,
@@ -130,9 +137,12 @@ export const useCampaignStore = create(
         })),
       setHeaderStyle:    (v) => set({ headerStyle: v }),
       setImageStyle:     (v) => set({ imageStyle: v }),
+      setTemplateLabel:  (label)    => set({ templateLabel: label }),
       setRenderedHtml:   (html)     => set({ renderedHtml: html }),
+      setImageGenHtml:   (html)     => set({ imageGenHtml: html }),
       setApproval:       (status, notes) => set({ approvalStatus: status, approvalNotes: notes }),
       setGhlPushResult:  (result)   => set({ ghlPushResult: result }),
+      setClientFooter:   (footer)   => set({ clientFooter: footer }),
       setStep:           (step)     => set({ currentStep: step }),
       setGenerating:     (val)      => set({ isGenerating: val }),
       setSaving:         (val)      => set({ isSaving: val }),
