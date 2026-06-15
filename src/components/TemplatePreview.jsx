@@ -339,7 +339,7 @@ ${emailClientHeader({client,copy})}
    ══════════════════════════════════════════════════════════════════════════ */
 function buildTemplateWeek2({ client, copy, images, footerData, isHeroGenerated = false,
   heroScale=1, heroX=0, heroY=0,
-  textSize=24, textTop=32, textLeft=24,
+  textSize=38, textTop=32, textLeft=24,
   logoColor='original', logoTop=24, logoRight=200, logoSize=40,
 }) {
   const heroObj  = images?.[0]; const heroImg = heroObj?.url||''
@@ -388,7 +388,7 @@ function buildTemplateWeek2({ client, copy, images, footerData, isHeroGenerated 
     <div style="position:absolute;top:0;left:36px;right:36px;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0) 0%,rgba(0,0,0,0) 50%,rgba(0,0,0,0.45) 100%);border-radius:999px 999px 0 0;">
       <table width="100%" height="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;height:100%;border-collapse:collapse;">
         <tr><td valign="bottom" align="center" style="vertical-align:bottom;text-align:center;padding:0 ${textLeft}px ${textTop}px;">
-          <div style="font-family:Georgia,serif;font-size:${textSize}px;font-weight:400;font-style:italic;color:#fff;line-height:1.25;text-shadow:0 2px 10px rgba(0,0,0,.3);display:inline-block;max-width:300px;">${copy.headlineText||''}</div>
+          <div style="font-family:Georgia,'Times New Roman',serif;font-size:${textSize}px;font-weight:700;color:#fff;line-height:1.12;text-shadow:0 2px 10px rgba(0,0,0,.3);display:inline-block;max-width:360px;">${copy.headlineText||''}</div>
         </td></tr>
       </table>
     </div>
@@ -2074,7 +2074,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
   useEffect(() => {
     if (!isEditable) return
     setHeroScale(1); setHeroX(0); setHeroY(0)
-    if (tpl?.id === 10) { setTextSize(24); setTextTop(32);  setTextLeft(24);  setLogoColor('original'); setLogoTop(32); setLogoRight(200); setLogoSize(40) }
+    if (tpl?.id === 10) { setTextSize(38); setTextTop(32);  setTextLeft(24);  setLogoColor('original'); setLogoTop(32); setLogoRight(200); setLogoSize(40) }
     if (tpl?.id === 11) { setTextSize(40); setTextTop(14);  setTextLeft(52);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
     if (tpl?.id === 12) { setTextSize(38); setTextTop(20);  setTextLeft(48);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
     if (tpl?.id === 13) { setTextSize(52); setTextTop(32);  setTextLeft(36);  setLogoColor('white');    setLogoTop(28); setLogoRight(36);  setLogoSize(40) }
@@ -2992,7 +2992,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
           <div style={{ height: 1, background: dark ? 'rgba(255,255,255,0.07)' : '#f0f1f3', margin: '12px 0 8px' }} />
           <button onClick={() => {
             setHeroScale(1); setHeroX(0); setHeroY(0)
-            if (tpl?.id === 10) { setTextSize(24); setTextTop(32);  setTextLeft(24);  setLogoColor('original'); setLogoTop(32); setLogoRight(200); setLogoSize(40) }
+            if (tpl?.id === 10) { setTextSize(38); setTextTop(32);  setTextLeft(24);  setLogoColor('original'); setLogoTop(32); setLogoRight(200); setLogoSize(40) }
             if (tpl?.id === 11) { setTextSize(40); setTextTop(14);  setTextLeft(52);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
             if (tpl?.id === 12) { setTextSize(38); setTextTop(20);  setTextLeft(48);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
             if (tpl?.id === 13) { setTextSize(52); setTextTop(32);  setTextLeft(36);  setLogoColor('white');    setLogoTop(28); setLogoRight(36);  setLogoSize(40) }
