@@ -337,7 +337,11 @@ ${emailClientHeader({client,copy})}
    WEEK 2  — arch hero with overlay · structured content order
    hero(logo+hl+img) → subhead → CTA → body → b2title → images → b2body → closing → CTA
    ══════════════════════════════════════════════════════════════════════════ */
-function buildTemplateWeek2({ client, copy, images, footerData, isHeroGenerated = false }) {
+function buildTemplateWeek2({ client, copy, images, footerData, isHeroGenerated = false,
+  heroScale=1, heroX=0, heroY=0,
+  textSize=24, textTop=32, textLeft=24,
+  logoColor='original', logoTop=24, logoRight=200, logoSize=40,
+}) {
   const heroObj  = images?.[0]; const heroImg = heroObj?.url||''
   const img1Obj  = images?.[1]; const img1    = img1Obj?.url||''
   const img2Obj  = images?.[2]; const img2    = img2Obj?.url||''
@@ -349,9 +353,10 @@ function buildTemplateWeek2({ client, copy, images, footerData, isHeroGenerated 
   const pageBg     = '#f5f2ec'
   const accentClr  = footerData?.buttonColor || '#d4006a'
   const secondaryClr = footerData?.secondaryColor || accentClr
+  const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
 
   const logoOverlay = logoUrl
-    ? `<img src="${logoUrl}" alt="${client?.name||''}" style="display:block;height:40px;width:auto;max-width:160px;margin:0 auto 10px;"/>`
+    ? `<img src="${logoUrl}" alt="${client?.name||''}" style="display:block;height:${logoSize}px;width:auto;max-width:160px;margin:0 auto 10px;filter:${logoFilter};"/>`
     : `<div style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:#fff;margin-bottom:10px;">${client?.name||''}</div>`
 
   return `<!DOCTYPE html><html lang="en" style="color-scheme:light"><head><meta charset="UTF-8"/>
@@ -378,12 +383,12 @@ function buildTemplateWeek2({ client, copy, images, footerData, isHeroGenerated 
     ? `<div style="line-height:0;font-size:0;background:${midBg}!important;"><img src="${heroImg}" alt="" width="600" style="width:100%;display:block;max-width:600px;"/></div>`
     : `<div style="position:relative;line-height:0;font-size:0;padding:0 36px;background:${midBg};height:460px;overflow:hidden;">
     ${heroImg
-      ? `<img src="${heroImg}" alt="" style="width:100%;height:460px;object-fit:cover;display:block;border-radius:999px 999px 0 0;object-position:${focalPos(heroObj)}"/>`
+      ? `<img src="${heroImg}" alt="" style="width:100%;height:460px;object-fit:cover;display:block;border-radius:999px 999px 0 0;object-position:calc(50% + ${heroX}px) calc(50% + ${heroY}px);transform:scale(${heroScale});transform-origin:50% 50%;"/>`
       : `<div style="width:100%;height:460px;background:#f0c8b8;border-radius:999px 999px 0 0;text-align:center;color:${accentClr};font-size:12px;font-family:Arial,sans-serif;line-height:460px;">Hero image</div>`}
     <div style="position:absolute;top:0;left:36px;right:36px;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0) 0%,rgba(0,0,0,0) 50%,rgba(0,0,0,0.45) 100%);border-radius:999px 999px 0 0;">
       <table width="100%" height="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;height:100%;border-collapse:collapse;">
-        <tr><td valign="bottom" align="center" style="vertical-align:bottom;text-align:center;padding:0 24px 32px;">
-          <div style="font-family:Georgia,serif;font-size:24px;font-weight:400;font-style:italic;color:#fff;line-height:1.25;text-shadow:0 2px 10px rgba(0,0,0,.3);display:inline-block;max-width:300px;">${copy.headlineText||''}</div>
+        <tr><td valign="bottom" align="center" style="vertical-align:bottom;text-align:center;padding:0 ${textLeft}px ${textTop}px;">
+          <div style="font-family:Georgia,serif;font-size:${textSize}px;font-weight:400;font-style:italic;color:#fff;line-height:1.25;text-shadow:0 2px 10px rgba(0,0,0,.3);display:inline-block;max-width:300px;">${copy.headlineText||''}</div>
         </td></tr>
       </table>
     </div>
@@ -445,7 +450,11 @@ function buildTemplateWeek2({ client, copy, images, footerData, isHeroGenerated 
    WEEK 3  ·  Full-bleed hero + white-fade + stacked cards
    Inspired by Wander / Endless Stays editorial style
    ══════════════════════════════════════════════════════════════════════════ */
-function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated = false }) {
+function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated = false,
+  heroScale=1, heroX=0, heroY=0,
+  textSize=40, textTop=40, textLeft=48,
+  logoColor='white', logoTop=36, logoRight=240, logoSize=44,
+}) {
   const heroObj  = images?.[0]; const heroImg = heroObj?.url||''
   const img1Obj  = images?.[1]; const img1    = img1Obj?.url||''
   const img2Obj  = images?.[2]; const img2    = img2Obj?.url||''
@@ -458,9 +467,10 @@ function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated 
   const cardBg     = '#ffffff'
   const accentClr  = footerData?.buttonColor || '#1a1a1a'
   const secondaryClr = footerData?.secondaryColor || accentClr
+  const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
 
   const logoHtml = logoUrl
-    ? `<img src="${logoUrl}" alt="${client?.name||''}" style="height:44px;width:auto;max-width:180px;display:inline-block;filter:brightness(0) invert(1);vertical-align:middle;"/>`
+    ? `<img src="${logoUrl}" alt="${client?.name||''}" style="height:${logoSize}px;width:auto;max-width:180px;display:inline-block;filter:${logoFilter};vertical-align:middle;"/>`
     : `<span style="font-family:Arial,sans-serif;font-size:15px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff;">${client?.name||''}</span>`
 
   // Stacked image section: generated PNG (email-safe) or CSS preview (browser)
@@ -509,11 +519,11 @@ function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated 
           <img src="${heroImg}" alt="" width="600" style="width:100%;display:block;max-width:600px;border-radius:20px 20px 0 0;"/>
         </td></tr>`
       : `<tr><td style="position:relative;line-height:0;font-size:0;padding:0;height:600px;overflow:hidden;background:#1a1a1a;border-radius:20px 20px 0 0;">
-          ${heroImg ? `<img src="${heroImg}" alt="" style="width:100%;height:600px;object-fit:cover;display:block;border-radius:20px 20px 0 0;object-position:${focalPos(heroObj)};"/>` : `<div style="width:100%;height:600px;background:#2a2a2a;border-radius:20px 20px 0 0;"></div>`}
+          ${heroImg ? `<img src="${heroImg}" alt="" style="width:100%;height:600px;object-fit:cover;display:block;border-radius:20px 20px 0 0;object-position:calc(50% + ${heroX}px) calc(50% + ${heroY}px);transform:scale(${heroScale});transform-origin:50% 50%;"/>` : `<div style="width:100%;height:600px;background:#2a2a2a;border-radius:20px 20px 0 0;"></div>`}
           <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.7) 0%,rgba(0,0,0,0.25) 40%,rgba(0,0,0,0) 62%);border-radius:20px 20px 0 0;">
-            <div style="text-align:center;padding:40px 48px 0;">${logoHtml}</div>
-            <div style="text-align:center;padding:14px 52px 0;">
-              <div style="font-family:'Playfair Display',Georgia,serif;font-size:40px;font-weight:600;line-height:1.12;color:#fff;text-shadow:0 2px 20px rgba(0,0,0,0.4);">${copy.headlineText||''}</div>
+            <div style="text-align:center;padding:${logoTop}px 48px 0;">${logoHtml}</div>
+            <div style="text-align:center;padding:14px ${textLeft}px 0;">
+              <div style="font-family:'Playfair Display',Georgia,serif;font-size:${textSize}px;font-weight:600;line-height:1.12;color:#fff;text-shadow:0 2px 20px rgba(0,0,0,0.4);">${copy.headlineText||''}</div>
             </div>
           </div>
           <div style="position:absolute;bottom:0;left:0;right:0;height:160px;background:linear-gradient(to bottom,rgba(255,255,255,0),rgba(255,255,255,1));pointer-events:none;"></div>
@@ -1504,7 +1514,11 @@ function w4Card({ imgUrl, imgObj, bodyText, isLast }) {
     </td></tr>` : ''}`
 }
 
-function buildTemplateWeek4({ client, copy, images, footerData, isHeroGenerated = false }) {
+function buildTemplateWeek4({ client, copy, images, footerData, isHeroGenerated = false,
+  heroScale=1, heroX=0, heroY=0,
+  textSize=38, textTop=40, textLeft=48,
+  logoColor='white', logoTop=36, logoRight=240, logoSize=44,
+}) {
   // images[0] = hero (or hero PNG when generated), images[1-3] = card photos
   // images[4] = card1 stacked PNG (when generated), images[5] = card2 stacked PNG (when generated)
   const heroObj = images?.[0]; const heroImg = heroObj?.url||''
@@ -1523,11 +1537,11 @@ function buildTemplateWeek4({ client, copy, images, footerData, isHeroGenerated 
   const location  = name
   const accent    = footerData?.buttonColor || '#1a1a1a'
   const secondary = footerData?.secondaryColor || accent
-  const heroFp  = heroObj?.focalX != null ? `${heroObj.focalX}% ${heroObj.focalY}%` : '50% 30%'
+  const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
 
   // Logo — white version for dark hero overlay, dark version for cards below
   const logoHeroHtml = logoUrl
-    ? `<img src="${logoUrl}" alt="${name}" style="height:44px;width:auto;max-width:180px;display:inline-block;filter:brightness(0) invert(1);"/>`
+    ? `<img src="${logoUrl}" alt="${name}" style="height:${logoSize}px;width:auto;max-width:180px;display:inline-block;filter:${logoFilter};"/>`
     : `<span style="font-family:Arial,sans-serif;font-size:15px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff;">${name}</span>`
 
   const cards = [
@@ -1560,12 +1574,12 @@ function buildTemplateWeek4({ client, copy, images, footerData, isHeroGenerated 
       ? `<tr><td style="padding:0;line-height:0;font-size:0;"><img src="${heroImg}" alt="" width="600" style="display:block;width:600px;"/></td></tr>`
       : `<tr><td style="padding:20px 20px 0;background:#fff!important;line-height:0;font-size:0;">
       <div style="position:relative;width:560px;height:720px;overflow:hidden;border-radius:16px;background:#1a1a1a;">
-        ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:560px;height:720px;object-fit:cover;object-position:${heroFp};display:block;"/>` : ''}
+        ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:560px;height:720px;object-fit:cover;object-position:calc(50% + ${heroX}px) calc(50% + ${heroY}px);transform:scale(${heroScale});transform-origin:50% 50%;display:block;"/>` : ''}
         <!-- dark gradient top-down -->
         <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.78) 0%,rgba(0,0,0,0.38) 45%,rgba(0,0,0,0.05) 75%,rgba(0,0,0,0) 100%);">
-          <div style="text-align:center;padding-top:40px;">${logoHeroHtml}</div>
-          <div style="text-align:center;padding:20px 48px 0;">
-            <div style="font-family:Georgia,'Times New Roman',serif;font-size:38px;font-weight:700;line-height:1.12;color:#fff;">${copy.headlineText||''}</div>
+          <div style="text-align:center;padding-top:${logoTop}px;">${logoHeroHtml}</div>
+          <div style="text-align:center;padding:20px ${textLeft}px 0;">
+            <div style="font-family:Georgia,'Times New Roman',serif;font-size:${textSize}px;font-weight:700;line-height:1.12;color:#fff;">${copy.headlineText||''}</div>
           </div>
         </div>
       </div>
@@ -1632,7 +1646,11 @@ function buildTemplateWeek4({ client, copy, images, footerData, isHeroGenerated 
    Two font styles: italic serif intro + bold caps headline overlaid on image
    White card background · 2×2 property grid
    ══════════════════════════════════════════════════════════════════════════ */
-function buildTemplateWeek5({ client, copy, images, footerData, isHeroGenerated = false }) {
+function buildTemplateWeek5({ client, copy, images, footerData, isHeroGenerated = false,
+  heroScale=1, heroX=0, heroY=0,
+  textSize=52, textTop=32, textLeft=36,
+  logoColor='white', logoTop=28, logoRight=36, logoSize=40,
+}) {
   const heroObj = images?.[0]; const heroImg = heroObj?.url || ''
   const img1Obj = images?.[1]; const img1    = img1Obj?.url || ''
   const img2Obj = images?.[2]; const img2    = img2Obj?.url || ''
@@ -1646,10 +1664,11 @@ function buildTemplateWeek5({ client, copy, images, footerData, isHeroGenerated 
   const secondary = footerData?.secondaryColor || accent
   const pageBg    = footerData?.bgColor || '#f5f4f2'
   const cardBg    = '#ffffff'
+  const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
 
-  // White version of logo for dark overlay
+  // Logo for dark overlay
   const logoHtml = logoUrl
-    ? `<img src="${logoUrl}" alt="${name}" style="height:40px;width:auto;max-width:160px;display:inline-block;filter:brightness(0) invert(1);"/>`
+    ? `<img src="${logoUrl}" alt="${name}" style="height:${logoSize}px;width:auto;max-width:160px;display:inline-block;filter:${logoFilter};"/>`
     : `<span style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#fff;">${name}</span>`
 
   // Two-font editorial headline split:
@@ -1677,13 +1696,13 @@ function buildTemplateWeek5({ client, copy, images, footerData, isHeroGenerated 
   // copy.headlineText → LARGE bold caps sans-serif (like "EVERYWHERE")
   const heroHeroBlock = `
     <!-- Logo: top-right -->
-    <div style="position:absolute;top:28px;right:36px;z-index:3;">${logoHtml}</div>
+    <div style="position:absolute;top:${logoTop}px;right:${logoRight}px;z-index:3;">${logoHtml}</div>
     <!-- Two-font headline: centred in lower half of image -->
-    <div style="position:absolute;left:0;right:0;top:44%;padding:0 44px;">
+    <div style="position:absolute;left:0;right:0;top:${textTop}%;padding:0 ${textLeft}px;">
       ${copy.subjectLine
-        ? `<div style="font-family:Georgia,'Times New Roman',serif;font-size:26px;font-style:italic;font-weight:400;color:#fff;line-height:1.1;margin-bottom:4px;text-shadow:0 2px 16px rgba(0,0,0,.35);">${copy.subjectLine}</div>`
+        ? `<div style="font-family:Georgia,'Times New Roman',serif;font-size:${Math.round(textSize*0.5)}px;font-style:italic;font-weight:400;color:#fff;line-height:1.1;margin-bottom:4px;text-shadow:0 2px 16px rgba(0,0,0,.35);">${copy.subjectLine}</div>`
         : ''}
-      <div style="font-family:Arial,'Helvetica Neue',sans-serif;font-size:64px;font-weight:900;text-transform:uppercase;color:#fff;line-height:.95;letter-spacing:-2px;text-shadow:0 2px 24px rgba(0,0,0,.25);">${copy.headlineText||''}</div>
+      <div style="font-family:Arial,'Helvetica Neue',sans-serif;font-size:${textSize}px;font-weight:900;text-transform:uppercase;color:#fff;line-height:.95;letter-spacing:-2px;text-shadow:0 2px 24px rgba(0,0,0,.25);">${copy.headlineText||''}</div>
     </div>
     <!-- Eyebrow label bottom-centre -->
     ${copy.ctaText ? `
@@ -1715,13 +1734,13 @@ function buildTemplateWeek5({ client, copy, images, footerData, isHeroGenerated 
       ? `<tr><td style="padding:0;line-height:0;font-size:0;"><img src="${heroImg}" alt="" width="600" style="display:block;width:600px;"/></td></tr>`
       : `<tr><td style="padding:20px 20px 0;background:${cardBg}!important;line-height:0;font-size:0;">
       <div style="position:relative;width:560px;height:680px;overflow:hidden;border-radius:0;background:#1a1a1a;">
-        ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:560px;height:680px;object-fit:cover;object-position:${focalPos(heroObj)};display:block;"/>` : ''}
+        ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:560px;height:680px;object-fit:cover;object-position:calc(50% + ${heroX}px) calc(50% + ${heroY}px);transform:scale(${heroScale});transform-origin:50% 50%;display:block;"/>` : ''}
         <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.25) 40%,rgba(0,0,0,0.45) 100%);">
-          <div style="text-align:center;padding-top:36px;">${logoHtml}</div>
-          <div style="position:absolute;left:36px;right:36px;top:32%;">
-            ${hw5First ? `<div style="font-family:Georgia,'Times New Roman',serif;font-size:42px;font-style:italic;font-weight:400;color:#fff;line-height:1;text-shadow:0 2px 12px rgba(0,0,0,.3);margin-bottom:2px;">${hw5First}</div>` : ''}
-            <div style="font-family:Arial,'Helvetica Neue',sans-serif;font-size:52px;font-weight:900;text-transform:uppercase;color:#fff;line-height:0.92;letter-spacing:-1px;text-shadow:0 2px 20px rgba(0,0,0,.25);">${hw5Main}</div>
-            ${hw5Last ? `<div style="font-family:Georgia,'Times New Roman',serif;font-size:42px;font-style:italic;font-weight:400;color:#fff;line-height:1.1;text-align:right;text-shadow:0 2px 12px rgba(0,0,0,.3);margin-top:2px;">${hw5Last}</div>` : ''}
+          <div style="text-align:center;padding-top:${logoTop}px;">${logoHtml}</div>
+          <div style="position:absolute;left:${textLeft}px;right:${textLeft}px;top:${textTop}%;">
+            ${hw5First ? `<div style="font-family:Georgia,'Times New Roman',serif;font-size:${Math.round(textSize*0.8)}px;font-style:italic;font-weight:400;color:#fff;line-height:1;text-shadow:0 2px 12px rgba(0,0,0,.3);margin-bottom:2px;">${hw5First}</div>` : ''}
+            <div style="font-family:Arial,'Helvetica Neue',sans-serif;font-size:${textSize}px;font-weight:900;text-transform:uppercase;color:#fff;line-height:0.92;letter-spacing:-1px;text-shadow:0 2px 20px rgba(0,0,0,.25);">${hw5Main}</div>
+            ${hw5Last ? `<div style="font-family:Georgia,'Times New Roman',serif;font-size:${Math.round(textSize*0.8)}px;font-style:italic;font-weight:400;color:#fff;line-height:1.1;text-align:right;text-shadow:0 2px 12px rgba(0,0,0,.3);margin-top:2px;">${hw5Last}</div>` : ''}
           </div>
         </div>
       </div>
@@ -1833,7 +1852,11 @@ function buildTemplateWeek5({ client, copy, images, footerData, isHeroGenerated 
 }
 
 /* ─────────────────────────── Week 6 ────────────────────────────────────── */
-function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated = false }) {
+function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated = false,
+  heroScale=1, heroX=0, heroY=0,
+  textSize=46, textTop=32, textLeft=36,
+  logoColor='original', logoTop=28, logoRight=40, logoSize=32,
+}) {
   const heroObj = images?.[0]; const heroImg = heroObj?.url || ''
   const img1Obj = images?.[1]; const img1    = img1Obj?.url || ''
   const img2Obj = images?.[2]; const img2    = img2Obj?.url || ''
@@ -1846,9 +1869,10 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
   const secondary = footerData?.secondaryColor || accent
   const pageBg    = footerData?.bgColor || '#edf1f7'
   const cardBg    = '#ffffff'
+  const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
 
   const logoHtml = logoUrl
-    ? `<img src="${logoUrl}" alt="${name}" style="height:32px;width:auto;max-width:150px;display:inline-block;"/>`
+    ? `<img src="${logoUrl}" alt="${name}" style="height:${logoSize}px;width:auto;max-width:150px;display:inline-block;filter:${logoFilter};"/>`
     : `<span style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#1a1a1a;">${name}</span>`
 
   // Headline: all words except last → bold serif | last word → italic serif emphasis
@@ -1892,17 +1916,17 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
     <tr><td style="padding:0;overflow:hidden;line-height:0;font-size:0;">
         <div style="position:relative;width:600px;height:740px;overflow:hidden;">
           ${heroImg
-            ? `<img src="${heroImg}" alt="" style="position:absolute;top:-30px;left:-30px;width:660px;height:800px;object-fit:cover;object-position:${focalPos(heroObj)};filter:blur(36px) saturate(1.4) brightness(0.82);transform:scale(1.12);display:block;"/>`
+            ? `<img src="${heroImg}" alt="" style="position:absolute;top:-30px;left:-30px;width:660px;height:800px;object-fit:cover;object-position:calc(50% + ${heroX}px) calc(50% + ${heroY}px);filter:blur(36px) saturate(1.4) brightness(0.82);transform:scale(${Math.max(1.12, heroScale)});display:block;"/>`
             : `<div style="position:absolute;inset:0;background:linear-gradient(160deg,#7ab5d8,#6ba87a);"></div>`}
 
           <!-- Inset image card -->
           <div style="position:absolute;left:28px;top:22px;right:28px;">
             <div style="position:relative;width:544px;height:480px;overflow:hidden;border-radius:20px;box-shadow:0 6px 40px rgba(0,0,0,0.3);border:2px solid rgba(255,255,255,0.55);">
-              ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:544px;height:480px;object-fit:cover;object-position:${focalPos(heroObj)};display:block;"/>` : ''}
+              ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:544px;height:480px;object-fit:cover;object-position:calc(50% + ${heroX}px) calc(50% + ${heroY}px);transform:scale(${heroScale});transform-origin:50% 50%;display:block;"/>` : ''}
               <div style="position:absolute;top:0;left:0;right:0;height:72%;background:linear-gradient(to bottom,rgba(0,0,0,0.52) 0%,rgba(0,0,0,0.16) 65%,rgba(0,0,0,0) 100%);"></div>
-              <div style="position:absolute;top:0;left:0;right:0;padding:32px 36px 0;line-height:normal;font-size:initial;text-align:center;">
-                <div style="font-family:Georgia,'Times New Roman',serif;font-size:46px;font-weight:700;color:#fff;line-height:1.08;text-shadow:0 2px 16px rgba(0,0,0,.3);">
-                  ${hw6Body}${hw6Last ? ` <span style="font-style:italic;font-weight:400;font-size:54px;">${hw6Last}</span>` : ''}
+              <div style="position:absolute;top:0;left:0;right:0;padding:${textTop}px ${textLeft}px 0;line-height:normal;font-size:initial;text-align:center;">
+                <div style="font-family:Georgia,'Times New Roman',serif;font-size:${textSize}px;font-weight:700;color:#fff;line-height:1.08;text-shadow:0 2px 16px rgba(0,0,0,.3);">
+                  ${hw6Body}${hw6Last ? ` <span style="font-style:italic;font-weight:400;font-size:${Math.round(textSize*1.17)}px;">${hw6Last}</span>` : ''}
                 </div>
               </div>
             </div>
@@ -2046,8 +2070,8 @@ export default function TemplatePreview() {
     if (tpl?.label) setTemplateLabel(tpl.label.replace(/^[⭐🖼]\s*/, '').trim())
   }, [active])  // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Hero editor (Week 1 v2 id=5, Week 1 id=9) ────────────────────────────────
-  const isEditable = [5, 9].includes(tpl?.id)
+  // ── Hero editor — all week templates ─────────────────────────────────────────
+  const isEditable = [5, 9, 10, 11, 12, 13, 14].includes(tpl?.id)
   const [heroScale,   setHeroScale]   = useState(1)
   const [heroX,       setHeroX]       = useState(0)
   const [heroY,       setHeroY]       = useState(0)
@@ -2062,9 +2086,14 @@ export default function TemplatePreview() {
   // Reset slider defaults when switching between editable templates
   useEffect(() => {
     if (!isEditable) return
-    setHeroScale(1); setHeroX(0); setHeroY(0); setLogoColor('original')
-    if (tpl?.id === 5) { setTextSize(34); setTextTop(32);  setTextLeft(36);  setLogoTop(24);  setLogoRight(36);  setLogoSize(70) }
-    if (tpl?.id === 9) { setTextSize(22); setTextTop(110); setTextLeft(48);  setLogoTop(36);  setLogoRight(220); setLogoSize(56) }
+    setHeroScale(1); setHeroX(0); setHeroY(0)
+    if (tpl?.id === 5)  { setTextSize(34); setTextTop(32);  setTextLeft(36);  setLogoColor('original'); setLogoTop(24); setLogoRight(36);  setLogoSize(70) }
+    if (tpl?.id === 9)  { setTextSize(22); setTextTop(110); setTextLeft(48);  setLogoColor('original'); setLogoTop(36); setLogoRight(220); setLogoSize(56) }
+    if (tpl?.id === 10) { setTextSize(24); setTextTop(32);  setTextLeft(24);  setLogoColor('original'); setLogoTop(24); setLogoRight(200); setLogoSize(40) }
+    if (tpl?.id === 11) { setTextSize(40); setTextTop(40);  setTextLeft(48);  setLogoColor('white');    setLogoTop(36); setLogoRight(240); setLogoSize(44) }
+    if (tpl?.id === 12) { setTextSize(38); setTextTop(40);  setTextLeft(48);  setLogoColor('white');    setLogoTop(36); setLogoRight(240); setLogoSize(44) }
+    if (tpl?.id === 13) { setTextSize(52); setTextTop(32);  setTextLeft(36);  setLogoColor('white');    setLogoTop(28); setLogoRight(36);  setLogoSize(40) }
+    if (tpl?.id === 14) { setTextSize(46); setTextTop(32);  setTextLeft(36);  setLogoColor('original'); setLogoTop(28); setLogoRight(40);  setLogoSize(32) }
   }, [tpl?.id])  // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Week template image generation ───────────────────────────────────────────
@@ -2842,7 +2871,16 @@ export default function TemplatePreview() {
           </div>
 
           {/* Reset */}
-          <button onClick={() => { setHeroScale(1); setHeroX(0); setHeroY(0); setTextSize(34); setTextTop(32); setTextLeft(36); setLogoColor('original'); setLogoTop(24); setLogoRight(36); setLogoSize(70) }}
+          <button onClick={() => {
+            setHeroScale(1); setHeroX(0); setHeroY(0)
+            if (tpl?.id === 5)  { setTextSize(34); setTextTop(32);  setTextLeft(36);  setLogoColor('original'); setLogoTop(24); setLogoRight(36);  setLogoSize(70) }
+            if (tpl?.id === 9)  { setTextSize(22); setTextTop(110); setTextLeft(48);  setLogoColor('original'); setLogoTop(36); setLogoRight(220); setLogoSize(56) }
+            if (tpl?.id === 10) { setTextSize(24); setTextTop(32);  setTextLeft(24);  setLogoColor('original'); setLogoTop(24); setLogoRight(200); setLogoSize(40) }
+            if (tpl?.id === 11) { setTextSize(40); setTextTop(40);  setTextLeft(48);  setLogoColor('white');    setLogoTop(36); setLogoRight(240); setLogoSize(44) }
+            if (tpl?.id === 12) { setTextSize(38); setTextTop(40);  setTextLeft(48);  setLogoColor('white');    setLogoTop(36); setLogoRight(240); setLogoSize(44) }
+            if (tpl?.id === 13) { setTextSize(52); setTextTop(32);  setTextLeft(36);  setLogoColor('white');    setLogoTop(28); setLogoRight(36);  setLogoSize(40) }
+            if (tpl?.id === 14) { setTextSize(46); setTextTop(32);  setTextLeft(36);  setLogoColor('original'); setLogoTop(28); setLogoRight(40);  setLogoSize(32) }
+          }}
             style={{ fontSize: 11, color: dark ? 'rgba(255,255,255,0.3)' : '#9ca3af', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', textAlign: 'left', padding: 0 }}>
             Reset all
           </button>
