@@ -452,8 +452,8 @@ function buildTemplateWeek2({ client, copy, images, footerData, isHeroGenerated 
    ══════════════════════════════════════════════════════════════════════════ */
 function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated = false,
   heroScale=1, heroX=0, heroY=0,
-  textSize=40, textTop=200, textLeft=48,
-  logoColor='white', logoTop=36, logoRight=36, logoSize=44,
+  textSize=40, textTop=14, textLeft=52,
+  logoColor='white', logoTop=40, logoRight=36, logoSize=44,
 }) {
   const heroObj  = images?.[0]; const heroImg = heroObj?.url||''
   const img1Obj  = images?.[1]; const img1    = img1Obj?.url||''
@@ -521,8 +521,8 @@ function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated 
       : `<tr><td style="position:relative;line-height:0;font-size:0;padding:0;height:600px;overflow:hidden;background:#1a1a1a;border-radius:20px 20px 0 0;">
           ${heroImg ? `<img src="${heroImg}" alt="" style="width:100%;height:600px;object-fit:cover;display:block;border-radius:20px 20px 0 0;object-position:calc(50% + ${heroX}px) calc(50% + ${heroY}px);transform:scale(${heroScale});transform-origin:50% 50%;"/>` : `<div style="width:100%;height:600px;background:#2a2a2a;border-radius:20px 20px 0 0;"></div>`}
           <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.7) 0%,rgba(0,0,0,0.25) 40%,rgba(0,0,0,0) 62%);border-radius:20px 20px 0 0;">
-            <div style="position:absolute;top:${logoTop}px;right:${logoRight}px;overflow:hidden;">${logoHtml}</div>
-            <div style="position:absolute;top:${textTop}px;left:${textLeft}px;right:${textLeft}px;text-align:center;">
+            <div style="text-align:center;padding:${logoTop}px 48px 0;">${logoHtml}</div>
+            <div style="text-align:center;padding:${textTop}px ${textLeft}px 0;">
               <div style="font-family:'Playfair Display',Georgia,serif;font-size:${textSize}px;font-weight:600;line-height:1.12;color:#fff;text-shadow:0 2px 20px rgba(0,0,0,0.4);">${copy.headlineText||''}</div>
             </div>
           </div>
@@ -1516,7 +1516,7 @@ function w4Card({ imgUrl, imgObj, bodyText, isLast }) {
 
 function buildTemplateWeek4({ client, copy, images, footerData, isHeroGenerated = false,
   heroScale=1, heroX=0, heroY=0,
-  textSize=38, textTop=120, textLeft=48,
+  textSize=38, textTop=20, textLeft=48,
   logoColor='white', logoTop=40, logoRight=36, logoSize=44,
 }) {
   // images[0] = hero (or hero PNG when generated), images[1-3] = card photos
@@ -1577,8 +1577,8 @@ function buildTemplateWeek4({ client, copy, images, footerData, isHeroGenerated 
         ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:560px;height:720px;object-fit:cover;object-position:calc(50% + ${heroX}px) calc(50% + ${heroY}px);transform:scale(${heroScale});transform-origin:50% 50%;display:block;"/>` : ''}
         <!-- dark gradient top-down -->
         <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.78) 0%,rgba(0,0,0,0.38) 45%,rgba(0,0,0,0.05) 75%,rgba(0,0,0,0) 100%);">
-          <div style="position:absolute;top:${logoTop}px;right:${logoRight}px;overflow:hidden;">${logoHeroHtml}</div>
-          <div style="position:absolute;top:${textTop}px;left:${textLeft}px;right:${textLeft}px;text-align:center;">
+          <div style="text-align:center;padding-top:${logoTop}px;">${logoHeroHtml}</div>
+          <div style="text-align:center;padding:${textTop}px ${textLeft}px 0;">
             <div style="font-family:Georgia,'Times New Roman',serif;font-size:${textSize}px;font-weight:700;line-height:1.12;color:#fff;">${copy.headlineText||''}</div>
           </div>
         </div>
@@ -2090,8 +2090,8 @@ export default function TemplatePreview() {
     if (tpl?.id === 5)  { setTextSize(34); setTextTop(32);  setTextLeft(36);  setLogoColor('original'); setLogoTop(24); setLogoRight(36);  setLogoSize(70) }
     if (tpl?.id === 9)  { setTextSize(22); setTextTop(110); setTextLeft(48);  setLogoColor('original'); setLogoTop(36); setLogoRight(220); setLogoSize(56) }
     if (tpl?.id === 10) { setTextSize(24); setTextTop(32);  setTextLeft(24);  setLogoColor('original'); setLogoTop(24); setLogoRight(200); setLogoSize(40) }
-    if (tpl?.id === 11) { setTextSize(40); setTextTop(200); setTextLeft(48);  setLogoColor('white');    setLogoTop(36); setLogoRight(36);  setLogoSize(44) }
-    if (tpl?.id === 12) { setTextSize(38); setTextTop(120); setTextLeft(48);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
+    if (tpl?.id === 11) { setTextSize(40); setTextTop(14);  setTextLeft(52);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
+    if (tpl?.id === 12) { setTextSize(38); setTextTop(20);  setTextLeft(48);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
     if (tpl?.id === 13) { setTextSize(52); setTextTop(32);  setTextLeft(36);  setLogoColor('white');    setLogoTop(28); setLogoRight(36);  setLogoSize(40) }
     if (tpl?.id === 14) { setTextSize(46); setTextTop(32);  setTextLeft(36);  setLogoColor('original'); setLogoTop(28); setLogoRight(40);  setLogoSize(32) }
   }, [tpl?.id])  // eslint-disable-line react-hooks/exhaustive-deps
@@ -2876,8 +2876,8 @@ export default function TemplatePreview() {
             if (tpl?.id === 5)  { setTextSize(34); setTextTop(32);  setTextLeft(36);  setLogoColor('original'); setLogoTop(24); setLogoRight(36);  setLogoSize(70) }
             if (tpl?.id === 9)  { setTextSize(22); setTextTop(110); setTextLeft(48);  setLogoColor('original'); setLogoTop(36); setLogoRight(220); setLogoSize(56) }
             if (tpl?.id === 10) { setTextSize(24); setTextTop(32);  setTextLeft(24);  setLogoColor('original'); setLogoTop(24); setLogoRight(200); setLogoSize(40) }
-            if (tpl?.id === 11) { setTextSize(40); setTextTop(200); setTextLeft(48);  setLogoColor('white');    setLogoTop(36); setLogoRight(36);  setLogoSize(44) }
-            if (tpl?.id === 12) { setTextSize(38); setTextTop(120); setTextLeft(48);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
+            if (tpl?.id === 11) { setTextSize(40); setTextTop(14);  setTextLeft(52);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
+            if (tpl?.id === 12) { setTextSize(38); setTextTop(20);  setTextLeft(48);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
             if (tpl?.id === 13) { setTextSize(52); setTextTop(32);  setTextLeft(36);  setLogoColor('white');    setLogoTop(28); setLogoRight(36);  setLogoSize(40) }
             if (tpl?.id === 14) { setTextSize(46); setTextTop(32);  setTextLeft(36);  setLogoColor('original'); setLogoTop(28); setLogoRight(40);  setLogoSize(32) }
           }}
