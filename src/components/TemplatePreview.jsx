@@ -356,8 +356,8 @@ function buildTemplateWeek2({ client, copy, images, footerData, isHeroGenerated 
   const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
 
   const logoOverlay = logoUrl
-    ? `<img src="${logoUrl}" alt="${client?.name||''}" style="display:block;height:${logoSize}px;width:auto;max-width:160px;margin:0 auto 10px;filter:${logoFilter};"/>`
-    : `<div style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:#fff;margin-bottom:10px;">${client?.name||''}</div>`
+    ? `<img src="${logoUrl}" alt="${client?.name||''}" style="display:inline-block;height:${logoSize}px;width:auto;max-width:${logoSize * 6}px;filter:${logoFilter};"/>`
+    : `<div style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:#1a1a1a;margin-bottom:10px;">${client?.name||''}</div>`
 
   return `<!DOCTYPE html><html lang="en" style="color-scheme:light"><head><meta charset="UTF-8"/>
 <meta name="color-scheme" content="light">
@@ -376,7 +376,7 @@ function buildTemplateWeek2({ client, copy, images, footerData, isHeroGenerated 
 <div class="wrap" style="max-width:600px;margin:0 auto 48px;background:${midBg}!important;overflow:hidden;">
 
   <!-- LOGO HEADER (always above arch) -->
-  <div style="padding:32px 32px 18px;text-align:center;background:${midBg}!important;">${logoOverlay}</div>
+  <div style="padding:${logoTop}px 32px 18px;text-align:center;background:${midBg}!important;">${logoOverlay}</div>
 
   <!-- HERO: generated composite PNG (logo+arch+text baked in) or CSS fallback for preview -->
   ${isHeroGenerated
@@ -2086,7 +2086,7 @@ export default function TemplatePreview() {
   useEffect(() => {
     if (!isEditable) return
     setHeroScale(1); setHeroX(0); setHeroY(0)
-    if (tpl?.id === 10) { setTextSize(24); setTextTop(32);  setTextLeft(24);  setLogoColor('original'); setLogoTop(24); setLogoRight(200); setLogoSize(40) }
+    if (tpl?.id === 10) { setTextSize(24); setTextTop(32);  setTextLeft(24);  setLogoColor('original'); setLogoTop(32); setLogoRight(200); setLogoSize(40) }
     if (tpl?.id === 11) { setTextSize(40); setTextTop(14);  setTextLeft(52);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
     if (tpl?.id === 12) { setTextSize(38); setTextTop(20);  setTextLeft(48);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
     if (tpl?.id === 13) { setTextSize(52); setTextTop(32);  setTextLeft(36);  setLogoColor('white');    setLogoTop(28); setLogoRight(36);  setLogoSize(40) }
@@ -2959,7 +2959,7 @@ export default function TemplatePreview() {
           <div style={{ height: 1, background: dark ? 'rgba(255,255,255,0.07)' : '#f0f1f3', margin: '12px 0 8px' }} />
           <button onClick={() => {
             setHeroScale(1); setHeroX(0); setHeroY(0)
-            if (tpl?.id === 10) { setTextSize(24); setTextTop(32);  setTextLeft(24);  setLogoColor('original'); setLogoTop(24); setLogoRight(200); setLogoSize(40) }
+            if (tpl?.id === 10) { setTextSize(24); setTextTop(32);  setTextLeft(24);  setLogoColor('original'); setLogoTop(32); setLogoRight(200); setLogoSize(40) }
             if (tpl?.id === 11) { setTextSize(40); setTextTop(14);  setTextLeft(52);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
             if (tpl?.id === 12) { setTextSize(38); setTextTop(20);  setTextLeft(48);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
             if (tpl?.id === 13) { setTextSize(52); setTextTop(32);  setTextLeft(36);  setLogoColor('white');    setLogoTop(28); setLogoRight(36);  setLogoSize(40) }
