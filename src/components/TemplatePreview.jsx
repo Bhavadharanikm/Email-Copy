@@ -2080,6 +2080,7 @@ export default function TemplatePreview() {
   const [logoTop,     setLogoTop]     = useState(24)
   const [logoRight,   setLogoRight]   = useState(36)
   const [logoSize,    setLogoSize]    = useState(70)
+  const [editorSection, setEditorSection] = useState(null) // 'image' | 'headline' | 'logo' | null
 
   // Reset slider defaults when switching between editable templates
   useEffect(() => {
@@ -2815,7 +2816,7 @@ export default function TemplatePreview() {
                   <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
                 </svg>
               ),
-              label: 'Image', color: '#2563eb', bg: dark ? 'rgba(37,99,235,0.15)' : '#eff6ff',
+              key: 'image', label: 'Image', color: '#2563eb', bg: dark ? 'rgba(37,99,235,0.15)' : '#eff6ff',
               controls: [
                 { name: 'Pan X', min: -200, max: 200, step: 4, val: heroX,     set: setHeroX,     unit: 'px' },
                 { name: 'Pan Y', min: -200, max: 200, step: 4, val: heroY,     set: setHeroY,     unit: 'px' },
@@ -2828,7 +2829,7 @@ export default function TemplatePreview() {
                   <polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/>
                 </svg>
               ),
-              label: 'Headline', color: '#059669', bg: dark ? 'rgba(5,150,105,0.15)' : '#ecfdf5',
+              key: 'headline', label: 'Headline', color: '#059669', bg: dark ? 'rgba(5,150,105,0.15)' : '#ecfdf5',
               controls: [
                 { name: 'Size',  min: 18, max: 56,  step: 1, val: textSize, set: setTextSize, unit: 'px' },
                 { name: 'Top',   min: 10, max: 500, step: 4, val: textTop,  set: setTextTop,  unit: 'px' },
@@ -2837,17 +2838,27 @@ export default function TemplatePreview() {
             },
           ].map((section, si) => (
             <div key={section.label} style={{ marginBottom: 4 }}>
-              {/* Section pill */}
-              <div style={{
-                display: 'inline-flex', alignItems: 'center', gap: 5,
-                background: section.bg, color: section.color,
-                borderRadius: 20, padding: '3px 10px 3px 8px',
-                fontSize: 10, fontWeight: 700, letterSpacing: '0.04em',
-                textTransform: 'uppercase', marginBottom: 10, marginTop: si === 0 ? 0 : 4,
-              }}>
-                {section.icon} {section.label}
+              {/* Section pill — clickable accordion toggle */}
+              <div onClick={() => setEditorSection(s => s === section.key ? null : section.key)}
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  background: editorSection === section.key ? section.bg : (dark ? 'rgba(255,255,255,0.04)' : '#f9fafb'),
+                  color: editorSection === section.key ? section.color : (dark ? '#9ca3af' : '#6b7280'),
+                  borderRadius: 10, padding: '7px 10px',
+                  fontSize: 11, fontWeight: 700, letterSpacing: '0.04em',
+                  textTransform: 'uppercase', marginBottom: editorSection === section.key ? 10 : 0,
+                  marginTop: si === 0 ? 0 : 4,
+                  cursor: 'pointer', userSelect: 'none',
+                  border: `1.5px solid ${editorSection === section.key ? section.color + '44' : (dark ? 'rgba(255,255,255,0.07)' : '#e8eaed')}`,
+                  transition: 'all 0.15s',
+                }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>{section.icon} {section.label}</span>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"
+                  style={{ transform: editorSection === section.key ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
               </div>
-              {section.controls.map(ctrl => (
+              {editorSection === section.key && section.controls.map(ctrl => (
                 <div key={ctrl.name} style={{ marginBottom: 8 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
                     <span style={{ fontSize: 11, color: dark ? '#9ca3af' : '#6b7280', fontWeight: 500 }}>{ctrl.name}</span>
@@ -2869,69 +2880,79 @@ export default function TemplatePreview() {
             </div>
           ))}
 
-          {/* Divider */}
-          <div style={{ height: 1, background: dark ? 'rgba(255,255,255,0.07)' : '#f0f1f3', margin: '4px 0 8px' }} />
-
-          {/* Logo section */}
-          <div>
-            <div style={{
-              display: 'inline-flex', alignItems: 'center', gap: 5,
-              background: dark ? 'rgba(245,158,11,0.15)' : '#fffbeb', color: '#d97706',
-              borderRadius: 20, padding: '3px 10px 3px 8px',
-              fontSize: 10, fontWeight: 700, letterSpacing: '0.04em',
-              textTransform: 'uppercase', marginBottom: 10,
-            }}>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"/>
+          {/* Logo section — accordion */}
+          <div style={{ marginTop: 4 }}>
+            <div onClick={() => setEditorSection(s => s === 'logo' ? null : 'logo')}
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                background: editorSection === 'logo' ? (dark ? 'rgba(245,158,11,0.15)' : '#fffbeb') : (dark ? 'rgba(255,255,255,0.04)' : '#f9fafb'),
+                color: editorSection === 'logo' ? '#d97706' : (dark ? '#9ca3af' : '#6b7280'),
+                borderRadius: 10, padding: '7px 10px',
+                fontSize: 11, fontWeight: 700, letterSpacing: '0.04em',
+                textTransform: 'uppercase', marginBottom: editorSection === 'logo' ? 10 : 0,
+                cursor: 'pointer', userSelect: 'none',
+                border: `1.5px solid ${editorSection === 'logo' ? '#d9770644' : (dark ? 'rgba(255,255,255,0.07)' : '#e8eaed')}`,
+                transition: 'all 0.15s',
+              }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"/>
+                </svg>
+                Logo
+              </span>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"
+                style={{ transform: editorSection === 'logo' ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+                <polyline points="6 9 12 15 18 9"/>
               </svg>
-              Logo
             </div>
-            {[
-              { name: 'Size',  min: 20, max: 160, step: 2,  val: logoSize,  set: setLogoSize,  unit: 'px' },
-              { name: 'Top',   min: 0,  max: 500, step: 4,  val: logoTop,   set: setLogoTop,   unit: 'px' },
-              { name: 'Right', min: 0,  max: 580, step: 4,  val: logoRight, set: setLogoRight, unit: 'px' },
-            ].map(ctrl => (
-              <div key={ctrl.name} style={{ marginBottom: 8 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
-                  <span style={{ fontSize: 11, color: dark ? '#9ca3af' : '#6b7280', fontWeight: 500 }}>{ctrl.name}</span>
-                  <span style={{
-                    fontSize: 10, fontWeight: 600,
-                    background: dark ? 'rgba(255,255,255,0.08)' : '#f3f4f6',
-                    color: dark ? '#e5e7eb' : '#374151',
-                    borderRadius: 5, padding: '1px 6px',
-                  }}>
-                    {ctrl.val}{ctrl.unit}
-                  </span>
-                </div>
-                <input type="range" min={ctrl.min} max={ctrl.max} step={ctrl.step} value={ctrl.val}
-                  onChange={e => ctrl.set(Number(e.target.value))}
-                  style={{ width: '100%', accentColor: '#d97706', cursor: 'pointer', height: 3 }}
-                />
-              </div>
-            ))}
-
-            {/* Color tint row */}
-            <div style={{ fontSize: 10, fontWeight: 600, color: dark ? '#9ca3af' : '#6b7280', marginBottom: 6, marginTop: 2 }}>Color tint</div>
-            <div style={{ display: 'flex', gap: 5 }}>
+            {editorSection === 'logo' && <>
               {[
-                { key: 'original', label: 'Original', bg: dark ? '#2d2d2d' : '#f9fafb', fg: dark ? '#d1d5db' : '#374151', dot: null },
-                { key: 'white',    label: 'White',    bg: '#1f1f1f',  fg: '#fff',     dot: '#fff' },
-                { key: 'black',    label: 'Black',    bg: '#f5f5f5',  fg: '#000',     dot: '#000' },
-              ].map(c => (
-                <button key={c.key} onClick={() => setLogoColor(c.key)} style={{
-                  flex: 1, padding: '6px 0', borderRadius: 8, fontSize: 10, fontWeight: 600,
-                  cursor: 'pointer',
-                  border: `1.5px solid ${logoColor === c.key ? '#d97706' : (dark ? 'rgba(255,255,255,0.1)' : '#e5e7eb')}`,
-                  background: logoColor === c.key ? (dark ? 'rgba(217,119,6,0.15)' : '#fffbeb') : c.bg,
-                  color: logoColor === c.key ? '#d97706' : c.fg,
-                  transition: 'all 0.15s',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
-                }}>
-                  {c.dot && <span style={{ width: 7, height: 7, borderRadius: '50%', background: c.dot, border: '1px solid rgba(128,128,128,0.3)', flexShrink: 0 }} />}
-                  {c.label}
-                </button>
+                { name: 'Size',  min: 20, max: 160, step: 2,  val: logoSize,  set: setLogoSize,  unit: 'px' },
+                { name: 'Top',   min: 0,  max: 500, step: 4,  val: logoTop,   set: setLogoTop,   unit: 'px' },
+                { name: 'Right', min: 0,  max: 580, step: 4,  val: logoRight, set: setLogoRight, unit: 'px' },
+              ].map(ctrl => (
+                <div key={ctrl.name} style={{ marginBottom: 8 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
+                    <span style={{ fontSize: 11, color: dark ? '#9ca3af' : '#6b7280', fontWeight: 500 }}>{ctrl.name}</span>
+                    <span style={{
+                      fontSize: 10, fontWeight: 600,
+                      background: dark ? 'rgba(255,255,255,0.08)' : '#f3f4f6',
+                      color: dark ? '#e5e7eb' : '#374151',
+                      borderRadius: 5, padding: '1px 6px',
+                    }}>
+                      {ctrl.val}{ctrl.unit}
+                    </span>
+                  </div>
+                  <input type="range" min={ctrl.min} max={ctrl.max} step={ctrl.step} value={ctrl.val}
+                    onChange={e => ctrl.set(Number(e.target.value))}
+                    style={{ width: '100%', accentColor: '#d97706', cursor: 'pointer', height: 3 }}
+                  />
+                </div>
               ))}
-            </div>
+
+              {/* Color tint row */}
+              <div style={{ fontSize: 10, fontWeight: 600, color: dark ? '#9ca3af' : '#6b7280', marginBottom: 6, marginTop: 2 }}>Color tint</div>
+              <div style={{ display: 'flex', gap: 5 }}>
+                {[
+                  { key: 'original', label: 'Original', bg: dark ? '#2d2d2d' : '#f9fafb', fg: dark ? '#d1d5db' : '#374151', dot: null },
+                  { key: 'white',    label: 'White',    bg: '#1f1f1f',  fg: '#fff',     dot: '#fff' },
+                  { key: 'black',    label: 'Black',    bg: '#f5f5f5',  fg: '#000',     dot: '#000' },
+                ].map(c => (
+                  <button key={c.key} onClick={() => setLogoColor(c.key)} style={{
+                    flex: 1, padding: '6px 0', borderRadius: 8, fontSize: 10, fontWeight: 600,
+                    cursor: 'pointer',
+                    border: `1.5px solid ${logoColor === c.key ? '#d97706' : (dark ? 'rgba(255,255,255,0.1)' : '#e5e7eb')}`,
+                    background: logoColor === c.key ? (dark ? 'rgba(217,119,6,0.15)' : '#fffbeb') : c.bg,
+                    color: logoColor === c.key ? '#d97706' : c.fg,
+                    transition: 'all 0.15s',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
+                  }}>
+                    {c.dot && <span style={{ width: 7, height: 7, borderRadius: '50%', background: c.dot, border: '1px solid rgba(128,128,128,0.3)', flexShrink: 0 }} />}
+                    {c.label}
+                  </button>
+                ))}
+              </div>
+            </>}
           </div>
 
           {/* Divider + Reset */}
