@@ -1775,14 +1775,14 @@ function buildTemplateWeek5({ client, copy, images, footerData, isHeroGenerated 
     <tr><td style="padding:28px 0 0;background:${cardBg}!important;">
       <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
 
-        <!-- Row 1: wide left | narrow right -->
+        <!-- Row 1: narrow left | wide right -->
         <tr>
-          <td style="width:62%;padding-right:6px;vertical-align:top;line-height:0;font-size:0;">
+          <td style="width:38%;padding-right:6px;vertical-align:top;line-height:0;font-size:0;">
             ${gridImgs[0].url
               ? `<img src="${gridImgs[0].url}" alt="" style="width:100%;height:262px;object-fit:cover;display:block;border-radius:0;object-position:${focalPos(gridImgs[0].obj)};"/>`
               : `<div style="width:100%;height:262px;background:#e8e4de;border-radius:0;"></div>`}
           </td>
-          <td style="width:38%;padding-left:6px;vertical-align:top;line-height:0;font-size:0;">
+          <td style="width:62%;padding-left:6px;vertical-align:top;line-height:0;font-size:0;">
             ${gridImgs[1].url
               ? `<img src="${gridImgs[1].url}" alt="" style="width:100%;height:262px;object-fit:cover;display:block;border-radius:0;object-position:${focalPos(gridImgs[1].obj)};"/>`
               : `<div style="width:100%;height:262px;background:#e8e4de;border-radius:0;"></div>`}
@@ -1792,7 +1792,7 @@ function buildTemplateWeek5({ client, copy, images, footerData, isHeroGenerated 
         <!-- Row gap -->
         <tr><td colspan="2" style="padding-top:8px;line-height:0;font-size:0;"></td></tr>
 
-        <!-- Row 2: wide left | narrow right -->
+        <!-- Row 2: wide left | narrow right (zigzag) -->
         <tr>
           <td style="width:62%;padding-right:6px;vertical-align:top;line-height:0;font-size:0;">
             ${gridImgs[3].url
