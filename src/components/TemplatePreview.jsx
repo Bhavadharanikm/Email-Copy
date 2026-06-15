@@ -1777,15 +1777,15 @@ function buildTemplateWeek5({ client, copy, images, footerData, isHeroGenerated 
 
         <!-- Row 1: narrow left | wide right -->
         <tr>
-          <td style="width:38%;padding-right:6px;vertical-align:top;line-height:0;font-size:0;">
+          <td width="222" style="width:222px;padding-right:6px;vertical-align:top;line-height:0;font-size:0;">
             ${gridImgs[0].url
-              ? `<img src="${gridImgs[0].url}" alt="" style="width:100%;height:262px;object-fit:cover;display:block;border-radius:0;object-position:${focalPos(gridImgs[0].obj)};"/>`
-              : `<div style="width:100%;height:262px;background:#e8e4de;border-radius:0;"></div>`}
+              ? `<img src="${gridImgs[0].url}" alt="" width="222" style="width:222px;height:262px;object-fit:cover;display:block;border-radius:0;object-position:${focalPos(gridImgs[0].obj)};"/>`
+              : `<div style="width:222px;height:262px;background:#e8e4de;border-radius:0;"></div>`}
           </td>
-          <td style="width:62%;padding-left:6px;vertical-align:top;line-height:0;font-size:0;">
+          <td width="372" style="width:372px;padding-left:6px;vertical-align:top;line-height:0;font-size:0;">
             ${gridImgs[1].url
-              ? `<img src="${gridImgs[1].url}" alt="" style="width:100%;height:262px;object-fit:cover;display:block;border-radius:0;object-position:${focalPos(gridImgs[1].obj)};"/>`
-              : `<div style="width:100%;height:262px;background:#e8e4de;border-radius:0;"></div>`}
+              ? `<img src="${gridImgs[1].url}" alt="" width="372" style="width:372px;height:262px;object-fit:cover;display:block;border-radius:0;object-position:${focalPos(gridImgs[1].obj)};"/>`
+              : `<div style="width:372px;height:262px;background:#e8e4de;border-radius:0;"></div>`}
           </td>
         </tr>
 
