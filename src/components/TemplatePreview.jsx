@@ -2038,7 +2038,7 @@ const TEMPLATES = [
 ]
 
 /* ─────────────────────────── component ─────────────────────────────────── */
-export default function TemplatePreview() {
+export default function TemplatePreview({ pulseGenBtn = false }) {
   const [active, setActive] = useState(0)
   const [zoom,   setZoom]   = useState(1)
   const { theme } = useTheme()
@@ -2655,10 +2655,23 @@ export default function TemplatePreview() {
         })}
       </div>
 
-      {/* Generate Images button — Week 1, Week 1 v2, Week 2 */}
+      {/* Generate Images button — all week templates */}
       {isWeekTemplate && (
+        <>
+        <style>{`
+          @keyframes hb-pulse {
+            0%   { transform: scale(1); }
+            25%  { transform: scale(1.12); box-shadow: 0 4px 20px rgba(212,0,106,0.55); }
+            50%  { transform: scale(1); }
+            75%  { transform: scale(1.12); box-shadow: 0 4px 20px rgba(212,0,106,0.55); }
+            100% { transform: scale(1); }
+          }
+          .gen-btn-pulse { animation: hb-pulse 0.6s ease-in-out 3; }
+        `}</style>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
           <button
+            key={pulseGenBtn ? 'pulse' : 'idle'}
+            className={pulseGenBtn ? 'gen-btn-pulse' : ''}
             onClick={() => setWeekGenTrigger(t => t + 1)}
             disabled={weekGenLoading}
             style={{
@@ -2687,6 +2700,7 @@ export default function TemplatePreview() {
             </span>
           )}
         </div>
+        </>
       )}
 
       {/* Header + Image style pickers + AI button — only for Hero Header */}

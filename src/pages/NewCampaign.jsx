@@ -2,6 +2,7 @@
  * NewCampaign — simplified wizard
  * Steps: 1 Prompt → 2 Copy → 3 Images → 4 Preview → 5 Approve
  */
+import { useState } from 'react'
 import { useCampaignStore } from '../store/campaignStore'
 import { useCopyGeneration } from '../hooks/useCopyGeneration'
 import { logToSheets } from '../lib/api'
@@ -127,6 +128,24 @@ export default function NewCampaign() {
     await generate({ client: selectedClient, prompt })
   }
 
+  const [showApproveModal, setShowApproveModal] = useState(false)
+  const [pulseGenBtn, setPulseGenBtn] = useState(false)
+
+  function handleApprovClick() {
+    setShowApproveModal(true)
+  }
+
+  function handleApproveYes() {
+    setShowApproveModal(false)
+    setStep(5)
+  }
+
+  function handleApproveNo() {
+    setShowApproveModal(false)
+    setPulseGenBtn(true)
+    setTimeout(() => setPulseGenBtn(false), 1800)
+  }
+
   const isWideStep = currentStep === 2 || currentStep === 3 || currentStep === 4
 
   return (
@@ -178,7 +197,7 @@ export default function NewCampaign() {
       />}
       {currentStep === 4 && <StepNav step="Step 4 of 5" dark={dark}
         left={<button onClick={() => setStep(3)} className="btn-secondary" style={darkBtn(dark)}>← Back</button>}
-        right={<button onClick={() => setStep(5)} style={{ ...primaryBtn(dark), display:'inline-flex', alignItems:'center', gap:6, padding:'9px 18px', borderRadius:10, fontSize:13, fontWeight:600, fontFamily:'Inter,sans-serif', cursor:'pointer' }}>Looks Good — Approve →</button>}
+        right={<button onClick={handleApprovClick} style={{ ...primaryBtn(dark), display:'inline-flex', alignItems:'center', gap:6, padding:'9px 18px', borderRadius:10, fontSize:13, fontWeight:600, fontFamily:'Inter,sans-serif', cursor:'pointer' }}>Looks Good — Approve →</button>}
       />}
       {currentStep === 5 && <StepNav step="Step 5 of 5" dark={dark}
         left={<button onClick={() => setStep(4)} className="btn-secondary" style={darkBtn(dark)}>← Back to Preview</button>}
@@ -215,7 +234,7 @@ export default function NewCampaign() {
 
         {currentStep === 4 && <>
           <StepHeading title1="Live" title2="Preview" sub="This is not an actual template — just a visual overview of your content." dark={dark} />
-          <TemplatePreview />
+          <TemplatePreview pulseGenBtn={pulseGenBtn} />
           <div style={{ paddingBottom: 48 }} />
         </>}
 
@@ -228,6 +247,65 @@ export default function NewCampaign() {
         </>}
 
       </div>
+
+      {/* ── Did you generate images? confirmation modal ── */}
+      {showApproveModal && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 1000,
+          background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(4px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}
+          onClick={() => setShowApproveModal(false)}
+        >
+          <div onClick={e => e.stopPropagation()} style={{
+            background: dark ? '#1e1e1e' : '#fff',
+            border: `1px solid ${dark ? 'rgba(255,255,255,0.1)' : '#e5e7eb'}`,
+            borderRadius: 20,
+            padding: '32px 28px 24px',
+            width: 340,
+            boxShadow: '0 24px 64px rgba(0,0,0,0.22)',
+            fontFamily: 'Inter, system-ui, sans-serif',
+            textAlign: 'center',
+          }}>
+            {/* Icon */}
+            <div style={{
+              width: 52, height: 52, borderRadius: '50%', margin: '0 auto 16px',
+              background: dark ? 'rgba(59,130,246,0.15)' : '#eff6ff',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={dark ? '#60a5fa' : '#3b82f6'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+            </div>
+            <div style={{ fontSize: 17, fontWeight: 700, color: dark ? '#f3f4f6' : '#111827', marginBottom: 8 }}>
+              Did you generate the images?
+            </div>
+            <div style={{ fontSize: 13, color: dark ? '#9ca3af' : '#6b7280', marginBottom: 24, lineHeight: 1.5 }}>
+              Make sure you hit <strong style={{ color: dark ? '#f3f4f6' : '#374151' }}>Generate Images</strong> before approving so your email looks its best.
+            </div>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button onClick={handleApproveNo} style={{
+                flex: 1, padding: '10px 0', borderRadius: 10, fontSize: 13, fontWeight: 600,
+                cursor: 'pointer',
+                border: `1.5px solid ${dark ? 'rgba(255,255,255,0.12)' : '#e5e7eb'}`,
+                background: dark ? 'rgba(255,255,255,0.05)' : '#f9fafb',
+                color: dark ? '#d1d5db' : '#374151',
+              }}>
+                No, go back
+              </button>
+              <button onClick={handleApproveYes} style={{
+                flex: 1, padding: '10px 0', borderRadius: 10, fontSize: 13, fontWeight: 600,
+                cursor: 'pointer', border: 'none',
+                background: 'linear-gradient(135deg,#3b82f6,#6366f1)',
+                color: '#fff',
+                boxShadow: '0 4px 14px rgba(99,102,241,0.35)',
+              }}>
+                Yes, approve →
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
