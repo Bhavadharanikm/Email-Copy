@@ -2068,6 +2068,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
   const [logoRight,   setLogoRight]   = useState(36)
   const [logoSize,    setLogoSize]    = useState(70)
   const [editorSection, setEditorSection] = useState(null) // 'image' | 'headline' | 'logo' | null
+  const [editorOpen,    setEditorOpen]    = useState(true)
 
   // Reset slider defaults when switching between editable templates
   useEffect(() => {
@@ -2781,6 +2782,24 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
 
       {/* ── Editor side panel — Canva-style, floats left ── */}
       {isEditable && (
+        <>
+        {/* Collapsed: small floating toggle button */}
+        {!editorOpen && (
+          <button onClick={() => setEditorOpen(true)} title="Adjust Design" style={{
+            position: 'fixed', left: 28, top: 280, zIndex: 100,
+            width: 38, height: 38, borderRadius: 10, border: 'none',
+            background: dark ? '#1e1e1e' : '#fff',
+            boxShadow: dark ? '0 4px 16px rgba(0,0,0,0.5)' : '0 4px 16px rgba(0,0,0,0.12)',
+            cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={dark ? '#a78bfa' : '#7c3aed'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+            </svg>
+          </button>
+        )}
+
+        {/* Expanded panel */}
+        {editorOpen && (
         <div style={{
           position: 'fixed', left: 28, top: 280,
           width: 220, zIndex: 100,
@@ -2797,14 +2816,27 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
           <div style={{
             padding: '12px 16px 10px',
             borderBottom: `1px solid ${dark ? 'rgba(255,255,255,0.07)' : '#f0f1f3'}`,
-            display: 'flex', alignItems: 'center', gap: 8,
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           }}>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={dark ? '#a78bfa' : '#7c3aed'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-            </svg>
-            <span style={{ fontSize: 12, fontWeight: 700, color: dark ? '#e5e7eb' : '#111827', letterSpacing: '-0.01em' }}>
-              Adjust Design
-            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={dark ? '#a78bfa' : '#7c3aed'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+              </svg>
+              <span style={{ fontSize: 12, fontWeight: 700, color: dark ? '#e5e7eb' : '#111827', letterSpacing: '-0.01em' }}>
+                Adjust Design
+              </span>
+            </div>
+            {/* Collapse button */}
+            <button onClick={() => setEditorOpen(false)} title="Hide panel" style={{
+              background: 'none', border: 'none', cursor: 'pointer', padding: 2,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: dark ? 'rgba(255,255,255,0.3)' : '#9ca3af',
+              borderRadius: 4,
+            }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                <polyline points="15 18 9 12 15 6"/>
+              </svg>
+            </button>
           </div>
 
           <div style={{ padding: '10px 16px 16px', display: 'flex', flexDirection: 'column', gap: 0 }}>
@@ -2982,6 +3014,8 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
 
           </div>
         </div>
+        )}
+        </>
       )}
 
       {/* Browser chrome + iframe */}
