@@ -1777,32 +1777,32 @@ function buildTemplateWeek5({ client, copy, images, footerData, isHeroGenerated 
 
         <!-- Row 1: narrow left | wide right -->
         <tr>
-          <td width="222" style="width:222px;padding-right:6px;vertical-align:top;line-height:0;font-size:0;">
+          <td width="228" style="width:228px;vertical-align:top;line-height:0;font-size:0;padding-right:4px;">
             ${gridImgs[0].url
-              ? `<img src="${gridImgs[0].url}" alt="" width="222" style="width:222px;height:262px;object-fit:cover;display:block;border-radius:0;object-position:${focalPos(gridImgs[0].obj)};"/>`
-              : `<div style="width:222px;height:262px;background:#e8e4de;border-radius:0;"></div>`}
+              ? `<img src="${gridImgs[0].url}" alt="" style="width:100%;height:262px;object-fit:cover;display:block;border-radius:0;object-position:${focalPos(gridImgs[0].obj)};"/>`
+              : `<div style="width:100%;height:262px;background:#e8e4de;border-radius:0;"></div>`}
           </td>
-          <td width="372" style="width:372px;padding-left:6px;vertical-align:top;line-height:0;font-size:0;">
+          <td width="368" style="width:368px;vertical-align:top;line-height:0;font-size:0;padding-left:4px;">
             ${gridImgs[1].url
-              ? `<img src="${gridImgs[1].url}" alt="" width="372" style="width:372px;height:262px;object-fit:cover;display:block;border-radius:0;object-position:${focalPos(gridImgs[1].obj)};"/>`
-              : `<div style="width:372px;height:262px;background:#e8e4de;border-radius:0;"></div>`}
+              ? `<img src="${gridImgs[1].url}" alt="" style="width:100%;height:262px;object-fit:cover;display:block;border-radius:0;object-position:${focalPos(gridImgs[1].obj)};"/>`
+              : `<div style="width:100%;height:262px;background:#e8e4de;border-radius:0;"></div>`}
           </td>
         </tr>
 
         <!-- Row gap -->
-        <tr><td colspan="2" style="padding-top:8px;line-height:0;font-size:0;"></td></tr>
+        <tr><td colspan="2" style="padding-top:6px;line-height:0;font-size:0;"></td></tr>
 
         <!-- Row 2: wide left | narrow right (zigzag) -->
         <tr>
-          <td width="372" style="width:372px;padding-right:6px;vertical-align:top;line-height:0;font-size:0;">
+          <td width="368" style="width:368px;vertical-align:top;line-height:0;font-size:0;padding-right:4px;">
             ${gridImgs[3].url
-              ? `<img src="${gridImgs[3].url}" alt="" width="372" style="width:372px;height:262px;object-fit:cover;display:block;border-radius:0;object-position:${focalPos(gridImgs[3].obj)};"/>`
-              : `<div style="width:372px;height:262px;background:#e8e4de;border-radius:0;"></div>`}
+              ? `<img src="${gridImgs[3].url}" alt="" style="width:100%;height:262px;object-fit:cover;display:block;border-radius:0;object-position:${focalPos(gridImgs[3].obj)};"/>`
+              : `<div style="width:100%;height:262px;background:#e8e4de;border-radius:0;"></div>`}
           </td>
-          <td width="222" style="width:222px;padding-left:6px;vertical-align:top;line-height:0;font-size:0;">
+          <td width="228" style="width:228px;vertical-align:top;line-height:0;font-size:0;padding-left:4px;">
             ${gridImgs[2].url
-              ? `<img src="${gridImgs[2].url}" alt="" width="222" style="width:222px;height:262px;object-fit:cover;display:block;border-radius:0;object-position:${focalPos(gridImgs[2].obj)};"/>`
-              : `<div style="width:222px;height:262px;background:#e8e4de;border-radius:0;"></div>`}
+              ? `<img src="${gridImgs[2].url}" alt="" style="width:100%;height:262px;object-fit:cover;display:block;border-radius:0;object-position:${focalPos(gridImgs[2].obj)};"/>`
+              : `<div style="width:100%;height:262px;background:#e8e4de;border-radius:0;"></div>`}
           </td>
         </tr>
 
