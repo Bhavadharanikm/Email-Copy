@@ -381,10 +381,10 @@ function buildTemplateWeek2({ client, copy, images, footerData, isHeroGenerated 
   <!-- HERO: generated composite PNG (logo+arch+text baked in) or CSS fallback for preview -->
   ${isHeroGenerated
     ? `<div style="line-height:0;font-size:0;background:${midBg}!important;"><img src="${heroImg}" alt="" width="600" style="width:100%;display:block;max-width:600px;"/></div>`
-    : `<div style="position:relative;line-height:0;font-size:0;padding:0 36px;background:${midBg};height:460px;overflow:hidden;">
+    : `<div style="position:relative;line-height:0;font-size:0;padding:0 36px;background:${midBg};height:580px;overflow:hidden;">
     ${heroImg
-      ? `<img src="${heroImg}" alt="" style="width:100%;height:460px;object-fit:cover;display:block;border-radius:999px 999px 0 0;object-position:calc(50% + ${heroX}px) calc(50% + ${heroY}px);transform:scale(${heroScale});transform-origin:50% 50%;"/>`
-      : `<div style="width:100%;height:460px;background:#f0c8b8;border-radius:999px 999px 0 0;text-align:center;color:${accentClr};font-size:12px;font-family:Arial,sans-serif;line-height:460px;">Hero image</div>`}
+      ? `<img src="${heroImg}" alt="" style="width:100%;height:580px;object-fit:cover;display:block;border-radius:999px 999px 0 0;object-position:calc(50% + ${heroX}px) calc(50% + ${heroY}px);transform:scale(${heroScale});transform-origin:50% 50%;"/>`
+      : `<div style="width:100%;height:580px;background:#f0c8b8;border-radius:999px 999px 0 0;text-align:center;color:${accentClr};font-size:12px;font-family:Arial,sans-serif;line-height:580px;">Hero image</div>`}
     <div style="position:absolute;top:0;left:36px;right:36px;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0) 0%,rgba(0,0,0,0) 50%,rgba(0,0,0,0.45) 100%);border-radius:999px 999px 0 0;">
       <table width="100%" height="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;height:100%;border-collapse:collapse;">
         <tr><td valign="bottom" align="center" style="vertical-align:bottom;text-align:center;padding:0 ${textLeft}px ${textTop}px;">
