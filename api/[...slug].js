@@ -1,63 +1,63 @@
-/**
- * Vercel catch-all adapter for Netlify-format serverless functions.
- * Routes /.netlify/functions/:name → /api/:name (via vercel.json rewrite).
- * Converts Vercel (req, res) ↔ Netlify { event } format.
- */
+import { runHandler } from './_adapter.js'
+import { handler as analyzeImageFocal }  from '../netlify/functions/analyze-image-focal.js'
+import { handler as clients }            from '../netlify/functions/clients.js'
+import { handler as copyCallback }       from '../netlify/functions/copy-callback.js'
+import { handler as fetchBrandBoard }    from '../netlify/functions/fetch-brand-board.js'
+import { handler as fetchFooterData }    from '../netlify/functions/fetch-footer-data.js'
+import { handler as fetchGhlImages }     from '../netlify/functions/fetch-ghl-images.js'
+import { handler as fetchTemplateName }  from '../netlify/functions/fetch-template-name.js'
+import { handler as generateCopy }       from '../netlify/functions/generate-copy.js'
+import { handler as getDriveImages }     from '../netlify/functions/get-drive-images.js'
+import { handler as htmlToImage }        from '../netlify/functions/html-to-image.js'
+import { handler as logToSheets }        from '../netlify/functions/log-to-sheets.js'
+import { handler as notifyChat }         from '../netlify/functions/notify-chat.js'
+import { handler as previewEmail }       from '../netlify/functions/preview-email.js'
+import { handler as proxyImage }         from '../netlify/functions/proxy-image.js'
+import { handler as pushHtmlToGhl }      from '../netlify/functions/push-html-to-ghl.js'
+import { handler as pushToGhl }          from '../netlify/functions/push-to-ghl.js'
+import { handler as recommendTemplate }  from '../netlify/functions/recommend-template.js'
+import { handler as submitFeedback }     from '../netlify/functions/submit-feedback.js'
+import { handler as uploadLogo }         from '../netlify/functions/upload-logo.js'
+import { handler as uploadScreenshot }   from '../netlify/functions/upload-screenshot.js'
 
 export const config = {
   api: {
-    bodyParser: false,   // read raw body ourselves so Netlify fns can parse it
-    responseLimit: false, // allow large payloads (e.g. proxy-image binary)
+    bodyParser:    false,
+    responseLimit: false,
   },
 }
 
+const HANDLERS = {
+  'analyze-image-focal': analyzeImageFocal,
+  'clients':             clients,
+  'copy-callback':       copyCallback,
+  'fetch-brand-board':   fetchBrandBoard,
+  'fetch-footer-data':   fetchFooterData,
+  'fetch-ghl-images':    fetchGhlImages,
+  'fetch-template-name': fetchTemplateName,
+  'generate-copy':       generateCopy,
+  'get-drive-images':    getDriveImages,
+  'html-to-image':       htmlToImage,
+  'log-to-sheets':       logToSheets,
+  'notify-chat':         notifyChat,
+  'preview-email':       previewEmail,
+  'proxy-image':         proxyImage,
+  'push-html-to-ghl':    pushHtmlToGhl,
+  'push-to-ghl':         pushToGhl,
+  'recommend-template':  recommendTemplate,
+  'submit-feedback':     submitFeedback,
+  'upload-logo':         uploadLogo,
+  'upload-screenshot':   uploadScreenshot,
+}
+
 export default async function handler(req, res) {
-  const slugArr = Array.isArray(req.query.slug) ? req.query.slug : [req.query.slug]
-  const fnName  = slugArr[0]
+  const urlPath   = req.url.split('?')[0]
+  const parts     = urlPath.split('/').filter(Boolean)
+  const markerIdx = parts.findLastIndex(p => p === 'api' || p === 'functions')
+  const slug      = markerIdx >= 0 ? parts[markerIdx + 1] : parts[parts.length - 1]
 
-  if (!fnName) return res.status(404).json({ error: 'Function not found' })
+  const fn = HANDLERS[slug]
+  if (!fn) return res.status(404).json({ error: `Unknown function: ${slug}` })
 
-  // Read raw body as Buffer
-  const rawBody = await new Promise((resolve, reject) => {
-    const chunks = []
-    req.on('data', chunk => chunks.push(chunk))
-    req.on('end',  () => resolve(Buffer.concat(chunks)))
-    req.on('error', reject)
-  })
-
-  // Strip the Vercel routing slug from query params before passing to function
-  const { slug: _slug, ...queryStringParameters } = req.query
-
-  const event = {
-    httpMethod:            req.method,
-    path:                  req.url,
-    queryStringParameters: queryStringParameters || {},
-    headers:               req.headers || {},
-    body:                  rawBody.length > 0 ? rawBody.toString('utf-8') : null,
-    isBase64Encoded:       false,
-  }
-
-  try {
-    const mod = await import(`../netlify/functions/${fnName}.js`)
-    const netlifyHandler = mod.handler
-
-    if (typeof netlifyHandler !== 'function') {
-      return res.status(404).json({ error: `No handler in ${fnName}` })
-    }
-
-    const result = await netlifyHandler(event, {})
-
-    const headers = result.headers || {}
-    Object.entries(headers).forEach(([k, v]) => res.setHeader(k, v))
-    res.status(result.statusCode || 200)
-
-    if (result.isBase64Encoded) {
-      res.send(Buffer.from(result.body, 'base64'))
-    } else {
-      res.end(result.body ?? '')
-    }
-  } catch (err) {
-    console.error(`[vercel-adapter] ${fnName}:`, err.message)
-    res.status(500).json({ error: err.message })
-  }
+  await runHandler(fn, req, res)
 }
