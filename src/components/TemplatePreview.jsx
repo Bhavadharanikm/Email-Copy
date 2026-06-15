@@ -2012,14 +2012,7 @@ const TEMPLATES = [
   { id:12, label:'⭐ Week 4',    build:buildTemplateWeek4 },
   { id:13, label:'⭐ Week 5',    build:buildTemplateWeek5 },
   { id:14, label:'⭐ Week 6',    build:buildTemplateWeek6 },
-  { id:7, label:'Hero Header', build:buildTemplateHero },
-  { id:1, label:'Casa',        build:buildTemplate5  },
-  { id:2, label:'Tropica',     build:buildTemplate4  },
-  { id:3, label:'Refined',     build:buildTemplate1  },
-  { id:4, label:'Newsletter',  build:buildTemplate3  },
-  { id:5, label:'Week 1 v2',   build:buildTemplate12 },
-  { id:6, label:'Forest',      build:buildTemplate14 },
-  { id:8, label:'🖼 Image Gen', build:null           },  // html2image.net
+  { id:5,  label:'Week 1 v2',   build:buildTemplate12 },
 ]
 
 /* ─────────────────────────── component ─────────────────────────────────── */
