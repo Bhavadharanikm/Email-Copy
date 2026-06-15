@@ -2777,23 +2777,45 @@ export default function TemplatePreview() {
         </div>
       )}
 
-      {/* ── Editor side panel — floats in left gutter (Week 1 v2 only) ── */}
+      {/* ── Editor side panel — Canva-style, floats left ── */}
       {isEditable && (
         <div style={{
-          position: 'fixed', left: 16, top: '50%', transform: 'translateY(-50%)',
-          width: 200, zIndex: 100,
-          background: dark ? 'rgba(20,20,20,0.95)' : 'rgba(255,255,255,0.97)',
-          backdropFilter: 'blur(12px)',
-          border: `1px solid ${dark ? 'rgba(255,255,255,0.08)' : '#e5e7eb'}`,
-          borderRadius: 14, padding: '14px 14px 18px',
-          display: 'flex', flexDirection: 'column', gap: 16,
-          fontFamily: 'Inter, sans-serif',
-          boxShadow: dark ? '0 8px 32px rgba(0,0,0,0.5)' : '0 4px 24px rgba(0,0,0,0.10)',
+          position: 'fixed', left: 12, top: 108,
+          width: 220, zIndex: 100,
+          maxHeight: 'calc(100vh - 124px)',
+          overflowY: 'auto',
+          overflowX: 'hidden',
+          background: dark ? '#1e1e1e' : '#ffffff',
+          border: `1px solid ${dark ? 'rgba(255,255,255,0.07)' : '#e8eaed'}`,
+          borderRadius: 16,
+          boxShadow: dark ? '0 12px 40px rgba(0,0,0,0.6)' : '0 8px 32px rgba(0,0,0,0.12)',
+          fontFamily: "'Inter', system-ui, sans-serif",
         }}>
-          {/* Section header helper */}
+          {/* Panel header */}
+          <div style={{
+            padding: '12px 16px 10px',
+            borderBottom: `1px solid ${dark ? 'rgba(255,255,255,0.07)' : '#f0f1f3'}`,
+            display: 'flex', alignItems: 'center', gap: 8,
+          }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={dark ? '#a78bfa' : '#7c3aed'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+            </svg>
+            <span style={{ fontSize: 12, fontWeight: 700, color: dark ? '#e5e7eb' : '#111827', letterSpacing: '-0.01em' }}>
+              Adjust Design
+            </span>
+          </div>
+
+          <div style={{ padding: '10px 16px 16px', display: 'flex', flexDirection: 'column', gap: 0 }}>
+
+          {/* Section builder */}
           {[
             {
-              label: '🖼 Image',
+              icon: (
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+                </svg>
+              ),
+              label: 'Image', color: '#2563eb', bg: dark ? 'rgba(37,99,235,0.15)' : '#eff6ff',
               controls: [
                 { name: 'Pan X', min: -200, max: 200, step: 4, val: heroX,     set: setHeroX,     unit: 'px' },
                 { name: 'Pan Y', min: -200, max: 200, step: 4, val: heroY,     set: setHeroY,     unit: 'px' },
@@ -2801,85 +2823,142 @@ export default function TemplatePreview() {
               ]
             },
             {
-              label: '✏️ Headline',
+              icon: (
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/>
+                </svg>
+              ),
+              label: 'Headline', color: '#059669', bg: dark ? 'rgba(5,150,105,0.15)' : '#ecfdf5',
               controls: [
                 { name: 'Size',  min: 18, max: 56,  step: 1, val: textSize, set: setTextSize, unit: 'px' },
                 { name: 'Top',   min: 10, max: 500, step: 4, val: textTop,  set: setTextTop,  unit: 'px' },
                 { name: 'Left',  min: 0,  max: 580, step: 4, val: textLeft, set: setTextLeft, unit: 'px' },
               ]
             },
-          ].map(section => (
-            <div key={section.label}>
-              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: dark ? 'rgba(255,255,255,0.3)' : '#9ca3af', marginBottom: 10 }}>
-                {section.label}
+          ].map((section, si) => (
+            <div key={section.label} style={{ marginBottom: 4 }}>
+              {/* Section pill */}
+              <div style={{
+                display: 'inline-flex', alignItems: 'center', gap: 5,
+                background: section.bg, color: section.color,
+                borderRadius: 20, padding: '3px 10px 3px 8px',
+                fontSize: 10, fontWeight: 700, letterSpacing: '0.04em',
+                textTransform: 'uppercase', marginBottom: 10, marginTop: si === 0 ? 0 : 4,
+              }}>
+                {section.icon} {section.label}
               </div>
               {section.controls.map(ctrl => (
-                <div key={ctrl.name} style={{ marginBottom: 10 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                    <span style={{ fontSize: 11, color: dark ? 'rgba(255,255,255,0.55)' : '#6b7280' }}>{ctrl.name}</span>
-                    <span style={{ fontSize: 11, fontWeight: 600, color: dark ? 'rgba(255,255,255,0.7)' : '#374151' }}>
+                <div key={ctrl.name} style={{ marginBottom: 8 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
+                    <span style={{ fontSize: 11, color: dark ? '#9ca3af' : '#6b7280', fontWeight: 500 }}>{ctrl.name}</span>
+                    <span style={{
+                      fontSize: 10, fontWeight: 600,
+                      background: dark ? 'rgba(255,255,255,0.08)' : '#f3f4f6',
+                      color: dark ? '#e5e7eb' : '#374151',
+                      borderRadius: 5, padding: '1px 6px',
+                    }}>
                       {ctrl.toDisplay ? ctrl.toDisplay(ctrl.val) : ctrl.val}{ctrl.unit}
                     </span>
                   </div>
                   <input type="range" min={ctrl.min} max={ctrl.max} step={ctrl.step} value={ctrl.val}
                     onChange={e => ctrl.set(Number(e.target.value))}
-                    style={{ width: '100%', accentColor: dark ? '#f59e0b' : '#3b82f6', cursor: 'pointer' }}
+                    style={{ width: '100%', accentColor: section.color, cursor: 'pointer', height: 3 }}
                   />
                 </div>
               ))}
             </div>
           ))}
 
+          {/* Divider */}
+          <div style={{ height: 1, background: dark ? 'rgba(255,255,255,0.07)' : '#f0f1f3', margin: '4px 0 8px' }} />
+
           {/* Logo section */}
           <div>
-            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: dark ? 'rgba(255,255,255,0.3)' : '#9ca3af', marginBottom: 10 }}>
-              🏷 Logo
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: 5,
+              background: dark ? 'rgba(245,158,11,0.15)' : '#fffbeb', color: '#d97706',
+              borderRadius: 20, padding: '3px 10px 3px 8px',
+              fontSize: 10, fontWeight: 700, letterSpacing: '0.04em',
+              textTransform: 'uppercase', marginBottom: 10,
+            }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"/>
+              </svg>
+              Logo
             </div>
             {[
               { name: 'Size',  min: 20, max: 160, step: 2,  val: logoSize,  set: setLogoSize,  unit: 'px' },
               { name: 'Top',   min: 0,  max: 500, step: 4,  val: logoTop,   set: setLogoTop,   unit: 'px' },
               { name: 'Right', min: 0,  max: 580, step: 4,  val: logoRight, set: setLogoRight, unit: 'px' },
             ].map(ctrl => (
-              <div key={ctrl.name} style={{ marginBottom: 10 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <span style={{ fontSize: 11, color: dark ? 'rgba(255,255,255,0.55)' : '#6b7280' }}>{ctrl.name}</span>
-                  <span style={{ fontSize: 11, fontWeight: 600, color: dark ? 'rgba(255,255,255,0.7)' : '#374151' }}>{ctrl.val}{ctrl.unit}</span>
+              <div key={ctrl.name} style={{ marginBottom: 8 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
+                  <span style={{ fontSize: 11, color: dark ? '#9ca3af' : '#6b7280', fontWeight: 500 }}>{ctrl.name}</span>
+                  <span style={{
+                    fontSize: 10, fontWeight: 600,
+                    background: dark ? 'rgba(255,255,255,0.08)' : '#f3f4f6',
+                    color: dark ? '#e5e7eb' : '#374151',
+                    borderRadius: 5, padding: '1px 6px',
+                  }}>
+                    {ctrl.val}{ctrl.unit}
+                  </span>
                 </div>
                 <input type="range" min={ctrl.min} max={ctrl.max} step={ctrl.step} value={ctrl.val}
                   onChange={e => ctrl.set(Number(e.target.value))}
-                  style={{ width: '100%', accentColor: dark ? '#f59e0b' : '#3b82f6', cursor: 'pointer' }}
+                  style={{ width: '100%', accentColor: '#d97706', cursor: 'pointer', height: 3 }}
                 />
               </div>
             ))}
-            <div style={{ display: 'flex', gap: 6 }}>
-              {['original', 'white', 'black'].map(c => (
-                <button key={c} onClick={() => setLogoColor(c)} style={{
-                  flex: 1, padding: '5px 0', borderRadius: 6, fontSize: 10, fontWeight: 600,
-                  cursor: 'pointer', border: `1.5px solid ${logoColor === c ? (dark ? '#f59e0b' : '#3b82f6') : (dark ? 'rgba(255,255,255,0.12)' : '#e5e7eb')}`,
-                  background: c === 'white' ? '#1a1a1a' : c === 'black' ? '#f5f5f5' : (dark ? 'rgba(255,255,255,0.06)' : '#f9fafb'),
-                  color: c === 'white' ? '#fff' : c === 'black' ? '#000' : (dark ? 'rgba(255,255,255,0.6)' : '#6b7280'),
-                  textTransform: 'capitalize',
+
+            {/* Color tint row */}
+            <div style={{ fontSize: 10, fontWeight: 600, color: dark ? '#9ca3af' : '#6b7280', marginBottom: 6, marginTop: 2 }}>Color tint</div>
+            <div style={{ display: 'flex', gap: 5 }}>
+              {[
+                { key: 'original', label: 'Original', bg: dark ? '#2d2d2d' : '#f9fafb', fg: dark ? '#d1d5db' : '#374151', dot: null },
+                { key: 'white',    label: 'White',    bg: '#1f1f1f',  fg: '#fff',     dot: '#fff' },
+                { key: 'black',    label: 'Black',    bg: '#f5f5f5',  fg: '#000',     dot: '#000' },
+              ].map(c => (
+                <button key={c.key} onClick={() => setLogoColor(c.key)} style={{
+                  flex: 1, padding: '6px 0', borderRadius: 8, fontSize: 10, fontWeight: 600,
+                  cursor: 'pointer',
+                  border: `1.5px solid ${logoColor === c.key ? '#d97706' : (dark ? 'rgba(255,255,255,0.1)' : '#e5e7eb')}`,
+                  background: logoColor === c.key ? (dark ? 'rgba(217,119,6,0.15)' : '#fffbeb') : c.bg,
+                  color: logoColor === c.key ? '#d97706' : c.fg,
+                  transition: 'all 0.15s',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
                 }}>
-                  {c}
+                  {c.dot && <span style={{ width: 7, height: 7, borderRadius: '50%', background: c.dot, border: '1px solid rgba(128,128,128,0.3)', flexShrink: 0 }} />}
+                  {c.label}
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Reset */}
+          {/* Divider + Reset */}
+          <div style={{ height: 1, background: dark ? 'rgba(255,255,255,0.07)' : '#f0f1f3', margin: '12px 0 8px' }} />
           <button onClick={() => {
             setHeroScale(1); setHeroX(0); setHeroY(0)
-            if (tpl?.id === 5)  { setTextSize(34); setTextTop(32);  setTextLeft(36);  setLogoColor('original'); setLogoTop(24); setLogoRight(36);  setLogoSize(70) }
-            if (tpl?.id === 9)  { setTextSize(22); setTextTop(110); setTextLeft(48);  setLogoColor('original'); setLogoTop(36); setLogoRight(220); setLogoSize(56) }
             if (tpl?.id === 10) { setTextSize(24); setTextTop(32);  setTextLeft(24);  setLogoColor('original'); setLogoTop(24); setLogoRight(200); setLogoSize(40) }
             if (tpl?.id === 11) { setTextSize(40); setTextTop(14);  setTextLeft(52);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
             if (tpl?.id === 12) { setTextSize(38); setTextTop(20);  setTextLeft(48);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
             if (tpl?.id === 13) { setTextSize(52); setTextTop(32);  setTextLeft(36);  setLogoColor('white');    setLogoTop(28); setLogoRight(36);  setLogoSize(40) }
             if (tpl?.id === 14) { setTextSize(46); setTextTop(32);  setTextLeft(36);  setLogoColor('original'); setLogoTop(28); setLogoRight(40);  setLogoSize(32) }
-          }}
-            style={{ fontSize: 11, color: dark ? 'rgba(255,255,255,0.3)' : '#9ca3af', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', textAlign: 'left', padding: 0 }}>
+          }} style={{
+            width: '100%', padding: '7px 0', borderRadius: 8, fontSize: 11, fontWeight: 600,
+            cursor: 'pointer',
+            border: `1px solid ${dark ? 'rgba(255,255,255,0.1)' : '#e5e7eb'}`,
+            background: dark ? 'rgba(255,255,255,0.04)' : '#f9fafb',
+            color: dark ? '#9ca3af' : '#6b7280',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
+            transition: 'all 0.15s',
+          }}>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.02"/>
+            </svg>
             Reset all
           </button>
+
+          </div>
         </div>
       )}
 
