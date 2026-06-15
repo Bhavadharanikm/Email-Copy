@@ -12,8 +12,8 @@
 import { createSign } from 'crypto'
 
 async function getAccessToken() {
-  const email      = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL
-  const privateKey = (process.env.GOOGLE_PRIVATE_KEY || '').replace(/\\n/g, '\n')
+  const email      = (process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || '').trim()
+  const privateKey = (process.env.GOOGLE_PRIVATE_KEY || '').trim().replace(/\\n/g, '\n')
   if (!email || !privateKey) throw new Error('Google credentials not set')
 
   const now     = Math.floor(Date.now() / 1000)
