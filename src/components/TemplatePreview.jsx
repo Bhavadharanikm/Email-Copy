@@ -470,7 +470,7 @@ function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated 
   const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
 
   const logoHtml = logoUrl
-    ? `<img src="${logoUrl}" alt="${client?.name||''}" style="height:${logoSize}px;width:auto;max-width:${logoSize * 5}px;display:block;filter:${logoFilter};"/>`
+    ? `<img src="${logoUrl}" alt="${client?.name||''}" style="height:${logoSize}px;width:auto;max-width:${logoSize * 5}px;display:inline-block;filter:${logoFilter};"/>`
     : `<span style="font-family:Arial,sans-serif;font-size:15px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff;">${client?.name||''}</span>`
 
   // Stacked image section: generated PNG (email-safe) or CSS preview (browser)
@@ -1541,7 +1541,7 @@ function buildTemplateWeek4({ client, copy, images, footerData, isHeroGenerated 
 
   // Logo — white version for dark hero overlay, dark version for cards below
   const logoHeroHtml = logoUrl
-    ? `<img src="${logoUrl}" alt="${name}" style="height:${logoSize}px;width:auto;max-width:${logoSize * 5}px;display:block;filter:${logoFilter};"/>`
+    ? `<img src="${logoUrl}" alt="${name}" style="height:${logoSize}px;width:auto;max-width:${logoSize * 5}px;display:inline-block;filter:${logoFilter};"/>`
     : `<span style="font-family:Arial,sans-serif;font-size:15px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff;">${name}</span>`
 
   const cards = [
@@ -2030,13 +2030,11 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
 
 /* ─────────────────────────── registry ──────────────────────────────────── */
 const TEMPLATES = [
-  { id:9,  label:'⭐ Week 1',    build:buildTemplateWeek1 },
   { id:10, label:'⭐ Week 2',    build:buildTemplateWeek2 },
   { id:11, label:'⭐ Week 3',    build:buildTemplateWeek3 },
   { id:12, label:'⭐ Week 4',    build:buildTemplateWeek4 },
   { id:13, label:'⭐ Week 5',    build:buildTemplateWeek5 },
   { id:14, label:'⭐ Week 6',    build:buildTemplateWeek6 },
-  { id:5,  label:'Week 1 v2',   build:buildTemplate12 },
 ]
 
 /* ─────────────────────────── component ─────────────────────────────────── */
@@ -2071,7 +2069,7 @@ export default function TemplatePreview() {
   }, [active])  // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Hero editor — all week templates ─────────────────────────────────────────
-  const isEditable = [5, 9, 10, 11, 12, 13, 14].includes(tpl?.id)
+  const isEditable = [10, 11, 12, 13, 14].includes(tpl?.id)
   const [heroScale,   setHeroScale]   = useState(1)
   const [heroX,       setHeroX]       = useState(0)
   const [heroY,       setHeroY]       = useState(0)
@@ -2087,8 +2085,6 @@ export default function TemplatePreview() {
   useEffect(() => {
     if (!isEditable) return
     setHeroScale(1); setHeroX(0); setHeroY(0)
-    if (tpl?.id === 5)  { setTextSize(34); setTextTop(32);  setTextLeft(36);  setLogoColor('original'); setLogoTop(24); setLogoRight(36);  setLogoSize(70) }
-    if (tpl?.id === 9)  { setTextSize(22); setTextTop(110); setTextLeft(48);  setLogoColor('original'); setLogoTop(36); setLogoRight(220); setLogoSize(56) }
     if (tpl?.id === 10) { setTextSize(24); setTextTop(32);  setTextLeft(24);  setLogoColor('original'); setLogoTop(24); setLogoRight(200); setLogoSize(40) }
     if (tpl?.id === 11) { setTextSize(40); setTextTop(14);  setTextLeft(52);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
     if (tpl?.id === 12) { setTextSize(38); setTextTop(20);  setTextLeft(48);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
