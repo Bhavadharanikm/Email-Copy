@@ -192,3 +192,7 @@ export const logToSheets = (payload) =>
 // ── Footer data from brand board sheet ───────────────────────────
 export const fetchFooterData = ({ clientName }) =>
   get('/fetch-footer-data', { clientName })
+
+// ── Feedback → Google Doc ─────────────────────────────────────────
+export const submitFeedback = ({ section, feedback, clientName }) =>
+  post('/submit-feedback', { section, feedback, clientName })

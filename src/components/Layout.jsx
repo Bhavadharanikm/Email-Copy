@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useCampaignStore } from '../store/campaignStore'
 import { IconDiamond, IconSun, IconMoon, IconMessageCircle, IconCalendar, IconX, IconCheck } from '@tabler/icons-react'
 import { useTheme } from '../context/ThemeContext'
+import { submitFeedback } from '../lib/api'
 
 const SECTIONS = [
   'Subject Line',
@@ -25,7 +26,10 @@ function FeedbackModal({ dark, onClose }) {
   const [section,  setSection]  = useState('')
   const [feedback, setFeedback] = useState('')
   const [sent,     setSent]     = useState(false)
-  const modalRef = useRef(null)
+  const [submitting, setSubmitting] = useState(false)
+  const [error,    setError]    = useState('')
+  const modalRef   = useRef(null)
+  const clientName = useCampaignStore((s) => s.selectedClient?.name || '')
 
   // Close on outside click
   useEffect(() => {
@@ -36,12 +40,20 @@ function FeedbackModal({ dark, onClose }) {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [onClose])
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
     if (!section || !feedback.trim()) return
-    console.log('[Feedback]', { section, feedback })
-    setSent(true)
-    setTimeout(() => { setSent(false); setSection(''); setFeedback(''); onClose() }, 1800)
+    setSubmitting(true)
+    setError('')
+    try {
+      await submitFeedback({ section, feedback, clientName })
+      setSent(true)
+      setTimeout(() => { setSent(false); setSection(''); setFeedback(''); onClose() }, 1800)
+    } catch (err) {
+      setError('Could not save feedback. Please try again.')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   const border  = dark ? 'rgba(255,255,255,0.1)'  : '#e5e7eb'
@@ -143,23 +155,28 @@ function FeedbackModal({ dark, onClose }) {
             />
           </div>
 
+          {error && (
+            <div style={{ fontSize: 11, color: '#ef4444', textAlign: 'center' }}>{error}</div>
+          )}
+
           {/* Submit */}
           <button
             type="submit"
-            disabled={!section || !feedback.trim()}
+            disabled={!section || !feedback.trim() || submitting}
             style={{
               padding: '9px 0', borderRadius: 9, border: 'none',
-              background: section && feedback.trim()
+              background: section && feedback.trim() && !submitting
                 ? (dark ? '#f59e0b' : '#111827')
                 : (dark ? 'rgba(255,255,255,0.06)' : '#e5e7eb'),
-              color: section && feedback.trim()
+              color: section && feedback.trim() && !submitting
                 ? (dark ? '#111827' : '#ffffff')
                 : subCol,
-              fontSize: 13, fontWeight: 700, cursor: section && feedback.trim() ? 'pointer' : 'not-allowed',
+              fontSize: 13, fontWeight: 700,
+              cursor: section && feedback.trim() && !submitting ? 'pointer' : 'not-allowed',
               transition: 'all 0.15s',
             }}
           >
-            Submit Feedback
+            {submitting ? 'Saving…' : 'Submit Feedback'}
           </button>
         </form>
       )}
@@ -301,22 +318,7 @@ export default function Layout() {
             }
           </button>
 
-          {/* Calendar button */}
-          <button
-            onClick={handleCalendar}
-            title="Content Calendar"
-            style={{
-              width: 36, height: 36, borderRadius: 10,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              background: dark ? 'rgba(255,255,255,0.06)' : '#f3f4f6',
-              border: dark ? '1px solid rgba(255,255,255,0.1)' : '1px solid #e5e7eb',
-              cursor: 'pointer', transition: 'all 0.18s',
-            }}
-            onMouseEnter={e => e.currentTarget.style.background = dark ? 'rgba(255,255,255,0.12)' : '#e5e7eb'}
-            onMouseLeave={e => e.currentTarget.style.background = dark ? 'rgba(255,255,255,0.06)' : '#f3f4f6'}
-          >
-            <IconCalendar size={16} color={dark ? 'rgba(255,255,255,0.7)' : '#6b7280'} stroke={1.8} />
-          </button>
+          {/* Calendar button — hidden */}
 
           {/* Feedback button */}
           <div style={{ position: 'relative' }}>
