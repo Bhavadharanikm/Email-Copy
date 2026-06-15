@@ -202,33 +202,6 @@ export default function PromptForm({ onGenerate, dark = false }) {
 
       </div>
 
-      {/* GHL Template URL */}
-      <div>
-        <label style={labelStyle}>
-          GHL Template URL{' '}
-          <span style={hintStyle}>paste the link from GHL → Email Builder</span>
-        </label>
-        <input
-          type="text"
-          value={templateUrl}
-          onChange={(e) => setTemplateUrl(e.target.value)}
-          disabled={isGenerating}
-          placeholder="https://app.gohighlevel.com/v2/location/.../marketing/emails/builder/..."
-          style={{ ...inputStyle, opacity: isGenerating ? 0.5 : 1 }}
-        />
-        {templateUrl && (
-          <div style={{ fontSize: 11, marginTop: 6 }}>
-            {!templateId && <span style={{ color: '#f87171' }}>⚠ No valid template ID found in this URL</span>}
-            {templateId && templateNameLoading && <span style={{ color: dark ? 'rgba(255,255,255,0.3)' : '#9ca3af' }}>Looking up template…</span>}
-            {templateId && !templateNameLoading && templateName && (
-              <span style={{ color: '#34d399' }}>✓ <strong>{templateName}</strong> <span style={{ color: dark ? 'rgba(255,255,255,0.3)' : '#9ca3af', fontWeight: 400 }}>({templateId})</span></span>
-            )}
-            {templateId && !templateNameLoading && !templateName && (
-              <span style={{ color: '#34d399' }}>✓ ID extracted: {templateId}</span>
-            )}
-          </div>
-        )}
-      </div>
 
       {/* GHL Folder URL */}
       <div>
