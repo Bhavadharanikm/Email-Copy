@@ -400,20 +400,7 @@ function buildTemplateWeek2({ client, copy, images, footerData, isHeroGenerated 
   <!-- CTA -->
   ${copy.ctaText ? `<div style="padding:24px 48px 28px;text-align:center;background:${midBg}!important;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;background:${accentClr};color:#fff!important;padding:14px 40px;font-size:13px;font-weight:600;letter-spacing:.06em;text-decoration:none!important;font-family:Arial,sans-serif;border-radius:50px;">${copy.ctaText}</a></div>` : ''}
 
-  <!-- THIS WEEK divider (table-based, no flex) -->
-  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;background:${midBg}!important;border-collapse:collapse;">
-    <tr><td style="padding:22px 48px;">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
-        <tr>
-          <td style="vertical-align:middle;width:44%;"><div style="height:1px;width:100%;background:${accentClr};font-size:0;line-height:0;"></div></td>
-          <td style="padding:0 14px;white-space:nowrap;text-align:center;font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:${accentClr};font-family:Arial,sans-serif;">This Week</td>
-          <td style="vertical-align:middle;width:44%;"><div style="height:1px;width:100%;background:${accentClr};font-size:0;line-height:0;"></div></td>
-        </tr>
-      </table>
-    </td></tr>
-  </table>
-
-  <!-- LONG IMAGE (img1) after divider -->
+  <!-- LONG IMAGE (img1) -->
   ${img1 ? `<div style="line-height:0;font-size:0;padding:0 36px 16px;background:${midBg}!important;"><img src="${img1}" alt="" style="width:100%;height:260px;object-fit:cover;display:block;border-radius:8px;object-position:${focalPos(img1Obj)}"/></div>` : ''}
 
   <!-- BODY BLOCK -->
