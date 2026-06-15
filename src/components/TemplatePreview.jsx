@@ -2781,7 +2781,7 @@ export default function TemplatePreview() {
       {/* ── Editor side panel — Canva-style, floats left ── */}
       {isEditable && (
         <div style={{
-          position: 'fixed', left: 12, top: 108,
+          position: 'fixed', left: 12, top: 280,
           width: 220, zIndex: 100,
           maxHeight: 'calc(100vh - 124px)',
           overflowY: 'auto',
