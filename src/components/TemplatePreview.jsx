@@ -104,34 +104,34 @@ function buildFooter(client, footerData = null, options = {}) {
   ].filter(s => s.url)
 
   const socialHtml = socialIcons.length ? `
-    <div style="margin:0 0 14px;text-align:center;font-size:0">
+    <div style="margin:0 0 20px;text-align:center;font-size:0">
       ${socialIcons.map(s =>
-        `<a href="${s.url}" target="_blank" rel="noopener" style="display:inline-block;line-height:0;margin:0 5px">
-           <img src="${s.icon}" alt="${s.label}" width="32" height="32" style="display:block;width:32px;height:32px;border-radius:50%"/>
+        `<a href="${s.url}" target="_blank" rel="noopener" style="display:inline-block;line-height:0;margin:0 7px">
+           <img src="${s.icon}" alt="${s.label}" width="36" height="36" style="display:block;width:36px;height:36px;border-radius:50%"/>
          </a>`
       ).join('')}
     </div>` : ''
 
   const logoHtml = logoUrl
-    ? `<div style="margin:0 0 12px;text-align:center"><img src="${logoUrl}" alt="${name}" style="height:36px;width:auto;object-fit:contain;display:inline-block;${light ? '' : 'filter:brightness(0) invert(1);'}opacity:.8"/></div>`
-    : `<div style="margin:0 0 12px;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:${textCol};font-family:Arial,sans-serif">${name}</div>`
+    ? `<div style="margin:0 0 20px;text-align:center"><img src="${logoUrl}" alt="${name}" style="height:40px;width:auto;object-fit:contain;display:inline-block;${light ? '' : 'filter:brightness(0) invert(1);'}opacity:.8"/></div>`
+    : `<div style="margin:0 0 20px;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:${textCol};font-family:Arial,sans-serif">${name}</div>`
 
   const contactHtml = contactInfo
-    ? `<div style="font-size:11px;color:${textCol};font-family:Arial,sans-serif;margin-bottom:8px">${contactInfo}</div>`
+    ? `<div style="font-size:12px;color:${textCol};font-family:Arial,sans-serif;margin-bottom:16px">${contactInfo}</div>`
     : ''
 
   const footerTextHtml = footerText
-    ? `<div style="font-size:10px;color:${linkCol};font-family:Arial,sans-serif;margin-bottom:12px;max-width:440px;margin-left:auto;margin-right:auto;line-height:1.5">${footerText}</div>`
+    ? `<div style="font-size:11px;color:${linkCol};font-family:Arial,sans-serif;margin-bottom:20px;max-width:440px;margin-left:auto;margin-right:auto;line-height:1.7">${footerText}</div>`
     : ''
 
   return `
   <!-- Footer -->
-  <div style="background:${bgRaw};padding:28px 40px 24px;text-align:center;border-top:1px solid ${divCol}">
+  <div style="background:${bgRaw};padding:44px 48px 36px;text-align:center;border-top:1px solid ${divCol}">
     ${logoHtml}
     ${socialHtml}
     ${contactHtml}
     ${footerTextHtml}
-    <div style="font-size:10px;color:${linkCol};font-family:Arial,sans-serif;letter-spacing:.08em">
+    <div style="font-size:10px;color:${linkCol};font-family:Arial,sans-serif;letter-spacing:.08em;margin-top:8px">
       <a href="{{email.view_in_browser_url}}" style="color:${linkCol};text-decoration:underline">View in browser</a>
       &nbsp;·&nbsp;
       <a href="{{email.unsubscribe_link}}" style="color:${linkCol};text-decoration:underline">Unsubscribe</a>

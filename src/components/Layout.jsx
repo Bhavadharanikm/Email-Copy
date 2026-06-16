@@ -318,7 +318,22 @@ export default function Layout() {
             }
           </button>
 
-          {/* Calendar button — hidden */}
+          {/* Calendar button */}
+          <button
+            onClick={handleCalendar}
+            title="Content Calendar"
+            style={{
+              width: 36, height: 36, borderRadius: 10,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: dark ? 'rgba(255,255,255,0.06)' : '#f3f4f6',
+              border: dark ? '1px solid rgba(255,255,255,0.1)' : '1px solid #e5e7eb',
+              cursor: 'pointer', transition: 'all 0.18s',
+            }}
+            onMouseEnter={e => e.currentTarget.style.background = dark ? 'rgba(255,255,255,0.12)' : '#e5e7eb'}
+            onMouseLeave={e => e.currentTarget.style.background = dark ? 'rgba(255,255,255,0.06)' : '#f3f4f6'}
+          >
+            <IconCalendar size={16} color={dark ? 'rgba(255,255,255,0.7)' : '#6b7280'} stroke={1.8} />
+          </button>
 
           {/* Feedback button */}
           <div style={{ position: 'relative' }}>

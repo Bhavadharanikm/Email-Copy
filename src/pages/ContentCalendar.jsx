@@ -6,7 +6,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useTheme } from '../context/ThemeContext'
 import { motion, AnimatePresence } from 'framer-motion'
-import { vacationRentalIdeas as VACATION_RENTAL_IDEAS } from '../data/vacationRentalIdeas'
+import { supabase, TABLE, rowToIdea, rowToEntry, ideaToRow, entryToRow } from '../lib/supabase'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -23,14 +23,6 @@ const STATUS_CONFIG = {
   sent:        { label: 'Sent',       dot: '#8b5cf6', bg: 'rgba(139,92,246,0.14)',  text: '#6d28d9' },
 }
 
-const TYPE_CONFIG = {
-  email:      { label: 'Email',      icon: '✉️' },
-  social:     { label: 'Social',     icon: '📱' },
-  blog:       { label: 'Blog Post',  icon: '📝' },
-  newsletter: { label: 'Newsletter', icon: '📰' },
-  ad:         { label: 'Ad Copy',    icon: '📣' },
-}
-
 const IDEA_STATUS = {
   pending:  { label: 'Pending',   bg: 'rgba(245,158,11,0.12)',  text: '#b45309', dot: '#f59e0b' },
   approved: { label: 'Scheduled', bg: 'rgba(16,185,129,0.12)',  text: '#047857', dot: '#10b981' },
@@ -39,32 +31,16 @@ const IDEA_STATUS = {
 
 // ─── Storage ──────────────────────────────────────────────────────────────────
 
-const CAL_KEY   = 'hgm_calendar_entries'
-const IDEAS_KEY = 'hgm_ideas'
-
-const load  = (key) => { try { return JSON.parse(localStorage.getItem(key) || '[]') } catch { return [] } }
-const save  = (key, data) => localStorage.setItem(key, JSON.stringify(data))
-
-// Data version — bump this when the seed data changes to force a re-seed
-const SEED_VERSION = '4'
-
-function loadIdeas() {
-  const stored       = load(IDEAS_KEY)
-  const savedVersion = localStorage.getItem(IDEAS_KEY + '_v') || '1'
-
-  // If seed version matches, return stored as-is
-  if (savedVersion === SEED_VERSION && stored.some(i => i.id?.startsWith('idea_'))) {
-    return stored
-  }
-
-  // Re-seed: replace old seeded ideas with fresh ones, keep user-created ideas
-  const userIdeas = stored.filter(i => !i.id?.startsWith('idea_') && !i.id?.startsWith('doc_idea_'))
-  const merged    = [...VACATION_RENTAL_IDEAS, ...userIdeas]
-  save(IDEAS_KEY, merged)
-  localStorage.setItem(IDEAS_KEY + '_v', SEED_VERSION)
-  return merged
-}
 const genId = () => Math.random().toString(36).slice(2) + Date.now().toString(36)
+
+async function fetchAllRows() {
+  const { data, error } = await supabase
+    .from(TABLE)
+    .select('*')
+    .order('id', { ascending: true })
+  if (error) { console.error('Supabase fetch error:', error); return [] }
+  return data || []
+}
 
 // ─── Clients hook ─────────────────────────────────────────────────────────────
 
@@ -230,11 +206,12 @@ function ClientPickerField({ dark, clients, value, onChange, onClientSelect, bor
 
 // ─── Calendar entry modal ─────────────────────────────────────────────────────
 
-const BLANK_ENTRY = { clientName: '', subject: '', status: 'draft', type: 'email', notes: '' }
+const BLANK_ENTRY = { clientName: '', subject: '', status: 'draft', notes: '', sendTime: '' }
 
 function EntryModal({ dark, date, entry, clients, onSave, onDelete, onClose }) {
   const isEdit = !!entry
-  const [form, setForm] = useState(isEdit ? { ...entry } : { ...BLANK_ENTRY })
+  const normalizeNotes = (n) => n ? n.replace(/\\n\\n/g, '\n\n').replace(/\\n/g, '\n') : ''
+  const [form, setForm] = useState(isEdit ? { ...entry, notes: normalizeNotes(entry.notes) } : { ...BLANK_ENTRY })
   const [selectedClientData, setSelectedClientData] = useState(
     isEdit && entry.brandColors ? { brandColors: entry.brandColors, logoUrl: entry.logoUrl } : null
   )
@@ -251,8 +228,8 @@ function EntryModal({ dark, date, entry, clients, onSave, onDelete, onClose }) {
   const textCol = dark ? 'rgba(255,255,255,0.88)' : '#111827'
   const subCol  = dark ? 'rgba(255,255,255,0.32)' : '#9ca3af'
   const inputBg = dark ? 'rgba(255,255,255,0.05)' : '#f9fafb'
-  const labelSty = { fontSize: 11, fontWeight: 700, color: subCol, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 6 }
-  const inputSty = { width: '100%', padding: '9px 12px', borderRadius: 9, background: inputBg, border: `1.5px solid ${border}`, color: textCol, fontSize: 13, fontFamily: 'Inter, sans-serif', outline: 'none', boxSizing: 'border-box' }
+  const labelSty = { fontSize: 11, fontWeight: 700, color: subCol, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 7 }
+  const inputSty = { width: '100%', padding: '10px 13px', borderRadius: 9, background: inputBg, border: `1.5px solid ${border}`, color: textCol, fontSize: 14, fontFamily: 'Inter, sans-serif', outline: 'none', boxSizing: 'border-box' }
 
   return (
     <div onMouseDown={e => { if (ref.current && !ref.current.contains(e.target)) onClose() }}
@@ -260,13 +237,13 @@ function EntryModal({ dark, date, entry, clients, onSave, onDelete, onClose }) {
       <motion.div ref={ref}
         initial={{ opacity: 0, y: 16, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 16, scale: 0.97 }}
         transition={{ duration: 0.18, ease: 'easeOut' }}
-        style={{ background: bg, borderRadius: 18, border: `1.5px solid ${border}`, boxShadow: dark ? '0 32px 80px rgba(0,0,0,0.7)' : '0 24px 64px rgba(0,0,0,0.14)', width: '100%', maxWidth: 460, padding: '24px 24px 20px', fontFamily: 'Inter, sans-serif' }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20 }}>
+        style={{ background: bg, borderRadius: 18, border: `1.5px solid ${border}`, boxShadow: dark ? '0 32px 80px rgba(0,0,0,0.7)' : '0 24px 64px rgba(0,0,0,0.14)', width: '100%', maxWidth: 480, padding: '28px 28px 22px', fontFamily: 'Inter, sans-serif' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24 }}>
           <div>
-            <div style={{ fontSize: 15, fontWeight: 700, color: textCol }}>{isEdit ? 'Edit Entry' : 'New Entry'}</div>
-            <div style={{ fontSize: 12, color: subCol, marginTop: 3 }}>{date.toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</div>
+            <div style={{ fontSize: 19, fontWeight: 700, color: textCol, letterSpacing: '-0.02em' }}>{isEdit ? 'Edit Entry' : 'New Entry'}</div>
+            <div style={{ fontSize: 13, color: subCol, marginTop: 5 }}>{date.toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</div>
           </div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: subCol, fontSize: 20, padding: '2px 6px', borderRadius: 6 }}>×</button>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: subCol, fontSize: 22, padding: '2px 6px', borderRadius: 6 }}>×</button>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -282,19 +259,38 @@ function EntryModal({ dark, date, entry, clients, onSave, onDelete, onClose }) {
           />
           <div><label style={labelSty}>Subject / Title</label><input style={inputSty} placeholder="e.g. Spring Market Update" value={form.subject} onChange={e => setForm(f => ({ ...f, subject: e.target.value }))} onFocus={e => e.target.style.borderColor = dark ? 'rgba(255,255,255,0.3)' : '#6b7280'} onBlur={e => e.target.style.borderColor = border} /></div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            <div><label style={labelSty}>Type</label>
-              <select value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))} style={{ ...inputSty, cursor: 'pointer', appearance: 'none', backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center', paddingRight: 30 }}>
-                {Object.entries(TYPE_CONFIG).map(([k, v]) => <option key={k} value={k} style={{ background: bg }}>{v.icon} {v.label}</option>)}
-              </select>
+            <div><label style={labelSty}>Send Date</label>
+              <input type="date" style={{ ...inputSty, cursor: 'pointer', colorScheme: dark ? 'dark' : 'light' }}
+                value={form.sendDate || ''}
+                onChange={e => setForm(f => ({ ...f, sendDate: e.target.value }))}
+                onFocus={e => e.target.style.borderColor = dark ? 'rgba(255,255,255,0.3)' : '#6b7280'}
+                onBlur={e => e.target.style.borderColor = border}
+              />
             </div>
+            <div><label style={labelSty}>Send Time</label>
+              <input type="time" style={{ ...inputSty, cursor: 'pointer', colorScheme: dark ? 'dark' : 'light' }}
+                value={form.sendTime || ''}
+                onChange={e => setForm(f => ({ ...f, sendTime: e.target.value }))}
+                onFocus={e => e.target.style.borderColor = dark ? 'rgba(255,255,255,0.3)' : '#6b7280'}
+                onBlur={e => e.target.style.borderColor = border}
+              />
+            </div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <div><label style={labelSty}>Status</label>
               <select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))} style={{ ...inputSty, cursor: 'pointer', color: STATUS_CONFIG[form.status]?.text || textCol, appearance: 'none', backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center', paddingRight: 30 }}>
                 {Object.entries(STATUS_CONFIG).map(([k, v]) => <option key={k} value={k} style={{ background: bg, color: v.text }}>{v.label}</option>)}
               </select>
             </div>
+            <div><label style={labelSty}>Changes Made By</label>
+              <select value={form.changedBy || ''} onChange={e => setForm(f => ({ ...f, changedBy: e.target.value }))} style={{ ...inputSty, cursor: 'pointer', appearance: 'none', backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center', paddingRight: 30 }}>
+                <option value="" style={{ background: bg }}>— Select —</option>
+                {['Alicia','Charlotte','Makenna','Gillian','Chiara','Nicole','Ananya'].map(name => <option key={name} value={name} style={{ background: bg }}>{name}</option>)}
+              </select>
+            </div>
           </div>
-          <div><label style={labelSty}>Notes <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>(optional)</span></label>
-            <textarea style={{ ...inputSty, resize: 'vertical', lineHeight: 1.6 }} placeholder="Brief, hook idea, link…" rows={3} value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} onFocus={e => e.target.style.borderColor = dark ? 'rgba(255,255,255,0.3)' : '#6b7280'} onBlur={e => e.target.style.borderColor = border} />
+          <div><label style={labelSty}>Brief / Notes <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>(hook, anchor, why now, subject line)</span></label>
+            <textarea style={{ ...inputSty, resize: 'vertical', lineHeight: 1.65, fontFamily: 'Inter, sans-serif' }} placeholder={'Hook: What\'s the angle or key message?\n\nCalendar Anchor: Key date or season\n\nWhy Now: Why is this timely?\n\nSuggested Subject Line: Draft subject'} rows={10} value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} onFocus={e => e.target.style.borderColor = dark ? 'rgba(255,255,255,0.3)' : '#6b7280'} onBlur={e => e.target.style.borderColor = border} />
           </div>
         </div>
 
@@ -327,7 +323,7 @@ function DayCell({ dark, cell, entries, today, onAddClick, onEntryClick }) {
   return (
     <div
       onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
-      style={{ minHeight: 120, background: hovered && cell.current ? (dark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.015)') : cellBg, borderRight: `1px solid ${border}`, borderBottom: `1px solid ${border}`, padding: '8px 10px', position: 'relative', transition: 'background 0.12s' }}>
+      style={{ minHeight: 140, background: hovered && cell.current ? (dark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.015)') : cellBg, borderRight: `1px solid ${border}`, borderBottom: `1px solid ${border}`, padding: '10px 12px', position: 'relative', transition: 'background 0.12s' }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 6 }}>
         <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 26, height: 26, borderRadius: '50%', fontSize: 12, fontWeight: isToday ? 700 : 500, background: isToday ? (dark ? '#f59e0b' : '#111827') : 'transparent', color: isToday ? (dark ? '#111827' : '#fff') : (!cell.current ? (dark ? 'rgba(255,255,255,0.18)' : '#d1d5db') : (dark ? 'rgba(255,255,255,0.7)' : '#374151')), flexShrink: 0 }}>
           {cell.date.getDate()}
@@ -339,13 +335,12 @@ function DayCell({ dark, cell, entries, today, onAddClick, onEntryClick }) {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
         {entries.map(entry => {
           const sc = STATUS_CONFIG[entry.status] || STATUS_CONFIG.draft
-          const tc = TYPE_CONFIG[entry.type]     || TYPE_CONFIG.email
           return (
             <button key={entry.id} onClick={() => onEntryClick(entry, cell.date)} title={`${entry.clientName} — ${entry.subject}`}
               style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '3px 7px', borderRadius: 5, background: sc.bg, border: 'none', cursor: 'pointer', textAlign: 'left', width: '100%', minWidth: 0, transition: 'opacity 0.12s' }}
               onMouseEnter={e => e.currentTarget.style.opacity = '0.75'} onMouseLeave={e => e.currentTarget.style.opacity = '1'}>
-              <span style={{ fontSize: 11, flexShrink: 0 }}>{tc.icon}</span>
-              <span style={{ fontSize: 11, fontWeight: 600, color: sc.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: 'Inter, sans-serif', flex: 1, minWidth: 0 }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: sc.dot, flexShrink: 0 }} />
+              <span style={{ fontSize: 12, fontWeight: 600, color: sc.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: 'Inter, sans-serif', flex: 1, minWidth: 0 }}>
                 {entry.clientName || entry.subject || 'Untitled'}
               </span>
             </button>
@@ -373,8 +368,6 @@ function ApproveModal({ dark, idea, onConfirm, onClose }) {
   const textCol = dark ? 'rgba(255,255,255,0.88)' : '#111827'
   const subCol  = dark ? 'rgba(255,255,255,0.32)' : '#9ca3af'
   const inputBg = dark ? 'rgba(255,255,255,0.05)' : '#f9fafb'
-  const tc = TYPE_CONFIG[idea.type] || TYPE_CONFIG.email
-
   return (
     <div onMouseDown={e => { if (ref.current && !ref.current.contains(e.target)) onClose() }}
       style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
@@ -386,11 +379,11 @@ function ApproveModal({ dark, idea, onConfirm, onClose }) {
         {/* Icon + title */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, marginBottom: 24, textAlign: 'center' }}>
           <div style={{ width: 52, height: 52, borderRadius: 14, background: 'rgba(16,185,129,0.12)', border: '1.5px solid rgba(16,185,129,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>
-            {tc.icon}
+            📅
           </div>
           <div>
-            <div style={{ fontSize: 15, fontWeight: 700, color: textCol, letterSpacing: '-0.01em' }}>Schedule this idea</div>
-            <div style={{ fontSize: 12, color: subCol, marginTop: 4, maxWidth: 300 }}>
+            <div style={{ fontSize: 19, fontWeight: 700, color: textCol, letterSpacing: '-0.02em' }}>Schedule this idea</div>
+            <div style={{ fontSize: 13, color: subCol, marginTop: 5, maxWidth: 300 }}>
               <strong style={{ color: dark ? 'rgba(255,255,255,0.6)' : '#374151' }}>{idea.clientName || 'No client'}</strong>
               {idea.subject ? ` — ${idea.subject}` : ''}
             </div>
@@ -431,7 +424,7 @@ function ApproveModal({ dark, idea, onConfirm, onClose }) {
 
 // ─── Add / Edit idea modal ────────────────────────────────────────────────────
 
-const BLANK_IDEA = { clientName: '', subject: '', type: 'email', hook: '', priority: 'medium' }
+const BLANK_IDEA = { clientName: '', subject: '', hook: '', priority: 'medium', sendDate: '', sendTime: '', changedBy: '' }
 
 const PRIORITY_CONFIG = {
   high:   { label: '🔴 High',   color: '#dc2626' },
@@ -441,7 +434,8 @@ const PRIORITY_CONFIG = {
 
 function IdeaFormModal({ dark, idea, clients, onSave, onClose }) {
   const isEdit = !!idea
-  const [form, setForm] = useState(isEdit ? { ...idea } : { ...BLANK_IDEA })
+  const normalizeHook = (h) => h ? h.replace(/\\n\\n/g, '\n\n').replace(/\\n/g, '\n') : ''
+  const [form, setForm] = useState(isEdit ? { ...idea, hook: normalizeHook(idea.hook) } : { ...BLANK_IDEA })
   const [selectedClientData, setSelectedClientData] = useState(
     isEdit && idea.brandColors ? { brandColors: idea.brandColors, logoUrl: idea.logoUrl } : null
   )
@@ -458,8 +452,8 @@ function IdeaFormModal({ dark, idea, clients, onSave, onClose }) {
   const textCol = dark ? 'rgba(255,255,255,0.88)' : '#111827'
   const subCol  = dark ? 'rgba(255,255,255,0.32)' : '#9ca3af'
   const inputBg = dark ? 'rgba(255,255,255,0.05)' : '#f9fafb'
-  const labelSty = { fontSize: 11, fontWeight: 700, color: subCol, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 6 }
-  const inputSty = { width: '100%', padding: '9px 12px', borderRadius: 9, background: inputBg, border: `1.5px solid ${border}`, color: textCol, fontSize: 13, fontFamily: 'Inter, sans-serif', outline: 'none', boxSizing: 'border-box' }
+  const labelSty = { fontSize: 11, fontWeight: 700, color: subCol, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 7 }
+  const inputSty = { width: '100%', padding: '10px 13px', borderRadius: 9, background: inputBg, border: `1.5px solid ${border}`, color: textCol, fontSize: 14, fontFamily: 'Inter, sans-serif', outline: 'none', boxSizing: 'border-box' }
   const canSave  = form.clientName.trim() || form.subject.trim()
 
   return (
@@ -470,32 +464,52 @@ function IdeaFormModal({ dark, idea, clients, onSave, onClose }) {
         transition={{ duration: 0.18, ease: 'easeOut' }}
         style={{ background: bg, borderRadius: 18, border: `1.5px solid ${border}`, boxShadow: dark ? '0 32px 80px rgba(0,0,0,0.7)' : '0 24px 64px rgba(0,0,0,0.14)', width: '100%', maxWidth: 480, padding: '24px 24px 20px', fontFamily: 'Inter, sans-serif' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: textCol }}>{isEdit ? 'Edit Idea' : '💡 New Campaign Idea'}</div>
+          <div style={{ fontSize: 19, fontWeight: 700, color: textCol, letterSpacing: '-0.02em' }}>{isEdit ? 'Edit Idea' : '💡 New Campaign Idea'}</div>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: subCol, fontSize: 20, padding: '2px 6px', borderRadius: 6 }}>×</button>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <ClientPickerField
-            dark={dark} clients={clients || []}
-            value={form.clientName}
-            onChange={name => setForm(f => ({ ...f, clientName: name }))}
-            onClientSelect={c => {
-              setSelectedClientData(c)
-              if (c) setForm(f => ({ ...f, clientName: c.name, brandColors: c.brandColors || null, logoUrl: c.logoUrl || null }))
-            }}
-            border={border} inputBg={inputBg} textCol={textCol} subCol={subCol} labelSty={labelSty} inputSty={inputSty}
-          />
+          <div><label style={labelSty}>Client</label>
+            <select value={form.clientName} onChange={e => {
+              const name = e.target.value
+              const c = (clients || []).find(cl => cl.name === name)
+              setForm(f => ({ ...f, clientName: name, brandColors: c?.brandColors || null, logoUrl: c?.logoUrl || null }))
+              if (c) setSelectedClientData(c)
+            }} style={{ ...inputSty, cursor: 'pointer', appearance: 'none', backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center', paddingRight: 30 }}>
+              <option value="" style={{ background: dark ? '#1e293b' : '#fff' }}>— Select client —</option>
+              {(clients || []).map(c => <option key={c.id || c.name} value={c.name} style={{ background: dark ? '#1e293b' : '#fff' }}>{c.name}</option>)}
+            </select>
+          </div>
           <div><label style={labelSty}>Campaign Title / Subject Idea</label><input style={inputSty} placeholder="e.g. Spring Market Round-Up" value={form.subject} onChange={e => setForm(f => ({ ...f, subject: e.target.value }))} onFocus={e => e.target.style.borderColor = dark ? 'rgba(255,255,255,0.3)' : '#6b7280'} onBlur={e => e.target.style.borderColor = border} /></div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            <div><label style={labelSty}>Type</label>
-              <select value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))} style={{ ...inputSty, cursor: 'pointer', appearance: 'none', backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center', paddingRight: 30 }}>
-                {Object.entries(TYPE_CONFIG).map(([k, v]) => <option key={k} value={k} style={{ background: bg }}>{v.icon} {v.label}</option>)}
+            <div><label style={labelSty}>Send Date</label>
+              <input type="date" style={{ ...inputSty, cursor: 'pointer', colorScheme: dark ? 'dark' : 'light' }}
+                value={form.sendDate || ''}
+                onChange={e => setForm(f => ({ ...f, sendDate: e.target.value }))}
+                onFocus={e => e.target.style.borderColor = dark ? 'rgba(255,255,255,0.3)' : '#6b7280'}
+                onBlur={e => e.target.style.borderColor = border}
+              />
+            </div>
+            <div><label style={labelSty}>Send Time</label>
+              <input type="time" style={{ ...inputSty, cursor: 'pointer', colorScheme: dark ? 'dark' : 'light' }}
+                value={form.sendTime || ''}
+                onChange={e => setForm(f => ({ ...f, sendTime: e.target.value }))}
+                onFocus={e => e.target.style.borderColor = dark ? 'rgba(255,255,255,0.3)' : '#6b7280'}
+                onBlur={e => e.target.style.borderColor = border}
+              />
+            </div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div><label style={labelSty}>Status</label>
+              <select value={form.status || 'pending'} onChange={e => setForm(f => ({ ...f, status: e.target.value }))} style={{ ...inputSty, cursor: 'pointer', color: IDEA_STATUS[form.status || 'pending']?.text || textCol, appearance: 'none', backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center', paddingRight: 30 }}>
+                {Object.entries(IDEA_STATUS).map(([k, v]) => <option key={k} value={k} style={{ background: bg, color: v.text }}>{v.label}</option>)}
               </select>
             </div>
-            <div><label style={labelSty}>Priority</label>
-              <select value={form.priority} onChange={e => setForm(f => ({ ...f, priority: e.target.value }))} style={{ ...inputSty, cursor: 'pointer', color: PRIORITY_CONFIG[form.priority]?.color || textCol, appearance: 'none', backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center', paddingRight: 30 }}>
-                {Object.entries(PRIORITY_CONFIG).map(([k, v]) => <option key={k} value={k} style={{ background: bg, color: v.color }}>{v.label}</option>)}
+            <div><label style={labelSty}>Changes Made By</label>
+              <select value={form.changedBy || ''} onChange={e => setForm(f => ({ ...f, changedBy: e.target.value }))} style={{ ...inputSty, cursor: 'pointer', appearance: 'none', backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center', paddingRight: 30 }}>
+                <option value="" style={{ background: bg }}>— Select —</option>
+                {['Alicia','Charlotte','Makenna','Gillian','Chiara','Nicole','Ananya'].map(name => <option key={name} value={name} style={{ background: bg }}>{name}</option>)}
               </select>
             </div>
           </div>
@@ -522,17 +536,19 @@ function IdeaFormModal({ dark, idea, clients, onSave, onClose }) {
 // Parse the structured brief into sections
 function parseBrief(hook) {
   if (!hook) return []
-  if (!hook.includes('\n\n')) return [{ label: null, value: hook }]
-  return hook.split('\n\n').map(section => {
+  // Normalize both literal \n\n (from data files) and actual newlines
+  const normalized = hook.replace(/\\n\\n/g, '\n\n').replace(/\\n/g, '\n')
+  if (!normalized.includes('\n\n')) return [{ label: null, value: normalized }]
+  return normalized.split('\n\n').map(section => {
     const idx = section.indexOf(':')
-    if (idx === -1) return { label: null, value: section }
+    if (idx === -1) return { label: null, value: section.trim() }
     return { label: section.slice(0, idx).trim(), value: section.slice(idx + 1).trim() }
   })
 }
 
 const PRIORITY_DOT = { high: '#ef4444', medium: '#f59e0b', low: '#22c55e' }
 
-function IdeaCard({ dark, idea, onApprove, onDecline, onEdit, onReinstate }) {
+function IdeaCard({ dark, idea, onApprove, onDecline, onUnschedule, onEdit, onReinstate }) {
   const [expanded, setExpanded] = useState(false)
 
   const sc = IDEA_STATUS[idea.status] || IDEA_STATUS.pending
@@ -610,18 +626,18 @@ function IdeaCard({ dark, idea, onApprove, onDecline, onEdit, onReinstate }) {
             <span style={{
               fontSize: 10, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase',
               padding: '2px 7px', borderRadius: 4,
-              background: idea.campaignType === 'NON-PROMOTIONAL'
+              background: idea.campaignType === 'INDIRECT'
                 ? (dark ? 'rgba(99,102,241,0.15)' : '#eef2ff')
                 : (dark ? 'rgba(245,158,11,0.15)' : '#fffbeb'),
-              color: idea.campaignType === 'NON-PROMOTIONAL'
+              color: idea.campaignType === 'INDIRECT'
                 ? (dark ? '#a5b4fc' : '#4f46e5')
                 : (dark ? '#fbbf24' : '#b45309'),
             }}>
-              {idea.campaignType === 'NON-PROMOTIONAL' ? 'Non-Promo' : 'Promo'}
+              {idea.campaignType}
             </span>
           )}
           {idea.theme && (
-            <span style={{ fontSize: 11, color: mutedCol, fontWeight: 400 }}>{idea.theme}</span>
+            <span style={{ fontSize: 11, color: mutedCol, fontWeight: 400 }}>{idea.theme.includes('—') ? idea.theme.split('—').slice(1).join('—').trim() : idea.theme}</span>
           )}
         </div>
 
@@ -631,7 +647,7 @@ function IdeaCard({ dark, idea, onApprove, onDecline, onEdit, onReinstate }) {
         {/* Hook — always visible */}
         {hookSec && (
           <div style={{ marginBottom: restSecs.length ? 10 : 0 }}>
-            <p style={{ fontSize: 10, fontWeight: 700, color: mutedCol, textTransform: 'uppercase', letterSpacing: '0.07em', margin: '0 0 5px' }}>Hook</p>
+            <p style={{ fontSize: 12, fontWeight: 700, color: textCol, margin: '0 0 4px' }}>Hook</p>
             <p style={{ fontSize: 12, color: dark ? 'rgba(255,255,255,0.6)' : '#52525b', lineHeight: 1.65, margin: 0 }}>{hookSec.value}</p>
           </div>
         )}
@@ -650,7 +666,7 @@ function IdeaCard({ dark, idea, onApprove, onDecline, onEdit, onReinstate }) {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 12 }}>
                 {restSecs.map((s, i) => (
                   <div key={i}>
-                    <p style={{ fontSize: 10, fontWeight: 700, color: mutedCol, textTransform: 'uppercase', letterSpacing: '0.07em', margin: '0 0 5px' }}>{s.label}</p>
+                    <p style={{ fontSize: 12, fontWeight: 700, color: textCol, margin: '0 0 4px' }}>{s.label}</p>
                     <p style={{
                       fontSize: 12, lineHeight: 1.65, margin: 0,
                       color: s.label === 'Suggested Subject Line'
@@ -723,12 +739,20 @@ function IdeaCard({ dark, idea, onApprove, onDecline, onEdit, onReinstate }) {
           </button>
         )}
         {isApproved && (
-          <button onClick={() => onApprove(idea)}
-            style={{ flex: 1, padding: '6px 0', border: 'none', borderRadius: 7, outline: 'none', background: '#16a34a', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'Inter, sans-serif', transition: 'background 0.15s' }}
-            onMouseEnter={e => e.currentTarget.style.background = '#15803d'}
-            onMouseLeave={e => e.currentTarget.style.background = '#16a34a'}>
-            Reschedule
-          </button>
+          <>
+            <button onClick={() => onApprove(idea)}
+              style={{ flex: 1, padding: '6px 0', border: 'none', borderRadius: 7, outline: 'none', background: '#16a34a', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'Inter, sans-serif', transition: 'background 0.15s' }}
+              onMouseEnter={e => e.currentTarget.style.background = '#15803d'}
+              onMouseLeave={e => e.currentTarget.style.background = '#16a34a'}>
+              Reschedule
+            </button>
+            <button onClick={() => onUnschedule(idea.id)}
+              style={{ flex: 1, padding: '6px 0', border: `1px solid ${dark ? 'rgba(239,68,68,0.35)' : '#fca5a5'}`, borderRadius: 7, outline: 'none', background: 'transparent', color: '#ef4444', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'Inter, sans-serif', transition: 'background 0.15s' }}
+              onMouseEnter={e => e.currentTarget.style.background = dark ? 'rgba(239,68,68,0.1)' : '#fff1f2'}
+              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+              Unschedule
+            </button>
+          </>
         )}
         {/* Edit */}
         <button onClick={() => onEdit(idea)}
@@ -745,7 +769,7 @@ function IdeaCard({ dark, idea, onApprove, onDecline, onEdit, onReinstate }) {
 
 // ─── Ideas view ───────────────────────────────────────────────────────────────
 
-function IdeasView({ dark, ideas, setIdeas, calEntries, setCalEntries, clients }) {
+function IdeasView({ dark, ideas, clients, allRows, patchRow, addRow }) {
   const [filter,       setFilter]       = useState('pending')
   const [monthFilter,  setMonthFilter]  = useState('all')
   const [approveModal, setApproveModal] = useState(null)
@@ -777,30 +801,43 @@ function IdeasView({ dark, ideas, setIdeas, calEntries, setCalEntries, clients }
     return (PRIORITY_ORDER[a.priority] ?? 1) - (PRIORITY_ORDER[b.priority] ?? 1)
   })
 
-  function saveIdeas(next) { setIdeas(next); save(IDEAS_KEY, next) }
-
-  function handleApproveConfirm(date) {
+  async function handleApproveConfirm(date) {
     const idea = approveModal
-    // Update idea
-    const updatedIdeas = ideas.map(i => i.id === idea.id ? { ...i, status: 'approved', scheduledDate: date } : i)
-    saveIdeas(updatedIdeas)
-    // Add draft to calendar
-    const newEntry = { id: genId(), date, clientName: idea.clientName, subject: idea.subject, status: 'draft', type: idea.type, notes: idea.hook || '', fromIdeaId: idea.id }
-    const next = [...calEntries, newEntry]
-    setCalEntries(next); save(CAL_KEY, next)
+    const changes = { idea_status: 'approved', calendar_date: date, entry_status: 'draft', updated_at: new Date().toISOString() }
+    await supabase.from(TABLE).update(changes).eq('id', idea.id)
+    patchRow(idea.id, changes)
     setApproveModal(null)
   }
 
-  function handleDecline(id) {
-    saveIdeas(ideas.map(i => i.id === id ? { ...i, status: 'declined', scheduledDate: null } : i))
+  async function handleUnschedule(id) {
+    const changes = { idea_status: 'pending', calendar_date: null, entry_status: null, updated_at: new Date().toISOString() }
+    await supabase.from(TABLE).update(changes).eq('id', id)
+    patchRow(id, changes)
   }
-  function handleReinstate(id) {
-    saveIdeas(ideas.map(i => i.id === id ? { ...i, status: 'pending' } : i))
+
+  async function handleDecline(id) {
+    const changes = { idea_status: 'declined', calendar_date: null, entry_status: null, updated_at: new Date().toISOString() }
+    await supabase.from(TABLE).update(changes).eq('id', id)
+    patchRow(id, changes)
   }
-  function handleSaveIdea(idea) {
-    const idx = ideas.findIndex(i => i.id === idea.id)
-    const next = idx === -1 ? [idea, ...ideas] : ideas.map(i => i.id === idea.id ? idea : i)
-    saveIdeas(next)
+
+  async function handleReinstate(id) {
+    const changes = { idea_status: 'pending', updated_at: new Date().toISOString() }
+    await supabase.from(TABLE).update(changes).eq('id', id)
+    patchRow(id, changes)
+  }
+
+  async function handleSaveIdea(idea) {
+    const row = ideaToRow(idea)
+    if (allRows.find(r => String(r.id) === String(idea.id))) {
+      // Update existing
+      await supabase.from(TABLE).update(row).eq('id', idea.id)
+      patchRow(idea.id, row)
+    } else {
+      // New idea — insert
+      const { data } = await supabase.from(TABLE).insert({ ...row, idea_status: row.idea_status || 'pending' }).select().single()
+      if (data) addRow(data)
+    }
     setFormModal(null)
   }
 
@@ -877,6 +914,7 @@ function IdeasView({ dark, ideas, setIdeas, calEntries, setCalEntries, clients }
                 idea={idea}
                 onApprove={idea => setApproveModal(idea)}
                 onDecline={handleDecline}
+                onUnschedule={handleUnschedule}
                 onEdit={idea => setFormModal(idea)}
                 onReinstate={handleReinstate}
               />
@@ -913,11 +951,30 @@ export default function ContentCalendar() {
   const [year,  setYear]  = useState(now.getFullYear())
   const [month, setMonth] = useState(now.getMonth())
 
-  const [entries,  setEntries]  = useState(() => load(CAL_KEY))
-  const [ideas,    setIdeas]    = useState(() => loadIdeas())
+  const [allRows,  setAllRows]  = useState([])
+  const [loading,  setLoading]  = useState(true)
   const [modal,    setModal]    = useState(null)
 
+  // Derive ideas and entries from the single allRows state
+  const ideas   = allRows.filter(r => r.idea_status != null).map(rowToIdea)
+  const entries = allRows.filter(r => r.calendar_date != null).map(rowToEntry)
+
   const { clients } = useClients()
+
+  useEffect(() => {
+    fetchAllRows().then(rows => { setAllRows(rows); setLoading(false) })
+  }, [])
+
+  // Helper: refresh a single row in allRows after a mutation
+  function patchRow(id, changes) {
+    setAllRows(prev => prev.map(r => String(r.id) === String(id) ? { ...r, ...changes } : r))
+  }
+  function removeRow(id) {
+    setAllRows(prev => prev.filter(r => String(r.id) !== String(id)))
+  }
+  function addRow(row) {
+    setAllRows(prev => [...prev, row])
+  }
 
   const today  = dateKey(now)
   const cells  = buildGrid(year, month)
@@ -931,16 +988,32 @@ export default function ContentCalendar() {
   function nextMonth() { if (month === 11) { setMonth(0); setYear(y => y+1) } else setMonth(m => m+1) }
   function goToday()   { setYear(now.getFullYear()); setMonth(now.getMonth()) }
 
-  function handleSaveEntry(entry) {
-    setEntries(prev => {
-      const idx  = prev.findIndex(e => e.id === entry.id)
-      const next = idx === -1 ? [...prev, entry] : prev.map(e => e.id === entry.id ? entry : e)
-      save(CAL_KEY, next); return next
-    })
+  async function handleSaveEntry(entry) {
+    const row = entryToRow(entry)
+    const existingRow = allRows.find(r => String(r.id) === String(entry.id))
+    if (existingRow) {
+      // Update existing row
+      await supabase.from(TABLE).update(row).eq('id', entry.id)
+      patchRow(entry.id, row)
+    } else {
+      // New manual entry (not from an idea) — insert with null idea_status
+      const { data } = await supabase.from(TABLE).insert({ ...row, idea_status: null }).select().single()
+      if (data) addRow(data)
+    }
     setModal(null)
   }
-  function handleDeleteEntry(id) {
-    setEntries(prev => { const next = prev.filter(e => e.id !== id); save(CAL_KEY, next); return next })
+  async function handleDeleteEntry(id) {
+    const row = allRows.find(r => String(r.id) === String(id))
+    if (row?.idea_status != null) {
+      // This row is also an idea — just clear calendar fields instead of deleting
+      const changes = { calendar_date: null, entry_status: null, idea_status: 'pending', updated_at: new Date().toISOString() }
+      await supabase.from(TABLE).update(changes).eq('id', id)
+      patchRow(id, changes)
+    } else {
+      // Pure manual entry — delete the row
+      await supabase.from(TABLE).delete().eq('id', id)
+      removeRow(id)
+    }
     setModal(null)
   }
 
@@ -962,35 +1035,35 @@ export default function ContentCalendar() {
   const headerBg = dark ? 'rgba(255,255,255,0.025)' : '#fafafa'
 
   return (
-    <div style={{ minHeight: '100vh', background: pageBg, padding: '32px 32px 60px', fontFamily: 'Inter, sans-serif' }}>
-      <div style={{ maxWidth: 1160, margin: '0 auto' }}>
+    <div style={{ minHeight: '100vh', background: pageBg, padding: '44px 48px 80px', fontFamily: 'Inter, sans-serif' }}>
+      <div style={{ maxWidth: 1280, margin: '0 auto' }}>
 
         {/* ── Page title ── */}
-        <div style={{ marginBottom: 24 }}>
-          <h1 style={{ fontSize: 22, fontWeight: 700, color: textCol, letterSpacing: '-0.02em', margin: 0 }}>Content Calendar</h1>
-          <p style={{ fontSize: 12, color: subCol, margin: '3px 0 0' }}>Plan, schedule and track your email campaigns</p>
+        <div style={{ marginBottom: 32 }}>
+          <h1 style={{ fontSize: 30, fontWeight: 800, color: textCol, letterSpacing: '-0.03em', margin: 0 }}>Content Calendar</h1>
+          <p style={{ fontSize: 14, color: subCol, margin: '6px 0 0', letterSpacing: '-0.01em' }}>Plan, schedule and track your email campaigns</p>
         </div>
 
         {/* ── Tab switcher ── */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 28, borderBottom: `1px solid ${border}`, paddingBottom: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 2, marginBottom: 36, borderBottom: `1.5px solid ${border}`, paddingBottom: 0 }}>
           {[
             { key: 'calendar', label: '📅 Calendar' },
             { key: 'ideas',    label: '💡 Ideas',    badge: pendingIdeas > 0 ? pendingIdeas : null },
           ].map(tab => (
             <button key={tab.key} onClick={() => setActiveTab(tab.key)}
               style={{
-                display: 'flex', alignItems: 'center', gap: 7,
-                padding: '10px 18px', borderRadius: '10px 10px 0 0',
-                border: 'none', borderBottom: activeTab === tab.key ? `2px solid ${dark ? '#f59e0b' : '#111827'}` : '2px solid transparent',
-                background: activeTab === tab.key ? (dark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)') : 'transparent',
+                display: 'flex', alignItems: 'center', gap: 8,
+                padding: '12px 24px', borderRadius: '12px 12px 0 0',
+                border: 'none', borderBottom: activeTab === tab.key ? `2.5px solid ${dark ? '#f59e0b' : '#111827'}` : '2.5px solid transparent',
+                background: activeTab === tab.key ? (dark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)') : 'transparent',
                 color: activeTab === tab.key ? textCol : subCol,
-                fontSize: 13, fontWeight: activeTab === tab.key ? 700 : 500,
+                fontSize: 15, fontWeight: activeTab === tab.key ? 700 : 500,
                 cursor: 'pointer', fontFamily: 'Inter, sans-serif', transition: 'all 0.15s',
-                marginBottom: -1,
+                marginBottom: -2, letterSpacing: '-0.01em',
               }}>
               {tab.label}
               {tab.badge && (
-                <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 18, height: 18, borderRadius: '50%', background: '#f59e0b', color: '#111827', fontSize: 10, fontWeight: 800 }}>{tab.badge}</span>
+                <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: 22, height: 22, borderRadius: 11, background: '#f59e0b', color: '#111827', fontSize: 11, fontWeight: 800, padding: '0 5px' }}>{tab.badge}</span>
               )}
             </button>
           ))}
@@ -1002,24 +1075,24 @@ export default function ContentCalendar() {
             <motion.div key="calendar" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 6 }} transition={{ duration: 0.18 }}>
 
               {/* Calendar controls */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 14 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, flexWrap: 'wrap', gap: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <button onClick={prevMonth} style={navBtnStyle(dark)}>‹</button>
-                  <span style={{ fontSize: 15, fontWeight: 700, color: textCol, minWidth: 160, textAlign: 'center' }}>{MONTHS[month]} {year}</span>
+                  <span style={{ fontSize: 20, fontWeight: 700, color: textCol, minWidth: 180, textAlign: 'center', letterSpacing: '-0.02em' }}>{MONTHS[month]} {year}</span>
                   <button onClick={nextMonth} style={navBtnStyle(dark)}>›</button>
-                  <button onClick={goToday} style={{ fontSize: 12, fontWeight: 600, padding: '5px 12px', borderRadius: 8, cursor: 'pointer', border: `1px solid ${border}`, background: 'transparent', color: subCol, fontFamily: 'Inter, sans-serif' }}>Today</button>
+                  <button onClick={goToday} style={{ fontSize: 13, fontWeight: 600, padding: '6px 14px', borderRadius: 8, cursor: 'pointer', border: `1px solid ${border}`, background: 'transparent', color: subCol, fontFamily: 'Inter, sans-serif' }}>Today</button>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     {Object.entries(STATUS_CONFIG).map(([k, v]) => (
-                      <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <div style={{ width: 7, height: 7, borderRadius: '50%', background: v.dot }} />
-                        <span style={{ fontSize: 11, color: subCol }}>{v.label}{counts[k] > 0 && <span style={{ color: v.text, fontWeight: 700 }}> ({counts[k]})</span>}</span>
+                      <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                        <div style={{ width: 8, height: 8, borderRadius: '50%', background: v.dot }} />
+                        <span style={{ fontSize: 12, color: subCol }}>{v.label}{counts[k] > 0 && <span style={{ color: v.text, fontWeight: 700 }}> ({counts[k]})</span>}</span>
                       </div>
                     ))}
                   </div>
                   <button onClick={() => setModal({ date: now })}
-                    style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 18px', borderRadius: 10, border: 'none', background: dark ? '#f59e0b' : '#111827', color: dark ? '#111827' : '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'Inter, sans-serif', transition: 'opacity 0.15s' }}
+                    style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 20px', borderRadius: 10, border: 'none', background: dark ? '#f59e0b' : '#111827', color: dark ? '#111827' : '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'Inter, sans-serif', transition: 'opacity 0.15s' }}
                     onMouseEnter={e => e.currentTarget.style.opacity = '0.85'} onMouseLeave={e => e.currentTarget.style.opacity = '1'}>
                     + Add Entry
                   </button>
@@ -1030,7 +1103,7 @@ export default function ContentCalendar() {
               <div style={{ background: cardBg, borderRadius: 16, border: `1px solid ${border}`, boxShadow: dark ? '0 4px 24px rgba(0,0,0,0.4)' : '0 2px 16px rgba(0,0,0,0.06)', overflow: 'hidden' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', background: headerBg, borderBottom: `1px solid ${border}` }}>
                   {DAYS.map(day => (
-                    <div key={day} style={{ padding: '12px 10px 10px', fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: (day === 'Sat' || day === 'Sun') ? subCol : (dark ? 'rgba(255,255,255,0.45)' : '#9ca3af'), borderRight: `1px solid ${border}` }}>{day}</div>
+                    <div key={day} style={{ padding: '14px 12px 12px', fontSize: 12, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: (day === 'Sat' || day === 'Sun') ? subCol : (dark ? 'rgba(255,255,255,0.45)' : '#9ca3af'), borderRight: `1px solid ${border}` }}>{day}</div>
                   ))}
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
@@ -1045,26 +1118,25 @@ export default function ContentCalendar() {
               {/* Monthly list */}
               {monthEntries.length > 0 && (
                 <div style={{ marginTop: 32 }}>
-                  <p style={{ fontSize: 12, fontWeight: 700, color: subCol, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 14 }}>
+                  <p style={{ fontSize: 13, fontWeight: 700, color: subCol, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 16 }}>
                     {MONTHS[month]} · {monthEntries.length} {monthEntries.length === 1 ? 'entry' : 'entries'}
                   </p>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                     {[...monthEntries].sort((a, b) => a.date.localeCompare(b.date)).map(entry => {
                       const sc = STATUS_CONFIG[entry.status] || STATUS_CONFIG.draft
-                      const tc = TYPE_CONFIG[entry.type]     || TYPE_CONFIG.email
                       const d  = new Date(entry.date + 'T00:00:00')
                       return (
                         <button key={entry.id} onClick={() => setModal({ date: d, entry })}
-                          style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '11px 16px', borderRadius: 10, background: dark ? 'rgba(255,255,255,0.03)' : '#fafafa', border: `1px solid ${border}`, cursor: 'pointer', textAlign: 'left', width: '100%', fontFamily: 'Inter, sans-serif', transition: 'background 0.12s' }}
+                          style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '13px 18px', borderRadius: 12, background: dark ? 'rgba(255,255,255,0.03)' : '#fafafa', border: `1px solid ${border}`, cursor: 'pointer', textAlign: 'left', width: '100%', fontFamily: 'Inter, sans-serif', transition: 'background 0.12s' }}
                           onMouseEnter={e => e.currentTarget.style.background = dark ? 'rgba(255,255,255,0.06)' : '#f3f4f6'}
                           onMouseLeave={e => e.currentTarget.style.background = dark ? 'rgba(255,255,255,0.03)' : '#fafafa'}>
-                          <span style={{ fontSize: 11, fontWeight: 700, color: subCol, minWidth: 54 }}>{d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })}</span>
-                          <span style={{ fontSize: 15, flexShrink: 0 }}>{tc.icon}</span>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: subCol, minWidth: 60 }}>{d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })}</span>
+                          <span style={{ width: 9, height: 9, borderRadius: '50%', background: sc.dot, flexShrink: 0 }} />
                           <div style={{ flex: 1, minWidth: 0 }}>
-                            <span style={{ fontSize: 13, fontWeight: 600, color: textCol }}>{entry.clientName || <span style={{ color: subCol }}>No client</span>}</span>
-                            {entry.subject && <span style={{ fontSize: 12, color: subCol, marginLeft: 8 }}>— {entry.subject}</span>}
+                            <span style={{ fontSize: 14, fontWeight: 600, color: textCol }}>{entry.clientName || <span style={{ color: subCol }}>No client</span>}</span>
+                            {entry.subject && <span style={{ fontSize: 13, color: subCol, marginLeft: 8 }}>— {entry.subject}</span>}
                           </div>
-                          <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 20, background: sc.bg, color: sc.text, flexShrink: 0 }}>{sc.label}</span>
+                          <span style={{ fontSize: 12, fontWeight: 700, padding: '4px 12px', borderRadius: 20, background: sc.bg, color: sc.text, flexShrink: 0 }}>{sc.label}</span>
                         </button>
                       )
                     })}
@@ -1077,7 +1149,7 @@ export default function ContentCalendar() {
           {/* ── Ideas tab ── */}
           {activeTab === 'ideas' && (
             <motion.div key="ideas" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 6 }} transition={{ duration: 0.18 }}>
-              <IdeasView dark={dark} ideas={ideas} setIdeas={setIdeas} calEntries={entries} setCalEntries={setEntries} clients={clients} />
+              <IdeasView dark={dark} ideas={ideas} clients={clients} allRows={allRows} patchRow={patchRow} addRow={addRow} />
             </motion.div>
           )}
         </AnimatePresence>
