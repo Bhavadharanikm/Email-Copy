@@ -349,8 +349,8 @@ function buildTemplateWeek2({ client, copy, images, footerData, isHeroGenerated 
   const body     = (copy.bodyText||'').replace(/\n/g,'<br>')
   const b2body   = (copy.bodyBlock2||'').replace(/\n/g,'<br>')
   const logoUrl  = client?.logoUrl||''
-  const midBg      = footerData?.bgColor      || '#fff'
-  const pageBg     = '#f5f2ec'
+  const pageBg     = footerData?.bgColor      || '#1e2a4a'
+  const midBg      = '#ffffff'
   const accentClr  = footerData?.buttonColor || '#d4006a'
   const secondaryClr = footerData?.secondaryColor || accentClr
   const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
@@ -366,14 +366,14 @@ function buildTemplateWeek2({ client, copy, images, footerData, isHeroGenerated 
   :root{color-scheme:light}
   *{box-sizing:border-box;margin:0;padding:0}
   body{background:${pageBg}!important;font-family:Arial,sans-serif;color:#1a1a1a!important;-webkit-text-size-adjust:100%}
-  .wrap{max-width:600px;margin:0 auto 48px;background:${midBg}!important;overflow:hidden}
   @media (prefers-color-scheme:dark){
     html,body{background-color:${pageBg}!important;color:#1a1a1a!important}
-    .wrap{background-color:${midBg}!important}
-    [data-ogsc] body,[data-ogsc] .wrap{background-color:${midBg}!important;color:#1a1a1a!important}
   }
 </style></head><body style="background:${pageBg}!important;margin:0;padding:0;font-family:Arial,sans-serif;color:#1a1a1a!important;">
-<div class="wrap" style="max-width:600px;margin:0 auto 48px;background:${midBg}!important;overflow:hidden;">
+<table width="100%" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="background:${pageBg}!important;border-collapse:collapse;">
+<tr><td align="center" style="padding:32px 0;background:${pageBg}!important;">
+<table width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;background:${midBg}!important;border-collapse:collapse;border-radius:20px;overflow:hidden;">
+<tr><td style="background:${midBg}!important;">
 
   <!-- LOGO HEADER (always above arch) -->
   <div style="padding:${logoTop}px 32px 18px;text-align:center;background:${midBg}!important;">${logoOverlay}</div>
@@ -430,7 +430,7 @@ function buildTemplateWeek2({ client, copy, images, footerData, isHeroGenerated 
   </div>` : ''}
 
   ${buildFooter(client, footerData, { defaultBg: '#d4006a' })}
-</div></body></html>`
+</td></tr></table></td></tr></table></body></html>`
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
