@@ -25,8 +25,9 @@ export default function ImagePicker() {
   const [loading,  setLoading]  = useState(true)
   const [error,    setError]    = useState(null)
 
-  // Folder navigation
-  const [activeFolder, setActiveFolder] = useState(null) // null = root
+  // Folder navigation — stack for breadcrumb ([] = root)
+  const [folderStack, setFolderStack] = useState([])
+  const activeFolder = folderStack[folderStack.length - 1] ?? null
 
   const [logoUploading, setLogoUploading] = useState(false)
   const [logoStatus, setLogoStatus]       = useState('')
@@ -64,7 +65,7 @@ export default function ImagePicker() {
       })
       .catch(e => setError(e.message))
       .finally(() => setLoading(false))
-  }, [locationId, selectedClient, activeFolder])
+  }, [locationId, selectedClient, folderStack])
 
   const slots = [
     selectedImages[0] ?? null,
@@ -256,39 +257,61 @@ export default function ImagePicker() {
 
       {/* ── Right: Media library ── */}
       <div style={{ flex: 1, minWidth: 0 }}>
-        {/* Header row: title + breadcrumb */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-          <p style={{ fontSize: 14, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: mutedText, margin: 0 }}>
-            Media Library
-          </p>
-          {activeFolder && (
-            <>
-              <span style={{ fontSize: 13, color: mutedText }}>›</span>
-              <span style={{ fontSize: 13, fontWeight: 600, color: dark ? 'rgba(255,255,255,0.7)' : '#374151' }}>{activeFolder.name}</span>
+        {/* Header row: breadcrumb */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12, flexWrap: 'wrap' }}>
+          {/* Root crumb */}
+          <button
+            type="button"
+            onClick={() => setFolderStack([])}
+            style={{
+              fontSize: 13, fontWeight: folderStack.length === 0 ? 700 : 500,
+              color: folderStack.length === 0 ? (dark ? '#fff' : '#111827') : mutedText,
+              background: 'none', border: 'none', cursor: folderStack.length === 0 ? 'default' : 'pointer',
+              padding: 0, fontFamily: 'Inter, sans-serif', letterSpacing: '0.08em', textTransform: 'uppercase',
+            }}
+          >Media Library</button>
+
+          {folderStack.map((f, i) => (
+            <span key={f.id} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontSize: 12, color: mutedText }}>›</span>
               <button
                 type="button"
-                onClick={() => setActiveFolder(null)}
+                onClick={() => setFolderStack(folderStack.slice(0, i + 1))}
                 style={{
-                  marginLeft: 'auto', fontSize: 12, fontWeight: 600,
-                  padding: '4px 10px', borderRadius: 6, cursor: 'pointer',
-                  border: `1px solid ${dark ? 'rgba(255,255,255,0.15)' : '#d1d5db'}`,
-                  background: dark ? 'rgba(255,255,255,0.06)' : '#fff',
-                  color: dark ? 'rgba(255,255,255,0.6)' : '#6b7280',
-                  fontFamily: 'Inter, sans-serif',
+                  fontSize: 13, fontWeight: i === folderStack.length - 1 ? 700 : 500,
+                  color: i === folderStack.length - 1 ? (dark ? '#fff' : '#111827') : mutedText,
+                  background: 'none', border: 'none',
+                  cursor: i === folderStack.length - 1 ? 'default' : 'pointer',
+                  padding: 0, fontFamily: 'Inter, sans-serif',
                 }}
-              >← All folders</button>
-            </>
+              >{f.name}</button>
+            </span>
+          ))}
+
+          {folderStack.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setFolderStack(s => s.slice(0, -1))}
+              style={{
+                marginLeft: 'auto', fontSize: 12, fontWeight: 600,
+                padding: '4px 10px', borderRadius: 6, cursor: 'pointer',
+                border: `1px solid ${dark ? 'rgba(255,255,255,0.15)' : '#d1d5db'}`,
+                background: dark ? 'rgba(255,255,255,0.06)' : '#fff',
+                color: dark ? 'rgba(255,255,255,0.6)' : '#6b7280',
+                fontFamily: 'Inter, sans-serif',
+              }}
+            >← Back</button>
           )}
         </div>
 
-        {/* Folder chips — only at root level */}
-        {!activeFolder && folders.length > 0 && (
+        {/* Folder / subfolder chips */}
+        {folders.length > 0 && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 12 }}>
             {folders.map(folder => (
               <button
                 key={folder.id}
                 type="button"
-                onClick={() => setActiveFolder(folder)}
+                onClick={() => setFolderStack(s => [...s, folder])}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 5,
                   fontSize: 12, fontWeight: 600, padding: '5px 12px', borderRadius: 20,
@@ -321,12 +344,12 @@ export default function ImagePicker() {
         )}
 
         {/* Empty folder message */}
-        {!loading && activeFolder && !images.length && (
-          <p style={{ fontSize: 14, color: mutedText, marginTop: 8 }}>No images in this folder.</p>
+        {!loading && folderStack.length > 0 && !images.length && !folders.length && (
+          <p style={{ fontSize: 14, color: mutedText, marginTop: 8 }}>No images or subfolders in this folder.</p>
         )}
 
         {/* Empty root message (no folders, no images) */}
-        {!loading && !activeFolder && !images.length && !folders.length && (
+        {!loading && folderStack.length === 0 && !images.length && !folders.length && (
           <p style={{ fontSize: 14, color: mutedText, marginTop: 8 }}>No images found. Upload photos in GHL → Media Storage.</p>
         )}
 

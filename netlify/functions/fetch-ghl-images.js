@@ -31,19 +31,21 @@ export const handler = async (event) => {
 
   try {
     if (folderId) {
-      // ── Fetch images inside a specific folder ──────────────────────────
-      const data = await ghlGet(
-        `/medias/files?locationId=${locationId}&type=file&parentId=${folderId}&limit=200&sortBy=updatedAt&sortOrder=desc`,
-        apiKey
-      )
-      const images = (data.files || [])
+      // ── Fetch subfolders + images inside a specific folder in parallel ──
+      const [subFolderData, fileData] = await Promise.all([
+        ghlGet(`/medias/files?locationId=${locationId}&type=folder&parentId=${folderId}&limit=100&sortBy=name&sortOrder=asc`, apiKey),
+        ghlGet(`/medias/files?locationId=${locationId}&type=file&parentId=${folderId}&limit=200&sortBy=updatedAt&sortOrder=desc`, apiKey),
+      ])
+
+      const folders = (subFolderData.files || []).map(f => ({ id: f._id, name: f.name }))
+      const images  = (fileData.files || [])
         .filter(f => IMAGE_TYPES.includes(f.contentType))
         .map(f => ({ id: f._id, name: f.name, url: f.url, thumbnailUrl: f.url, contentType: f.contentType }))
 
       return {
         statusCode: 200,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ images }),
+        body: JSON.stringify({ folders, images }),
       }
     }
 
