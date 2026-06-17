@@ -447,6 +447,7 @@ function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated 
   const img2Obj  = images?.[2]; const img2    = img2Obj?.url||''
   const img3Obj  = images?.[3]; const img3    = img3Obj?.url||''
   const img4Obj  = images?.[4]; const img4    = img4Obj?.url||''
+  const img5Obj  = images?.[5]; const img5    = img5Obj?.url||''
   const body     = (copy.bodyText||'').replace(/\n/g,'<br>')
   const b2body   = (copy.bodyBlock2||'').replace(/\n/g,'<br>')
   const logoUrl  = client?.logoUrl||''
@@ -546,7 +547,9 @@ function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated 
       <div style="font-family:Arial,sans-serif;font-size:16px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:${secondaryClr}!important;margin-bottom:0;">${copy.bodyBlock2Title}</div>
     </td></tr>` : ''}
 
-    ${(img3 || img1) ? `
+    ${isHeroGenerated && img5
+      ? `<tr><td style="padding:0;line-height:0;font-size:0;text-align:center;background:${cardBg}!important;"><img src="${img5}" alt="" width="600" style="display:block;width:600px;max-width:100%;"/></td></tr>`
+      : (img3 || img1) ? `
     <tr><td style="padding:20px 40px 0;background:${cardBg}!important;line-height:0;font-size:0;">
       <img src="${img3 || img1}" alt="" width="520" style="width:100%;max-width:520px;height:320px;object-fit:cover;display:block;border-radius:14px;object-position:${focalPos(img3 ? img3Obj : img1Obj)};"/>
     </td></tr>` : ''}
@@ -1771,8 +1774,10 @@ function buildTemplateWeek5({ client, copy, images, footerData, isHeroGenerated 
          Row 2: [wide  62%]  | [narrow 38%]
          Creates a visual zigzag as the eye moves down the email.
     ─────────────────────────────────────────────────────────────────── -->
-    ${hasGrid ? `
-    <tr><td style="padding:28px 0 0;background:${cardBg}!important;">
+    ${hasGrid
+      ? isHeroGenerated && img4
+        ? `<tr><td style="padding:28px 0 0;background:${cardBg}!important;line-height:0;font-size:0;text-align:center;"><img src="${img4}" alt="" width="600" style="display:block;width:600px;max-width:100%;"/></td></tr>`
+        : `<tr><td style="padding:28px 0 0;background:${cardBg}!important;">
       <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
 
         <!-- Row 1: narrow left | wide right -->
@@ -1807,7 +1812,8 @@ function buildTemplateWeek5({ client, copy, images, footerData, isHeroGenerated 
         </tr>
 
       </table>
-    </td></tr>` : ''}
+    </td></tr>`
+      : ''}
 
     <!-- ── Body block 2 + closing ── -->
     ${copy.bodyBlock2 ? `
@@ -2314,8 +2320,8 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
 
   // Calls html2image.net first; falls back to Puppeteer + GHL upload
   const renderImage = useCallback(async ({ html, width, height }) => {
-    return await htmlToImage({ html, width, height, locationId })
-  }, [locationId])
+    return await htmlToImage({ html, width, height, locationId, apiKey: selectedClient?.ghlApiKey })
+  }, [locationId, selectedClient?.ghlApiKey])
 
   // Week template image generation effect
   useEffect(() => {
@@ -2324,6 +2330,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     const heroImgUrl = selectedImages?.[0]?.url || selectedImages?.[0]?.thumbnailUrl || ''
     const img1Url    = selectedImages?.[1]?.url || selectedImages?.[1]?.thumbnailUrl || ''
     const img2Url    = selectedImages?.[2]?.url || selectedImages?.[2]?.thumbnailUrl || ''
+    const img3Url    = selectedImages?.[3]?.url || selectedImages?.[3]?.thumbnailUrl || ''
     const logoUrl    = selectedClient?.logoUrl || ''
     const headline   = generatedCopy?.headlineText || ''
     const clientName = selectedClient?.name || ''
@@ -2447,6 +2454,19 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
 </div>
 </body></html>`
 
+    // Week 3 body image: padded single image with border-radius (ter slot)
+    const w3BodySrc = img3Url || img1Url
+    const w3BodyFp  = (img3Url ? selectedImages?.[3] : selectedImages?.[1])?.focalX != null
+      ? `${(img3Url ? selectedImages[3] : selectedImages[1]).focalX}% ${(img3Url ? selectedImages[3] : selectedImages[1]).focalY}%`
+      : '50% 50%'
+    const week3BodyHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:#ffffff;}</style>
+</head><body>
+<div style="padding:20px 40px 0;background:#ffffff;width:600px;">
+  ${w3BodySrc ? `<img src="${w3BodySrc}" alt="" width="520" style="width:520px;height:320px;object-fit:cover;display:block;border-radius:14px;object-position:${w3BodyFp};"/>` : `<div style="width:520px;height:320px;background:#e8e4de;border-radius:14px;"></div>`}
+</div>
+</body></html>`
+
     const polaroidHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:#f5f0e8}</style>
 </head><body>
@@ -2475,6 +2495,34 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     </div>
   </div>
 </div>
+</body></html>`
+
+    // ── Week 5 zigzag grid: 2×2 with narrow|wide / wide|narrow rows (sec slot) ──
+    const grid1Fp = selectedImages?.[1]?.focalX != null ? `${selectedImages[1].focalX}% ${selectedImages[1].focalY}%` : '50% 50%'
+    const grid2Fp = selectedImages?.[2]?.focalX != null ? `${selectedImages[2].focalX}% ${selectedImages[2].focalY}%` : '50% 50%'
+    const grid3Fp = selectedImages?.[3]?.focalX != null ? `${selectedImages[3].focalX}% ${selectedImages[3].focalY}%` : '50% 50%'
+    const week5GridHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:#ffffff;}</style>
+</head><body>
+<table width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;border-collapse:collapse;background:#ffffff;">
+  <tr>
+    <td width="228" style="width:228px;vertical-align:top;line-height:0;font-size:0;padding-right:4px;">
+      ${img1Url ? `<img src="${img1Url}" alt="" style="width:228px;height:262px;object-fit:cover;display:block;object-position:${grid1Fp};"/>` : `<div style="width:228px;height:262px;background:#e8e4de;display:block;"></div>`}
+    </td>
+    <td width="368" style="width:368px;vertical-align:top;line-height:0;font-size:0;padding-left:4px;">
+      ${img2Url ? `<img src="${img2Url}" alt="" style="width:368px;height:262px;object-fit:cover;display:block;object-position:${grid2Fp};"/>` : `<div style="width:368px;height:262px;background:#e8e4de;display:block;"></div>`}
+    </td>
+  </tr>
+  <tr><td colspan="2" style="height:6px;line-height:0;font-size:0;"></td></tr>
+  <tr>
+    <td width="368" style="width:368px;vertical-align:top;line-height:0;font-size:0;padding-right:4px;">
+      ${img1Url ? `<img src="${img1Url}" alt="" style="width:368px;height:262px;object-fit:cover;display:block;object-position:${grid1Fp};"/>` : `<div style="width:368px;height:262px;background:#e8e4de;display:block;"></div>`}
+    </td>
+    <td width="228" style="width:228px;vertical-align:top;line-height:0;font-size:0;padding-left:4px;">
+      ${(img3Url || img1Url) ? `<img src="${img3Url || img1Url}" alt="" style="width:228px;height:262px;object-fit:cover;display:block;object-position:${img3Url ? grid3Fp : grid1Fp};"/>` : `<div style="width:228px;height:262px;background:#e8e4de;display:block;"></div>`}
+    </td>
+  </tr>
+</table>
 </body></html>`
 
     // ── Week 6 hero: padded inset image card with left-aligned two-font headline ──
@@ -2538,13 +2586,17 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
       ? renderImage({ html: stackedHtml, width: 600, height: 420 })
       : isWeek4
         ? renderImage({ html: week4Card1Html, width: 600, height: 544 })
-        : (!isWeek2 && !isWeek3 && !isWeek5 && !isWeek6 && (img1Url || img2Url))
-          ? renderImage({ html: polaroidHtml, width: 600, height: 340 })
-          : Promise.resolve(null)
+        : isWeek5 && (img1Url || img2Url)
+          ? renderImage({ html: week5GridHtml, width: 600, height: 530 })
+          : (!isWeek2 && !isWeek3 && !isWeek5 && !isWeek6 && (img1Url || img2Url))
+            ? renderImage({ html: polaroidHtml, width: 600, height: 340 })
+            : Promise.resolve(null)
 
-    const tertiaryPromise = isWeek4
-      ? renderImage({ html: week4Card2Html, width: 600, height: 592 })
-      : Promise.resolve(null)
+    const tertiaryPromise = isWeek3 && (img3Url || img1Url)
+      ? renderImage({ html: week3BodyHtml, width: 600, height: 340 })
+      : isWeek4
+        ? renderImage({ html: week4Card2Html, width: 600, height: 592 })
+        : Promise.resolve(null)
 
     const heroHtmlToUse = isWeek4 ? week4HeroHtml : isWeek5 ? week5HeroHtml : isWeek6 ? week6HeroHtml : heroHtml
 
