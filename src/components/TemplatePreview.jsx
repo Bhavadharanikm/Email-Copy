@@ -2031,6 +2031,158 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
 </body></html>`
 }
 
+/* ══════════════════════════════════════════════════════════════════════════
+   WEEK 4 v2 — same layout as Week 4, with gradient-illusion dark-mode fix
+   Uses background-image gradient on white areas so Gmail/iOS can't invert them
+   ══════════════════════════════════════════════════════════════════════════ */
+function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerated = false,
+  heroScale=1, heroX=0, heroY=0,
+  textSize=38, textTop=20, textLeft=48,
+  logoColor='white', logoTop=40, logoRight=36, logoSize=44,
+}) {
+  const heroObj = images?.[0]; const heroImg = heroObj?.url||''
+  const img1Obj = images?.[1]; const img1 = img1Obj?.url || heroImg
+  const img2Obj = images?.[2]; const img2 = img2Obj?.url || heroImg
+  const img3Obj = images?.[3]; const img3 = img3Obj?.url || heroImg
+  const eff1Obj = img1Obj?.url ? img1Obj : heroObj
+  const eff2Obj = img2Obj?.url ? img2Obj : heroObj
+  const eff3Obj = img3Obj?.url ? img3Obj : heroObj
+  const card1PngUrl = images?.[4]?.url || null
+  const card2PngUrl = images?.[5]?.url || null
+
+  const pageBg    = footerData?.bgColor || '#f5f4f2'
+  const logoUrl   = client?.logoUrl||''
+  const name      = client?.name||''
+  const accent    = footerData?.buttonColor || '#1a1a1a'
+  const secondary = footerData?.secondaryColor || accent
+  const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
+
+  const logoHeroHtml = logoUrl
+    ? `<img src="${logoUrl}" alt="${name}" style="height:${logoSize}px;width:auto;max-width:${logoSize * 5}px;display:inline-block;filter:${logoFilter};"/>`
+    : `<span style="font-family:Arial,sans-serif;font-size:15px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff;">${name}</span>`
+
+  const cards = [
+    { imgUrl:img1, imgObj:eff1Obj, bodyText:copy.bodyText||'' },
+    { imgUrl:img2, imgObj:eff2Obj, bodyText:copy.bodyBlock2||'' },
+    { imgUrl:img3, imgObj:eff3Obj, bodyText:copy.closingLine||copy.bodyText||'', isLast:true },
+  ]
+
+  // Gradient values — #ffffff gradient "tricks" Gmail/iOS into treating white as a graphic layer
+  const WHITE_BG = 'background-color:#ffffff;background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%)'
+  const PAGE_BG  = `background-color:${pageBg};background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)`
+
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="color-scheme" content="light">
+<meta name="supported-color-schemes" content="light">
+<style>
+  :root{color-scheme:light;supported-color-schemes:light}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{${PAGE_BG};color:#1a1a1a;}
+  table{border-collapse:collapse;}
+  /* Gmail body hack — intercepts Gmail's rewritten .body class */
+  u + .body .gmailfix {
+    background-color:#ffffff!important;
+    background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%)!important;
+  }
+  u + .body .gmailfix-page {
+    background-color:${pageBg}!important;
+    background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)!important;
+  }
+  u + .body .gmailtext-dark  { color:#1a1a1a!important; }
+  u + .body .gmailtext-muted { color:#555!important; }
+  u + .body .gmailtext-sec   { color:${secondary}!important; }
+  @media (prefers-color-scheme:dark){
+    .gmailfix {
+      background-color:#ffffff!important;
+      background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%)!important;
+    }
+    .gmailfix-page {
+      background-color:${pageBg}!important;
+      background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)!important;
+    }
+    .gmailtext-dark  { color:#1a1a1a!important; }
+    .gmailtext-muted { color:#555!important; }
+    .gmailtext-sec   { color:${secondary}!important; }
+  }
+</style>
+</head><body class="body" style="${PAGE_BG};margin:0;padding:0;color:#1a1a1a;">
+<table width="100%" cellpadding="0" cellspacing="0" class="gmailfix-page" style="${PAGE_BG};">
+<tr><td align="center" class="gmailfix-page" style="padding:32px 0;${PAGE_BG};">
+  <table width="600" cellpadding="0" cellspacing="0" bgcolor="#ffffff" class="gmailfix" style="width:600px;max-width:600px;${WHITE_BG};border-radius:20px;overflow:hidden;">
+
+    <!-- ── HERO ── -->
+    ${isHeroGenerated
+      ? `<tr><td style="padding:0;line-height:0;font-size:0;"><img src="${heroImg}" alt="" width="600" style="display:block;width:600px;"/></td></tr>`
+      : `<tr><td class="gmailfix" style="padding:20px 20px 0;${WHITE_BG};line-height:0;font-size:0;">
+      <div style="position:relative;width:560px;height:720px;overflow:hidden;border-radius:16px;background:#1a1a1a;">
+        ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:560px;height:720px;object-fit:cover;object-position:calc(50% + ${heroX}px) calc(50% + ${heroY}px);transform:scale(${heroScale});transform-origin:50% 50%;display:block;"/>` : ''}
+        <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.78) 0%,rgba(0,0,0,0.38) 45%,rgba(0,0,0,0.05) 75%,rgba(0,0,0,0) 100%);">
+          <div style="text-align:center;padding-top:${logoTop}px;">${logoHeroHtml}</div>
+          <div style="text-align:center;padding:${textTop}px ${textLeft}px 0;">
+            <div style="font-family:Georgia,'Times New Roman',serif;font-size:${textSize}px;font-weight:700;line-height:1.12;color:#fff;">${copy.headlineText||''}</div>
+          </div>
+        </div>
+      </div>
+    </td></tr>`}
+
+    <!-- ── Subhead + CTA ── -->
+    ${copy.subhead ? `
+    <tr><td class="gmailfix" style="padding:32px 64px 4px;text-align:center;${WHITE_BG};">
+      <p class="gmailtext-muted" style="font-family:Georgia,'Times New Roman',serif;font-size:17px;font-style:italic;line-height:1.7;color:#333;margin:0;">${copy.subhead}</p>
+    </td></tr>` : ''}
+    ${copy.ctaText ? `
+    <tr><td class="gmailfix" style="padding:24px 48px 8px;text-align:center;${WHITE_BG};">
+      <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr>
+        <td style="background:${accent};border-radius:999px;">
+          <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;letter-spacing:.04em;color:#fff!important;text-decoration:none!important;">${copy.ctaText} &rarr;</a>
+        </td>
+      </tr></table>
+    </td></tr>` : ''}
+    <tr><td class="gmailfix" style="padding:32px 40px 0;${WHITE_BG};"><div style="height:1px;background:#e5e5e5;font-size:0;line-height:0;"></div></td></tr>
+
+    <!-- ── Card 1 ── -->
+    ${isHeroGenerated && card1PngUrl
+      ? `<tr><td style="padding:0;line-height:0;font-size:0;"><img src="${card1PngUrl}" alt="" width="600" style="display:block;width:600px;"/></td></tr>
+         ${cards[0].bodyText ? `<tr><td class="gmailfix" style="padding:24px 52px 32px;${WHITE_BG};text-align:center;"><p class="gmailtext-muted" style="font-family:Arial,sans-serif;font-size:14px;color:#555;line-height:1.85;margin:0;">${cards[0].bodyText.replace(/\n/g,'<br>')}</p></td></tr>` : ''}`
+      : `<tr><td class="gmailfix" style="padding:28px 72px 8px;${WHITE_BG};line-height:0;font-size:0;">${w4StackedImage(cards[0].imgUrl,cards[0].imgObj)}</td></tr>
+         ${cards[0].bodyText ? `<tr><td class="gmailfix" style="padding:24px 52px 32px;${WHITE_BG};text-align:center;"><p class="gmailtext-muted" style="font-family:Arial,sans-serif;font-size:14px;color:#555;line-height:1.85;margin:0;">${cards[0].bodyText.replace(/\n/g,'<br>')}</p></td></tr>` : ''}`}
+
+    <!-- ── Divider ── -->
+    <tr><td class="gmailfix" style="padding:0 40px;${WHITE_BG};"><div style="height:1px;background:#ebebeb;font-size:0;line-height:0;"></div></td></tr>
+
+    <!-- ── Card 2 ── -->
+    ${copy.bodyBlock2Title ? `
+    <tr><td class="gmailfix" style="padding:32px 52px 8px;${WHITE_BG};text-align:center;">
+      <p class="gmailtext-sec" style="font-family:Georgia,'Times New Roman',serif;font-size:22px;font-weight:700;color:${secondary};line-height:1.3;margin:0;">${copy.bodyBlock2Title}</p>
+    </td></tr>` : ''}
+    ${isHeroGenerated && card2PngUrl
+      ? `<tr><td style="padding:0;line-height:0;font-size:0;"><img src="${card2PngUrl}" alt="" width="600" style="display:block;width:600px;"/></td></tr>`
+      : `<tr><td class="gmailfix" style="padding:16px 72px 8px;${WHITE_BG};line-height:normal;">${w4StackedImage(cards[1].imgUrl,cards[1].imgObj,520)}</td></tr>`}
+    ${copy.bodyBlock2 ? `
+    <tr><td class="gmailfix" style="padding:20px 52px 0;${WHITE_BG};text-align:center;">
+      <p class="gmailtext-muted" style="font-family:Arial,sans-serif;font-size:14px;color:#555;line-height:1.85;margin:0;">${(copy.bodyBlock2).replace(/\n/g,'<br>')}</p>
+    </td></tr>` : ''}
+    ${copy.closingLine ? `
+    <tr><td class="gmailfix" style="padding:20px 52px 0;${WHITE_BG};text-align:center;">
+      <p class="gmailtext-muted" style="font-family:Georgia,'Times New Roman',serif;font-size:15px;font-style:italic;color:#333;line-height:1.7;margin:0;">${copy.closingLine}</p>
+    </td></tr>` : ''}
+    ${copy.ctaText ? `
+    <tr><td class="gmailfix" style="padding:24px 48px 44px;text-align:center;${WHITE_BG};">
+      <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr>
+        <td style="background:${accent};border-radius:999px;">
+          <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;letter-spacing:.04em;color:#fff!important;text-decoration:none!important;">${copy.ctaText} &rarr;</a>
+        </td>
+      </tr></table>
+    </td></tr>` : ''}
+
+    <tr><td style="padding:0;line-height:0;font-size:0;">${buildFooter(client, footerData, { defaultBg: '#1a1a1a' })}</td></tr>
+  </table>
+</td></tr>
+</table>
+</body></html>`
+}
+
 /* ─────────────────────────── registry ──────────────────────────────────── */
 const TEMPLATES = [
   { id:10, label:'⭐ Week 2',    build:buildTemplateWeek2 },
@@ -2038,6 +2190,7 @@ const TEMPLATES = [
   { id:12, label:'⭐ Week 4',    build:buildTemplateWeek4 },
   { id:13, label:'⭐ Week 5',    build:buildTemplateWeek5 },
   { id:14, label:'⭐ Week 6',    build:buildTemplateWeek6 },
+  { id:15, label:'⭐ Week 4 v2', build:buildTemplateWeek4v2 },
 ]
 
 /* ─────────────────────────── component ─────────────────────────────────── */
