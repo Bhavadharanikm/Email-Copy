@@ -1787,39 +1787,37 @@ function buildTemplateWeek5({ client, copy, images, footerData, isHeroGenerated 
       ? isHeroGenerated && img4
         ? `<tr><td style="padding:28px 0 0;background:${cardBg}!important;line-height:0;font-size:0;text-align:center;"><img src="${img4}" alt="" width="600" style="display:block;width:600px;max-width:100%;"/></td></tr>`
         : `<tr><td style="padding:28px 0 0;background:${cardBg}!important;">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
-
-        <!-- Row 1: narrow left | wide right -->
+      <table width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;border-collapse:collapse;">
+        <!-- Row 1 -->
         <tr>
-          <td width="228" style="width:228px;vertical-align:top;line-height:0;font-size:0;padding-right:4px;">
+          <td width="297" style="width:297px;vertical-align:top;line-height:0;font-size:0;">
             ${gridImgs[0].url
-              ? `<img src="${gridImgs[0].url}" alt="" style="width:100%;height:262px;object-fit:cover;display:block;border-radius:0;object-position:${focalPos(gridImgs[0].obj)};"/>`
-              : `<div style="width:100%;height:262px;background:#e8e4de;border-radius:0;"></div>`}
+              ? `<img src="${gridImgs[0].url}" alt="" width="297" style="width:297px;height:262px;object-fit:cover;display:block;object-position:${focalPos(gridImgs[0].obj)};"/>`
+              : `<div style="width:297px;height:262px;background:#e8e4de;"></div>`}
           </td>
-          <td width="368" style="width:368px;vertical-align:top;line-height:0;font-size:0;padding-left:4px;">
+          <td width="6" style="width:6px;line-height:0;font-size:0;"></td>
+          <td width="297" style="width:297px;vertical-align:top;line-height:0;font-size:0;">
             ${gridImgs[1].url
-              ? `<img src="${gridImgs[1].url}" alt="" style="width:100%;height:262px;object-fit:cover;display:block;border-radius:0;object-position:${focalPos(gridImgs[1].obj)};"/>`
-              : `<div style="width:100%;height:262px;background:#e8e4de;border-radius:0;"></div>`}
+              ? `<img src="${gridImgs[1].url}" alt="" width="297" style="width:297px;height:262px;object-fit:cover;display:block;object-position:${focalPos(gridImgs[1].obj)};"/>`
+              : `<div style="width:297px;height:262px;background:#e8e4de;"></div>`}
           </td>
         </tr>
-
         <!-- Row gap -->
-        <tr><td colspan="2" style="padding-top:6px;line-height:0;font-size:0;"></td></tr>
-
-        <!-- Row 2: wide left | narrow right (zigzag) -->
+        <tr><td colspan="3" height="6" style="height:6px;line-height:0;font-size:0;"></td></tr>
+        <!-- Row 2 -->
         <tr>
-          <td width="368" style="width:368px;vertical-align:top;line-height:0;font-size:0;padding-right:4px;">
+          <td width="297" style="width:297px;vertical-align:top;line-height:0;font-size:0;">
             ${gridImgs[3].url
-              ? `<img src="${gridImgs[3].url}" alt="" style="width:100%;height:262px;object-fit:cover;display:block;border-radius:0;object-position:${focalPos(gridImgs[3].obj)};"/>`
-              : `<div style="width:100%;height:262px;background:#e8e4de;border-radius:0;"></div>`}
+              ? `<img src="${gridImgs[3].url}" alt="" width="297" style="width:297px;height:262px;object-fit:cover;display:block;object-position:${focalPos(gridImgs[3].obj)};"/>`
+              : `<div style="width:297px;height:262px;background:#e8e4de;"></div>`}
           </td>
-          <td width="228" style="width:228px;vertical-align:top;line-height:0;font-size:0;padding-left:4px;">
+          <td width="6" style="width:6px;line-height:0;font-size:0;"></td>
+          <td width="297" style="width:297px;vertical-align:top;line-height:0;font-size:0;">
             ${gridImgs[2].url
-              ? `<img src="${gridImgs[2].url}" alt="" style="width:100%;height:262px;object-fit:cover;display:block;border-radius:0;object-position:${focalPos(gridImgs[2].obj)};"/>`
-              : `<div style="width:100%;height:262px;background:#e8e4de;border-radius:0;"></div>`}
+              ? `<img src="${gridImgs[2].url}" alt="" width="297" style="width:297px;height:262px;object-fit:cover;display:block;object-position:${focalPos(gridImgs[2].obj)};"/>`
+              : `<div style="width:297px;height:262px;background:#e8e4de;"></div>`}
           </td>
         </tr>
-
       </table>
     </td></tr>`
       : ''}
@@ -2522,22 +2520,22 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
 </head><body>
 <table width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;border-collapse:collapse;background:#ffffff;">
   <tr>
-    <td width="228" style="width:228px;vertical-align:top;line-height:0;font-size:0;">
-      ${img1Url ? `<img src="${img1Url}" alt="" style="width:228px;height:262px;object-fit:cover;display:block;object-position:${grid1Fp};"/>` : `<div style="width:228px;height:262px;background:#e8e4de;display:block;"></div>`}
+    <td width="297" style="width:297px;vertical-align:top;line-height:0;font-size:0;">
+      ${img1Url ? `<img src="${img1Url}" alt="" width="297" style="width:297px;height:262px;object-fit:cover;display:block;object-position:${grid1Fp};"/>` : `<div style="width:297px;height:262px;background:#e8e4de;"></div>`}
     </td>
     <td width="6" style="width:6px;line-height:0;font-size:0;background:#ffffff;"></td>
-    <td width="366" style="width:366px;vertical-align:top;line-height:0;font-size:0;">
-      ${img2Url ? `<img src="${img2Url}" alt="" style="width:366px;height:262px;object-fit:cover;display:block;object-position:${grid2Fp};"/>` : `<div style="width:366px;height:262px;background:#e8e4de;display:block;"></div>`}
+    <td width="297" style="width:297px;vertical-align:top;line-height:0;font-size:0;">
+      ${img2Url ? `<img src="${img2Url}" alt="" width="297" style="width:297px;height:262px;object-fit:cover;display:block;object-position:${grid2Fp};"/>` : `<div style="width:297px;height:262px;background:#e8e4de;"></div>`}
     </td>
   </tr>
-  <tr><td colspan="3" style="height:6px;line-height:0;font-size:0;background:#ffffff;"></td></tr>
+  <tr><td colspan="3" height="6" style="height:6px;line-height:0;font-size:0;background:#ffffff;"></td></tr>
   <tr>
-    <td width="366" style="width:366px;vertical-align:top;line-height:0;font-size:0;">
-      ${(img4Url || img1Url) ? `<img src="${img4Url || img1Url}" alt="" style="width:366px;height:262px;object-fit:cover;display:block;object-position:${img4Url ? grid4Fp : grid1Fp};"/>` : `<div style="width:366px;height:262px;background:#e8e4de;display:block;"></div>`}
+    <td width="297" style="width:297px;vertical-align:top;line-height:0;font-size:0;">
+      ${(img4Url || img1Url) ? `<img src="${img4Url || img1Url}" alt="" width="297" style="width:297px;height:262px;object-fit:cover;display:block;object-position:${img4Url ? grid4Fp : grid1Fp};"/>` : `<div style="width:297px;height:262px;background:#e8e4de;"></div>`}
     </td>
     <td width="6" style="width:6px;line-height:0;font-size:0;background:#ffffff;"></td>
-    <td width="228" style="width:228px;vertical-align:top;line-height:0;font-size:0;">
-      ${(img3Url || img1Url) ? `<img src="${img3Url || img1Url}" alt="" style="width:228px;height:262px;object-fit:cover;display:block;object-position:${img3Url ? grid3Fp : grid1Fp};"/>` : `<div style="width:228px;height:262px;background:#e8e4de;display:block;"></div>`}
+    <td width="297" style="width:297px;vertical-align:top;line-height:0;font-size:0;">
+      ${(img3Url || img1Url) ? `<img src="${img3Url || img1Url}" alt="" width="297" style="width:297px;height:262px;object-fit:cover;display:block;object-position:${img3Url ? grid3Fp : grid1Fp};"/>` : `<div style="width:297px;height:262px;background:#e8e4de;"></div>`}
     </td>
   </tr>
 </table>
