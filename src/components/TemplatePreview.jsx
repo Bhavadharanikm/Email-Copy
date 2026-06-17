@@ -364,6 +364,9 @@ function buildTemplateWeek2({ client, copy, images, footerData, isHeroGenerated 
   const secondaryClr = footerData?.secondaryColor || accentClr
   const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
 
+  const WHITE_BG = 'background-color:#ffffff;background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%)'
+  const PAGE_BG  = `background-color:${pageBg};background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)`
+
   const logoOverlay = logoUrl
     ? `<img src="${logoUrl}" alt="${client?.name||''}" style="display:inline-block;height:${logoSize}px;width:auto;max-width:${logoSize * 6}px;filter:${logoFilter};"/>`
     : `<div style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:#1a1a1a;margin-bottom:10px;">${client?.name||''}</div>`
@@ -372,25 +375,34 @@ function buildTemplateWeek2({ client, copy, images, footerData, isHeroGenerated 
 <meta name="color-scheme" content="light">
 <meta name="supported-color-schemes" content="light">
 <style>
-  :root{color-scheme:light}
+  :root{color-scheme:light;supported-color-schemes:light}
   *{box-sizing:border-box;margin:0;padding:0}
-  body{background:${pageBg}!important;font-family:Arial,sans-serif;color:#1a1a1a!important;-webkit-text-size-adjust:100%}
+  body{${PAGE_BG};color:#1a1a1a;}
+  table{border-collapse:collapse;}
+  u + .body .gmailfix { background-color:#ffffff!important; background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%)!important; }
+  u + .body .gmailfix-page { background-color:${pageBg}!important; background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)!important; }
+  u + .body .gmailtext-dark  { color:#1a1a1a!important; }
+  u + .body .gmailtext-muted { color:#555!important; }
   @media (prefers-color-scheme:dark){
-    html,body{background-color:${pageBg}!important;color:#1a1a1a!important}
+    html,body{ ${PAGE_BG}; color:#1a1a1a!important; }
+    .gmailfix { background-color:#ffffff!important; background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%)!important; }
+    .gmailfix-page { background-color:${pageBg}!important; background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)!important; }
+    .gmailtext-dark  { color:#1a1a1a!important; }
+    .gmailtext-muted { color:#555!important; }
   }
-</style></head><body style="background:${pageBg}!important;margin:0;padding:0;font-family:Arial,sans-serif;color:#1a1a1a!important;">
-<table width="100%" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="background:${pageBg}!important;border-collapse:collapse;">
-<tr><td align="center" style="padding:32px 0;background:${pageBg}!important;">
-<table width="600" cellpadding="0" cellspacing="0" bgcolor="${midBg}" style="width:600px;max-width:600px;background-color:${midBg}!important;border-collapse:collapse;border-radius:20px;overflow:hidden;">
-<tr><td style="background:${midBg}!important;">
+</style></head><body class="body" style="${PAGE_BG};margin:0;padding:0;font-family:Arial,sans-serif;color:#1a1a1a!important;">
+<table width="100%" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="${PAGE_BG};border-collapse:collapse;">
+<tr><td align="center" class="gmailfix-page" style="padding:32px 0;${PAGE_BG};">
+<table width="600" cellpadding="0" cellspacing="0" class="gmailfix" bgcolor="#ffffff" style="width:600px;max-width:600px;${WHITE_BG};border-collapse:collapse;border-radius:20px;overflow:hidden;">
+<tr><td class="gmailfix" style="${WHITE_BG};">
 
   <!-- LOGO HEADER (always above arch) -->
-  <div style="padding:${logoTop}px 32px 18px;text-align:center;background:${midBg}!important;">${logoOverlay}</div>
+  <div style="padding:${logoTop}px 32px 18px;text-align:center;${WHITE_BG};">${logoOverlay}</div>
 
   <!-- HERO: generated composite PNG (logo+arch+text baked in) or CSS fallback for preview -->
   ${isHeroGenerated
-    ? `<div style="line-height:0;font-size:0;background:${midBg}!important;"><img src="${heroImg}" alt="" width="600" style="width:100%;display:block;max-width:600px;"/></div>`
-    : `<div style="position:relative;line-height:0;font-size:0;padding:0 36px;background:${midBg};height:580px;overflow:hidden;">
+    ? `<div style="line-height:0;font-size:0;${WHITE_BG};"><img src="${heroImg}" alt="" width="600" style="width:100%;display:block;max-width:600px;"/></div>`
+    : `<div style="position:relative;line-height:0;font-size:0;padding:0 36px;${WHITE_BG};height:580px;overflow:hidden;">
     ${heroImg
       ? `<img src="${heroImg}" alt="" style="width:100%;height:580px;object-fit:cover;display:block;border-radius:999px 999px 0 0;object-position:calc(50% + ${heroX}px) calc(50% + ${heroY}px);transform:scale(${heroScale});transform-origin:50% 50%;"/>`
       : `<div style="width:100%;height:580px;background:#f0c8b8;border-radius:999px 999px 0 0;text-align:center;color:${accentClr};font-size:12px;font-family:Arial,sans-serif;line-height:580px;">Hero image</div>`}
@@ -404,19 +416,19 @@ function buildTemplateWeek2({ client, copy, images, footerData, isHeroGenerated 
   </div>`}
 
   <!-- SUBHEAD -->
-  ${copy.subhead ? `<div style="padding:28px 48px 4px;text-align:center;background:${midBg}!important;"><div style="font-family:Georgia,serif;font-size:17px;font-weight:400;font-style:italic;color:#1a1a1a;line-height:1.5;">${copy.subhead}</div></div>` : ''}
+  ${copy.subhead ? `<div style="padding:28px 48px 4px;text-align:center;${WHITE_BG};"><div style="font-family:Georgia,serif;font-size:17px;font-weight:400;font-style:italic;color:#1a1a1a;line-height:1.5;">${copy.subhead}</div></div>` : ''}
 
   <!-- CTA -->
-  ${copy.ctaText ? `<div style="padding:24px 48px 28px;text-align:center;background:${midBg}!important;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;background:${accentClr};color:#fff!important;padding:14px 40px;font-size:13px;font-weight:600;letter-spacing:.06em;text-decoration:none!important;font-family:Arial,sans-serif;border-radius:50px;">${copy.ctaText}</a></div>` : ''}
+  ${copy.ctaText ? `<div style="padding:24px 48px 28px;text-align:center;${WHITE_BG};"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;background:${accentClr};color:#fff!important;padding:14px 40px;font-size:13px;font-weight:600;letter-spacing:.06em;text-decoration:none!important;font-family:Arial,sans-serif;border-radius:50px;">${copy.ctaText}</a></div>` : ''}
 
   <!-- LONG IMAGE (img1) -->
-  ${img1 ? `<div style="line-height:0;font-size:0;padding:0 36px 16px;background:${midBg}!important;"><img src="${img1}" alt="" style="width:100%;height:260px;object-fit:cover;display:block;border-radius:8px;object-position:${focalPos(img1Obj)}"/></div>` : ''}
+  ${img1 ? `<div style="line-height:0;font-size:0;padding:0 36px 16px;${WHITE_BG};"><img src="${img1}" alt="" style="width:100%;height:260px;object-fit:cover;display:block;border-radius:8px;object-position:${focalPos(img1Obj)}"/></div>` : ''}
 
   <!-- BODY BLOCK -->
-  ${copy.bodyText ? `<div style="padding:24px 48px 32px;background:${midBg}!important;"><div style="font-size:15px;line-height:1.8;color:#3a3028!important;margin-bottom:18px;font-family:Arial,sans-serif;">${body}</div></div>` : ''}
+  ${copy.bodyText ? `<div style="padding:24px 48px 32px;${WHITE_BG};"><div style="font-size:15px;line-height:1.8;color:#3a3028!important;margin-bottom:18px;font-family:Arial,sans-serif;">${body}</div></div>` : ''}
 
   <!-- STRIP IMAGES (img2 + img3) — table layout, no flex -->
-  ${img2 ? `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;background:${midBg}!important;">
+  ${img2 ? `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;${WHITE_BG};">
     <tr><td style="padding:0 36px 24px;">
       <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;line-height:0;font-size:0;">
         <tr>
@@ -429,8 +441,8 @@ function buildTemplateWeek2({ client, copy, images, footerData, isHeroGenerated 
 
   <!-- BODY BLOCK 2: title + body2 + closing + CTA -->
   ${(copy.bodyBlock2Title || copy.bodyBlock2 || copy.closingLine) ? `
-  <div style="background:${midBg}!important;padding:8px 36px 0;">
-    <div style="background-color:#fffffe!important;border-radius:10px;padding:16px 20px;">
+  <div style="${WHITE_BG};padding:8px 36px 0;">
+    <div style="${WHITE_BG};border-radius:10px;padding:16px 20px;">
       ${copy.bodyBlock2Title ? `<div style="font-size:11px;font-weight:700;font-family:Arial,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:${accentClr}!important;margin-bottom:6px;text-align:left;">${copy.bodyBlock2Title}</div>` : ''}
       ${copy.bodyBlock2 ? `<div style="font-size:15px;line-height:1.8;color:#3a3028!important;margin-bottom:18px;font-family:Arial,sans-serif;">${b2body}</div>` : ''}
       ${copy.closingLine ? `<div style="font-size:14px;line-height:1.7;color:#888!important;font-style:italic;margin-bottom:24px;font-family:Georgia,serif;">${copy.closingLine}</div>` : ''}
@@ -466,6 +478,9 @@ function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated 
   const secondaryClr = footerData?.secondaryColor || accentClr
   const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
 
+  const WHITE_BG = 'background-color:#ffffff;background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%)'
+  const PAGE_BG  = `background-color:${pageBg};background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)`
+
   const logoHtml = logoUrl
     ? `<img src="${logoUrl}" alt="${client?.name||''}" style="height:${logoSize}px;width:auto;max-width:${logoSize * 5}px;display:inline-block;filter:${logoFilter};"/>`
     : `<span style="font-family:Arial,sans-serif;font-size:15px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff;">${client?.name||''}</span>`
@@ -476,12 +491,12 @@ function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated 
   const card2Obj = img2 ? img2Obj : img1Obj
 
   const stackedSection = isHeroGenerated && img4
-    ? `<tr><td style="padding:32px 0 8px;text-align:center;background:${cardBg}!important;line-height:0;font-size:0;">
+    ? `<tr><td class="gmailfix" style="padding:32px 0 8pt;text-align:center;${WHITE_BG};line-height:0;font-size:0;">
         <img src="${img4}" alt="" width="600" style="width:600px;max-width:100%;display:inline-block;"/>
       </td></tr>`
     : img1
-      ? `<tr><td style="padding:32px 0 8px;text-align:center;background:${cardBg}!important;line-height:0;font-size:0;">
-          <div style="position:relative;width:600px;height:420px;background:${cardBg};">
+      ? `<tr><td class="gmailfix" style="padding:32px 0 8px;text-align:center;${WHITE_BG};line-height:0;font-size:0;">
+          <div style="position:relative;width:600px;height:420px;${WHITE_BG};">
             <div style="position:absolute;left:28px;top:24px;width:272px;height:372px;border-radius:20px;transform:rotate(-3deg);transform-origin:center center;box-shadow:4px 0 20px rgba(0,0,0,0.18);overflow:hidden;z-index:1;">
               <img src="${img1}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:${focalPos(img1Obj)};"/>
             </div>
@@ -497,18 +512,27 @@ function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated 
 <meta name="supported-color-schemes" content="light">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&display=swap"/>
 <style>
-  :root{color-scheme:light}
+  :root{color-scheme:light;supported-color-schemes:light}
   *{box-sizing:border-box;margin:0;padding:0}
-  body{background:${pageBg}!important;font-family:Arial,sans-serif;color:#1a1a1a!important;-webkit-text-size-adjust:100%}
+  body{${PAGE_BG};color:#1a1a1a;}
+  table{border-collapse:collapse;}
+  u + .body .gmailfix { background-color:#ffffff!important; background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%)!important; }
+  u + .body .gmailfix-page { background-color:${pageBg}!important; background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)!important; }
+  u + .body .gmailtext-dark  { color:#1a1a1a!important; }
+  u + .body .gmailtext-muted { color:#555!important; }
   @media (prefers-color-scheme:dark){
-    html,body{background-color:${pageBg}!important;color:#1a1a1a!important}
+    html,body{ ${PAGE_BG}; color:#1a1a1a!important; }
+    .gmailfix { background-color:#ffffff!important; background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%)!important; }
+    .gmailfix-page { background-color:${pageBg}!important; background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)!important; }
+    .gmailtext-dark  { color:#1a1a1a!important; }
+    .gmailtext-muted { color:#555!important; }
   }
-</style></head><body style="background:${pageBg}!important;margin:0;padding:0;">
+</style></head><body class="body" style="${PAGE_BG};margin:0;padding:0;">
 
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;background:${pageBg}!important;border-collapse:collapse;">
-<tr><td align="center" style="padding:24px 0 48px;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;${PAGE_BG};border-collapse:collapse;">
+<tr><td align="center" class="gmailfix-page" style="padding:24px 0 48px;${PAGE_BG};">
 
-  <table width="600" cellpadding="0" cellspacing="0" border="0" bgcolor="${cardBg}" style="width:600px;max-width:600px;background-color:${cardBg}!important;border-collapse:collapse;border-radius:20px;overflow:hidden;">
+  <table width="600" cellpadding="0" cellspacing="0" border="0" class="gmailfix" bgcolor="#ffffff" style="width:600px;max-width:600px;${WHITE_BG};border-collapse:collapse;border-radius:20px;overflow:hidden;">
 
     <!-- ── HERO ── -->
     ${isHeroGenerated
@@ -527,13 +551,13 @@ function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated 
         </td></tr>`}
 
     <!-- ── SUBHEAD + CTA ── -->
-    <tr><td style="padding:${isHeroGenerated ? '40px' : '10px'} 52px 36px;text-align:center;background:${cardBg}!important;">
+    <tr><td class="gmailfix" style="padding:${isHeroGenerated ? '40px' : '10px'} 52px 36px;text-align:center;${WHITE_BG};">
       ${copy.subhead ? `<div style="font-family:Georgia,serif;font-size:18px;font-style:italic;color:#1a1a1a!important;line-height:1.6;margin-bottom:32px;max-width:460px;margin-left:auto;margin-right:auto;">${copy.subhead}</div>` : ''}
       ${copy.ctaText ? `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accentClr};border-radius:100px;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:16px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff!important;text-decoration:none!important;letter-spacing:.04em;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>` : ''}
     </td></tr>
 
     <!-- ── DIVIDER ── -->
-    <tr><td style="padding:0 48px;background:${cardBg}!important;">
+    <tr><td class="gmailfix" style="padding:0 48px;${WHITE_BG};">
       <div style="height:1px;width:100%;background:rgba(0,0,0,0.1);font-size:0;line-height:0;"></div>
     </td></tr>
 
@@ -541,37 +565,37 @@ function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated 
     ${stackedSection}
 
     <!-- ── BODY TEXT ── -->
-    <tr><td style="padding:36px 52px 24px;background:${cardBg}!important;text-align:center;">
+    <tr><td class="gmailfix" style="padding:36px 52px 24px;${WHITE_BG};text-align:center;">
       ${copy.bodyText ? `<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.9;color:#555!important;max-width:460px;margin-left:auto;margin-right:auto;">${body}</div>` : ''}
     </td></tr>
 
     <!-- ── DIVIDER 2 ── -->
-    <tr><td style="padding:0 48px;background:${cardBg}!important;">
+    <tr><td class="gmailfix" style="padding:0 48px;${WHITE_BG};">
       <div style="height:1px;width:100%;background:rgba(0,0,0,0.1);font-size:0;line-height:0;"></div>
     </td></tr>
 
     <!-- ── BODY BLOCK 2 TITLE + IMAGE + TEXT ── -->
     ${copy.bodyBlock2Title ? `
-    <tr><td style="padding:36px 52px 0;background:${cardBg}!important;text-align:center;">
+    <tr><td class="gmailfix" style="padding:36px 52px 0;${WHITE_BG};text-align:center;">
       <div style="font-family:Arial,sans-serif;font-size:16px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:${secondaryClr}!important;margin-bottom:0;">${copy.bodyBlock2Title}</div>
     </td></tr>` : ''}
 
     ${isHeroGenerated && img5
-      ? `<tr><td style="padding:0;line-height:0;font-size:0;text-align:center;background:${cardBg}!important;"><img src="${img5}" alt="" width="600" style="display:block;width:600px;max-width:100%;"/></td></tr>`
+      ? `<tr><td class="gmailfix" style="padding:0;line-height:0;font-size:0;text-align:center;${WHITE_BG};"><img src="${img5}" alt="" width="600" style="display:block;width:600px;max-width:100%;"/></td></tr>`
       : (img3 || img1) ? `
-    <tr><td style="padding:20px 40px 0;background:${cardBg}!important;line-height:0;font-size:0;">
+    <tr><td class="gmailfix" style="padding:20px 40px 0;${WHITE_BG};line-height:0;font-size:0;">
       <img src="${img3 || img1}" alt="" width="520" style="width:100%;max-width:520px;height:320px;object-fit:cover;display:block;border-radius:14px;object-position:${focalPos(img3 ? img3Obj : img1Obj)};"/>
     </td></tr>` : ''}
 
     ${(copy.bodyBlock2 || copy.closingLine) ? `
-    <tr><td style="padding:28px 52px 0;background:${cardBg}!important;text-align:center;">
+    <tr><td class="gmailfix" style="padding:28px 52px 0;${WHITE_BG};text-align:center;">
       ${copy.bodyBlock2 ? `<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.9;color:#555!important;margin-bottom:18px;max-width:460px;margin-left:auto;margin-right:auto;">${b2body}</div>` : ''}
       ${copy.closingLine ? `<div style="font-family:Georgia,serif;font-size:15px;font-style:italic;color:#1a1a1a!important;margin-bottom:28px;">${copy.closingLine}</div>` : ''}
     </td></tr>` : ''}
 
     <!-- ── REPEAT CTA ── -->
     ${copy.ctaText ? `
-    <tr><td style="padding:8px 52px 44px;text-align:center;background:${cardBg}!important;">
+    <tr><td class="gmailfix" style="padding:8px 52px 44px;text-align:center;${WHITE_BG};">
       <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accentClr};border-radius:100px;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:16px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff!important;text-decoration:none!important;letter-spacing:.04em;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>
     </td></tr>` : ''}
 
@@ -1503,12 +1527,13 @@ function w4StackedImage(imgUrl, imgObj, height = 460) {
 
 function w4Card({ imgUrl, imgObj, bodyText, isLast }) {
   const body = (bodyText||'').replace(/\n/g,'<br>')
+  const W = 'background-color:#ffffff;background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%)'
   return `
-    <tr><td style="padding:28px 72px 8px;background-color:#fffffe!important;line-height:0;font-size:0;">
+    <tr><td class="gmailfix" style="padding:28px 72px 8px;${W};line-height:0;font-size:0;">
       ${w4StackedImage(imgUrl, imgObj)}
     </td></tr>
     ${body ? `
-    <tr><td style="padding:24px 52px ${isLast ? '40px' : '32px'};background-color:#fffffe!important;text-align:center;">
+    <tr><td class="gmailfix" style="padding:24px 52px ${isLast ? '40px' : '32px'};${W};text-align:center;">
       <p style="font-family:Arial,sans-serif;font-size:14px;color:#555;line-height:1.85;margin:0;">${body}</p>
     </td></tr>` : ''}`
 }
@@ -1538,6 +1563,9 @@ function buildTemplateWeek4({ client, copy, images, footerData, isHeroGenerated 
   const secondary = footerData?.secondaryColor || accent
   const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
 
+  const WHITE_BG = 'background-color:#ffffff;background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%)'
+  const PAGE_BG  = `background-color:${pageBg};background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)`
+
   // Logo — white version for dark hero overlay, dark version for cards below
   const logoHeroHtml = logoUrl
     ? `<img src="${logoUrl}" alt="${name}" style="height:${logoSize}px;width:auto;max-width:${logoSize * 5}px;display:inline-block;filter:${logoFilter};"/>`
@@ -1554,23 +1582,31 @@ function buildTemplateWeek4({ client, copy, images, footerData, isHeroGenerated 
 <meta name="color-scheme" content="light">
 <meta name="supported-color-schemes" content="light">
 <style>
-  :root{color-scheme:light}
+  :root{color-scheme:light;supported-color-schemes:light}
   *{box-sizing:border-box;margin:0;padding:0}
-  body{background:${pageBg}!important;color:#1a1a1a!important;}
+  body{${PAGE_BG};color:#1a1a1a;}
   table{border-collapse:collapse;}
+  u + .body .gmailfix { background-color:#ffffff!important; background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%)!important; }
+  u + .body .gmailfix-page { background-color:${pageBg}!important; background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)!important; }
+  u + .body .gmailtext-dark  { color:#1a1a1a!important; }
+  u + .body .gmailtext-muted { color:#555!important; }
   @media (prefers-color-scheme:dark){
-    html,body{background-color:${pageBg}!important;color:#1a1a1a!important;}
+    html,body{ ${PAGE_BG}; color:#1a1a1a!important; }
+    .gmailfix { background-color:#ffffff!important; background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%)!important; }
+    .gmailfix-page { background-color:${pageBg}!important; background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)!important; }
+    .gmailtext-dark  { color:#1a1a1a!important; }
+    .gmailtext-muted { color:#555!important; }
   }
 </style>
-</head><body style="background:${pageBg}!important;margin:0;padding:0;">
-<table width="100%" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="background:${pageBg}!important;">
-<tr><td align="center" style="padding:32px 0;background:${pageBg}!important;">
-  <table width="600" cellpadding="0" cellspacing="0" bgcolor="#fffffe" style="background-color:#fffffe!important;border-radius:20px;overflow:hidden;">
+</head><body class="body" style="${PAGE_BG};margin:0;padding:0;">
+<table width="100%" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="${PAGE_BG};">
+<tr><td align="center" class="gmailfix-page" style="padding:32px 0;${PAGE_BG};">
+  <table width="600" cellpadding="0" cellspacing="0" class="gmailfix" bgcolor="#ffffff" style="width:600px;max-width:600px;${WHITE_BG};border-radius:20px;overflow:hidden;">
 
     <!-- ── HERO: padded inset image + dark gradient + logo + headline ── -->
     ${isHeroGenerated
       ? `<tr><td style="padding:0;line-height:0;font-size:0;"><img src="${heroImg}" alt="" width="600" style="display:block;width:600px;"/></td></tr>`
-      : `<tr><td style="padding:20px 20px 0;background-color:#fffffe!important;line-height:0;font-size:0;">
+      : `<tr><td class="gmailfix" style="padding:20px 20px 0;${WHITE_BG};line-height:0;font-size:0;">
       <div style="position:relative;width:560px;height:720px;overflow:hidden;border-radius:16px;background:#1a1a1a;">
         ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:560px;height:720px;object-fit:cover;object-position:calc(50% + ${heroX}px) calc(50% + ${heroY}px);transform:scale(${heroScale});transform-origin:50% 50%;display:block;"/>` : ''}
         <!-- dark gradient top-down -->
@@ -1585,46 +1621,46 @@ function buildTemplateWeek4({ client, copy, images, footerData, isHeroGenerated 
 
     <!-- ── Subhead + CTA after hero ── -->
     ${copy.subhead ? `
-    <tr><td style="padding:32px 64px 4px;text-align:center;background-color:#fffffe!important;">
+    <tr><td class="gmailfix" style="padding:32px 64px 4px;text-align:center;${WHITE_BG};">
       <p style="font-family:Georgia,'Times New Roman',serif;font-size:17px;font-style:italic;line-height:1.7;color:#333;margin:0;">${copy.subhead}</p>
     </td></tr>` : ''}
     ${copy.ctaText ? `
-    <tr><td style="padding:24px 48px 8px;text-align:center;background-color:#fffffe!important;">
+    <tr><td class="gmailfix" style="padding:24px 48px 8px;text-align:center;${WHITE_BG};">
       <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr>
         <td style="background:${accent};border-radius:999px;">
           <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;letter-spacing:.04em;color:#fff!important;text-decoration:none!important;">${copy.ctaText} &rarr;</a>
         </td>
       </tr></table>
     </td></tr>` : ''}
-    <tr><td style="padding:32px 40px 0;background-color:#fffffe!important;"><div style="height:1px;background:#e5e5e5;font-size:0;line-height:0;"></div></td></tr>
+    <tr><td class="gmailfix" style="padding:32px 40px 0;${WHITE_BG};"><div style="height:1px;background:#e5e5e5;font-size:0;line-height:0;"></div></td></tr>
 
     <!-- Card 1: full width -->
     ${isHeroGenerated && card1PngUrl
       ? `<tr><td style="padding:0;line-height:0;font-size:0;"><img src="${card1PngUrl}" alt="" width="600" style="display:block;width:600px;"/></td></tr>
-         ${cards[0].bodyText ? `<tr><td style="padding:24px 52px 32px;background-color:#fffffe!important;text-align:center;"><p style="font-family:Arial,sans-serif;font-size:14px;color:#555;line-height:1.85;margin:0;">${cards[0].bodyText.replace(/\n/g,'<br>')}</p></td></tr>` : ''}`
+         ${cards[0].bodyText ? `<tr><td class="gmailfix" style="padding:24px 52px 32px;${WHITE_BG};text-align:center;"><p style="font-family:Arial,sans-serif;font-size:14px;color:#555;line-height:1.85;margin:0;">${cards[0].bodyText.replace(/\n/g,'<br>')}</p></td></tr>` : ''}`
       : w4Card(cards[0])}
 
     <!-- Divider -->
-    <tr><td style="padding:0 40px;background-color:#fffffe!important;"><div style="height:1px;background:#ebebeb;font-size:0;line-height:0;"></div></td></tr>
+    <tr><td class="gmailfix" style="padding:0 40px;${WHITE_BG};"><div style="height:1px;background:#ebebeb;font-size:0;line-height:0;"></div></td></tr>
 
     <!-- Card 2: bodyBlock2Title + image + bodyBlock2 + closingLine + CTA -->
     ${copy.bodyBlock2Title ? `
-    <tr><td style="padding:32px 52px 8px;background-color:#fffffe!important;text-align:center;">
+    <tr><td class="gmailfix" style="padding:32px 52px 8px;${WHITE_BG};text-align:center;">
       <p style="font-family:Georgia,'Times New Roman',serif;font-size:22px;font-weight:700;color:${secondary};line-height:1.3;margin:0;">${copy.bodyBlock2Title}</p>
     </td></tr>` : ''}
     ${isHeroGenerated && card2PngUrl
       ? `<tr><td style="padding:0;line-height:0;font-size:0;"><img src="${card2PngUrl}" alt="" width="600" style="display:block;width:600px;"/></td></tr>`
-      : `<tr><td style="padding:16px 72px 8px;background-color:#fffffe!important;line-height:normal;">${w4StackedImage(cards[1].imgUrl, cards[1].imgObj, 520)}</td></tr>`}
+      : `<tr><td class="gmailfix" style="padding:16px 72px 8px;${WHITE_BG};line-height:normal;">${w4StackedImage(cards[1].imgUrl, cards[1].imgObj, 520)}</td></tr>`}
     ${copy.bodyBlock2 ? `
-    <tr><td style="padding:20px 52px 0;background-color:#fffffe!important;text-align:center;">
+    <tr><td class="gmailfix" style="padding:20px 52px 0;${WHITE_BG};text-align:center;">
       <p style="font-family:Arial,sans-serif;font-size:14px;color:#555;line-height:1.85;margin:0;">${(copy.bodyBlock2).replace(/\n/g,'<br>')}</p>
     </td></tr>` : ''}
     ${copy.closingLine ? `
-    <tr><td style="padding:20px 52px 0;background-color:#fffffe!important;text-align:center;">
+    <tr><td class="gmailfix" style="padding:20px 52px 0;${WHITE_BG};text-align:center;">
       <p style="font-family:Georgia,'Times New Roman',serif;font-size:15px;font-style:italic;color:#333;line-height:1.7;margin:0;">${copy.closingLine}</p>
     </td></tr>` : ''}
     ${copy.ctaText ? `
-    <tr><td style="padding:24px 48px 44px;text-align:center;background-color:#fffffe!important;">
+    <tr><td class="gmailfix" style="padding:24px 48px 44px;text-align:center;${WHITE_BG};">
       <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr>
         <td style="background:${accent};border-radius:999px;">
           <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;letter-spacing:.04em;color:#fff!important;text-decoration:none!important;">${copy.ctaText} &rarr;</a>
@@ -1663,6 +1699,9 @@ function buildTemplateWeek5({ client, copy, images, footerData, isHeroGenerated 
   const pageBg    = footerData?.bgColor || '#f5f4f2'
   const cardBg    = '#fffffe'
   const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
+
+  const WHITE_BG = 'background-color:#ffffff;background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%)'
+  const PAGE_BG  = `background-color:${pageBg};background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)`
 
   // Logo for dark overlay
   const logoHtml = logoUrl
@@ -1713,24 +1752,33 @@ function buildTemplateWeek5({ client, copy, images, footerData, isHeroGenerated 
 <meta name="color-scheme" content="light">
 <meta name="supported-color-schemes" content="light">
 <style>
-  :root{color-scheme:light}
+  :root{color-scheme:light;supported-color-schemes:light}
   *{box-sizing:border-box;margin:0;padding:0}
-  body{background:${pageBg}!important;font-family:Arial,sans-serif;color:#1a1a1a!important;-webkit-text-size-adjust:100%}
+  body{${PAGE_BG};color:#1a1a1a;}
+  table{border-collapse:collapse;}
+  u + .body .gmailfix { background-color:#ffffff!important; background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%)!important; }
+  u + .body .gmailfix-page { background-color:${pageBg}!important; background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)!important; }
+  u + .body .gmailtext-dark  { color:#1a1a1a!important; }
+  u + .body .gmailtext-muted { color:#555!important; }
   @media (prefers-color-scheme:dark){
-    html,body{background-color:${pageBg}!important;color:#1a1a1a!important}
+    html,body{ ${PAGE_BG}; color:#1a1a1a!important; }
+    .gmailfix { background-color:#ffffff!important; background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%)!important; }
+    .gmailfix-page { background-color:${pageBg}!important; background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)!important; }
+    .gmailtext-dark  { color:#1a1a1a!important; }
+    .gmailtext-muted { color:#555!important; }
   }
 </style></head>
-<body style="background:${pageBg}!important;margin:0;padding:0;">
+<body class="body" style="${PAGE_BG};margin:0;padding:0;">
 
-<table width="100%" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="background:${pageBg}!important;border-collapse:collapse;">
-<tr><td align="center" style="padding:24px 0 48px;background:${pageBg}!important;">
+<table width="100%" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="${PAGE_BG};border-collapse:collapse;">
+<tr><td align="center" class="gmailfix-page" style="padding:24px 0 48px;${PAGE_BG};">
 
-  <table width="600" cellpadding="0" cellspacing="0" bgcolor="${cardBg}" style="width:600px;max-width:600px;background-color:${cardBg}!important;border-collapse:collapse;border-radius:20px;overflow:hidden;">
+  <table width="600" cellpadding="0" cellspacing="0" class="gmailfix" bgcolor="#ffffff" style="width:600px;max-width:600px;${WHITE_BG};border-collapse:collapse;border-radius:20px;overflow:hidden;">
 
     <!-- ── HERO: same inset card as Week 4 ── -->
     ${isHeroGenerated
       ? `<tr><td style="padding:0;line-height:0;font-size:0;"><img src="${heroImg}" alt="" width="600" style="display:block;width:600px;"/></td></tr>`
-      : `<tr><td style="padding:20px 20px 0;background:${cardBg}!important;line-height:0;font-size:0;">
+      : `<tr><td class="gmailfix" style="padding:20px 20px 0;${WHITE_BG};line-height:0;font-size:0;">
       <div style="position:relative;width:560px;height:680px;overflow:hidden;border-radius:0;background:#1a1a1a;">
         ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:560px;height:680px;object-fit:cover;object-position:calc(50% + ${heroX}px) calc(50% + ${heroY}px);transform:scale(${heroScale});transform-origin:50% 50%;display:block;"/>` : ''}
         <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.25) 40%,rgba(0,0,0,0.45) 100%);">
@@ -1746,13 +1794,13 @@ function buildTemplateWeek5({ client, copy, images, footerData, isHeroGenerated 
 
     <!-- ── Subhead (preview text) ── -->
     ${copy.subhead ? `
-    <tr><td style="padding:32px 52px 8px;text-align:center;background:${cardBg}!important;">
+    <tr><td class="gmailfix" style="padding:32px 52px 8px;text-align:center;${WHITE_BG};">
       <p style="font-family:Georgia,'Times New Roman',serif;font-size:17px;font-style:italic;line-height:1.65;color:#444!important;margin:0;">${copy.subhead}</p>
     </td></tr>` : ''}
 
     <!-- ── CTA (below preview text) ── -->
     ${copy.ctaText ? `
-    <tr><td style="padding:20px 52px 8px;text-align:center;background:${cardBg}!important;">
+    <tr><td class="gmailfix" style="padding:20px 52px 8px;text-align:center;${WHITE_BG};">
       <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto;"><tr>
         <td style="background:${accent}!important;border-radius:100px;">
           <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:16px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff!important;text-decoration:none!important;letter-spacing:.03em;white-space:nowrap;">${copy.ctaText} &rarr;</a>
@@ -1762,18 +1810,18 @@ function buildTemplateWeek5({ client, copy, images, footerData, isHeroGenerated 
 
     <!-- ── Body text ── -->
     ${copy.bodyText ? `
-    <tr><td style="padding:32px 52px 24px;text-align:center;background:${cardBg}!important;">
+    <tr><td class="gmailfix" style="padding:32px 52px 24px;text-align:center;${WHITE_BG};">
       <p style="font-family:Arial,sans-serif;font-size:15px;line-height:1.85;color:#444!important;margin:0;">${body}</p>
     </td></tr>` : ''}
 
     <!-- ── Divider ── -->
-    <tr><td style="padding:0 48px;background:${cardBg}!important;">
+    <tr><td class="gmailfix" style="padding:0 48px;${WHITE_BG};">
       <div style="height:1px;background:rgba(0,0,0,0.08);font-size:0;line-height:0;"></div>
     </td></tr>
 
     <!-- ── Body block 2 title (above grid) ── -->
     ${copy.bodyBlock2Title ? `
-    <tr><td style="padding:32px 52px 0;text-align:center;background:${cardBg}!important;">
+    <tr><td class="gmailfix" style="padding:32px 52px 0;text-align:center;${WHITE_BG};">
       <p style="font-family:Georgia,'Times New Roman',serif;font-size:20px;font-weight:700;color:${secondary}!important;line-height:1.25;margin:0;">${copy.bodyBlock2Title}</p>
     </td></tr>` : ''}
 
@@ -1784,8 +1832,8 @@ function buildTemplateWeek5({ client, copy, images, footerData, isHeroGenerated 
     ─────────────────────────────────────────────────────────────────── -->
     ${hasGrid
       ? isHeroGenerated && img4
-        ? `<tr><td style="padding:28px 0 0;background:${cardBg}!important;line-height:0;font-size:0;text-align:center;"><img src="${img4}" alt="" width="600" style="display:block;width:600px;max-width:100%;"/></td></tr>`
-        : `<tr><td style="padding:28px 0 0;background:${cardBg}!important;">
+        ? `<tr><td class="gmailfix" style="padding:28px 0 0;${WHITE_BG};line-height:0;font-size:0;text-align:center;"><img src="${img4}" alt="" width="600" style="display:block;width:600px;max-width:100%;"/></td></tr>`
+        : `<tr><td class="gmailfix" style="padding:28px 0 0;${WHITE_BG};">
       <table width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;border-collapse:collapse;">
         <!-- Row 1 -->
         <tr>
@@ -1823,18 +1871,18 @@ function buildTemplateWeek5({ client, copy, images, footerData, isHeroGenerated 
 
     <!-- ── Body block 2 + closing ── -->
     ${copy.bodyBlock2 ? `
-    <tr><td style="padding:${copy.bodyBlock2Title ? '14px' : '32px'} 52px 0;text-align:center;background:${cardBg}!important;">
+    <tr><td class="gmailfix" style="padding:${copy.bodyBlock2Title ? '14px' : '32px'} 52px 0;text-align:center;${WHITE_BG};">
       <p style="font-family:Arial,sans-serif;font-size:15px;line-height:1.85;color:#444!important;margin:0;">${b2body}</p>
     </td></tr>` : ''}
 
     ${copy.closingLine ? `
-    <tr><td style="padding:20px 52px 0;text-align:center;background:${cardBg}!important;">
+    <tr><td class="gmailfix" style="padding:20px 52px 0;text-align:center;${WHITE_BG};">
       <p style="font-family:Georgia,'Times New Roman',serif;font-size:15px;font-style:italic;color:#888!important;line-height:1.7;margin:0;">${copy.closingLine}</p>
     </td></tr>` : ''}
 
     <!-- ── Repeat CTA ── -->
     ${copy.ctaText ? `
-    <tr><td style="padding:28px 52px 44px;text-align:center;background:${cardBg}!important;">
+    <tr><td class="gmailfix" style="padding:28px 52px 44px;text-align:center;${WHITE_BG};">
       <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto;"><tr>
         <td style="background:${accent}!important;border-radius:100px;">
           <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:16px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff!important;text-decoration:none!important;letter-spacing:.03em;white-space:nowrap;">${copy.ctaText} &rarr;</a>
@@ -1871,6 +1919,9 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
   const cardBg    = '#fffffe'
   const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
 
+  const WHITE_BG = 'background-color:#ffffff;background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%)'
+  const PAGE_BG  = `background-color:${pageBg};background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)`
+
   const logoHtml = logoUrl
     ? `<img src="${logoUrl}" alt="${name}" style="height:${logoSize}px;width:auto;max-width:150px;display:inline-block;filter:${logoFilter};"/>`
     : `<span style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#1a1a1a;">${name}</span>`
@@ -1887,23 +1938,34 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
 <meta name="color-scheme" content="light">
 <meta name="supported-color-schemes" content="light">
 <style>
-  :root{color-scheme:light}
+  :root{color-scheme:light;supported-color-schemes:light}
   *{box-sizing:border-box;margin:0;padding:0}
-  body{background:${pageBg}!important;font-family:Arial,sans-serif;color:#1a1a1a!important;-webkit-text-size-adjust:100%}
-  @media (prefers-color-scheme:dark){html,body{background-color:${pageBg}!important;color:#1a1a1a!important}}
+  body{${PAGE_BG};color:#1a1a1a;}
+  table{border-collapse:collapse;}
+  u + .body .gmailfix { background-color:#ffffff!important; background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%)!important; }
+  u + .body .gmailfix-page { background-color:${pageBg}!important; background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)!important; }
+  u + .body .gmailtext-dark  { color:#1a1a1a!important; }
+  u + .body .gmailtext-muted { color:#555!important; }
+  @media (prefers-color-scheme:dark){
+    html,body{ ${PAGE_BG}; color:#1a1a1a!important; }
+    .gmailfix { background-color:#ffffff!important; background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%)!important; }
+    .gmailfix-page { background-color:${pageBg}!important; background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)!important; }
+    .gmailtext-dark  { color:#1a1a1a!important; }
+    .gmailtext-muted { color:#555!important; }
+  }
 </style></head>
-<body style="background:${pageBg}!important;margin:0;padding:0;">
+<body class="body" style="${PAGE_BG};margin:0;padding:0;">
 
-<table width="100%" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="background:${pageBg}!important;border-collapse:collapse;">
-<tr><td align="center" style="padding:24px 0 48px;background:${pageBg}!important;">
+<table width="100%" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="${PAGE_BG};border-collapse:collapse;">
+<tr><td align="center" class="gmailfix-page" style="padding:24px 0 48px;${PAGE_BG};">
 
-  <table width="600" cellpadding="0" cellspacing="0" bgcolor="${cardBg}" style="width:600px;max-width:600px;background-color:${cardBg}!important;border-collapse:collapse;border-radius:20px;overflow:hidden;">
+  <table width="600" cellpadding="0" cellspacing="0" class="gmailfix" bgcolor="#ffffff" style="width:600px;max-width:600px;${WHITE_BG};border-collapse:collapse;border-radius:20px;overflow:hidden;">
 
     <!-- ── Header + Hero: header baked into PNG when generated ── -->
     ${isHeroGenerated
       ? `<tr><td style="padding:0;line-height:0;font-size:0;"><img src="${heroImg}" alt="" width="600" style="display:block;width:600px;"/></td></tr>`
       : `
-    <tr><td style="padding:28px 40px 20px;background:${cardBg}!important;">
+    <tr><td class="gmailfix" style="padding:28px 40px 20px;${WHITE_BG};">
       <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
         <tr>
           <td style="vertical-align:middle;">${logoHtml}</td>
@@ -1956,26 +2018,26 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
 
     <!-- ── Body text (on white, below gradient) ── -->
     ${copy.bodyText ? `
-    <tr><td style="padding:20px 52px 8px;text-align:center;background:${cardBg}!important;">
+    <tr><td class="gmailfix" style="padding:20px 52px 8px;text-align:center;${WHITE_BG};">
       <p style="font-family:Arial,sans-serif;font-size:15px;line-height:1.9;color:#444!important;margin:0;">${body}</p>
     </td></tr>` : ''}
 
     <!-- ── Divider ── -->
-    <tr><td style="padding:0 40px;background:${cardBg}!important;">
+    <tr><td class="gmailfix" style="padding:0 40px;${WHITE_BG};">
       <div style="height:1px;background:rgba(0,0,0,0.08);font-size:0;line-height:0;"></div>
     </td></tr>
 
     <!-- ── Body block 2 title (below divider, above grid) ── -->
     ${copy.bodyBlock2Title ? `
-    <tr><td style="padding:32px 52px 16px;text-align:center;background:${cardBg}!important;">
+    <tr><td class="gmailfix" style="padding:32px 52px 16px;text-align:center;${WHITE_BG};">
       <p style="font-family:Georgia,'Times New Roman',serif;font-size:20px;font-weight:700;color:${secondary}!important;line-height:1.25;margin:0;">${copy.bodyBlock2Title}</p>
     </td></tr>` : ''}
 
     <!-- ── Image grid: 2-up top row + 1 full-width bottom ── -->
     ${hasGrid
       ? isHeroGenerated && img4
-        ? `<tr><td style="padding:0;line-height:0;font-size:0;text-align:center;background:${cardBg}!important;"><img src="${img4}" alt="" width="600" style="display:block;width:600px;max-width:100%;"/></td></tr>`
-        : `<tr><td style="padding:32px 20px 0;background:${cardBg}!important;">
+        ? `<tr><td class="gmailfix" style="padding:0;line-height:0;font-size:0;text-align:center;${WHITE_BG};"><img src="${img4}" alt="" width="600" style="display:block;width:600px;max-width:100%;"/></td></tr>`
+        : `<tr><td class="gmailfix" style="padding:32px 20px 0;${WHITE_BG};">
 
       ${(img1 || img2) ? `
       <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
@@ -2003,25 +2065,25 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
 
     <!-- ── Body block 2 text ── -->
     ${copy.bodyBlock2 ? `
-    <tr><td style="padding:32px 52px 0;text-align:center;background:${cardBg}!important;">
+    <tr><td class="gmailfix" style="padding:32px 52px 0;text-align:center;${WHITE_BG};">
       <p style="font-family:Arial,sans-serif;font-size:15px;line-height:1.85;color:#444!important;margin:0;">${b2body}</p>
     </td></tr>` : ''}
 
     <!-- ── Closing line ── -->
     ${copy.closingLine ? `
-    <tr><td style="padding:20px 52px 0;text-align:center;background:${cardBg}!important;">
+    <tr><td class="gmailfix" style="padding:20px 52px 0;text-align:center;${WHITE_BG};">
       <p style="font-family:Georgia,'Times New Roman',serif;font-size:15px;font-style:italic;color:#888!important;line-height:1.7;margin:0;">${copy.closingLine}</p>
     </td></tr>` : ''}
 
     <!-- ── Final CTA ── -->
     ${copy.ctaText ? `
-    <tr><td style="padding:28px 52px 44px;text-align:center;background:${cardBg}!important;">
+    <tr><td class="gmailfix" style="padding:28px 52px 44px;text-align:center;${WHITE_BG};">
       <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto;"><tr>
         <td style="border:2px solid ${accent}!important;border-radius:100px;">
           <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:14px 44px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:${accent}!important;text-decoration:none!important;letter-spacing:.03em;white-space:nowrap;">${copy.ctaText}</a>
         </td>
       </tr></table>
-    </td></tr>` : '<tr><td style="padding:20px 0;background-color:#fffffe!important;font-size:0;line-height:0;"></td></tr>'}
+    </td></tr>` : `<tr><td class="gmailfix" style="padding:20px 0;${WHITE_BG};font-size:0;line-height:0;"></td></tr>`}
 
     <tr><td style="padding:0;line-height:0;font-size:0;">${buildFooter(client, footerData, { defaultBg: '#1a1a1a' })}</td></tr>
   </table>
