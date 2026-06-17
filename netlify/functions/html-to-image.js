@@ -70,16 +70,27 @@ async function callPuppeteer(html, width, height, locationId) {
   if (!ghlKey)    throw new Error('GHL_API_KEY not configured for Puppeteer fallback')
   if (!locationId) throw new Error('locationId required for Puppeteer fallback (GHL upload)')
 
-  const chromium  = (await import('@sparticuz/chromium')).default
-  const puppeteer = (await import('puppeteer-core')).default
-
-  console.log('[html-to-image] Launching Puppeteer (sparticuz/chromium)...')
-  const browser = await puppeteer.launch({
-    args:            chromium.args,
-    defaultViewport: chromium.defaultViewport,
-    executablePath:  await chromium.executablePath(),
-    headless:        chromium.headless,
-  })
+  let browser
+  if (process.platform === 'linux') {
+    // Vercel / serverless — use pre-built Chromium for Lambda
+    const chromium  = (await import('@sparticuz/chromium')).default
+    const puppeteer = (await import('puppeteer-core')).default
+    console.log('[html-to-image] Launching Puppeteer (sparticuz/chromium, Linux)...')
+    browser = await puppeteer.launch({
+      args:            chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath:  await chromium.executablePath(),
+      headless:        chromium.headless,
+    })
+  } else {
+    // Local macOS / Windows — use bundled Puppeteer
+    const puppeteer = (await import('puppeteer')).default
+    console.log('[html-to-image] Launching Puppeteer (bundled, local)...')
+    browser = await puppeteer.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
+    })
+  }
 
   try {
     const page = await browser.newPage()
