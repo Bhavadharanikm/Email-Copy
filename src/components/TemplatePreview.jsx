@@ -359,7 +359,7 @@ function buildTemplateWeek2({ client, copy, images, footerData, isHeroGenerated 
   const b2body   = (copy.bodyBlock2||'').replace(/\n/g,'<br>')
   const logoUrl  = client?.logoUrl||''
   const pageBg     = footerData?.bgColor      || '#1e2a4a'
-  const midBg      = '#ffffff'
+  const midBg      = '#fffffe'
   const accentClr  = footerData?.buttonColor || '#d4006a'
   const secondaryClr = footerData?.secondaryColor || accentClr
   const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
@@ -381,7 +381,7 @@ function buildTemplateWeek2({ client, copy, images, footerData, isHeroGenerated 
 </style></head><body style="background:${pageBg}!important;margin:0;padding:0;font-family:Arial,sans-serif;color:#1a1a1a!important;">
 <table width="100%" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="background:${pageBg}!important;border-collapse:collapse;">
 <tr><td align="center" style="padding:32px 0;background:${pageBg}!important;">
-<table width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;background:${midBg}!important;border-collapse:collapse;border-radius:20px;overflow:hidden;">
+<table width="600" cellpadding="0" cellspacing="0" bgcolor="${midBg}" style="width:600px;max-width:600px;background-color:${midBg}!important;border-collapse:collapse;border-radius:20px;overflow:hidden;">
 <tr><td style="background:${midBg}!important;">
 
   <!-- LOGO HEADER (always above arch) -->
@@ -430,7 +430,7 @@ function buildTemplateWeek2({ client, copy, images, footerData, isHeroGenerated 
   <!-- BODY BLOCK 2: title + body2 + closing + CTA -->
   ${(copy.bodyBlock2Title || copy.bodyBlock2 || copy.closingLine) ? `
   <div style="background:${midBg}!important;padding:8px 36px 0;">
-    <div style="background:#ffffff!important;border-radius:10px;padding:16px 20px;">
+    <div style="background-color:#fffffe!important;border-radius:10px;padding:16px 20px;">
       ${copy.bodyBlock2Title ? `<div style="font-size:11px;font-weight:700;font-family:Arial,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:${accentClr}!important;margin-bottom:6px;text-align:left;">${copy.bodyBlock2Title}</div>` : ''}
       ${copy.bodyBlock2 ? `<div style="font-size:15px;line-height:1.8;color:#3a3028!important;margin-bottom:18px;font-family:Arial,sans-serif;">${b2body}</div>` : ''}
       ${copy.closingLine ? `<div style="font-size:14px;line-height:1.7;color:#888!important;font-style:italic;margin-bottom:24px;font-family:Georgia,serif;">${copy.closingLine}</div>` : ''}
@@ -461,7 +461,7 @@ function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated 
   const b2body   = (copy.bodyBlock2||'').replace(/\n/g,'<br>')
   const logoUrl  = client?.logoUrl||''
   const pageBg     = footerData?.bgColor || '#f5f4f2'
-  const cardBg     = '#ffffff'
+  const cardBg     = '#fffffe'
   const accentClr  = footerData?.buttonColor || '#1a1a1a'
   const secondaryClr = footerData?.secondaryColor || accentClr
   const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
@@ -508,7 +508,7 @@ function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated 
 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;background:${pageBg}!important;border-collapse:collapse;">
 <tr><td align="center" style="padding:24px 0 48px;">
 
-  <table width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:600px;background:${cardBg};border-collapse:collapse;border-radius:20px;overflow:hidden;">
+  <table width="600" cellpadding="0" cellspacing="0" border="0" bgcolor="${cardBg}" style="width:600px;max-width:600px;background-color:${cardBg}!important;border-collapse:collapse;border-radius:20px;overflow:hidden;">
 
     <!-- ── HERO ── -->
     ${isHeroGenerated
@@ -1504,11 +1504,11 @@ function w4StackedImage(imgUrl, imgObj, height = 460) {
 function w4Card({ imgUrl, imgObj, bodyText, isLast }) {
   const body = (bodyText||'').replace(/\n/g,'<br>')
   return `
-    <tr><td style="padding:28px 72px 8px;background:#fff;line-height:0;font-size:0;">
+    <tr><td style="padding:28px 72px 8px;background-color:#fffffe!important;line-height:0;font-size:0;">
       ${w4StackedImage(imgUrl, imgObj)}
     </td></tr>
     ${body ? `
-    <tr><td style="padding:24px 52px ${isLast ? '40px' : '32px'};background:#fff;text-align:center;">
+    <tr><td style="padding:24px 52px ${isLast ? '40px' : '32px'};background-color:#fffffe!important;text-align:center;">
       <p style="font-family:Arial,sans-serif;font-size:14px;color:#555;line-height:1.85;margin:0;">${body}</p>
     </td></tr>` : ''}`
 }
@@ -1560,18 +1560,17 @@ function buildTemplateWeek4({ client, copy, images, footerData, isHeroGenerated 
   table{border-collapse:collapse;}
   @media (prefers-color-scheme:dark){
     html,body{background-color:${pageBg}!important;color:#1a1a1a!important;}
-    table,td,tr{background-color:inherit!important;color:inherit!important;}
   }
 </style>
 </head><body style="background:${pageBg}!important;margin:0;padding:0;">
 <table width="100%" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="background:${pageBg}!important;">
 <tr><td align="center" style="padding:32px 0;background:${pageBg}!important;">
-  <table width="600" cellpadding="0" cellspacing="0" style="background:#fff!important;border-radius:20px;overflow:hidden;">
+  <table width="600" cellpadding="0" cellspacing="0" bgcolor="#fffffe" style="background-color:#fffffe!important;border-radius:20px;overflow:hidden;">
 
     <!-- ── HERO: padded inset image + dark gradient + logo + headline ── -->
     ${isHeroGenerated
       ? `<tr><td style="padding:0;line-height:0;font-size:0;"><img src="${heroImg}" alt="" width="600" style="display:block;width:600px;"/></td></tr>`
-      : `<tr><td style="padding:20px 20px 0;background:#fff!important;line-height:0;font-size:0;">
+      : `<tr><td style="padding:20px 20px 0;background-color:#fffffe!important;line-height:0;font-size:0;">
       <div style="position:relative;width:560px;height:720px;overflow:hidden;border-radius:16px;background:#1a1a1a;">
         ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:560px;height:720px;object-fit:cover;object-position:calc(50% + ${heroX}px) calc(50% + ${heroY}px);transform:scale(${heroScale});transform-origin:50% 50%;display:block;"/>` : ''}
         <!-- dark gradient top-down -->
@@ -1586,46 +1585,46 @@ function buildTemplateWeek4({ client, copy, images, footerData, isHeroGenerated 
 
     <!-- ── Subhead + CTA after hero ── -->
     ${copy.subhead ? `
-    <tr><td style="padding:32px 64px 4px;text-align:center;background:#fff!important;">
+    <tr><td style="padding:32px 64px 4px;text-align:center;background-color:#fffffe!important;">
       <p style="font-family:Georgia,'Times New Roman',serif;font-size:17px;font-style:italic;line-height:1.7;color:#333;margin:0;">${copy.subhead}</p>
     </td></tr>` : ''}
     ${copy.ctaText ? `
-    <tr><td style="padding:24px 48px 8px;text-align:center;background:#fff!important;">
+    <tr><td style="padding:24px 48px 8px;text-align:center;background-color:#fffffe!important;">
       <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr>
         <td style="background:${accent};border-radius:999px;">
           <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;letter-spacing:.04em;color:#fff!important;text-decoration:none!important;">${copy.ctaText} &rarr;</a>
         </td>
       </tr></table>
     </td></tr>` : ''}
-    <tr><td style="padding:32px 40px 0;background:#fff!important;"><div style="height:1px;background:#e5e5e5;font-size:0;line-height:0;"></div></td></tr>
+    <tr><td style="padding:32px 40px 0;background-color:#fffffe!important;"><div style="height:1px;background:#e5e5e5;font-size:0;line-height:0;"></div></td></tr>
 
     <!-- Card 1: full width -->
     ${isHeroGenerated && card1PngUrl
       ? `<tr><td style="padding:0;line-height:0;font-size:0;"><img src="${card1PngUrl}" alt="" width="600" style="display:block;width:600px;"/></td></tr>
-         ${cards[0].bodyText ? `<tr><td style="padding:24px 52px 32px;background:#fff!important;text-align:center;"><p style="font-family:Arial,sans-serif;font-size:14px;color:#555;line-height:1.85;margin:0;">${cards[0].bodyText.replace(/\n/g,'<br>')}</p></td></tr>` : ''}`
+         ${cards[0].bodyText ? `<tr><td style="padding:24px 52px 32px;background-color:#fffffe!important;text-align:center;"><p style="font-family:Arial,sans-serif;font-size:14px;color:#555;line-height:1.85;margin:0;">${cards[0].bodyText.replace(/\n/g,'<br>')}</p></td></tr>` : ''}`
       : w4Card(cards[0])}
 
     <!-- Divider -->
-    <tr><td style="padding:0 40px;background:#fff!important;"><div style="height:1px;background:#ebebeb;font-size:0;line-height:0;"></div></td></tr>
+    <tr><td style="padding:0 40px;background-color:#fffffe!important;"><div style="height:1px;background:#ebebeb;font-size:0;line-height:0;"></div></td></tr>
 
     <!-- Card 2: bodyBlock2Title + image + bodyBlock2 + closingLine + CTA -->
     ${copy.bodyBlock2Title ? `
-    <tr><td style="padding:32px 52px 8px;background:#fff!important;text-align:center;">
+    <tr><td style="padding:32px 52px 8px;background-color:#fffffe!important;text-align:center;">
       <p style="font-family:Georgia,'Times New Roman',serif;font-size:22px;font-weight:700;color:${secondary};line-height:1.3;margin:0;">${copy.bodyBlock2Title}</p>
     </td></tr>` : ''}
     ${isHeroGenerated && card2PngUrl
       ? `<tr><td style="padding:0;line-height:0;font-size:0;"><img src="${card2PngUrl}" alt="" width="600" style="display:block;width:600px;"/></td></tr>`
-      : `<tr><td style="padding:16px 72px 8px;background:#fff!important;line-height:normal;">${w4StackedImage(cards[1].imgUrl, cards[1].imgObj, 520)}</td></tr>`}
+      : `<tr><td style="padding:16px 72px 8px;background-color:#fffffe!important;line-height:normal;">${w4StackedImage(cards[1].imgUrl, cards[1].imgObj, 520)}</td></tr>`}
     ${copy.bodyBlock2 ? `
-    <tr><td style="padding:20px 52px 0;background:#fff!important;text-align:center;">
+    <tr><td style="padding:20px 52px 0;background-color:#fffffe!important;text-align:center;">
       <p style="font-family:Arial,sans-serif;font-size:14px;color:#555;line-height:1.85;margin:0;">${(copy.bodyBlock2).replace(/\n/g,'<br>')}</p>
     </td></tr>` : ''}
     ${copy.closingLine ? `
-    <tr><td style="padding:20px 52px 0;background:#fff!important;text-align:center;">
+    <tr><td style="padding:20px 52px 0;background-color:#fffffe!important;text-align:center;">
       <p style="font-family:Georgia,'Times New Roman',serif;font-size:15px;font-style:italic;color:#333;line-height:1.7;margin:0;">${copy.closingLine}</p>
     </td></tr>` : ''}
     ${copy.ctaText ? `
-    <tr><td style="padding:24px 48px 44px;text-align:center;background:#fff!important;">
+    <tr><td style="padding:24px 48px 44px;text-align:center;background-color:#fffffe!important;">
       <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr>
         <td style="background:${accent};border-radius:999px;">
           <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;letter-spacing:.04em;color:#fff!important;text-decoration:none!important;">${copy.ctaText} &rarr;</a>
@@ -1662,7 +1661,7 @@ function buildTemplateWeek5({ client, copy, images, footerData, isHeroGenerated 
   const accent    = footerData?.buttonColor || '#1a1a1a'
   const secondary = footerData?.secondaryColor || accent
   const pageBg    = footerData?.bgColor || '#f5f4f2'
-  const cardBg    = '#ffffff'
+  const cardBg    = '#fffffe'
   const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
 
   // Logo for dark overlay
@@ -1726,7 +1725,7 @@ function buildTemplateWeek5({ client, copy, images, footerData, isHeroGenerated 
 <table width="100%" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="background:${pageBg}!important;border-collapse:collapse;">
 <tr><td align="center" style="padding:24px 0 48px;background:${pageBg}!important;">
 
-  <table width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;background:${cardBg}!important;border-collapse:collapse;border-radius:20px;overflow:hidden;">
+  <table width="600" cellpadding="0" cellspacing="0" bgcolor="${cardBg}" style="width:600px;max-width:600px;background-color:${cardBg}!important;border-collapse:collapse;border-radius:20px;overflow:hidden;">
 
     <!-- ── HERO: same inset card as Week 4 ── -->
     ${isHeroGenerated
@@ -1869,7 +1868,7 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
   const accent    = footerData?.buttonColor || '#1a1a1a'
   const secondary = footerData?.secondaryColor || accent
   const pageBg    = footerData?.bgColor || '#edf1f7'
-  const cardBg    = '#ffffff'
+  const cardBg    = '#fffffe'
   const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
 
   const logoHtml = logoUrl
@@ -1898,7 +1897,7 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
 <table width="100%" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="background:${pageBg}!important;border-collapse:collapse;">
 <tr><td align="center" style="padding:24px 0 48px;background:${pageBg}!important;">
 
-  <table width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;background:${cardBg}!important;border-collapse:collapse;border-radius:20px;overflow:hidden;">
+  <table width="600" cellpadding="0" cellspacing="0" bgcolor="${cardBg}" style="width:600px;max-width:600px;background-color:${cardBg}!important;border-collapse:collapse;border-radius:20px;overflow:hidden;">
 
     <!-- ── Header + Hero: header baked into PNG when generated ── -->
     ${isHeroGenerated
@@ -2022,7 +2021,7 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
           <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:14px 44px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:${accent}!important;text-decoration:none!important;letter-spacing:.03em;white-space:nowrap;">${copy.ctaText}</a>
         </td>
       </tr></table>
-    </td></tr>` : '<tr><td style="padding:20px 0;background:#fff!important;font-size:0;line-height:0;"></td></tr>'}
+    </td></tr>` : '<tr><td style="padding:20px 0;background-color:#fffffe!important;font-size:0;line-height:0;"></td></tr>'}
 
     <tr><td style="padding:0;line-height:0;font-size:0;">${buildFooter(client, footerData, { defaultBg: '#1a1a1a' })}</td></tr>
   </table>
