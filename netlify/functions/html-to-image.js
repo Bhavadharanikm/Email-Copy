@@ -70,14 +70,15 @@ async function callPuppeteer(html, width, height, locationId) {
   if (!ghlKey)    throw new Error('GHL_API_KEY not configured for Puppeteer fallback')
   if (!locationId) throw new Error('locationId required for Puppeteer fallback (GHL upload)')
 
-  let puppeteer
-  try { puppeteer = (await import('puppeteer')).default }
-  catch { throw new Error('Puppeteer not installed — run: npm install puppeteer') }
+  const chromium  = (await import('@sparticuz/chromium')).default
+  const puppeteer = (await import('puppeteer-core')).default
 
-  console.log('[html-to-image] Launching Puppeteer...')
+  console.log('[html-to-image] Launching Puppeteer (sparticuz/chromium)...')
   const browser = await puppeteer.launch({
-    headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
+    args:            chromium.args,
+    defaultViewport: chromium.defaultViewport,
+    executablePath:  await chromium.executablePath(),
+    headless:        chromium.headless,
   })
 
   try {
