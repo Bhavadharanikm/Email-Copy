@@ -2319,7 +2319,6 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
   const [weekGenUrls,     setWeekGenUrls]     = useState({})  // { [tplId]: { hero, sec, ter } }
   const [weekGenLoading,  setWeekGenLoading]  = useState(false)
   const [weekGenError,    setWeekGenError]    = useState(null)
-  const weekGenHeroHtmlRef = useRef(null)
   const [weekGenTrigger,  setWeekGenTrigger]  = useState(0)
 
   const baseHtml = useMemo(() => {
@@ -2860,7 +2859,6 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
         : Promise.resolve(null)
 
     const heroHtmlToUse = isWeek4 ? week4HeroHtml : isWeek5 ? week5HeroHtml : isWeek6 ? week6HeroHtml : heroHtml
-    weekGenHeroHtmlRef.current = heroHtmlToUse
 
     Promise.all([
       renderImage({ html: heroHtmlToUse, width: 600, height: heroHeight }),
@@ -2996,17 +2994,6 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
               {weekGenUrls[tpl?.id]?.ter ? ' · Card 2' : ''}
               {' generated'}
             </span>
-          )}
-          {weekGenHeroHtmlRef.current && !weekGenLoading && (
-            <button
-              onClick={() => {
-                const blob = new Blob([weekGenHeroHtmlRef.current], { type: 'text/html' })
-                window.open(URL.createObjectURL(blob), '_blank')
-              }}
-              style={{ padding: '5px 12px', borderRadius: 8, fontSize: 11, fontWeight: 600, fontFamily: 'Inter, sans-serif', cursor: 'pointer', background: 'transparent', border: `1px solid ${dark ? '#444' : '#d1d5db'}`, color: dark ? '#9ca3af' : '#6b7280' }}
-            >
-              Preview HTML
-            </button>
           )}
           {weekGenError && (
             <span style={{ fontSize: 11, color: '#ef4444', fontFamily: 'Inter, sans-serif' }}>
