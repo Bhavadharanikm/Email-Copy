@@ -119,18 +119,18 @@ function buildFooter(client, footerData = null, options = {}) {
     : 'none'
   const logoHtml = logoUrl
     ? `<div style="margin:0 0 20px;text-align:center"><img src="${logoUrl}" alt="${name}" style="height:${fd.footerLogoSize || 40}px;width:auto;object-fit:contain;display:inline-block;filter:${footerLogoFilter};opacity:.8"/></div>`
-    : `<div style="margin:0 0 20px;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:${textCol};font-family:Arial,sans-serif">${name}</div>`
+    : `<div style="margin:0 0 20px;font-size:16px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:${textCol};font-family:Arial,sans-serif">${name}</div>`
 
   const contactParts = [
     contactInfo   ? `<a href="mailto:${contactInfo}" style="color:${textCol};text-decoration:none">${contactInfo}</a>` : '',
     contactNumber ? `<a href="tel:${contactNumber.replace(/\s/g,'')}" style="color:${textCol};text-decoration:none">${contactNumber}</a>` : '',
   ].filter(Boolean)
   const contactHtml = contactParts.length
-    ? `<div style="font-size:12px;color:${textCol};font-family:Arial,sans-serif;margin-bottom:16px">${contactParts.join(`&nbsp;&nbsp;·&nbsp;&nbsp;`)}</div>`
+    ? `<div style="font-size:15px;color:${textCol};font-family:Arial,sans-serif;margin-bottom:16px">${contactParts.join(`&nbsp;&nbsp;·&nbsp;&nbsp;`)}</div>`
     : ''
 
   const footerTextHtml = footerText
-    ? `<div style="font-size:11px;color:${linkCol};font-family:Arial,sans-serif;margin-bottom:20px;max-width:440px;margin-left:auto;margin-right:auto;line-height:1.7">${footerText}</div>`
+    ? `<div style="font-size:14px;color:${linkCol};font-family:Arial,sans-serif;margin-bottom:20px;max-width:440px;margin-left:auto;margin-right:auto;line-height:1.7">${footerText}</div>`
     : ''
 
   return `
@@ -140,7 +140,7 @@ function buildFooter(client, footerData = null, options = {}) {
     ${socialHtml}
     ${contactHtml}
     ${footerTextHtml}
-    <div style="font-size:10px;color:${linkCol};font-family:Arial,sans-serif;letter-spacing:.08em;margin-top:8px">
+    <div style="font-size:13px;color:${linkCol};font-family:Arial,sans-serif;letter-spacing:.08em;margin-top:8px">
       <a href="{{email.view_in_browser_url}}" style="color:${linkCol};text-decoration:underline">View in browser</a>
       &nbsp;·&nbsp;
       <a href="{{email.unsubscribe_link}}" style="color:${linkCol};text-decoration:underline">Unsubscribe</a>
@@ -416,16 +416,16 @@ function buildTemplateWeek2({ client, copy, images, footerData, isHeroGenerated 
   </div>`}
 
   <!-- SUBHEAD -->
-  ${copy.subhead ? `<div style="padding:28px 48px 4px;text-align:center;${WHITE_BG};"><div style="font-family:Georgia,serif;font-size:17px;font-weight:400;font-style:italic;color:#1a1a1a;line-height:1.5;">${copy.subhead}</div></div>` : ''}
+  ${copy.subhead ? `<div style="padding:28px 48px 4px;text-align:center;${WHITE_BG};"><div style="font-family:Georgia,serif;font-size:20px;font-weight:400;font-style:italic;color:#1a1a1a;line-height:1.5;">${copy.subhead}</div></div>` : ''}
 
   <!-- CTA -->
-  ${copy.ctaText ? `<div style="padding:24px 48px 28px;text-align:center;${WHITE_BG};"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;background:${accentClr};color:#fff!important;padding:14px 40px;font-size:13px;font-weight:600;letter-spacing:.06em;text-decoration:none!important;font-family:Arial,sans-serif;border-radius:50px;">${copy.ctaText}</a></div>` : ''}
+  ${copy.ctaText ? `<div style="padding:24px 48px 28px;text-align:center;${WHITE_BG};"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;background:${accentClr};color:#fff!important;padding:14px 40px;font-size:16px;font-weight:600;letter-spacing:.06em;text-decoration:none!important;font-family:Arial,sans-serif;border-radius:50px;">${copy.ctaText}</a></div>` : ''}
 
   <!-- LONG IMAGE (img1) -->
   ${img1 ? `<div style="line-height:0;font-size:0;padding:0 36px 16px;${WHITE_BG};"><img src="${img1}" alt="" style="width:100%;height:260px;object-fit:cover;display:block;border-radius:8px;object-position:${focalPos(img1Obj)}"/></div>` : ''}
 
   <!-- BODY BLOCK -->
-  ${copy.bodyText ? `<div style="padding:24px 48px 32px;${WHITE_BG};"><div style="font-size:15px;line-height:1.8;color:#3a3028!important;margin-bottom:18px;font-family:Arial,sans-serif;">${body}</div></div>` : ''}
+  ${copy.bodyText ? `<div style="padding:24px 48px 32px;${WHITE_BG};"><div style="font-size:18px;line-height:1.8;color:#3a3028!important;margin-bottom:18px;font-family:Arial,sans-serif;">${body}</div></div>` : ''}
 
   <!-- STRIP IMAGES (img2 + img3) — table layout, no flex -->
   ${img2 ? `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;${WHITE_BG};">
@@ -443,11 +443,11 @@ function buildTemplateWeek2({ client, copy, images, footerData, isHeroGenerated 
   ${(copy.bodyBlock2Title || copy.bodyBlock2 || copy.closingLine) ? `
   <div style="${WHITE_BG};padding:8px 36px 0;">
     <div style="${WHITE_BG};border-radius:10px;padding:16px 20px;">
-      ${copy.bodyBlock2Title ? `<div style="font-size:11px;font-weight:700;font-family:Arial,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:${accentClr}!important;margin-bottom:6px;text-align:left;">${copy.bodyBlock2Title}</div>` : ''}
-      ${copy.bodyBlock2 ? `<div style="font-size:15px;line-height:1.8;color:#3a3028!important;margin-bottom:18px;font-family:Arial,sans-serif;">${b2body}</div>` : ''}
-      ${copy.closingLine ? `<div style="font-size:14px;line-height:1.7;color:#888!important;font-style:italic;margin-bottom:24px;font-family:Georgia,serif;">${copy.closingLine}</div>` : ''}
+      ${copy.bodyBlock2Title ? `<div style="font-size:14px;font-weight:700;font-family:Arial,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:${accentClr}!important;margin-bottom:6px;text-align:left;">${copy.bodyBlock2Title}</div>` : ''}
+      ${copy.bodyBlock2 ? `<div style="font-size:18px;line-height:1.8;color:#3a3028!important;margin-bottom:18px;font-family:Arial,sans-serif;">${b2body}</div>` : ''}
+      ${copy.closingLine ? `<div style="font-size:17px;line-height:1.7;color:#888!important;font-style:italic;margin-bottom:24px;font-family:Georgia,serif;">${copy.closingLine}</div>` : ''}
     </div>
-    ${copy.ctaText ? `<div style="padding:16px 0 36px;text-align:center;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;background:${accentClr};color:#fff!important;padding:14px 40px;font-size:13px;font-weight:600;letter-spacing:.06em;text-decoration:none!important;font-family:Arial,sans-serif;border-radius:50px;">${copy.ctaText}</a></div>` : ''}
+    ${copy.ctaText ? `<div style="padding:16px 0 36px;text-align:center;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;background:${accentClr};color:#fff!important;padding:14px 40px;font-size:16px;font-weight:600;letter-spacing:.06em;text-decoration:none!important;font-family:Arial,sans-serif;border-radius:50px;">${copy.ctaText}</a></div>` : ''}
   </div>` : ''}
 
   ${buildFooter(client, footerData, { defaultBg: '#d4006a' })}
