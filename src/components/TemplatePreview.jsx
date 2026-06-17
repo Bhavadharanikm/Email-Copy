@@ -118,7 +118,7 @@ function buildFooter(client, footerData = null, options = {}) {
     : logoColorOpt === 'black' ? 'brightness(0)'
     : 'none'
   const logoHtml = logoUrl
-    ? `<div style="margin:0 0 20px;text-align:center"><img src="${logoUrl}" alt="${name}" style="height:40px;width:auto;object-fit:contain;display:inline-block;filter:${footerLogoFilter};opacity:.8"/></div>`
+    ? `<div style="margin:0 0 20px;text-align:center"><img src="${logoUrl}" alt="${name}" style="height:${fd.footerLogoSize || 40}px;width:auto;object-fit:contain;display:inline-block;filter:${footerLogoFilter};opacity:.8"/></div>`
     : `<div style="margin:0 0 20px;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:${textCol};font-family:Arial,sans-serif">${name}</div>`
 
   const contactParts = [
@@ -2296,6 +2296,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
   const [textLeft,    setTextLeft]    = useState(36)
   const [logoColor,        setLogoColor]        = useState('original') // 'original' | 'white' | 'black'
   const [footerLogoColor, setFooterLogoColor]  = useState('original') // 'original' | 'white' | 'black'
+  const [footerLogoSize,  setFooterLogoSize]   = useState(40)
   const [logoTop,     setLogoTop]     = useState(24)
   const [logoRight,   setLogoRight]   = useState(36)
   const [logoSize,    setLogoSize]    = useState(70)
@@ -2333,12 +2334,12 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     }
     const editorProps = isEditable ? { heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize } : {}
     const isHeroGenerated = [10, 11, 12, 13, 14].includes(tpl?.id) && !!tplUrls.hero
-    const effectiveFooterData = footerLogoColor !== 'auto' && clientFooter
-      ? { ...clientFooter, logoColor: footerLogoColor }
+    const effectiveFooterData = clientFooter
+      ? { ...clientFooter, logoColor: footerLogoColor, footerLogoSize }
       : clientFooter
     console.log('[baseHtml] tplId:', tpl?.id, 'isHeroGenerated:', isHeroGenerated, 'tplUrls:', tplUrls, 'effectiveImages[4]:', effectiveImages?.[4], 'effectiveImages[5]:', effectiveImages?.[5])
     return tpl.build({ client:selectedClient, copy:generatedCopy, images:effectiveImages, headerStyle, imageStyle, footerData: effectiveFooterData, isHeroGenerated, ...editorProps })
-  }, [active, selectedClient, generatedCopy, selectedImages, headerStyle, imageStyle, clientFooter, footerLogoColor, weekGenUrls, heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize])
+  }, [active, selectedClient, generatedCopy, selectedImages, headerStyle, imageStyle, clientFooter, footerLogoColor, footerLogoSize, weekGenUrls, heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize])
 
   // Keep store in sync so ApprovalPanel always has the latest HTML
   useEffect(() => {
@@ -3297,8 +3298,20 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
                 ))}
               </div>
 
+              {/* Footer logo size */}
+              <div style={{ marginBottom: 8, marginTop: 10 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
+                  <span style={{ fontSize: 11, color: dark ? '#9ca3af' : '#6b7280', fontWeight: 500 }}>Footer size</span>
+                  <span style={{ fontSize: 10, fontWeight: 600, background: dark ? 'rgba(255,255,255,0.08)' : '#f3f4f6', color: dark ? '#e5e7eb' : '#374151', borderRadius: 5, padding: '1px 6px' }}>{footerLogoSize}px</span>
+                </div>
+                <input type="range" min={16} max={100} step={2} value={footerLogoSize}
+                  onChange={e => setFooterLogoSize(Number(e.target.value))}
+                  style={{ width: '100%', accentColor: '#d97706', cursor: 'pointer', height: 3 }}
+                />
+              </div>
+
               {/* Footer logo color tint */}
-              <div style={{ fontSize: 10, fontWeight: 600, color: dark ? '#9ca3af' : '#6b7280', marginBottom: 6, marginTop: 10 }}>Footer color tint</div>
+              <div style={{ fontSize: 10, fontWeight: 600, color: dark ? '#9ca3af' : '#6b7280', marginBottom: 6, marginTop: 2 }}>Footer color tint</div>
               <div style={{ display: 'flex', gap: 5 }}>
                 {[
                   { key: 'original', label: 'Original', bg: dark ? '#2d2d2d' : '#f9fafb', fg: dark ? '#d1d5db' : '#374151', dot: null },
@@ -3325,7 +3338,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
           {/* Divider + Reset */}
           <div style={{ height: 1, background: dark ? 'rgba(255,255,255,0.07)' : '#f0f1f3', margin: '12px 0 8px' }} />
           <button onClick={() => {
-            setHeroScale(1); setHeroX(0); setHeroY(0); setFooterLogoColor('original')
+            setHeroScale(1); setHeroX(0); setHeroY(0); setFooterLogoColor('original'); setFooterLogoSize(40)
             if (tpl?.id === 10) { setTextSize(38); setTextTop(32);  setTextLeft(24);  setLogoColor('original'); setLogoTop(32); setLogoRight(200); setLogoSize(40) }
             if (tpl?.id === 11) { setTextSize(40); setTextTop(14);  setTextLeft(52);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
             if (tpl?.id === 12) { setTextSize(38); setTextTop(20);  setTextLeft(48);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
