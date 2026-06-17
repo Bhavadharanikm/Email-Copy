@@ -1965,11 +1965,11 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
     ${isHeroGenerated
       ? `<tr><td style="padding:0;line-height:0;font-size:0;"><img src="${heroImg}" alt="" width="600" style="display:block;width:600px;"/></td></tr>`
       : `
-    <tr><td class="gmailfix" style="padding:${logoTop}px ${logoRight}px 20px;${WHITE_BG};">
+    <tr><td class="gmailfix" style="padding:0 0 20px;${WHITE_BG};">
       <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
         <tr>
-          <td style="vertical-align:middle;">${logoHtml}</td>
-          <td style="text-align:right;vertical-align:middle;">
+          <td style="padding:${logoTop}px 0 0 ${logoRight}px;vertical-align:top;">${logoHtml}</td>
+          <td style="text-align:right;vertical-align:middle;padding-right:40px;">
             ${copy.ctaText ? `<a href="${copy.ctaUrl||'#'}" style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#1a1a1a!important;text-decoration:underline;letter-spacing:.01em;">${copy.ctaText} ›</a>` : ''}
           </td>
         </tr>
@@ -2772,11 +2772,11 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;overflow:hidden;}</style>
 </head><body>
 <!-- White header: logo left + nav link right -->
-<div style="background:#ffffff;width:600px;padding:${logoTop}px ${logoRight}px 20px;box-sizing:border-box;line-height:normal;font-size:initial;">
+<div style="background:#ffffff;width:600px;padding:0 0 20px;box-sizing:border-box;line-height:normal;font-size:initial;">
   <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;width:100%;">
     <tr>
-      <td style="vertical-align:middle;">${w6LogoHtml}</td>
-      <td style="text-align:right;vertical-align:middle;">
+      <td style="padding:${logoTop}px 0 0 ${logoRight}px;vertical-align:top;">${w6LogoHtml}</td>
+      <td style="text-align:right;vertical-align:middle;padding-right:40px;">
         ${generatedCopy?.ctaText ? `<span style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#1a1a1a;letter-spacing:.01em;">${generatedCopy.ctaText} ›</span>` : ''}
       </td>
     </tr>
