@@ -2,8 +2,9 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useRef, useEffect } from 'react'
 import { useCampaignStore } from '../store/campaignStore'
-import { IconDiamond, IconSun, IconMoon, IconMessageCircle, IconCalendar, IconX, IconCheck } from '@tabler/icons-react'
+import { IconDiamond, IconSun, IconMoon, IconMessageCircle, IconCalendar, IconX, IconCheck, IconLogout } from '@tabler/icons-react'
 import { useTheme } from '../context/ThemeContext'
+import { useAuth } from '../context/AuthContext'
 import { submitFeedback } from '../lib/api'
 
 const SECTIONS = [
@@ -215,8 +216,14 @@ export default function Layout() {
   const resetCampaign = useCampaignStore((s) => s.resetCampaign)
   const navigate = useNavigate()
   const { theme, toggle } = useTheme()
+  const { user, logout } = useAuth()
   const dark = theme === 'dark'
   const [feedbackOpen, setFeedbackOpen] = useState(false)
+
+  function handleLogout() {
+    logout()
+    navigate('/login', { replace: true })
+  }
 
   function handleCalendar() { navigate('/calendar') }
 
@@ -360,6 +367,55 @@ export default function Layout() {
               {feedbackOpen && <FeedbackModal dark={dark} onClose={() => setFeedbackOpen(false)} />}
             </AnimatePresence>
           </div>
+
+          {/* Logged-in user chip */}
+          {user && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 7,
+                padding: '6px 12px', borderRadius: 10,
+                background: dark ? 'rgba(255,255,255,0.06)' : '#f3f4f6',
+                border: dark ? '1px solid rgba(255,255,255,0.1)' : '1px solid #e5e7eb',
+                fontSize: 13, color: dark ? 'rgba(255,255,255,0.7)' : '#374151',
+              }}>
+                <div style={{
+                  width: 22, height: 22, borderRadius: '50%',
+                  background: dark ? 'rgba(245,158,11,0.2)' : 'rgba(59,130,246,0.15)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 11, fontWeight: 700,
+                  color: dark ? '#f59e0b' : '#3b82f6',
+                }}>
+                  {user.name?.charAt(0).toUpperCase()}
+                </div>
+                <span style={{ fontWeight: 600 }}>{user.name}</span>
+                {user.role && (
+                  <span style={{
+                    fontSize: 10, fontWeight: 700, letterSpacing: '0.05em',
+                    padding: '2px 6px', borderRadius: 5,
+                    background: dark ? 'rgba(245,158,11,0.15)' : 'rgba(59,130,246,0.1)',
+                    color: dark ? '#f59e0b' : '#3b82f6',
+                  }}>
+                    {user.role}
+                  </span>
+                )}
+              </div>
+              <button
+                onClick={handleLogout}
+                title="Sign out"
+                style={{
+                  width: 36, height: 36, borderRadius: 10,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: dark ? 'rgba(255,255,255,0.06)' : '#f3f4f6',
+                  border: dark ? '1px solid rgba(255,255,255,0.1)' : '1px solid #e5e7eb',
+                  cursor: 'pointer', transition: 'all 0.18s',
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = dark ? 'rgba(239,68,68,0.15)' : '#fee2e2'}
+                onMouseLeave={e => e.currentTarget.style.background = dark ? 'rgba(255,255,255,0.06)' : '#f3f4f6'}
+              >
+                <IconLogout size={16} color={dark ? 'rgba(255,255,255,0.5)' : '#9ca3af'} stroke={1.8} />
+              </button>
+            </div>
+          )}
 
           {/* New Campaign */}
           <button
