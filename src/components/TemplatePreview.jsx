@@ -1965,7 +1965,7 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
     ${isHeroGenerated
       ? `<tr><td style="padding:0;line-height:0;font-size:0;"><img src="${heroImg}" alt="" width="600" style="display:block;width:600px;"/></td></tr>`
       : `
-    <tr><td class="gmailfix" style="padding:28px 40px 20px;${WHITE_BG};">
+    <tr><td class="gmailfix" style="padding:${logoTop}px ${logoRight}px 20px;${WHITE_BG};">
       <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
         <tr>
           <td style="vertical-align:middle;">${logoHtml}</td>
@@ -2772,7 +2772,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;overflow:hidden;}</style>
 </head><body>
 <!-- White header: logo left + nav link right -->
-<div style="background:#ffffff;width:600px;padding:28px 40px 20px;box-sizing:border-box;line-height:normal;font-size:initial;">
+<div style="background:#ffffff;width:600px;padding:${logoTop}px ${logoRight}px 20px;box-sizing:border-box;line-height:normal;font-size:initial;">
   <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;width:100%;">
     <tr>
       <td style="vertical-align:middle;">${w6LogoHtml}</td>
@@ -2785,12 +2785,12 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
 <!-- Blurred hero section -->
 <div style="position:relative;width:600px;height:740px;overflow:hidden;">
   ${heroImgUrl
-    ? `<img src="${heroImgUrl}" style="position:absolute;top:-30px;left:-30px;width:660px;height:800px;object-fit:cover;object-position:${heroFp6};filter:blur(36px) saturate(1.4) brightness(0.82);transform:scale(1.12);display:block;"/>`
+    ? `<img src="${heroImgUrl}" style="position:absolute;top:-30px;left:-30px;width:660px;height:800px;object-fit:cover;object-position:calc(50% + ${heroX}px) calc(50% + ${heroY}px);filter:blur(36px) saturate(1.4) brightness(0.82);transform:scale(${Math.max(1.12, heroScale)});display:block;"/>`
     : `<div style="position:absolute;inset:0;background:linear-gradient(160deg,#7ab5d8,#6ba87a);"></div>`}
   <!-- Inset image card -->
   <div style="position:absolute;left:28px;top:22px;right:28px;">
     <div style="position:relative;width:544px;height:480px;overflow:hidden;border-radius:20px;box-shadow:0 6px 40px rgba(0,0,0,0.3);border:2px solid rgba(255,255,255,0.55);">
-      ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:544px;height:480px;object-fit:cover;object-position:${heroFp6};display:block;"/>` : ''}
+      ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:544px;height:480px;object-fit:cover;object-position:calc(50% + ${heroX}px) calc(50% + ${heroY}px);transform:scale(${heroScale});transform-origin:50% 50%;display:block;"/>` : ''}
       <div style="position:absolute;top:0;left:0;right:0;height:72%;background:linear-gradient(to bottom,rgba(0,0,0,0.52) 0%,rgba(0,0,0,0.16) 65%,rgba(0,0,0,0) 100%);"></div>
       <div style="position:absolute;top:0;left:0;right:0;padding:32px 36px 0;line-height:normal;font-size:initial;">
         <div style="font-family:Georgia,serif;font-size:${textSize}px;font-weight:700;color:#fff;line-height:1.08;text-shadow:0 2px 16px rgba(0,0,0,.3);">
@@ -2880,7 +2880,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
         setWeekGenError(err.message)
       })
       .finally(() => setWeekGenLoading(false))
-  }, [weekGenTrigger, renderImage, logoColor, logoSize, logoTop, textSize, textLeft])
+  }, [weekGenTrigger, renderImage, logoColor, logoSize, logoTop, logoRight, heroScale, heroX, heroY, textSize, textLeft])
 
   const handleAiRecommend = async () => {
     setAiLoading(true)
