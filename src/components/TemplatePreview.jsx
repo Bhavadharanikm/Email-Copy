@@ -1861,6 +1861,7 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
   const img1Obj = images?.[1]; const img1    = img1Obj?.url || ''
   const img2Obj = images?.[2]; const img2    = img2Obj?.url || ''
   const img3Obj = images?.[3]; const img3    = img3Obj?.url || ''
+  const img4Obj = images?.[4]; const img4    = img4Obj?.url || ''
   const body    = (copy.bodyText  || '').replace(/\n/g, '<br>')
   const b2body  = (copy.bodyBlock2|| '').replace(/\n/g, '<br>')
   const logoUrl = client?.logoUrl || ''
@@ -1972,8 +1973,10 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
     </td></tr>` : ''}
 
     <!-- ── Image grid: 2-up top row + 1 full-width bottom ── -->
-    ${hasGrid ? `
-    <tr><td style="padding:32px 20px 0;background:${cardBg}!important;">
+    ${hasGrid
+      ? isHeroGenerated && img4
+        ? `<tr><td style="padding:0;line-height:0;font-size:0;text-align:center;background:${cardBg}!important;"><img src="${img4}" alt="" width="600" style="display:block;width:600px;max-width:100%;"/></td></tr>`
+        : `<tr><td style="padding:32px 20px 0;background:${cardBg}!important;">
 
       ${(img1 || img2) ? `
       <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
@@ -1996,7 +1999,8 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
         <img src="${img3}" alt="" style="width:100%;height:300px;object-fit:cover;display:block;border-radius:12px;object-position:${focalPos(img3Obj)};"/>
       </div>` : ''}
 
-    </td></tr>` : ''}
+    </td></tr>`
+      : ''}
 
     <!-- ── Body block 2 text ── -->
     ${copy.bodyBlock2 ? `
@@ -2597,6 +2601,29 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
 </div>
 </body></html>`
 
+    // ── Week 6 grid: 2-up top row (277+6+277) + 1 full-width bottom (560), padded ──
+    const w6grid1Fp = selectedImages?.[1]?.focalX != null ? `${selectedImages[1].focalX}% ${selectedImages[1].focalY}%` : '50% 50%'
+    const w6grid2Fp = selectedImages?.[2]?.focalX != null ? `${selectedImages[2].focalX}% ${selectedImages[2].focalY}%` : '50% 50%'
+    const w6grid3Fp = selectedImages?.[3]?.focalX != null ? `${selectedImages[3].focalX}% ${selectedImages[3].focalY}%` : '50% 50%'
+    const week6GridHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:#ffffff;}</style>
+</head><body>
+<div style="padding:32px 20px 0;background:#ffffff;width:600px;">
+  <table width="560" cellpadding="0" cellspacing="0" border="0" style="width:560px;border-collapse:collapse;">
+    <tr>
+      <td width="277" style="width:277px;vertical-align:top;line-height:0;font-size:0;">
+        ${img1Url ? `<img src="${img1Url}" alt="" width="277" style="width:277px;height:240px;object-fit:cover;display:block;border-radius:12px;object-position:${w6grid1Fp};"/>` : `<div style="width:277px;height:240px;background:#e0e4ea;border-radius:12px;"></div>`}
+      </td>
+      <td width="6" style="width:6px;line-height:0;font-size:0;"></td>
+      <td width="277" style="width:277px;vertical-align:top;line-height:0;font-size:0;">
+        ${img2Url ? `<img src="${img2Url}" alt="" width="277" style="width:277px;height:240px;object-fit:cover;display:block;border-radius:12px;object-position:${w6grid2Fp};"/>` : `<div style="width:277px;height:240px;background:#e0e4ea;border-radius:12px;"></div>`}
+      </td>
+    </tr>
+  </table>
+  ${(img3Url || img1Url) ? `<div style="padding-top:12px;line-height:0;font-size:0;"><img src="${img3Url || img1Url}" alt="" width="560" style="width:560px;height:300px;object-fit:cover;display:block;border-radius:12px;object-position:${img3Url ? w6grid3Fp : w6grid1Fp};"/></div>` : ''}
+</div>
+</body></html>`
+
     const heroHeight = isWeek2 ? 460 : isWeek3 ? 600 : isWeek4 ? 740 : isWeek5 ? 720 : isWeek6 ? 820 : 400
     const secondaryPromise = isWeek3 && (img1Url || img2Url)
       ? renderImage({ html: stackedHtml, width: 600, height: 420 })
@@ -2604,9 +2631,11 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
         ? renderImage({ html: week4Card1Html, width: 600, height: 544 })
         : isWeek5 && (img1Url || img2Url)
           ? renderImage({ html: week5GridHtml, width: 600, height: 530 })
-          : (!isWeek2 && !isWeek3 && !isWeek5 && !isWeek6 && (img1Url || img2Url))
-            ? renderImage({ html: polaroidHtml, width: 600, height: 340 })
-            : Promise.resolve(null)
+          : isWeek6 && (img1Url || img2Url || img3Url)
+            ? renderImage({ html: week6GridHtml, width: 600, height: 584 })
+            : (!isWeek2 && !isWeek3 && !isWeek5 && !isWeek6 && (img1Url || img2Url))
+              ? renderImage({ html: polaroidHtml, width: 600, height: 340 })
+              : Promise.resolve(null)
 
     const tertiaryPromise = isWeek3 && (img3Url || img1Url)
       ? renderImage({ html: week3BodyHtml, width: 600, height: 340 })
