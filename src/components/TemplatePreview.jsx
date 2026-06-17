@@ -2880,7 +2880,8 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
         setWeekGenError(err.message)
       })
       .finally(() => setWeekGenLoading(false))
-  }, [weekGenTrigger, renderImage, logoColor, logoSize, logoTop, logoRight, textSize, textTop, textLeft])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [weekGenTrigger, renderImage])
 
   const handleAiRecommend = async () => {
     setAiLoading(true)
