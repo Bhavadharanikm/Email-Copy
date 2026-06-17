@@ -1534,7 +1534,7 @@ function w4Card({ imgUrl, imgObj, bodyText, isLast }) {
     </td></tr>
     ${body ? `
     <tr><td class="gmailfix" style="padding:24px 52px ${isLast ? '40px' : '32px'};${W};text-align:center;">
-      <p style="font-family:Arial,sans-serif;font-size:14px;color:#555;line-height:1.85;margin:0;">${body}</p>
+      <p style="font-family:Arial,sans-serif;font-size:17px;color:#555;line-height:1.85;margin:0;">${body}</p>
     </td></tr>` : ''}`
 }
 
@@ -1622,13 +1622,13 @@ function buildTemplateWeek4({ client, copy, images, footerData, isHeroGenerated 
     <!-- ── Subhead + CTA after hero ── -->
     ${copy.subhead ? `
     <tr><td class="gmailfix" style="padding:32px 64px 4px;text-align:center;${WHITE_BG};">
-      <p style="font-family:Georgia,'Times New Roman',serif;font-size:17px;font-style:italic;line-height:1.7;color:#333;margin:0;">${copy.subhead}</p>
+      <p style="font-family:Georgia,'Times New Roman',serif;font-size:20px;font-style:italic;line-height:1.7;color:#333;margin:0;">${copy.subhead}</p>
     </td></tr>` : ''}
     ${copy.ctaText ? `
     <tr><td class="gmailfix" style="padding:24px 48px 8px;text-align:center;${WHITE_BG};">
       <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr>
         <td style="background:${accent};border-radius:999px;">
-          <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;letter-spacing:.04em;color:#fff!important;text-decoration:none!important;">${copy.ctaText} &rarr;</a>
+          <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#fff!important;text-decoration:none!important;">${copy.ctaText} &rarr;</a>
         </td>
       </tr></table>
     </td></tr>` : ''}
@@ -1637,7 +1637,7 @@ function buildTemplateWeek4({ client, copy, images, footerData, isHeroGenerated 
     <!-- Card 1: full width -->
     ${isHeroGenerated && card1PngUrl
       ? `<tr><td style="padding:0;line-height:0;font-size:0;"><img src="${card1PngUrl}" alt="" width="600" style="display:block;width:600px;"/></td></tr>
-         ${cards[0].bodyText ? `<tr><td class="gmailfix" style="padding:24px 52px 32px;${WHITE_BG};text-align:center;"><p style="font-family:Arial,sans-serif;font-size:14px;color:#555;line-height:1.85;margin:0;">${cards[0].bodyText.replace(/\n/g,'<br>')}</p></td></tr>` : ''}`
+         ${cards[0].bodyText ? `<tr><td class="gmailfix" style="padding:24px 52px 32px;${WHITE_BG};text-align:center;"><p style="font-family:Arial,sans-serif;font-size:17px;color:#555;line-height:1.85;margin:0;">${cards[0].bodyText.replace(/\n/g,'<br>')}</p></td></tr>` : ''}`
       : w4Card(cards[0])}
 
     <!-- Divider -->
@@ -1646,24 +1646,24 @@ function buildTemplateWeek4({ client, copy, images, footerData, isHeroGenerated 
     <!-- Card 2: bodyBlock2Title + image + bodyBlock2 + closingLine + CTA -->
     ${copy.bodyBlock2Title ? `
     <tr><td class="gmailfix" style="padding:32px 52px 8px;${WHITE_BG};text-align:center;">
-      <p style="font-family:Georgia,'Times New Roman',serif;font-size:22px;font-weight:700;color:${secondary};line-height:1.3;margin:0;">${copy.bodyBlock2Title}</p>
+      <p style="font-family:Georgia,'Times New Roman',serif;font-size:25px;font-weight:700;color:${secondary};line-height:1.3;margin:0;">${copy.bodyBlock2Title}</p>
     </td></tr>` : ''}
     ${isHeroGenerated && card2PngUrl
       ? `<tr><td style="padding:0;line-height:0;font-size:0;"><img src="${card2PngUrl}" alt="" width="600" style="display:block;width:600px;"/></td></tr>`
       : `<tr><td class="gmailfix" style="padding:16px 72px 8px;${WHITE_BG};line-height:normal;">${w4StackedImage(cards[1].imgUrl, cards[1].imgObj, 520)}</td></tr>`}
     ${copy.bodyBlock2 ? `
     <tr><td class="gmailfix" style="padding:20px 52px 0;${WHITE_BG};text-align:center;">
-      <p style="font-family:Arial,sans-serif;font-size:14px;color:#555;line-height:1.85;margin:0;">${(copy.bodyBlock2).replace(/\n/g,'<br>')}</p>
+      <p style="font-family:Arial,sans-serif;font-size:17px;color:#555;line-height:1.85;margin:0;">${(copy.bodyBlock2).replace(/\n/g,'<br>')}</p>
     </td></tr>` : ''}
     ${copy.closingLine ? `
     <tr><td class="gmailfix" style="padding:20px 52px 0;${WHITE_BG};text-align:center;">
-      <p style="font-family:Georgia,'Times New Roman',serif;font-size:15px;font-style:italic;color:#333;line-height:1.7;margin:0;">${copy.closingLine}</p>
+      <p style="font-family:Georgia,'Times New Roman',serif;font-size:18px;font-style:italic;color:#333;line-height:1.7;margin:0;">${copy.closingLine}</p>
     </td></tr>` : ''}
     ${copy.ctaText ? `
     <tr><td class="gmailfix" style="padding:24px 48px 44px;text-align:center;${WHITE_BG};">
       <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr>
         <td style="background:${accent};border-radius:999px;">
-          <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;letter-spacing:.04em;color:#fff!important;text-decoration:none!important;">${copy.ctaText} &rarr;</a>
+          <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#fff!important;text-decoration:none!important;">${copy.ctaText} &rarr;</a>
         </td>
       </tr></table>
     </td></tr>` : ''}
@@ -2197,7 +2197,7 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
     <tr><td class="gmailfix" style="padding:24px 48px 8px;text-align:center;${WHITE_BG};">
       <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr>
         <td style="background:${accent};border-radius:999px;">
-          <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;letter-spacing:.04em;color:#fff!important;text-decoration:none!important;">${copy.ctaText} &rarr;</a>
+          <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#fff!important;text-decoration:none!important;">${copy.ctaText} &rarr;</a>
         </td>
       </tr></table>
     </td></tr>` : ''}
@@ -2233,7 +2233,7 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
     <tr><td class="gmailfix" style="padding:24px 48px 44px;text-align:center;${WHITE_BG};">
       <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr>
         <td style="background:${accent};border-radius:999px;">
-          <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;letter-spacing:.04em;color:#fff!important;text-decoration:none!important;">${copy.ctaText} &rarr;</a>
+          <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#fff!important;text-decoration:none!important;">${copy.ctaText} &rarr;</a>
         </td>
       </tr></table>
     </td></tr>` : ''}
