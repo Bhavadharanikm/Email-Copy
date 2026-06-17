@@ -2785,12 +2785,12 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
 <!-- Blurred hero section -->
 <div style="position:relative;width:600px;height:740px;overflow:hidden;">
   ${heroImgUrl
-    ? `<img src="${heroImgUrl}" style="position:absolute;top:-30px;left:-30px;width:660px;height:800px;object-fit:cover;object-position:calc(50% + ${heroX}px) calc(50% + ${heroY}px);filter:blur(36px) saturate(1.4) brightness(0.82);transform:scale(${Math.max(1.12, heroScale)});display:block;"/>`
+    ? `<img src="${heroImgUrl}" style="position:absolute;top:-30px;left:-30px;width:660px;height:800px;object-fit:cover;object-position:calc(50% + ${heroX}px) calc(50% + ${heroY}px);filter:blur(36px) saturate(1.4) brightness(0.82);display:block;"/>`
     : `<div style="position:absolute;inset:0;background:linear-gradient(160deg,#7ab5d8,#6ba87a);"></div>`}
   <!-- Inset image card -->
   <div style="position:absolute;left:28px;top:22px;right:28px;">
     <div style="position:relative;width:544px;height:480px;overflow:hidden;border-radius:20px;box-shadow:0 6px 40px rgba(0,0,0,0.3);border:2px solid rgba(255,255,255,0.55);">
-      ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:544px;height:480px;object-fit:cover;object-position:calc(50% + ${heroX}px) calc(50% + ${heroY}px);transform:scale(${heroScale});transform-origin:50% 50%;display:block;"/>` : ''}
+      ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;top:${-(480*(heroScale-1)/2)+heroY}px;left:${-(544*(heroScale-1)/2)+heroX}px;width:${544*heroScale}px;height:${480*heroScale}px;object-fit:cover;display:block;"/>` : ''}
       <div style="position:absolute;top:0;left:0;right:0;height:72%;background:linear-gradient(to bottom,rgba(0,0,0,0.52) 0%,rgba(0,0,0,0.16) 65%,rgba(0,0,0,0) 100%);"></div>
       <div style="position:absolute;top:0;left:0;right:0;padding:32px 36px 0;line-height:normal;font-size:initial;">
         <div style="font-family:Georgia,serif;font-size:${textSize}px;font-weight:700;color:#fff;line-height:1.08;text-shadow:0 2px 16px rgba(0,0,0,.3);">
