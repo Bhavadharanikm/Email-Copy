@@ -2344,6 +2344,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     const img1Url    = selectedImages?.[1]?.url || selectedImages?.[1]?.thumbnailUrl || ''
     const img2Url    = selectedImages?.[2]?.url || selectedImages?.[2]?.thumbnailUrl || ''
     const img3Url    = selectedImages?.[3]?.url || selectedImages?.[3]?.thumbnailUrl || ''
+    const img4Url    = selectedImages?.[4]?.url || selectedImages?.[4]?.thumbnailUrl || ''
     const logoUrl    = selectedClient?.logoUrl || ''
     const headline   = generatedCopy?.headlineText || ''
     const clientName = selectedClient?.name || ''
@@ -2365,8 +2366,9 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     const isWeek4 = tpl?.id === 12
     const isWeek5 = tpl?.id === 13
     const isWeek6 = tpl?.id === 14
+    const renderLogoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
     const logoHtml = logoUrl
-      ? `<img src="${logoUrl}" alt="" style="height:44px;width:auto;max-width:180px;display:inline-block;filter:brightness(0) invert(1);"/>`
+      ? `<img src="${logoUrl}" alt="" style="height:${logoSize}px;width:auto;max-width:${logoSize * 5}px;display:inline-block;filter:${renderLogoFilter};"/>`
       : `<span style="font-family:Arial,sans-serif;font-size:15px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff;">${clientName}</span>`
 
     const heroHtml = isWeek2
@@ -2378,7 +2380,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     ${heroImgUrl ? `<img src="${heroImgUrl}" style="width:528px;height:460px;object-fit:cover;display:block;object-position:50% 50%;"/>` : `<div style="width:528px;height:460px;background:#c8c0b5;"></div>`}
     <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0) 0%,rgba(0,0,0,0) 50%,rgba(0,0,0,0.45) 100%);">
       <div style="position:absolute;bottom:32px;left:0;right:0;text-align:center;padding:0 24px;line-height:normal;">
-        <span style="font-family:Georgia,serif;font-size:24px;font-weight:400;font-style:italic;color:#fff;line-height:1.25;text-shadow:0 2px 10px rgba(0,0,0,.3);display:inline-block;max-width:300px;">${headline}</span>
+        <span style="font-family:Georgia,serif;font-size:${textSize}px;font-weight:400;font-style:italic;color:#fff;line-height:1.25;text-shadow:0 2px 10px rgba(0,0,0,.3);display:inline-block;max-width:300px;">${headline}</span>
       </div>
     </div>
   </div>
@@ -2391,9 +2393,9 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
 <div style="position:relative;width:600px;height:600px;overflow:hidden;border-radius:20px 20px 0 0;background:#1a1a1a;">
   ${heroImgUrl ? `<img src="${heroImgUrl}" style="width:600px;height:600px;object-fit:cover;display:block;"/>` : `<div style="width:600px;height:600px;background:#2a2a2a;"></div>`}
   <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.72) 0%,rgba(0,0,0,0.28) 42%,rgba(0,0,0,0) 65%);">
-    <div style="text-align:center;padding-top:40px;">${logoHtml}</div>
+    <div style="text-align:center;padding-top:${logoTop}px;">${logoHtml}</div>
     <div style="text-align:center;padding:14px 52px 0;">
-      <div style="font-family:Georgia,serif;font-size:34px;font-weight:400;font-style:italic;line-height:1.15;color:#fff;">${headline}</div>
+      <div style="font-family:Georgia,serif;font-size:${textSize}px;font-weight:400;font-style:italic;line-height:1.15;color:#fff;">${headline}</div>
     </div>
   </div>
   <div style="position:absolute;bottom:0;left:0;right:0;height:160px;background:linear-gradient(to bottom,rgba(255,255,255,0),rgba(255,255,255,1));"></div>
@@ -2421,9 +2423,9 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
   <div style="position:relative;width:560px;height:720px;overflow:hidden;border-radius:16px;background:#1a1a1a;">
     ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:560px;height:720px;object-fit:cover;object-position:${heroFp4};display:block;"/>` : `<div style="width:560px;height:720px;background:#2a2a2a;"></div>`}
     <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.78) 0%,rgba(0,0,0,0.38) 45%,rgba(0,0,0,0.05) 75%,rgba(0,0,0,0) 100%);line-height:normal;font-size:initial;">
-      <div style="text-align:center;padding-top:40px;">${logoHtml}</div>
+      <div style="text-align:center;padding-top:${logoTop}px;">${logoHtml}</div>
       <div style="text-align:center;padding:20px 48px 0;">
-        <div style="font-family:Georgia,serif;font-size:38px;font-weight:700;line-height:1.12;color:#fff;">${headline}</div>
+        <div style="font-family:Georgia,serif;font-size:${textSize}px;font-weight:700;line-height:1.12;color:#fff;">${headline}</div>
       </div>
     </div>
   </div>
@@ -2499,11 +2501,11 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
   <div style="position:relative;width:560px;height:680px;overflow:hidden;border-radius:0;background:#1a1a1a;">
     ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:560px;height:680px;object-fit:cover;object-position:${heroFp5};display:block;"/>` : `<div style="width:560px;height:680px;background:#2a2a2a;"></div>`}
     <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.25) 40%,rgba(0,0,0,0.45) 100%);line-height:normal;font-size:initial;">
-      <div style="text-align:center;padding-top:36px;">${logoHtml}</div>
-      <div style="position:absolute;left:36px;right:36px;top:32%;">
-        ${w5First ? `<div style="font-family:Georgia,serif;font-size:42px;font-style:italic;font-weight:400;color:#fff;line-height:1;text-shadow:0 2px 12px rgba(0,0,0,.3);margin-bottom:2px;">${w5First}</div>` : ''}
-        <div style="font-family:Arial,'Helvetica Neue',sans-serif;font-size:52px;font-weight:900;text-transform:uppercase;color:#fff;line-height:0.92;letter-spacing:-1px;text-shadow:0 2px 20px rgba(0,0,0,.25);">${w5Main}</div>
-        ${w5Last ? `<div style="font-family:Georgia,serif;font-size:42px;font-style:italic;font-weight:400;color:#fff;line-height:1.1;text-align:right;text-shadow:0 2px 12px rgba(0,0,0,.3);margin-top:2px;">${w5Last}</div>` : ''}
+      <div style="text-align:center;padding-top:${logoTop}px;">${logoHtml}</div>
+      <div style="position:absolute;left:${textLeft}px;right:${textLeft}px;top:32%;">
+        ${w5First ? `<div style="font-family:Georgia,serif;font-size:${Math.round(textSize * 0.81)}px;font-style:italic;font-weight:400;color:#fff;line-height:1;text-shadow:0 2px 12px rgba(0,0,0,.3);margin-bottom:2px;">${w5First}</div>` : ''}
+        <div style="font-family:Arial,'Helvetica Neue',sans-serif;font-size:${textSize}px;font-weight:900;text-transform:uppercase;color:#fff;line-height:0.92;letter-spacing:-1px;text-shadow:0 2px 20px rgba(0,0,0,.25);">${w5Main}</div>
+        ${w5Last ? `<div style="font-family:Georgia,serif;font-size:${Math.round(textSize * 0.81)}px;font-style:italic;font-weight:400;color:#fff;line-height:1.1;text-align:right;text-shadow:0 2px 12px rgba(0,0,0,.3);margin-top:2px;">${w5Last}</div>` : ''}
       </div>
     </div>
   </div>
@@ -2514,24 +2516,27 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     const grid1Fp = selectedImages?.[1]?.focalX != null ? `${selectedImages[1].focalX}% ${selectedImages[1].focalY}%` : '50% 50%'
     const grid2Fp = selectedImages?.[2]?.focalX != null ? `${selectedImages[2].focalX}% ${selectedImages[2].focalY}%` : '50% 50%'
     const grid3Fp = selectedImages?.[3]?.focalX != null ? `${selectedImages[3].focalX}% ${selectedImages[3].focalY}%` : '50% 50%'
+    const grid4Fp = selectedImages?.[4]?.focalX != null ? `${selectedImages[4].focalX}% ${selectedImages[4].focalY}%` : '50% 50%'
     const week5GridHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:#ffffff;}</style>
 </head><body>
 <table width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;border-collapse:collapse;background:#ffffff;">
   <tr>
-    <td width="228" style="width:228px;vertical-align:top;line-height:0;font-size:0;padding-right:4px;">
+    <td width="228" style="width:228px;vertical-align:top;line-height:0;font-size:0;">
       ${img1Url ? `<img src="${img1Url}" alt="" style="width:228px;height:262px;object-fit:cover;display:block;object-position:${grid1Fp};"/>` : `<div style="width:228px;height:262px;background:#e8e4de;display:block;"></div>`}
     </td>
-    <td width="368" style="width:368px;vertical-align:top;line-height:0;font-size:0;padding-left:4px;">
-      ${img2Url ? `<img src="${img2Url}" alt="" style="width:368px;height:262px;object-fit:cover;display:block;object-position:${grid2Fp};"/>` : `<div style="width:368px;height:262px;background:#e8e4de;display:block;"></div>`}
+    <td width="6" style="width:6px;line-height:0;font-size:0;background:#ffffff;"></td>
+    <td width="366" style="width:366px;vertical-align:top;line-height:0;font-size:0;">
+      ${img2Url ? `<img src="${img2Url}" alt="" style="width:366px;height:262px;object-fit:cover;display:block;object-position:${grid2Fp};"/>` : `<div style="width:366px;height:262px;background:#e8e4de;display:block;"></div>`}
     </td>
   </tr>
-  <tr><td colspan="2" style="height:6px;line-height:0;font-size:0;"></td></tr>
+  <tr><td colspan="3" style="height:6px;line-height:0;font-size:0;background:#ffffff;"></td></tr>
   <tr>
-    <td width="368" style="width:368px;vertical-align:top;line-height:0;font-size:0;padding-right:4px;">
-      ${img1Url ? `<img src="${img1Url}" alt="" style="width:368px;height:262px;object-fit:cover;display:block;object-position:${grid1Fp};"/>` : `<div style="width:368px;height:262px;background:#e8e4de;display:block;"></div>`}
+    <td width="366" style="width:366px;vertical-align:top;line-height:0;font-size:0;">
+      ${(img4Url || img1Url) ? `<img src="${img4Url || img1Url}" alt="" style="width:366px;height:262px;object-fit:cover;display:block;object-position:${img4Url ? grid4Fp : grid1Fp};"/>` : `<div style="width:366px;height:262px;background:#e8e4de;display:block;"></div>`}
     </td>
-    <td width="228" style="width:228px;vertical-align:top;line-height:0;font-size:0;padding-left:4px;">
+    <td width="6" style="width:6px;line-height:0;font-size:0;background:#ffffff;"></td>
+    <td width="228" style="width:228px;vertical-align:top;line-height:0;font-size:0;">
       ${(img3Url || img1Url) ? `<img src="${img3Url || img1Url}" alt="" style="width:228px;height:262px;object-fit:cover;display:block;object-position:${img3Url ? grid3Fp : grid1Fp};"/>` : `<div style="width:228px;height:262px;background:#e8e4de;display:block;"></div>`}
     </td>
   </tr>
@@ -2544,7 +2549,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     const w6Body  = w6words.length > 1 ? w6words.slice(0, -1).join(' ') : w6words[0] || ''
     const w6Last  = w6words.length > 1 ? w6words[w6words.length - 1] : ''
     const w6LogoHtml = logoUrl
-      ? `<img src="${logoUrl}" alt="" style="height:32px;width:auto;max-width:150px;display:inline-block;"/>`
+      ? `<img src="${logoUrl}" alt="" style="height:${logoSize}px;width:auto;max-width:${logoSize * 5}px;display:inline-block;filter:${renderLogoFilter};"/>`
       : `<span style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#1a1a1a;">${clientName}</span>`
     const week6HeroHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;overflow:hidden;}</style>
@@ -2571,8 +2576,8 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
       ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:544px;height:480px;object-fit:cover;object-position:${heroFp6};display:block;"/>` : ''}
       <div style="position:absolute;top:0;left:0;right:0;height:72%;background:linear-gradient(to bottom,rgba(0,0,0,0.52) 0%,rgba(0,0,0,0.16) 65%,rgba(0,0,0,0) 100%);"></div>
       <div style="position:absolute;top:0;left:0;right:0;padding:32px 36px 0;line-height:normal;font-size:initial;">
-        <div style="font-family:Georgia,serif;font-size:46px;font-weight:700;color:#fff;line-height:1.08;text-shadow:0 2px 16px rgba(0,0,0,.3);">
-          ${w6Body}${w6Last ? ` <span style="font-style:italic;font-weight:400;font-size:54px;">${w6Last}</span>` : ''}
+        <div style="font-family:Georgia,serif;font-size:${textSize}px;font-weight:700;color:#fff;line-height:1.08;text-shadow:0 2px 16px rgba(0,0,0,.3);">
+          ${w6Body}${w6Last ? ` <span style="font-style:italic;font-weight:400;font-size:${Math.round(textSize * 1.17)}px;">${w6Last}</span>` : ''}
         </div>
       </div>
     </div>
@@ -2633,7 +2638,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
         setWeekGenError(err.message)
       })
       .finally(() => setWeekGenLoading(false))
-  }, [weekGenTrigger, renderImage])
+  }, [weekGenTrigger, renderImage, logoColor, logoSize, logoTop, textSize, textLeft])
 
   const handleAiRecommend = async () => {
     setAiLoading(true)
