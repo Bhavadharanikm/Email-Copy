@@ -104,38 +104,39 @@ export const handler = async (event) => {
     const { html, width = 600, height = 580, locationId } = JSON.parse(event.body || '{}')
     if (!html) throw new Error('html is required')
 
-    // ── 1. Try html2image.net ────────────────────────────────────────────
-    const h2iKey = process.env.HTML2IMAGE_API_KEY
-    if (h2iKey) {
-      const MAX_RETRIES = 4
-      let lastError = null
-
-      for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
-        if (attempt > 1) { await sleep(attempt * 800); console.log(`[html-to-image] Retry ${attempt}/${MAX_RETRIES}`) }
-        let res, data
-        try {
-          ;({ res, data } = await callHtml2Image(h2iKey, html, width, height))
-        } catch (fetchErr) {
-          // Timeout / network error — skip straight to Puppeteer
-          console.warn('[html-to-image] html2image.net fetch error:', fetchErr.message)
-          break
-        }
-        if (res.ok && data.Status === 'OK') {
-          console.log('[html-to-image] html2image.net OK (attempt', attempt, '):', data.Link)
-          return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: data.Link }) }
-        }
-        lastError = `html2image.net (attempt ${attempt}): ${JSON.stringify(data)}`
-        console.warn('[html-to-image]', lastError)
-        const details = data?.Details || ''
-        const retryable = details.includes('mkdir') || details.includes('File exists') || details.includes('errno=28')
-        if (!retryable) break
-      }
-      console.warn('[html-to-image] html2image.net failed, trying Puppeteer fallback')
+    // ── 1. Puppeteer + GHL upload ────────────────────────────────────────
+    let url
+    try {
+      url = await callPuppeteer(html, width, height, locationId)
+      return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) }
+    } catch (puppeteerErr) {
+      console.warn('[html-to-image] Puppeteer failed:', puppeteerErr.message, '— trying html2image.net fallback')
     }
 
-    // ── 2. Puppeteer + GHL upload ────────────────────────────────────────
-    const url = await callPuppeteer(html, width, height, locationId)
-    return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) }
+    // ── 2. html2image.net fallback ───────────────────────────────────────
+    const h2iKey = process.env.HTML2IMAGE_API_KEY
+    if (!h2iKey) throw new Error('No renderer available — Puppeteer failed and HTML2IMAGE_API_KEY not set')
+
+    const MAX_RETRIES = 4
+    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+      if (attempt > 1) { await sleep(attempt * 800); console.log(`[html-to-image] Retry ${attempt}/${MAX_RETRIES}`) }
+      let res, data
+      try {
+        ;({ res, data } = await callHtml2Image(h2iKey, html, width, height))
+      } catch (fetchErr) {
+        console.warn('[html-to-image] html2image.net fetch error:', fetchErr.message)
+        break
+      }
+      if (res.ok && data.Status === 'OK') {
+        console.log('[html-to-image] html2image.net OK (attempt', attempt, '):', data.Link)
+        return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: data.Link }) }
+      }
+      console.warn(`[html-to-image] html2image.net (attempt ${attempt}):`, JSON.stringify(data))
+      const details = data?.Details || ''
+      const retryable = details.includes('mkdir') || details.includes('File exists') || details.includes('errno=28')
+      if (!retryable) break
+    }
+    throw new Error('All renderers failed')
 
   } catch (err) {
     console.error('[html-to-image] Error:', err.message)
