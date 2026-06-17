@@ -24,9 +24,9 @@ const STATUS_CONFIG = {
 }
 
 const IDEA_STATUS = {
-  pending:  { label: 'Pending',   bg: 'rgba(245,158,11,0.12)',  text: '#b45309', dot: '#f59e0b' },
-  approved: { label: 'Scheduled', bg: 'rgba(16,185,129,0.12)',  text: '#047857', dot: '#10b981' },
-  declined: { label: 'Declined',  bg: 'rgba(239,68,68,0.1)',    text: '#dc2626', dot: '#f87171' },
+  pending:  { label: 'In Review', bg: 'rgba(245,158,11,0.12)',  text: '#b45309', dot: '#f59e0b' },
+  approved: { label: 'Approved',  bg: 'rgba(16,185,129,0.12)',  text: '#047857', dot: '#10b981' },
+  declined: { label: 'Sent',      bg: 'rgba(99,102,241,0.12)',  text: '#4338ca', dot: '#6366f1' },
 }
 
 // ─── Storage ──────────────────────────────────────────────────────────────────
@@ -259,7 +259,7 @@ function EntryModal({ dark, date, entry, clients, onSave, onDelete, onClose }) {
           />
           <div><label style={labelSty}>Subject / Title</label><input style={inputSty} placeholder="e.g. Spring Market Update" value={form.subject} onChange={e => setForm(f => ({ ...f, subject: e.target.value }))} onFocus={e => e.target.style.borderColor = dark ? 'rgba(255,255,255,0.3)' : '#6b7280'} onBlur={e => e.target.style.borderColor = border} /></div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            <div><label style={labelSty}>Send Date</label>
+            <div><label style={labelSty}>Send Date <span style={{ color: '#ef4444' }}>*</span></label>
               <input type="date" style={{ ...inputSty, cursor: 'pointer', colorScheme: dark ? 'dark' : 'light' }}
                 value={form.sendDate || ''}
                 onChange={e => setForm(f => ({ ...f, sendDate: e.target.value }))}
@@ -267,7 +267,7 @@ function EntryModal({ dark, date, entry, clients, onSave, onDelete, onClose }) {
                 onBlur={e => e.target.style.borderColor = border}
               />
             </div>
-            <div><label style={labelSty}>Send Time</label>
+            <div><label style={labelSty}>Send Time <span style={{ color: '#ef4444' }}>*</span></label>
               <input type="time" style={{ ...inputSty, cursor: 'pointer', colorScheme: dark ? 'dark' : 'light' }}
                 value={form.sendTime || ''}
                 onChange={e => setForm(f => ({ ...f, sendTime: e.target.value }))}
@@ -277,12 +277,12 @@ function EntryModal({ dark, date, entry, clients, onSave, onDelete, onClose }) {
             </div>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            <div><label style={labelSty}>Status</label>
+            <div><label style={labelSty}>Status <span style={{ color: '#ef4444' }}>*</span></label>
               <select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))} style={{ ...inputSty, cursor: 'pointer', color: STATUS_CONFIG[form.status]?.text || textCol, appearance: 'none', backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center', paddingRight: 30 }}>
                 {Object.entries(STATUS_CONFIG).map(([k, v]) => <option key={k} value={k} style={{ background: bg, color: v.text }}>{v.label}</option>)}
               </select>
             </div>
-            <div><label style={labelSty}>Changes Made By</label>
+            <div><label style={labelSty}>Changes Made By <span style={{ color: '#ef4444' }}>*</span></label>
               <select value={form.changedBy || ''} onChange={e => setForm(f => ({ ...f, changedBy: e.target.value }))} style={{ ...inputSty, cursor: 'pointer', appearance: 'none', backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center', paddingRight: 30 }}>
                 <option value="" style={{ background: bg }}>— Select —</option>
                 {['Alicia','Charlotte','Makenna','Gillian','Chiara','Nicole','Ananya'].map(name => <option key={name} value={name} style={{ background: bg }}>{name}</option>)}
@@ -300,8 +300,8 @@ function EntryModal({ dark, date, entry, clients, onSave, onDelete, onClose }) {
             : <span />}
           <div style={{ display: 'flex', gap: 8 }}>
             <button onClick={onClose} style={{ padding: '8px 16px', borderRadius: 9, border: `1.5px solid ${border}`, background: 'transparent', color: subCol, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'Inter, sans-serif' }}>Cancel</button>
-            <button onClick={() => onSave({ ...form, id: entry?.id || genId(), date: dateKey(date) })} disabled={!form.clientName.trim() && !form.subject.trim()}
-              style={{ padding: '8px 20px', borderRadius: 9, border: 'none', background: (!form.clientName.trim() && !form.subject.trim()) ? (dark ? 'rgba(255,255,255,0.06)' : '#e5e7eb') : (dark ? '#f59e0b' : '#111827'), color: (!form.clientName.trim() && !form.subject.trim()) ? subCol : (dark ? '#111827' : '#fff'), fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'Inter, sans-serif', transition: 'all 0.15s' }}>
+            <button onClick={() => onSave({ ...form, id: entry?.id || genId(), date: dateKey(date) })} disabled={!form.sendDate || !form.sendTime || !form.changedBy}
+              style={{ padding: '8px 20px', borderRadius: 9, border: 'none', background: (!form.sendDate || !form.sendTime || !form.changedBy) ? (dark ? 'rgba(255,255,255,0.06)' : '#e5e7eb') : (dark ? '#f59e0b' : '#111827'), color: (!form.sendDate || !form.sendTime || !form.changedBy) ? subCol : (dark ? '#111827' : '#fff'), fontSize: 12, fontWeight: 700, cursor: (!form.sendDate || !form.sendTime || !form.changedBy) ? 'not-allowed' : 'pointer', fontFamily: 'Inter, sans-serif', transition: 'all 0.15s' }}>
               {isEdit ? 'Save Changes' : 'Add to Calendar'}
             </button>
           </div>
@@ -432,7 +432,7 @@ const PRIORITY_CONFIG = {
   low:    { label: '🟢 Low',    color: '#16a34a' },
 }
 
-function IdeaFormModal({ dark, idea, clients, onSave, onClose }) {
+function IdeaFormModal({ dark, idea, clients, onSave, onClose, approveMode = false }) {
   const isEdit = !!idea
   const normalizeHook = (h) => h ? h.replace(/\\n\\n/g, '\n\n').replace(/\\n/g, '\n') : ''
   const [form, setForm] = useState(isEdit ? { ...idea, hook: normalizeHook(idea.hook) } : { ...BLANK_IDEA })
@@ -454,7 +454,7 @@ function IdeaFormModal({ dark, idea, clients, onSave, onClose }) {
   const inputBg = dark ? 'rgba(255,255,255,0.05)' : '#f9fafb'
   const labelSty = { fontSize: 11, fontWeight: 700, color: subCol, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 7 }
   const inputSty = { width: '100%', padding: '10px 13px', borderRadius: 9, background: inputBg, border: `1.5px solid ${border}`, color: textCol, fontSize: 14, fontFamily: 'Inter, sans-serif', outline: 'none', boxSizing: 'border-box' }
-  const canSave  = form.clientName.trim() || form.subject.trim()
+  const canSave  = !!(form.sendDate && form.sendTime && form.changedBy)
 
   return (
     <div onMouseDown={e => { if (ref.current && !ref.current.contains(e.target)) onClose() }}
@@ -477,13 +477,14 @@ function IdeaFormModal({ dark, idea, clients, onSave, onClose }) {
               if (c) setSelectedClientData(c)
             }} style={{ ...inputSty, cursor: 'pointer', appearance: 'none', backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center', paddingRight: 30 }}>
               <option value="" style={{ background: dark ? '#1e293b' : '#fff' }}>— Select client —</option>
+              <option value="All Clients" style={{ background: dark ? '#1e293b' : '#fff', fontWeight: 600 }}>All Clients</option>
               {(clients || []).map(c => <option key={c.id || c.name} value={c.name} style={{ background: dark ? '#1e293b' : '#fff' }}>{c.name}</option>)}
             </select>
           </div>
           <div><label style={labelSty}>Campaign Title / Subject Idea</label><input style={inputSty} placeholder="e.g. Spring Market Round-Up" value={form.subject} onChange={e => setForm(f => ({ ...f, subject: e.target.value }))} onFocus={e => e.target.style.borderColor = dark ? 'rgba(255,255,255,0.3)' : '#6b7280'} onBlur={e => e.target.style.borderColor = border} /></div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            <div><label style={labelSty}>Send Date</label>
+            <div><label style={labelSty}>Send Date <span style={{ color: '#ef4444' }}>*</span></label>
               <input type="date" style={{ ...inputSty, cursor: 'pointer', colorScheme: dark ? 'dark' : 'light' }}
                 value={form.sendDate || ''}
                 onChange={e => setForm(f => ({ ...f, sendDate: e.target.value }))}
@@ -491,7 +492,7 @@ function IdeaFormModal({ dark, idea, clients, onSave, onClose }) {
                 onBlur={e => e.target.style.borderColor = border}
               />
             </div>
-            <div><label style={labelSty}>Send Time</label>
+            <div><label style={labelSty}>Send Time <span style={{ color: '#ef4444' }}>*</span></label>
               <input type="time" style={{ ...inputSty, cursor: 'pointer', colorScheme: dark ? 'dark' : 'light' }}
                 value={form.sendTime || ''}
                 onChange={e => setForm(f => ({ ...f, sendTime: e.target.value }))}
@@ -501,12 +502,12 @@ function IdeaFormModal({ dark, idea, clients, onSave, onClose }) {
             </div>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            <div><label style={labelSty}>Status</label>
+            <div><label style={labelSty}>Status <span style={{ color: '#ef4444' }}>*</span></label>
               <select value={form.status || 'pending'} onChange={e => setForm(f => ({ ...f, status: e.target.value }))} style={{ ...inputSty, cursor: 'pointer', color: IDEA_STATUS[form.status || 'pending']?.text || textCol, appearance: 'none', backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center', paddingRight: 30 }}>
                 {Object.entries(IDEA_STATUS).map(([k, v]) => <option key={k} value={k} style={{ background: bg, color: v.text }}>{v.label}</option>)}
               </select>
             </div>
-            <div><label style={labelSty}>Changes Made By</label>
+            <div><label style={labelSty}>Changes Made By <span style={{ color: '#ef4444' }}>*</span></label>
               <select value={form.changedBy || ''} onChange={e => setForm(f => ({ ...f, changedBy: e.target.value }))} style={{ ...inputSty, cursor: 'pointer', appearance: 'none', backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center', paddingRight: 30 }}>
                 <option value="" style={{ background: bg }}>— Select —</option>
                 {['Alicia','Charlotte','Makenna','Gillian','Chiara','Nicole','Ananya'].map(name => <option key={name} value={name} style={{ background: bg }}>{name}</option>)}
@@ -521,9 +522,9 @@ function IdeaFormModal({ dark, idea, clients, onSave, onClose }) {
 
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 20 }}>
           <button onClick={onClose} style={{ padding: '8px 16px', borderRadius: 9, border: `1.5px solid ${border}`, background: 'transparent', color: subCol, fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'Inter, sans-serif' }}>Cancel</button>
-          <button onClick={() => onSave({ ...form, id: idea?.id || genId(), status: idea?.status || 'pending', createdAt: idea?.createdAt || new Date().toISOString(), sendMonth: idea?.sendMonth || undefined })} disabled={!canSave}
-            style={{ padding: '8px 20px', borderRadius: 9, border: 'none', background: canSave ? (dark ? '#f59e0b' : '#111827') : (dark ? 'rgba(255,255,255,0.06)' : '#e5e7eb'), color: canSave ? (dark ? '#111827' : '#fff') : subCol, fontSize: 12, fontWeight: 700, cursor: canSave ? 'pointer' : 'not-allowed', fontFamily: 'Inter, sans-serif', transition: 'all 0.15s' }}>
-            {isEdit ? 'Save Changes' : '+ Add Idea'}
+          <button onClick={() => onSave({ ...form, id: idea?.id || genId(), status: approveMode ? 'approved' : (idea?.status || 'pending'), createdAt: idea?.createdAt || new Date().toISOString(), sendMonth: idea?.sendMonth || undefined })} disabled={!canSave}
+            style={{ padding: '8px 20px', borderRadius: 9, border: 'none', background: canSave ? (approveMode ? '#10b981' : (dark ? '#f59e0b' : '#111827')) : (dark ? 'rgba(255,255,255,0.06)' : '#e5e7eb'), color: canSave ? '#fff' : subCol, fontSize: 12, fontWeight: 700, cursor: canSave ? 'pointer' : 'not-allowed', fontFamily: 'Inter, sans-serif', transition: 'all 0.15s' }}>
+            {approveMode ? 'Approve' : isEdit ? 'Save Changes' : '+ Add Idea'}
           </button>
         </div>
       </motion.div>
@@ -773,6 +774,7 @@ function IdeasView({ dark, ideas, clients, allRows, patchRow, addRow }) {
   const [filter,       setFilter]       = useState('pending')
   const [monthFilter,  setMonthFilter]  = useState('all')
   const [approveModal, setApproveModal] = useState(null)
+  const [approveIdea,  setApproveIdea]  = useState(null)
   const [formModal,    setFormModal]    = useState(null)
 
   const textCol = dark ? 'rgba(255,255,255,0.85)' : '#111827'
@@ -830,15 +832,20 @@ function IdeasView({ dark, ideas, clients, allRows, patchRow, addRow }) {
   async function handleSaveIdea(idea) {
     const row = ideaToRow(idea)
     if (allRows.find(r => String(r.id) === String(idea.id))) {
-      // Update existing
       await supabase.from(TABLE).update(row).eq('id', idea.id)
       patchRow(idea.id, row)
     } else {
-      // New idea — insert
       const { data } = await supabase.from(TABLE).insert({ ...row, idea_status: row.idea_status || 'pending' }).select().single()
       if (data) addRow(data)
     }
     setFormModal(null)
+  }
+
+  async function handleApproveFromForm(idea) {
+    const row = { ...ideaToRow(idea), idea_status: 'approved', calendar_date: idea.sendDate || null, updated_at: new Date().toISOString() }
+    await supabase.from(TABLE).update(row).eq('id', idea.id)
+    patchRow(idea.id, row)
+    setApproveIdea(null)
   }
 
   const pendingCount = ideas.filter(i => i.status === 'pending').length
@@ -912,7 +919,7 @@ function IdeasView({ dark, ideas, clients, allRows, patchRow, addRow }) {
                 key={idea.id}
                 dark={dark}
                 idea={idea}
-                onApprove={idea => setApproveModal(idea)}
+                onApprove={idea => setApproveIdea(idea)}
                 onDecline={handleDecline}
                 onUnschedule={handleUnschedule}
                 onEdit={idea => setFormModal(idea)}
@@ -934,6 +941,13 @@ function IdeasView({ dark, ideas, clients, allRows, patchRow, addRow }) {
       <AnimatePresence>
         {formModal && (
           <IdeaFormModal key="ideaform" dark={dark} idea={formModal === 'new' ? null : formModal} clients={clients} onSave={handleSaveIdea} onClose={() => setFormModal(null)} />
+        )}
+      </AnimatePresence>
+
+      {/* Approve form modal */}
+      <AnimatePresence>
+        {approveIdea && (
+          <IdeaFormModal key="approveform" dark={dark} idea={approveIdea} clients={clients} onSave={handleApproveFromForm} onClose={() => setApproveIdea(null)} approveMode={true} />
         )}
       </AnimatePresence>
     </div>
@@ -1035,7 +1049,7 @@ export default function ContentCalendar() {
   const headerBg = dark ? 'rgba(255,255,255,0.025)' : '#fafafa'
 
   return (
-    <div style={{ minHeight: '100vh', background: pageBg, padding: '44px 48px 80px', fontFamily: 'Inter, sans-serif' }}>
+    <div style={{ minHeight: '100vh', padding: '44px 48px 80px', fontFamily: 'Inter, sans-serif' }}>
       <div style={{ maxWidth: 1280, margin: '0 auto' }}>
 
         {/* ── Page title ── */}

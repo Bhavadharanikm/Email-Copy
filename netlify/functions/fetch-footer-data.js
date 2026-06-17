@@ -15,6 +15,7 @@
  *   Col H: Facebook Link
  *   Col I: TikTok Link
  *   Col J: Website Link
+ *   Col K: Contact Number (phone)
  */
 import { createSign } from 'crypto'
 
@@ -91,16 +92,17 @@ export const handler = async (event) => {
       statusCode: 200,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        found:        true,
-        bgColor:      row[1]?.trim() || '',   // Col B — BG Colour
-        buttonColor:  row[2]?.trim() || '',   // Col C — Button Colour
-        secondaryColor: row[3]?.trim() || '', // Col D — Secondary Colour
-        contactInfo:  row[4]?.trim() || '',   // Col E — Contact Info
-        footerText:   row[5]?.trim() || '',   // Col F — Footer Text
-        instagramUrl: row[6]?.trim() || '',   // Col G — Instagram
-        facebookUrl:  row[7]?.trim() || '',   // Col H — Facebook
-        tiktokUrl:    row[8]?.trim() || '',   // Col I — TikTok
-        websiteUrl:   row[9]?.trim() || '',   // Col J — Website
+        found:          true,
+        bgColor:        row[1]?.trim()  || '',  // Col B — BG Colour
+        buttonColor:    row[2]?.trim()  || '',  // Col C — Button Colour
+        secondaryColor: row[3]?.trim()  || '',  // Col D — Secondary Colour
+        contactInfo:    row[4]?.trim()  || '',  // Col E — Contact Info (email address)
+        footerText:     row[5]?.trim()  || '',  // Col F — Footer Text
+        instagramUrl:   row[6]?.trim()  || '',  // Col G — Instagram
+        facebookUrl:    row[7]?.trim()  || '',  // Col H — Facebook
+        tiktokUrl:      row[8]?.trim()  || '',  // Col I — TikTok
+        websiteUrl:     row[9]?.trim()  || '',  // Col J — Website
+        contactNumber:  row[10]?.trim() || '',  // Col K — Contact Number (phone)
       }),
     }
   } catch (err) {

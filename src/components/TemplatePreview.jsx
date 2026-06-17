@@ -70,14 +70,16 @@ function buildFooter(client, footerData = null, options = {}) {
   const fd          = footerData || {}
   const bgRaw       = fd.bgColor      || options.defaultBg  || '#1c1c1c'
   const btnColor    = fd.buttonColor  || options.defaultBtn || '#b07a50'
-  const contactInfo = fd.contactInfo  || ''
-  const footerText  = fd.footerText   || ''
-  const instagram   = fd.instagramUrl || ''
+  const contactInfo   = fd.contactInfo   || ''
+  const contactNumber = fd.contactNumber || ''
+  const footerText    = fd.footerText    || ''
+  const instagram     = fd.instagramUrl  || ''
   const facebook    = fd.facebookUrl  || ''
   const tiktok      = fd.tiktokUrl    || ''
   const website     = fd.websiteUrl   || ''
   const logoUrl     = client?.logoUrl || ''
   const name        = client?.name    || ''
+  const logoColorOpt = fd.logoColor   || 'original'
 
   // Decide text colour based on bg brightness (simple luminance check)
   // If bg is a light hex colour use dark text, otherwise white
@@ -112,12 +114,19 @@ function buildFooter(client, footerData = null, options = {}) {
       ).join('')}
     </div>` : ''
 
+  const footerLogoFilter = logoColorOpt === 'white' ? 'brightness(0) invert(1)'
+    : logoColorOpt === 'black' ? 'brightness(0)'
+    : 'none'
   const logoHtml = logoUrl
-    ? `<div style="margin:0 0 20px;text-align:center"><img src="${logoUrl}" alt="${name}" style="height:40px;width:auto;object-fit:contain;display:inline-block;${light ? '' : 'filter:brightness(0) invert(1);'}opacity:.8"/></div>`
+    ? `<div style="margin:0 0 20px;text-align:center"><img src="${logoUrl}" alt="${name}" style="height:40px;width:auto;object-fit:contain;display:inline-block;filter:${footerLogoFilter};opacity:.8"/></div>`
     : `<div style="margin:0 0 20px;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:${textCol};font-family:Arial,sans-serif">${name}</div>`
 
-  const contactHtml = contactInfo
-    ? `<div style="font-size:12px;color:${textCol};font-family:Arial,sans-serif;margin-bottom:16px">${contactInfo}</div>`
+  const contactParts = [
+    contactInfo   ? `<a href="mailto:${contactInfo}" style="color:${textCol};text-decoration:none">${contactInfo}</a>` : '',
+    contactNumber ? `<a href="tel:${contactNumber.replace(/\s/g,'')}" style="color:${textCol};text-decoration:none">${contactNumber}</a>` : '',
+  ].filter(Boolean)
+  const contactHtml = contactParts.length
+    ? `<div style="font-size:12px;color:${textCol};font-family:Arial,sans-serif;margin-bottom:16px">${contactParts.join(`&nbsp;&nbsp;·&nbsp;&nbsp;`)}</div>`
     : ''
 
   const footerTextHtml = footerText
@@ -2069,7 +2078,8 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
   const [textSize,    setTextSize]    = useState(34)
   const [textTop,     setTextTop]     = useState(32)
   const [textLeft,    setTextLeft]    = useState(36)
-  const [logoColor,   setLogoColor]   = useState('original') // 'original' | 'white' | 'black'
+  const [logoColor,        setLogoColor]        = useState('original') // 'original' | 'white' | 'black'
+  const [footerLogoColor, setFooterLogoColor]  = useState('original') // 'original' | 'white' | 'black'
   const [logoTop,     setLogoTop]     = useState(24)
   const [logoRight,   setLogoRight]   = useState(36)
   const [logoSize,    setLogoSize]    = useState(70)
@@ -2107,9 +2117,12 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     }
     const editorProps = isEditable ? { heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize } : {}
     const isHeroGenerated = [10, 11, 12, 13, 14].includes(tpl?.id) && !!tplUrls.hero
+    const effectiveFooterData = footerLogoColor !== 'auto' && clientFooter
+      ? { ...clientFooter, logoColor: footerLogoColor }
+      : clientFooter
     console.log('[baseHtml] tplId:', tpl?.id, 'isHeroGenerated:', isHeroGenerated, 'tplUrls:', tplUrls, 'effectiveImages[4]:', effectiveImages?.[4], 'effectiveImages[5]:', effectiveImages?.[5])
-    return tpl.build({ client:selectedClient, copy:generatedCopy, images:effectiveImages, headerStyle, imageStyle, footerData: clientFooter, isHeroGenerated, ...editorProps })
-  }, [active, selectedClient, generatedCopy, selectedImages, headerStyle, imageStyle, clientFooter, weekGenUrls, heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize])
+    return tpl.build({ client:selectedClient, copy:generatedCopy, images:effectiveImages, headerStyle, imageStyle, footerData: effectiveFooterData, isHeroGenerated, ...editorProps })
+  }, [active, selectedClient, generatedCopy, selectedImages, headerStyle, imageStyle, clientFooter, footerLogoColor, weekGenUrls, heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize])
 
   // Keep store in sync so ApprovalPanel always has the latest HTML
   useEffect(() => {
@@ -3015,7 +3028,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
                 </div>
               ))}
 
-              {/* Color tint row */}
+              {/* Header logo color tint */}
               <div style={{ fontSize: 10, fontWeight: 600, color: dark ? '#9ca3af' : '#6b7280', marginBottom: 6, marginTop: 2 }}>Color tint</div>
               <div style={{ display: 'flex', gap: 5 }}>
                 {[
@@ -3037,13 +3050,36 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
                   </button>
                 ))}
               </div>
+
+              {/* Footer logo color tint */}
+              <div style={{ fontSize: 10, fontWeight: 600, color: dark ? '#9ca3af' : '#6b7280', marginBottom: 6, marginTop: 10 }}>Footer color tint</div>
+              <div style={{ display: 'flex', gap: 5 }}>
+                {[
+                  { key: 'original', label: 'Original', bg: dark ? '#2d2d2d' : '#f9fafb', fg: dark ? '#d1d5db' : '#374151', dot: null },
+                  { key: 'white',    label: 'White',    bg: '#1f1f1f',  fg: '#fff',     dot: '#fff' },
+                  { key: 'black',    label: 'Black',    bg: '#f5f5f5',  fg: '#000',     dot: '#000' },
+                ].map(c => (
+                  <button key={c.key} onClick={() => setFooterLogoColor(c.key)} style={{
+                    flex: 1, padding: '6px 0', borderRadius: 8, fontSize: 10, fontWeight: 600,
+                    cursor: 'pointer',
+                    border: `1.5px solid ${footerLogoColor === c.key ? '#d97706' : (dark ? 'rgba(255,255,255,0.1)' : '#e5e7eb')}`,
+                    background: footerLogoColor === c.key ? (dark ? 'rgba(217,119,6,0.15)' : '#fffbeb') : c.bg,
+                    color: footerLogoColor === c.key ? '#d97706' : c.fg,
+                    transition: 'all 0.15s',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
+                  }}>
+                    {c.dot && <span style={{ width: 7, height: 7, borderRadius: '50%', background: c.dot, border: '1px solid rgba(128,128,128,0.3)', flexShrink: 0 }} />}
+                    {c.label}
+                  </button>
+                ))}
+              </div>
             </>}
           </div>
 
           {/* Divider + Reset */}
           <div style={{ height: 1, background: dark ? 'rgba(255,255,255,0.07)' : '#f0f1f3', margin: '12px 0 8px' }} />
           <button onClick={() => {
-            setHeroScale(1); setHeroX(0); setHeroY(0)
+            setHeroScale(1); setHeroX(0); setHeroY(0); setFooterLogoColor('original')
             if (tpl?.id === 10) { setTextSize(38); setTextTop(32);  setTextLeft(24);  setLogoColor('original'); setLogoTop(32); setLogoRight(200); setLogoSize(40) }
             if (tpl?.id === 11) { setTextSize(40); setTextTop(14);  setTextLeft(52);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
             if (tpl?.id === 12) { setTextSize(38); setTextTop(20);  setTextLeft(48);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
