@@ -2717,13 +2717,13 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
 </head><body>
 <div style="padding:20px 20px 0;background:#fff;line-height:0;font-size:0;">
   <div style="position:relative;width:560px;height:680px;overflow:hidden;border-radius:0;background:#1a1a1a;">
-    ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:560px;height:680px;object-fit:cover;object-position:${heroFp5};display:block;"/>` : `<div style="width:560px;height:680px;background:#2a2a2a;"></div>`}
+    ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;top:${-(680*(heroScale-1)/2)+heroY}px;left:${-(560*(heroScale-1)/2)+heroX}px;width:${560*heroScale}px;height:${680*heroScale}px;object-fit:cover;display:block;"/>` : `<div style="width:560px;height:680px;background:#2a2a2a;"></div>`}
     <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.25) 40%,rgba(0,0,0,0.45) 100%);line-height:normal;font-size:initial;">
       <div style="text-align:center;padding-top:${logoTop}px;">${logoHtml}</div>
-      <div style="position:absolute;left:${textLeft}px;right:${textLeft}px;top:32%;">
-        ${w5First ? `<div style="font-family:Georgia,serif;font-size:${Math.round(textSize * 0.81)}px;font-style:italic;font-weight:400;color:#fff;line-height:1;text-shadow:0 2px 12px rgba(0,0,0,.3);margin-bottom:2px;">${w5First}</div>` : ''}
+      <div style="position:absolute;left:${textLeft}px;right:${textLeft}px;top:${textTop}%;">
+        ${w5First ? `<div style="font-family:Georgia,'Times New Roman',serif;font-size:${Math.round(textSize * 0.8)}px;font-style:italic;font-weight:400;color:#fff;line-height:1;text-shadow:0 2px 12px rgba(0,0,0,.3);margin-bottom:2px;">${w5First}</div>` : ''}
         <div style="font-family:Arial,'Helvetica Neue',sans-serif;font-size:${textSize}px;font-weight:900;text-transform:uppercase;color:#fff;line-height:0.92;letter-spacing:-1px;text-shadow:0 2px 20px rgba(0,0,0,.25);">${w5Main}</div>
-        ${w5Last ? `<div style="font-family:Georgia,serif;font-size:${Math.round(textSize * 0.81)}px;font-style:italic;font-weight:400;color:#fff;line-height:1.1;text-align:right;text-shadow:0 2px 12px rgba(0,0,0,.3);margin-top:2px;">${w5Last}</div>` : ''}
+        ${w5Last ? `<div style="font-family:Georgia,'Times New Roman',serif;font-size:${Math.round(textSize * 0.8)}px;font-style:italic;font-weight:400;color:#fff;line-height:1.1;text-align:right;text-shadow:0 2px 12px rgba(0,0,0,.3);margin-top:2px;">${w5Last}</div>` : ''}
       </div>
     </div>
   </div>
