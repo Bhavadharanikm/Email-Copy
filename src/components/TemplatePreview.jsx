@@ -2638,11 +2638,11 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
 </head><body>
 <div style="padding:20px 20px 0;background:#fff;line-height:0;font-size:0;">
   <div style="position:relative;width:560px;height:720px;overflow:hidden;border-radius:16px;background:#1a1a1a;">
-    ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:560px;height:720px;object-fit:cover;object-position:${heroFp4};display:block;"/>` : `<div style="width:560px;height:720px;background:#2a2a2a;"></div>`}
+    ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;top:${-(720*(heroScale-1)/2)+heroY}px;left:${-(560*(heroScale-1)/2)+heroX}px;width:${560*heroScale}px;height:${720*heroScale}px;object-fit:cover;display:block;"/>` : `<div style="width:560px;height:720px;background:#2a2a2a;"></div>`}
     <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.78) 0%,rgba(0,0,0,0.38) 45%,rgba(0,0,0,0.05) 75%,rgba(0,0,0,0) 100%);line-height:normal;font-size:initial;">
       <div style="text-align:center;padding-top:${logoTop}px;">${logoHtml}</div>
-      <div style="text-align:center;padding:20px 48px 0;">
-        <div style="font-family:Georgia,serif;font-size:${textSize}px;font-weight:700;line-height:1.12;color:#fff;">${headline}</div>
+      <div style="text-align:center;padding:${textTop}px ${textLeft}px 0;">
+        <div style="font-family:Georgia,'Times New Roman',serif;font-size:${textSize}px;font-weight:700;line-height:1.12;color:#fff;">${headline}</div>
       </div>
     </div>
   </div>
