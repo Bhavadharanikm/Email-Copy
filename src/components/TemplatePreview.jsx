@@ -2713,7 +2713,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     // Week 5 hero: same inset card as Week 4 — padded, rounded, centered logo + serif headline
     const heroFp5 = selectedImages?.[0]?.focalX != null ? `${selectedImages[0].focalX}% ${selectedImages[0].focalY}%` : '50% 30%'
     const week5HeroHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:#fff;}</style>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:#fff;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}</style>
 </head><body>
 <div style="padding:20px 20px 0;background:#fff;line-height:0;font-size:0;">
   <div style="position:relative;width:560px;height:680px;overflow:hidden;border-radius:0;background:#1a1a1a;">
@@ -2722,7 +2722,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
       <div style="text-align:center;padding-top:${logoTop}px;">${logoHtml}</div>
       <div style="position:absolute;left:${textLeft}px;right:${textLeft}px;top:${textTop}%;">
         ${w5First ? `<div style="font-family:Georgia,'Times New Roman',serif;font-size:${Math.round(textSize * 0.8)}px;font-style:italic;font-weight:400;color:#fff;line-height:1;text-shadow:0 2px 12px rgba(0,0,0,.3);margin-bottom:2px;">${w5First}</div>` : ''}
-        <div style="font-family:Arial,'Helvetica Neue',sans-serif;font-size:${textSize}px;font-weight:900;text-transform:uppercase;color:#fff;line-height:0.92;letter-spacing:-1px;text-shadow:0 2px 20px rgba(0,0,0,.25);">${w5Main}</div>
+        <div style="font-family:Arial,'Helvetica Neue',sans-serif;font-size:${textSize}px;font-weight:900;text-transform:uppercase;color:#fff;line-height:0.92;letter-spacing:-3px;text-shadow:0 2px 20px rgba(0,0,0,.25);">${w5Main}</div>
         ${w5Last ? `<div style="font-family:Georgia,'Times New Roman',serif;font-size:${Math.round(textSize * 0.8)}px;font-style:italic;font-weight:400;color:#fff;line-height:1.1;text-align:right;text-shadow:0 2px 12px rgba(0,0,0,.3);margin-top:2px;">${w5Last}</div>` : ''}
       </div>
     </div>
