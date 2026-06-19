@@ -19,7 +19,7 @@ export default function ApprovalPanel() {
 
   const {
     selectedClient, generatedCopy, selectedImages, renderedHtml,
-    templateId, locationId, templateUrl, folderId, templateLabel, approvalStatus, setApproval, setGhlPushResult, setError,
+    templateId, locationId, templateUrl, folderUrl, folderId, templateLabel, approvalStatus, setApproval, setGhlPushResult, setError,
   } = useCampaignStore((s) => ({
     selectedClient:   s.selectedClient,
     generatedCopy:    s.generatedCopy,
@@ -28,6 +28,7 @@ export default function ApprovalPanel() {
     templateId:       s.templateId,
     locationId:       s.locationId,
     templateUrl:      s.templateUrl,
+    folderUrl:        s.folderUrl,
     folderId:         s.folderId,
     templateLabel:    s.templateLabel,
     approvalStatus:   s.approvalStatus,
@@ -42,7 +43,7 @@ export default function ApprovalPanel() {
     try {
       const ghlResult = await pushHtmlToGHL({ client: selectedClient, renderedHtml, generatedCopy, templateId, locationId, folderId, templateLabel })
       setGhlPushResult(ghlResult)
-      setPreviewUrl(templateUrl || ghlResult.previewUrl || '')
+      setPreviewUrl(ghlResult.previewUrl || templateUrl || folderUrl || '')
       try {
         await notifyChat({ clientName: selectedClient.name, previewUrl: ghlResult.previewUrl, approvedBy: 'Team' })
       } catch (chatErr) {
