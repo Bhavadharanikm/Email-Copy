@@ -1781,7 +1781,7 @@ function buildTemplateWeek5({ client, copy, images, footerData, isHeroGenerated 
       ? `<tr><td style="padding:0;line-height:0;font-size:0;"><img src="${heroImg}" alt="" width="600" style="display:block;width:600px;"/></td></tr>`
       : `<tr><td class="gmailfix" style="padding:20px 20px 0;${WHITE_BG};line-height:0;font-size:0;">
       <div style="position:relative;width:560px;height:680px;overflow:hidden;border-radius:0;background:#1a1a1a;">
-        ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:560px;height:680px;object-fit:cover;object-position:calc(50% + ${heroX}px) calc(50% + ${heroY}px);transform:scale(${heroScale});transform-origin:50% 50%;display:block;"/>` : ''}
+        ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:${Math.min(0,Math.max(680*(1-heroScale),-(680*(heroScale-1)/2)+heroY))}px;left:${Math.min(0,Math.max(560*(1-heroScale),-(560*(heroScale-1)/2)+heroX))}px;width:${560*heroScale}px;height:${680*heroScale}px;object-fit:cover;display:block;"/>` : ''}
         <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.25) 40%,rgba(0,0,0,0.45) 100%);">
           <div style="text-align:center;padding-top:${logoTop}px;">${logoHtml}</div>
           <div style="position:absolute;left:${textLeft}px;right:${textLeft}px;top:${textTop}%;">
@@ -1985,7 +1985,7 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
           <!-- Inset image card -->
           <div style="position:absolute;left:28px;top:22px;right:28px;">
             <div style="position:relative;width:544px;height:480px;overflow:hidden;border-radius:20px;box-shadow:0 6px 40px rgba(0,0,0,0.3);border:2px solid rgba(255,255,255,0.55);">
-              ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:544px;height:480px;object-fit:cover;object-position:calc(50% + ${heroX}px) calc(50% + ${heroY}px);transform:scale(${heroScale});transform-origin:50% 50%;display:block;"/>` : ''}
+              ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:${Math.min(0,Math.max(480*(1-heroScale),-(480*(heroScale-1)/2)+heroY))}px;left:${Math.min(0,Math.max(544*(1-heroScale),-(544*(heroScale-1)/2)+heroX))}px;width:${544*heroScale}px;height:${480*heroScale}px;object-fit:cover;display:block;"/>` : ''}
               <div style="position:absolute;top:0;left:0;right:0;height:72%;background:linear-gradient(to bottom,rgba(0,0,0,0.52) 0%,rgba(0,0,0,0.16) 65%,rgba(0,0,0,0) 100%);"></div>
               <div style="position:absolute;top:0;left:0;right:0;padding:${textTop}px ${textLeft}px 0;line-height:normal;font-size:initial;text-align:center;">
                 <div style="font-family:'Lora',serif;font-size:${textSize}px;font-weight:700;color:#fff;line-height:1.08;text-shadow:0 2px 16px rgba(0,0,0,.3);">
@@ -2719,7 +2719,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
 </head><body>
 <div style="padding:20px 20px 0;background:#fff;line-height:0;font-size:0;">
   <div style="position:relative;width:560px;height:680px;overflow:hidden;border-radius:0;background:#1a1a1a;">
-    ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;top:${-(680*(heroScale-1)/2)+heroY}px;left:${-(560*(heroScale-1)/2)+heroX}px;width:${560*heroScale}px;height:${680*heroScale}px;object-fit:cover;display:block;"/>` : `<div style="width:560px;height:680px;background:#2a2a2a;"></div>`}
+    ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;top:${Math.min(0,Math.max(680*(1-heroScale),-(680*(heroScale-1)/2)+heroY))}px;left:${Math.min(0,Math.max(560*(1-heroScale),-(560*(heroScale-1)/2)+heroX))}px;width:${560*heroScale}px;height:${680*heroScale}px;object-fit:cover;display:block;"/>` : `<div style="width:560px;height:680px;background:#2a2a2a;"></div>`}
     <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.25) 40%,rgba(0,0,0,0.45) 100%);line-height:normal;font-size:initial;">
       <div style="text-align:center;padding-top:${logoTop}px;">${logoHtml}</div>
       <div style="position:absolute;left:${textLeft}px;right:${textLeft}px;top:${textTop}%;">
@@ -2793,7 +2793,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
   <!-- Inset image card -->
   <div style="position:absolute;left:28px;top:22px;right:28px;">
     <div style="position:relative;width:544px;height:480px;overflow:hidden;border-radius:20px;box-shadow:0 6px 40px rgba(0,0,0,0.3);border:2px solid rgba(255,255,255,0.55);">
-      ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;top:${-(480*(heroScale-1)/2)+heroY}px;left:${-(544*(heroScale-1)/2)+heroX}px;width:${544*heroScale}px;height:${480*heroScale}px;object-fit:cover;display:block;"/>` : ''}
+      ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;top:${Math.min(0,Math.max(480*(1-heroScale),-(480*(heroScale-1)/2)+heroY))}px;left:${Math.min(0,Math.max(544*(1-heroScale),-(544*(heroScale-1)/2)+heroX))}px;width:${544*heroScale}px;height:${480*heroScale}px;object-fit:cover;display:block;"/>` : ''}
       <div style="position:absolute;top:0;left:0;right:0;height:72%;background:linear-gradient(to bottom,rgba(0,0,0,0.52) 0%,rgba(0,0,0,0.16) 65%,rgba(0,0,0,0) 100%);"></div>
       <div style="position:absolute;top:0;left:0;right:0;padding:${textTop}px ${textLeft}px 0;line-height:normal;font-size:initial;text-align:center;">
         <div style="font-family:'Lora',serif;font-size:${textSize}px;font-weight:700;color:#fff;line-height:1.0;text-shadow:0 2px 16px rgba(0,0,0,.3);">${w6Body}</div>
