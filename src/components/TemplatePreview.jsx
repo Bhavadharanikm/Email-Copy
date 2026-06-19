@@ -2605,14 +2605,15 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
 </body></html>`
       : isWeek3
       ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&display=swap" rel="stylesheet"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;}</style>
 </head><body>
 <div style="position:relative;width:600px;height:600px;overflow:hidden;border-radius:20px 20px 0 0;background:#1a1a1a;">
-  ${heroImgUrl ? `<img src="${heroImgUrl}" style="width:600px;height:600px;object-fit:cover;display:block;"/>` : `<div style="width:600px;height:600px;background:#2a2a2a;"></div>`}
+  ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;top:${-(600*(heroScale-1)/2)+heroY}px;left:${-(600*(heroScale-1)/2)+heroX}px;width:${600*heroScale}px;height:${600*heroScale}px;object-fit:cover;display:block;"/>` : `<div style="width:600px;height:600px;background:#2a2a2a;"></div>`}
   <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.72) 0%,rgba(0,0,0,0.28) 42%,rgba(0,0,0,0) 65%);">
     <div style="text-align:center;padding-top:${logoTop}px;">${logoHtml}</div>
-    <div style="text-align:center;padding:14px 52px 0;">
-      <div style="font-family:Georgia,serif;font-size:${textSize}px;font-weight:400;font-style:italic;line-height:1.15;color:#fff;">${headline}</div>
+    <div style="text-align:center;padding:${textTop}px ${textLeft}px 0;">
+      <div style="font-family:'Playfair Display',Georgia,serif;font-size:${textSize}px;font-weight:600;line-height:1.12;color:#fff;text-shadow:0 2px 20px rgba(0,0,0,0.4);">${headline}</div>
     </div>
   </div>
   <div style="position:absolute;bottom:0;left:0;right:0;height:160px;background:linear-gradient(to bottom,rgba(255,255,255,0),rgba(255,255,255,1));"></div>
