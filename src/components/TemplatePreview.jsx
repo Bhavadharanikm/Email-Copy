@@ -1786,8 +1786,7 @@ function buildTemplateWeek5({ client, copy, images, footerData, isHeroGenerated 
           <div style="text-align:center;padding-top:${logoTop}px;">${logoHtml}</div>
           <div style="position:absolute;left:${textLeft}px;right:${textLeft}px;top:${textTop}%;">
             ${hw5First ? `<div style="font-family:'Lora',serif;font-size:${Math.round(textSize*0.8)}px;font-style:italic;font-weight:400;color:#fff;line-height:1;text-shadow:0 2px 12px rgba(0,0,0,.3);margin-bottom:2px;">${hw5First}</div>` : ''}
-            <div style="font-family:'Lora',serif;font-size:${textSize}px;font-weight:700;text-transform:uppercase;color:#fff;line-height:0.92;text-shadow:0 2px 20px rgba(0,0,0,.25);">${hw5Main}</div>
-            ${hw5Last ? `<div style="font-family:'Lora',serif;font-size:${Math.round(textSize*0.8)}px;font-style:italic;font-weight:400;color:#fff;line-height:1.1;text-align:right;text-shadow:0 2px 12px rgba(0,0,0,.3);margin-top:2px;">${hw5Last}</div>` : ''}
+            <div style="font-family:'Lora',serif;font-size:${textSize}px;font-weight:700;text-transform:uppercase;color:#fff;line-height:1.0;text-shadow:0 2px 20px rgba(0,0,0,.25);">${hw5Main}${hw5Last ? ` <span style="font-family:'Lora',serif;font-style:italic;font-weight:400;text-transform:none;font-size:${Math.round(textSize*0.9)}px;">${hw5Last}</span>` : ''}</div>
           </div>
         </div>
       </div>
@@ -2725,8 +2724,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
       <div style="text-align:center;padding-top:${logoTop}px;">${logoHtml}</div>
       <div style="position:absolute;left:${textLeft}px;right:${textLeft}px;top:${textTop}%;">
         ${w5First ? `<div style="font-family:'Lora',serif;font-size:${Math.round(textSize * 0.8)}px;font-style:italic;font-weight:400;color:#fff;line-height:1;text-shadow:0 2px 12px rgba(0,0,0,.3);margin-bottom:2px;">${w5First}</div>` : ''}
-        <div style="font-family:'Lora',serif;font-size:${textSize}px;font-weight:700;text-transform:uppercase;color:#fff;line-height:0.92;text-shadow:0 2px 20px rgba(0,0,0,.25);">${w5Main}</div>
-        ${w5Last ? `<div style="font-family:'Lora',serif;font-size:${Math.round(textSize * 0.8)}px;font-style:italic;font-weight:400;color:#fff;line-height:1.1;text-align:right;text-shadow:0 2px 12px rgba(0,0,0,.3);margin-top:2px;">${w5Last}</div>` : ''}
+        <div style="font-family:'Lora',serif;font-size:${textSize}px;font-weight:700;text-transform:uppercase;color:#fff;line-height:1.0;text-shadow:0 2px 20px rgba(0,0,0,.25);">${w5Main}${w5Last ? ` <span style="font-family:'Lora',serif;font-style:italic;font-weight:400;text-transform:none;font-size:${Math.round(textSize*0.9)}px;">${w5Last}</span>` : ''}</div>
       </div>
     </div>
   </div>
