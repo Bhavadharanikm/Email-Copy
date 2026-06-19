@@ -2597,7 +2597,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     ${heroImgUrl ? `<img src="${heroImgUrl}" style="width:528px;height:460px;object-fit:cover;display:block;object-position:50% 50%;"/>` : `<div style="width:528px;height:460px;background:#c8c0b5;"></div>`}
     <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0) 0%,rgba(0,0,0,0) 50%,rgba(0,0,0,0.45) 100%);">
       <div style="position:absolute;bottom:32px;left:0;right:0;text-align:center;padding:0 24px;line-height:normal;">
-        <span style="font-family:Georgia,serif;font-size:${textSize}px;font-weight:400;font-style:italic;color:#fff;line-height:1.25;text-shadow:0 2px 10px rgba(0,0,0,.3);display:inline-block;max-width:300px;">${headline}</span>
+        <div style="font-family:Georgia,'Times New Roman',serif;font-size:${textSize}px;font-weight:700;color:#fff;line-height:1.12;text-shadow:0 2px 10px rgba(0,0,0,.3);display:inline-block;max-width:360px;">${headline}</div>
       </div>
     </div>
   </div>
