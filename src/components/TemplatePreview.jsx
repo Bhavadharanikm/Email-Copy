@@ -2770,7 +2770,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
       ? `<img src="${logoUrl}" alt="" style="height:${logoSize}px;width:auto;max-width:${logoSize * 5}px;display:inline-block;filter:${renderLogoFilter};"/>`
       : `<span style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#1a1a1a;">${clientName}</span>`
     const week6HeroHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;overflow:hidden;}</style>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;overflow:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}</style>
 </head><body>
 <!-- White header: logo left + nav link right -->
 <div style="background:#ffffff;width:600px;padding:0 0 20px;box-sizing:border-box;line-height:normal;font-size:initial;">
@@ -2794,9 +2794,8 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
       ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;top:${-(480*(heroScale-1)/2)+heroY}px;left:${-(544*(heroScale-1)/2)+heroX}px;width:${544*heroScale}px;height:${480*heroScale}px;object-fit:cover;display:block;"/>` : ''}
       <div style="position:absolute;top:0;left:0;right:0;height:72%;background:linear-gradient(to bottom,rgba(0,0,0,0.52) 0%,rgba(0,0,0,0.16) 65%,rgba(0,0,0,0) 100%);"></div>
       <div style="position:absolute;top:0;left:0;right:0;padding:${textTop}px ${textLeft}px 0;line-height:normal;font-size:initial;">
-        <div style="font-family:Georgia,'Times New Roman',serif;font-size:${textSize}px;font-weight:700;color:#fff;line-height:1.08;text-shadow:0 2px 16px rgba(0,0,0,.3);">
-          ${w6Body}${w6Last ? ` <span style="font-style:italic;font-weight:400;font-size:${Math.round(textSize * 1.17)}px;">${w6Last}</span>` : ''}
-        </div>
+        <div style="font-family:Georgia,'Times New Roman',serif;font-size:${textSize}px;font-weight:700;color:#fff;line-height:1.08;text-shadow:0 2px 16px rgba(0,0,0,.3);">${w6Body}</div>
+        ${w6Last ? `<div style="font-family:Georgia,'Times New Roman',serif;font-style:italic;font-weight:400;font-size:${Math.round(textSize * 1.17)}px;color:#fff;line-height:1.08;text-shadow:0 2px 16px rgba(0,0,0,.3);">${w6Last}</div>` : ''}
       </div>
     </div>
   </div>
