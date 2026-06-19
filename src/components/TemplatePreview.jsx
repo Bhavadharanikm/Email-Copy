@@ -1937,6 +1937,7 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <meta name="color-scheme" content="light">
 <meta name="supported-color-schemes" content="light">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
 <style>
   :root{color-scheme:light;supported-color-schemes:light}
   *{box-sizing:border-box;margin:0;padding:0}
@@ -1987,8 +1988,8 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
               ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:544px;height:480px;object-fit:cover;object-position:calc(50% + ${heroX}px) calc(50% + ${heroY}px);transform:scale(${heroScale});transform-origin:50% 50%;display:block;"/>` : ''}
               <div style="position:absolute;top:0;left:0;right:0;height:72%;background:linear-gradient(to bottom,rgba(0,0,0,0.52) 0%,rgba(0,0,0,0.16) 65%,rgba(0,0,0,0) 100%);"></div>
               <div style="position:absolute;top:0;left:0;right:0;padding:${textTop}px ${textLeft}px 0;line-height:normal;font-size:initial;text-align:center;">
-                <div style="font-family:Georgia,'Times New Roman',serif;font-size:${textSize}px;font-weight:700;color:#fff;line-height:1.08;text-shadow:0 2px 16px rgba(0,0,0,.3);">
-                  ${hw6Body}${hw6Last ? ` <span style="font-style:italic;font-weight:400;font-size:${Math.round(textSize*1.17)}px;">${hw6Last}</span>` : ''}
+                <div style="font-family:'Lora',serif;font-size:${textSize}px;font-weight:700;color:#fff;line-height:1.08;text-shadow:0 2px 16px rgba(0,0,0,.3);">
+                  ${hw6Body}${hw6Last ? ` <span style="font-family:'Lora',serif;font-style:italic;font-weight:400;font-size:${Math.round(textSize*1.17)}px;">${hw6Last}</span>` : ''}
                 </div>
               </div>
             </div>
@@ -1997,7 +1998,7 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
           <!-- Subhead on gradient — positioned just above CTA -->
           ${copy.subhead ? `
           <div style="position:absolute;top:548px;left:44px;right:44px;text-align:center;line-height:normal;font-size:initial;">
-            <p style="font-family:Georgia,'Times New Roman',serif;font-size:17px;font-style:italic;line-height:1.6;color:#fff;margin:0;text-shadow:0 1px 8px rgba(0,0,0,.25);">${copy.subhead}</p>
+            <p style="font-family:'Lora',serif;font-size:17px;font-style:italic;line-height:1.6;color:#fff;margin:0;text-shadow:0 1px 8px rgba(0,0,0,.25);">${copy.subhead}</p>
           </div>` : ''}
 
           <!-- CTA on gradient + arrow below -->
@@ -2030,7 +2031,7 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
     <!-- ── Body block 2 title (below divider, above grid) ── -->
     ${copy.bodyBlock2Title ? `
     <tr><td class="gmailfix" style="padding:32px 52px 16px;text-align:center;${WHITE_BG};">
-      <p style="font-family:Georgia,'Times New Roman',serif;font-size:20px;font-weight:700;color:${secondary}!important;line-height:1.25;margin:0;">${copy.bodyBlock2Title}</p>
+      <p style="font-family:'Lora',serif;font-size:20px;font-weight:700;color:${secondary}!important;line-height:1.25;margin:0;">${copy.bodyBlock2Title}</p>
     </td></tr>` : ''}
 
     <!-- ── Image grid: 2-up top row + 1 full-width bottom ── -->
@@ -2072,7 +2073,7 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
     <!-- ── Closing line ── -->
     ${copy.closingLine ? `
     <tr><td class="gmailfix" style="padding:20px 52px 0;text-align:center;${WHITE_BG};">
-      <p style="font-family:Georgia,'Times New Roman',serif;font-size:15px;font-style:italic;color:#888!important;line-height:1.7;margin:0;">${copy.closingLine}</p>
+      <p style="font-family:'Lora',serif;font-size:15px;font-style:italic;color:#888!important;line-height:1.7;margin:0;">${copy.closingLine}</p>
     </td></tr>` : ''}
 
     <!-- ── Final CTA ── -->
@@ -2770,6 +2771,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
       ? `<img src="${logoUrl}" alt="" style="height:${logoSize}px;width:auto;max-width:${logoSize * 5}px;display:inline-block;filter:${renderLogoFilter};"/>`
       : `<span style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#1a1a1a;">${clientName}</span>`
     const week6HeroHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;overflow:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}</style>
 </head><body>
 <!-- White header: logo left + nav link right -->
@@ -2794,14 +2796,14 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
       ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;top:${-(480*(heroScale-1)/2)+heroY}px;left:${-(544*(heroScale-1)/2)+heroX}px;width:${544*heroScale}px;height:${480*heroScale}px;object-fit:cover;display:block;"/>` : ''}
       <div style="position:absolute;top:0;left:0;right:0;height:72%;background:linear-gradient(to bottom,rgba(0,0,0,0.52) 0%,rgba(0,0,0,0.16) 65%,rgba(0,0,0,0) 100%);"></div>
       <div style="position:absolute;top:0;left:0;right:0;padding:${textTop}px ${textLeft}px 0;line-height:normal;font-size:initial;">
-        <div style="font-family:Georgia,'Times New Roman',serif;font-size:${textSize}px;font-weight:700;color:#fff;line-height:1.0;text-shadow:0 2px 16px rgba(0,0,0,.3);">${w6Body}</div>
-        ${w6Last ? `<div style="font-family:Georgia,'Times New Roman',serif;font-style:italic;font-weight:400;font-size:${Math.round(textSize * 1.17)}px;color:#fff;line-height:1.0;text-shadow:0 2px 16px rgba(0,0,0,.3);">${w6Last}</div>` : ''}
+        <div style="font-family:'Lora',serif;font-size:${textSize}px;font-weight:700;color:#fff;line-height:1.0;text-shadow:0 2px 16px rgba(0,0,0,.3);">${w6Body}</div>
+        ${w6Last ? `<div style="font-family:'Lora',serif;font-style:italic;font-weight:400;font-size:${Math.round(textSize * 1.17)}px;color:#fff;line-height:1.0;text-shadow:0 2px 16px rgba(0,0,0,.3);">${w6Last}</div>` : ''}
       </div>
     </div>
   </div>
   <!-- Subhead on gradient — close to CTA -->
   <div style="position:absolute;top:548px;left:44px;right:44px;text-align:center;line-height:normal;font-size:initial;">
-    <p style="font-family:Georgia,'Times New Roman',serif;font-size:17px;font-style:italic;line-height:1.6;color:#fff;margin:0;text-shadow:0 1px 8px rgba(0,0,0,.25);">${generatedCopy?.subhead || ''}</p>
+    <p style="font-family:'Lora',serif;font-size:17px;font-style:italic;line-height:1.6;color:#fff;margin:0;text-shadow:0 1px 8px rgba(0,0,0,.25);">${generatedCopy?.subhead || ''}</p>
   </div>
   <!-- CTA on gradient + arrow below -->
   <div style="position:absolute;top:610px;left:0;right:0;text-align:center;line-height:normal;font-size:initial;">
