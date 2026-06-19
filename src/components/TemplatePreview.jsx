@@ -2794,7 +2794,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
       ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;top:${-(480*(heroScale-1)/2)+heroY}px;left:${-(544*(heroScale-1)/2)+heroX}px;width:${544*heroScale}px;height:${480*heroScale}px;object-fit:cover;display:block;"/>` : ''}
       <div style="position:absolute;top:0;left:0;right:0;height:72%;background:linear-gradient(to bottom,rgba(0,0,0,0.52) 0%,rgba(0,0,0,0.16) 65%,rgba(0,0,0,0) 100%);"></div>
       <div style="position:absolute;top:0;left:0;right:0;padding:${textTop}px ${textLeft}px 0;line-height:normal;font-size:initial;">
-        <div style="font-family:Georgia,serif;font-size:${textSize}px;font-weight:700;color:#fff;line-height:1.08;text-shadow:0 2px 16px rgba(0,0,0,.3);">
+        <div style="font-family:Georgia,'Times New Roman',serif;font-size:${textSize}px;font-weight:700;color:#fff;line-height:1.08;text-shadow:0 2px 16px rgba(0,0,0,.3);">
           ${w6Body}${w6Last ? ` <span style="font-style:italic;font-weight:400;font-size:${Math.round(textSize * 1.17)}px;">${w6Last}</span>` : ''}
         </div>
       </div>
@@ -2802,7 +2802,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
   </div>
   <!-- Subhead on gradient — close to CTA -->
   <div style="position:absolute;top:548px;left:44px;right:44px;text-align:center;line-height:normal;font-size:initial;">
-    <p style="font-family:Georgia,serif;font-size:17px;font-style:italic;line-height:1.6;color:#fff;margin:0;text-shadow:0 1px 8px rgba(0,0,0,.25);">${generatedCopy?.subhead || ''}</p>
+    <p style="font-family:Georgia,'Times New Roman',serif;font-size:17px;font-style:italic;line-height:1.6;color:#fff;margin:0;text-shadow:0 1px 8px rgba(0,0,0,.25);">${generatedCopy?.subhead || ''}</p>
   </div>
   <!-- CTA on gradient + arrow below -->
   <div style="position:absolute;top:610px;left:0;right:0;text-align:center;line-height:normal;font-size:initial;">
