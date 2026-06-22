@@ -206,7 +206,7 @@ function ClientPickerField({ dark, clients, value, onChange, onClientSelect, bor
 
 // ─── Calendar entry modal ─────────────────────────────────────────────────────
 
-const BLANK_ENTRY = { clientName: '', subject: '', status: 'draft', notes: '', sendTime: '' }
+const BLANK_ENTRY = { clientName: '', subject: '', status: 'draft', notes: '', sendTime: '', sendDate2: '' }
 
 function EntryModal({ dark, date, entry, clients, onSave, onDelete, onClose }) {
   const isEdit = !!entry
@@ -275,6 +275,17 @@ function EntryModal({ dark, date, entry, clients, onSave, onDelete, onClose }) {
                 onBlur={e => e.target.style.borderColor = border}
               />
             </div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div><label style={labelSty}>Send Date 2</label>
+              <input type="date" style={{ ...inputSty, cursor: 'pointer', colorScheme: dark ? 'dark' : 'light' }}
+                value={form.sendDate2 || ''}
+                onChange={e => setForm(f => ({ ...f, sendDate2: e.target.value }))}
+                onFocus={e => e.target.style.borderColor = dark ? 'rgba(255,255,255,0.3)' : '#6b7280'}
+                onBlur={e => e.target.style.borderColor = border}
+              />
+            </div>
+            <div />
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <div><label style={labelSty}>Status <span style={{ color: '#ef4444' }}>*</span></label>
@@ -354,7 +365,8 @@ function DayCell({ dark, cell, entries, today, onAddClick, onEntryClick }) {
 // ─── Approve (date picker) modal ──────────────────────────────────────────────
 
 function ApproveModal({ dark, idea, onConfirm, onClose }) {
-  const [pickedDate, setPickedDate] = useState(todayStr())
+  const [pickedDate, setPickedDate]   = useState(todayStr())
+  const [pickedDate2, setPickedDate2] = useState('')
   const ref = useRef(null)
 
   useEffect(() => {
@@ -391,12 +403,23 @@ function ApproveModal({ dark, idea, onConfirm, onClose }) {
         </div>
 
         {/* Date picker */}
-        <div style={{ marginBottom: 20 }}>
+        <div style={{ marginBottom: 14 }}>
           <label style={{ fontSize: 11, fontWeight: 700, color: subCol, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 8 }}>Send / Schedule Date</label>
           <input
             type="date"
             value={pickedDate}
             onChange={e => setPickedDate(e.target.value)}
+            style={{ width: '100%', padding: '10px 14px', borderRadius: 10, background: inputBg, border: `1.5px solid ${border}`, color: textCol, fontSize: 14, fontFamily: 'Inter, sans-serif', outline: 'none', boxSizing: 'border-box', cursor: 'pointer' }}
+            onFocus={e  => e.target.style.borderColor = dark ? 'rgba(255,255,255,0.3)' : '#6b7280'}
+            onBlur={e   => e.target.style.borderColor = border}
+          />
+        </div>
+        <div style={{ marginBottom: 20 }}>
+          <label style={{ fontSize: 11, fontWeight: 700, color: subCol, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 8 }}>Send / Schedule Date 2</label>
+          <input
+            type="date"
+            value={pickedDate2}
+            onChange={e => setPickedDate2(e.target.value)}
             style={{ width: '100%', padding: '10px 14px', borderRadius: 10, background: inputBg, border: `1.5px solid ${border}`, color: textCol, fontSize: 14, fontFamily: 'Inter, sans-serif', outline: 'none', boxSizing: 'border-box', cursor: 'pointer' }}
             onFocus={e  => e.target.style.borderColor = dark ? 'rgba(255,255,255,0.3)' : '#6b7280'}
             onBlur={e   => e.target.style.borderColor = border}
@@ -412,7 +435,7 @@ function ApproveModal({ dark, idea, onConfirm, onClose }) {
             style={{ flex: 1, padding: '10px 0', borderRadius: 10, border: `1.5px solid ${border}`, background: 'transparent', color: subCol, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'Inter, sans-serif' }}>
             Cancel
           </button>
-          <button onClick={() => onConfirm(pickedDate)} disabled={!pickedDate}
+          <button onClick={() => onConfirm(pickedDate, pickedDate2)} disabled={!pickedDate}
             style={{ flex: 2, padding: '10px 0', borderRadius: 10, border: 'none', background: pickedDate ? '#10b981' : (dark ? 'rgba(255,255,255,0.06)' : '#e5e7eb'), color: pickedDate ? '#fff' : subCol, fontSize: 13, fontWeight: 700, cursor: pickedDate ? 'pointer' : 'not-allowed', fontFamily: 'Inter, sans-serif', transition: 'all 0.15s' }}>
             ✓ Add to Calendar
           </button>
@@ -424,7 +447,7 @@ function ApproveModal({ dark, idea, onConfirm, onClose }) {
 
 // ─── Add / Edit idea modal ────────────────────────────────────────────────────
 
-const BLANK_IDEA = { clientName: '', subject: '', hook: '', priority: 'medium', sendDate: '', sendTime: '', changedBy: '' }
+const BLANK_IDEA = { clientName: '', subject: '', hook: '', priority: 'medium', sendDate: '', sendDate2: '', sendTime: '', changedBy: '' }
 
 const PRIORITY_CONFIG = {
   high:   { label: '🔴 High',   color: '#dc2626' },
@@ -500,6 +523,17 @@ function IdeaFormModal({ dark, idea, clients, onSave, onClose, approveMode = fal
                 onBlur={e => e.target.style.borderColor = border}
               />
             </div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div><label style={labelSty}>Send Date 2</label>
+              <input type="date" style={{ ...inputSty, cursor: 'pointer', colorScheme: dark ? 'dark' : 'light' }}
+                value={form.sendDate2 || ''}
+                onChange={e => setForm(f => ({ ...f, sendDate2: e.target.value }))}
+                onFocus={e => e.target.style.borderColor = dark ? 'rgba(255,255,255,0.3)' : '#6b7280'}
+                onBlur={e => e.target.style.borderColor = border}
+              />
+            </div>
+            <div />
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <div><label style={labelSty}>Status <span style={{ color: '#ef4444' }}>*</span></label>
@@ -803,9 +837,9 @@ function IdeasView({ dark, ideas, clients, allRows, patchRow, addRow }) {
     return (PRIORITY_ORDER[a.priority] ?? 1) - (PRIORITY_ORDER[b.priority] ?? 1)
   })
 
-  async function handleApproveConfirm(date) {
+  async function handleApproveConfirm(date, date2) {
     const idea = approveModal
-    const changes = { idea_status: 'approved', calendar_date: date, entry_status: 'draft', updated_at: new Date().toISOString() }
+    const changes = { idea_status: 'approved', calendar_date: date, calendar_date2: date2 || null, entry_status: 'draft', updated_at: new Date().toISOString() }
     await supabase.from(TABLE).update(changes).eq('id', idea.id)
     patchRow(idea.id, changes)
     setApproveModal(null)
