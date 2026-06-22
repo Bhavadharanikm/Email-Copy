@@ -43,7 +43,7 @@ export default function ApprovalPanel() {
     try {
       const ghlResult = await pushHtmlToGHL({ client: selectedClient, renderedHtml, generatedCopy, templateId, locationId, folderId, templateLabel })
       setGhlPushResult(ghlResult)
-      setPreviewUrl(ghlResult.previewUrl || templateUrl || folderUrl || '')
+      setPreviewUrl(folderUrl || templateUrl || ghlResult.previewUrl || '')
       try {
         await notifyChat({ clientName: selectedClient.name, previewUrl: ghlResult.previewUrl, approvedBy: 'Team' })
       } catch (chatErr) {
