@@ -583,7 +583,7 @@ function parseBrief(hook) {
 
 const PRIORITY_DOT = { high: '#ef4444', medium: '#f59e0b', low: '#22c55e' }
 
-function IdeaCard({ dark, idea, onApprove, onDecline, onUnschedule, onEdit, onReinstate }) {
+function IdeaCard({ dark, idea, siblingDates = [], onApprove, onDecline, onUnschedule, onEdit, onReinstate }) {
   const [expanded, setExpanded] = useState(false)
 
   const sc = IDEA_STATUS[idea.status] || IDEA_STATUS.pending
@@ -737,24 +737,20 @@ function IdeaCard({ dark, idea, onApprove, onDecline, onUnschedule, onEdit, onRe
         )}
 
         {/* Scheduled date(s) (approved) */}
-        {isApproved && idea.scheduledDate && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 12 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 10px', borderRadius: 8, background: dark ? 'rgba(34,197,94,0.08)' : '#f0fdf4', border: `1px solid ${dark ? 'rgba(34,197,94,0.15)' : '#bbf7d0'}` }}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-              <span style={{ fontSize: 11, fontWeight: 600, color: '#16a34a' }}>
-                {new Date(idea.scheduledDate + 'T00:00:00').toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })}
-              </span>
+        {isApproved && idea.scheduledDate && (() => {
+          const calIcon = <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          const chipStyle = { display: 'flex', alignItems: 'center', gap: 6, padding: '7px 10px', borderRadius: 8, background: dark ? 'rgba(34,197,94,0.08)' : '#f0fdf4', border: `1px solid ${dark ? 'rgba(34,197,94,0.15)' : '#bbf7d0'}` }
+          const fmt = d => new Date(d + 'T00:00:00').toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })
+          const allDates = [idea.scheduledDate, ...(idea.scheduledDate2 ? [idea.scheduledDate2] : []), ...siblingDates]
+          const uniqueDates = [...new Set(allDates)].sort()
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 12 }}>
+              {uniqueDates.map(d => (
+                <div key={d} style={chipStyle}>{calIcon}<span style={{ fontSize: 11, fontWeight: 600, color: '#16a34a' }}>{fmt(d)}</span></div>
+              ))}
             </div>
-            {idea.scheduledDate2 && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 10px', borderRadius: 8, background: dark ? 'rgba(34,197,94,0.08)' : '#f0fdf4', border: `1px solid ${dark ? 'rgba(34,197,94,0.15)' : '#bbf7d0'}` }}>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                <span style={{ fontSize: 11, fontWeight: 600, color: '#16a34a' }}>
-                  {new Date(idea.scheduledDate2 + 'T00:00:00').toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })}
-                </span>
-              </div>
-            )}
-          </div>
-        )}
+          )
+        })()}
       </div>
 
       {/* ── Action row ── */}
@@ -958,18 +954,28 @@ function IdeasView({ dark, ideas, clients, allRows, patchRow, addRow }) {
       {sorted.length > 0 && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 14 }}>
           <AnimatePresence mode="popLayout">
-            {sorted.map(idea => (
-              <IdeaCard
-                key={idea.id}
-                dark={dark}
-                idea={idea}
-                onApprove={idea => setApproveIdea(idea)}
-                onDecline={handleDecline}
-                onUnschedule={handleUnschedule}
-                onEdit={idea => setFormModal(idea)}
-                onReinstate={handleReinstate}
-              />
-            ))}
+            {sorted.map(idea => {
+              // Find sibling calendar entries with same client+subject on a different date
+              const siblingDates = allRows
+                .filter(r => String(r.id) !== String(idea.id)
+                  && r.calendar_date != null
+                  && r.client_name === idea.clientName
+                  && r.subject === idea.subject)
+                .map(r => r.calendar_date)
+              return (
+                <IdeaCard
+                  key={idea.id}
+                  dark={dark}
+                  idea={idea}
+                  siblingDates={siblingDates}
+                  onApprove={idea => setApproveIdea(idea)}
+                  onDecline={handleDecline}
+                  onUnschedule={handleUnschedule}
+                  onEdit={idea => setFormModal(idea)}
+                  onReinstate={handleReinstate}
+                />
+              )
+            })}
           </AnimatePresence>
         </div>
       )}
