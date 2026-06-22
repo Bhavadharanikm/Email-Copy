@@ -20,11 +20,13 @@ export function rowToIdea(row) {
     hook:         row.hook          || '',
     status:       row.idea_status   || 'pending',
     scheduledDate:row.calendar_date || null,
-    sendDate:     row.calendar_date || '',
-    sendTime:     row.send_time     || '',
-    changedBy:    row.changed_by    || '',
-    priority:     row.priority      || 'medium',
-    entryStatus:  row.entry_status  || null,
+    sendDate:      row.calendar_date  || '',
+    sendDate2:     row.calendar_date2 || '',
+    scheduledDate2:row.calendar_date2 || null,
+    sendTime:      row.send_time      || '',
+    changedBy:     row.changed_by     || null,
+    priority:      row.priority       || 'medium',
+    entryStatus:   row.entry_status   || null,
   }
 }
 

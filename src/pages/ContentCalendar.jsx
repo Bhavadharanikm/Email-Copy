@@ -365,8 +365,8 @@ function DayCell({ dark, cell, entries, today, onAddClick, onEntryClick }) {
 // ─── Approve (date picker) modal ──────────────────────────────────────────────
 
 function ApproveModal({ dark, idea, onConfirm, onClose }) {
-  const [pickedDate, setPickedDate]   = useState(todayStr())
-  const [pickedDate2, setPickedDate2] = useState('')
+  const [pickedDate, setPickedDate]   = useState(idea?.scheduledDate || todayStr())
+  const [pickedDate2, setPickedDate2] = useState(idea?.scheduledDate2 || '')
   const ref = useRef(null)
 
   useEffect(() => {
@@ -736,13 +736,23 @@ function IdeaCard({ dark, idea, onApprove, onDecline, onUnschedule, onEdit, onRe
           </button>
         )}
 
-        {/* Scheduled date (approved) */}
+        {/* Scheduled date(s) (approved) */}
         {isApproved && idea.scheduledDate && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 12, padding: '7px 10px', borderRadius: 8, background: dark ? 'rgba(34,197,94,0.08)' : '#f0fdf4', border: `1px solid ${dark ? 'rgba(34,197,94,0.15)' : '#bbf7d0'}` }}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            <span style={{ fontSize: 11, fontWeight: 600, color: '#16a34a' }}>
-              {new Date(idea.scheduledDate + 'T00:00:00').toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })}
-            </span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 10px', borderRadius: 8, background: dark ? 'rgba(34,197,94,0.08)' : '#f0fdf4', border: `1px solid ${dark ? 'rgba(34,197,94,0.15)' : '#bbf7d0'}` }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <span style={{ fontSize: 11, fontWeight: 600, color: '#16a34a' }}>
+                {new Date(idea.scheduledDate + 'T00:00:00').toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })}
+              </span>
+            </div>
+            {idea.scheduledDate2 && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 10px', borderRadius: 8, background: dark ? 'rgba(34,197,94,0.08)' : '#f0fdf4', border: `1px solid ${dark ? 'rgba(34,197,94,0.15)' : '#bbf7d0'}` }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span style={{ fontSize: 11, fontWeight: 600, color: '#16a34a' }}>
+                  {new Date(idea.scheduledDate2 + 'T00:00:00').toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })}
+                </span>
+              </div>
+            )}
           </div>
         )}
       </div>
