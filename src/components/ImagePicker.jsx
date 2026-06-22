@@ -353,7 +353,7 @@ export default function ImagePicker() {
           <p style={{ fontSize: 14, color: mutedText, marginTop: 8 }}>No images found. Upload photos in GHL → Media Storage.</p>
         )}
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 8, maxHeight: 580, overflowY: 'auto', paddingRight: 4 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 8, maxHeight: 870, overflowY: 'auto', paddingRight: 4 }}>
           {images.map(img => {
             const slotIndex = slots.findIndex(s => s?.id === img.id)
             const isSelected = slotIndex !== -1
