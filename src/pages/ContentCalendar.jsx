@@ -1048,6 +1048,12 @@ export default function ContentCalendar() {
       const { data } = await supabase.from(TABLE).insert({ ...row, idea_status: null }).select().single()
       if (data) addRow(data)
     }
+    // If Send Date 2 is filled, insert a duplicate entry on that date
+    if (entry.sendDate2) {
+      const row2 = { ...row, calendar_date: entry.sendDate2 }
+      const { data: data2 } = await supabase.from(TABLE).insert({ ...row2, idea_status: null }).select().single()
+      if (data2) addRow(data2)
+    }
     setModal(null)
   }
   async function handleDeleteEntry(id) {
