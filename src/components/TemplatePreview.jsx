@@ -1534,7 +1534,7 @@ function w4Card({ imgUrl, imgObj, bodyText, isLast }) {
     </td></tr>
     ${body ? `
     <tr><td class="gmailfix" style="padding:24px 52px ${isLast ? '40px' : '32px'};${W};text-align:center;">
-      <p style="font-family:Arial,sans-serif;font-size:17px;color:#555;line-height:1.85;margin:0;">${body}</p>
+      <p style="font-family:Arial,sans-serif;font-size:17px;color:#878787;line-height:1.85;margin:0;">${body}</p>
     </td></tr>` : ''}`
 }
 
@@ -1622,7 +1622,7 @@ function buildTemplateWeek4({ client, copy, images, footerData, isHeroGenerated 
     <!-- ── Subhead + CTA after hero ── -->
     ${copy.subhead ? `
     <tr><td class="gmailfix" style="padding:32px 64px 4px;text-align:center;${WHITE_BG};">
-      <p style="font-family:Georgia,'Times New Roman',serif;font-size:20px;font-style:italic;line-height:1.7;color:#333;margin:0;">${copy.subhead}</p>
+      <p style="font-family:Georgia,'Times New Roman',serif;font-size:20px;font-style:italic;line-height:1.7;color:#878787;margin:0;">${copy.subhead}</p>
     </td></tr>` : ''}
     ${copy.ctaText ? `
     <tr><td class="gmailfix" style="padding:24px 48px 8px;text-align:center;${WHITE_BG};">
@@ -1637,7 +1637,7 @@ function buildTemplateWeek4({ client, copy, images, footerData, isHeroGenerated 
     <!-- Card 1: full width -->
     ${isHeroGenerated && card1PngUrl
       ? `<tr><td style="padding:0;line-height:0;font-size:0;"><img src="${card1PngUrl}" alt="" width="600" style="display:block;width:600px;"/></td></tr>
-         ${cards[0].bodyText ? `<tr><td class="gmailfix" style="padding:24px 52px 32px;${WHITE_BG};text-align:center;"><p style="font-family:Arial,sans-serif;font-size:17px;color:#555;line-height:1.85;margin:0;">${cards[0].bodyText.replace(/\n/g,'<br>')}</p></td></tr>` : ''}`
+         ${cards[0].bodyText ? `<tr><td class="gmailfix" style="padding:24px 52px 32px;${WHITE_BG};text-align:center;"><p style="font-family:Arial,sans-serif;font-size:17px;color:#878787;line-height:1.85;margin:0;">${cards[0].bodyText.replace(/\n/g,'<br>')}</p></td></tr>` : ''}`
       : w4Card(cards[0])}
 
     <!-- Divider -->
@@ -1653,11 +1653,11 @@ function buildTemplateWeek4({ client, copy, images, footerData, isHeroGenerated 
       : `<tr><td class="gmailfix" style="padding:16px 72px 8px;${WHITE_BG};line-height:normal;">${w4StackedImage(cards[1].imgUrl, cards[1].imgObj, 520)}</td></tr>`}
     ${copy.bodyBlock2 ? `
     <tr><td class="gmailfix" style="padding:20px 52px 0;${WHITE_BG};text-align:center;">
-      <p style="font-family:Arial,sans-serif;font-size:17px;color:#555;line-height:1.85;margin:0;">${(copy.bodyBlock2).replace(/\n/g,'<br>')}</p>
+      <p style="font-family:Arial,sans-serif;font-size:17px;color:#878787;line-height:1.85;margin:0;">${(copy.bodyBlock2).replace(/\n/g,'<br>')}</p>
     </td></tr>` : ''}
     ${copy.closingLine ? `
     <tr><td class="gmailfix" style="padding:20px 52px 0;${WHITE_BG};text-align:center;">
-      <p style="font-family:Georgia,'Times New Roman',serif;font-size:18px;font-style:italic;color:#333;line-height:1.7;margin:0;">${copy.closingLine}</p>
+      <p style="font-family:Georgia,'Times New Roman',serif;font-size:18px;font-style:italic;color:#878787;line-height:1.7;margin:0;">${copy.closingLine}</p>
     </td></tr>` : ''}
     ${copy.ctaText ? `
     <tr><td class="gmailfix" style="padding:24px 48px 44px;text-align:center;${WHITE_BG};">
