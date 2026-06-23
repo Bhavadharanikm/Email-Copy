@@ -350,6 +350,9 @@ function buildTemplateWeek2({ client, copy, images, footerData, isHeroGenerated 
   heroScale=1, heroX=0, heroY=0,
   textSize=38, textTop=32, textLeft=24,
   logoColor='original', logoTop=24, logoRight=200, logoSize=40,
+  img1Scale=1, img1X=0, img1Y=0,
+  img2Scale=1, img2X=0, img2Y=0,
+  img3Scale=1, img3X=0, img3Y=0,
 }) {
   const heroObj  = images?.[0]; const heroImg = heroObj?.url||''
   const img1Obj  = images?.[1]; const img1    = img1Obj?.url||''
@@ -422,7 +425,7 @@ function buildTemplateWeek2({ client, copy, images, footerData, isHeroGenerated 
   ${copy.ctaText ? `<div style="padding:24px 48px 28px;text-align:center;${WHITE_BG};"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;background:${accentClr};color:#fff!important;padding:14px 40px;font-size:16px;font-weight:600;letter-spacing:.06em;text-decoration:none!important;font-family:Arial,sans-serif;border-radius:50px;">${copy.ctaText}</a></div>` : ''}
 
   <!-- LONG IMAGE (img1) -->
-  ${img1 ? `<div style="line-height:0;font-size:0;padding:0 36px 16px;${WHITE_BG};"><img src="${img1}" alt="" style="width:100%;height:260px;object-fit:cover;display:block;border-radius:8px;object-position:${focalPos(img1Obj)}"/></div>` : ''}
+  ${img1 ? `<div style="line-height:0;font-size:0;padding:0 36px 16px;${WHITE_BG};"><div style="overflow:hidden;border-radius:8px;height:260px;"><img src="${img1}" alt="" style="width:100%;height:260px;object-fit:cover;display:block;object-position:${focalPos(img1Obj)};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/></div></div>` : ''}
 
   <!-- BODY BLOCK -->
   ${copy.bodyText ? `<div style="padding:24px 48px 32px;${WHITE_BG};"><div style="font-size:18px;line-height:1.8;color:#878787!important;margin-bottom:18px;font-family:Arial,sans-serif;">${body}</div></div>` : ''}
@@ -432,8 +435,8 @@ function buildTemplateWeek2({ client, copy, images, footerData, isHeroGenerated 
     <tr><td style="padding:0 36px 24px;">
       <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;line-height:0;font-size:0;">
         <tr>
-          ${img2 ? `<td width="49%" style="padding-right:4px;vertical-align:top;"><img src="${img2}" alt="" width="100%" style="width:100%;height:220px;object-fit:cover;display:block;border-radius:6px;object-position:${focalPos(img2Obj)}"/></td>` : ''}
-          ${img3 ? `<td width="49%" style="padding-left:4px;vertical-align:top;"><img src="${img3}" alt="" width="100%" style="width:100%;height:220px;object-fit:cover;display:block;border-radius:6px;object-position:${focalPos(img3Obj)}"/></td>` : ''}
+          ${img2 ? `<td width="49%" style="padding-right:4px;vertical-align:top;"><div style="overflow:hidden;border-radius:6px;height:220px;"><img src="${img2}" alt="" width="100%" style="width:100%;height:220px;object-fit:cover;display:block;object-position:${focalPos(img2Obj)};transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/></div></td>` : ''}
+          ${img3 ? `<td width="49%" style="padding-left:4px;vertical-align:top;"><div style="overflow:hidden;border-radius:6px;height:220px;"><img src="${img3}" alt="" width="100%" style="width:100%;height:220px;object-fit:cover;display:block;object-position:${focalPos(img3Obj)};transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/></div></td>` : ''}
         </tr>
       </table>
     </td></tr>
@@ -1689,6 +1692,10 @@ function buildTemplateWeek5({ client, copy, images, footerData, isHeroGenerated 
   heroScale=1, heroX=0, heroY=0,
   textSize=52, textTop=32, textLeft=36,
   logoColor='white', logoTop=28, logoRight=36, logoSize=40,
+  img1Scale=1, img1X=0, img1Y=0,
+  img2Scale=1, img2X=0, img2Y=0,
+  img3Scale=1, img3X=0, img3Y=0,
+  img4Scale=1, img4X=0, img4Y=0,
 }) {
   const heroObj = images?.[0]; const heroImg = heroObj?.url || ''
   const img1Obj = images?.[1]; const img1    = img1Obj?.url || ''
@@ -1844,13 +1851,13 @@ function buildTemplateWeek5({ client, copy, images, footerData, isHeroGenerated 
         <tr>
           <td width="297" style="width:297px;vertical-align:top;line-height:0;font-size:0;">
             ${gridImgs[0].url
-              ? `<img src="${gridImgs[0].url}" alt="" width="297" style="width:297px;height:262px;object-fit:cover;display:block;object-position:${focalPos(gridImgs[0].obj)};"/>`
+              ? `<div style="overflow:hidden;width:297px;height:262px;"><img src="${gridImgs[0].url}" alt="" width="297" style="width:297px;height:262px;object-fit:cover;display:block;object-position:${focalPos(gridImgs[0].obj)};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/></div>`
               : `<div style="width:297px;height:262px;background:#e8e4de;"></div>`}
           </td>
           <td width="6" style="width:6px;line-height:0;font-size:0;"></td>
           <td width="297" style="width:297px;vertical-align:top;line-height:0;font-size:0;">
             ${gridImgs[1].url
-              ? `<img src="${gridImgs[1].url}" alt="" width="297" style="width:297px;height:262px;object-fit:cover;display:block;object-position:${focalPos(gridImgs[1].obj)};"/>`
+              ? `<div style="overflow:hidden;width:297px;height:262px;"><img src="${gridImgs[1].url}" alt="" width="297" style="width:297px;height:262px;object-fit:cover;display:block;object-position:${focalPos(gridImgs[1].obj)};transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/></div>`
               : `<div style="width:297px;height:262px;background:#e8e4de;"></div>`}
           </td>
         </tr>
@@ -1860,13 +1867,13 @@ function buildTemplateWeek5({ client, copy, images, footerData, isHeroGenerated 
         <tr>
           <td width="297" style="width:297px;vertical-align:top;line-height:0;font-size:0;">
             ${gridImgs[3].url
-              ? `<img src="${gridImgs[3].url}" alt="" width="297" style="width:297px;height:262px;object-fit:cover;display:block;object-position:${focalPos(gridImgs[3].obj)};"/>`
+              ? `<div style="overflow:hidden;width:297px;height:262px;"><img src="${gridImgs[3].url}" alt="" width="297" style="width:297px;height:262px;object-fit:cover;display:block;object-position:${focalPos(gridImgs[3].obj)};transform:translate(${img4X}px,${img4Y}px) scale(${img4Scale});transform-origin:center center;"/></div>`
               : `<div style="width:297px;height:262px;background:#e8e4de;"></div>`}
           </td>
           <td width="6" style="width:6px;line-height:0;font-size:0;"></td>
           <td width="297" style="width:297px;vertical-align:top;line-height:0;font-size:0;">
             ${gridImgs[2].url
-              ? `<img src="${gridImgs[2].url}" alt="" width="297" style="width:297px;height:262px;object-fit:cover;display:block;object-position:${focalPos(gridImgs[2].obj)};"/>`
+              ? `<div style="overflow:hidden;width:297px;height:262px;"><img src="${gridImgs[2].url}" alt="" width="297" style="width:297px;height:262px;object-fit:cover;display:block;object-position:${focalPos(gridImgs[2].obj)};transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/></div>`
               : `<div style="width:297px;height:262px;background:#e8e4de;"></div>`}
           </td>
         </tr>
@@ -1908,6 +1915,9 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
   heroScale=1, heroX=0, heroY=0,
   textSize=46, textTop=32, textLeft=36,
   logoColor='original', logoTop=28, logoRight=40, logoSize=32,
+  img1Scale=1, img1X=0, img1Y=0,
+  img2Scale=1, img2X=0, img2Y=0,
+  img3Scale=1, img3X=0, img3Y=0,
 }) {
   const heroObj = images?.[0]; const heroImg = heroObj?.url || ''
   const img1Obj = images?.[1]; const img1    = img1Obj?.url || ''
@@ -2050,12 +2060,12 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
         <tr>
           <td style="width:50%;padding-right:6px;vertical-align:top;line-height:0;font-size:0;">
             ${img1
-              ? `<img src="${img1}" alt="" style="width:100%;height:240px;object-fit:cover;display:block;border-radius:12px;object-position:${focalPos(img1Obj)};"/>`
+              ? `<div style="overflow:hidden;border-radius:12px;height:240px;"><img src="${img1}" alt="" style="width:100%;height:240px;object-fit:cover;display:block;object-position:${focalPos(img1Obj)};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/></div>`
               : `<div style="width:100%;height:240px;background:#e0e4ea;border-radius:12px;"></div>`}
           </td>
           <td style="width:50%;padding-left:6px;vertical-align:top;line-height:0;font-size:0;">
             ${img2
-              ? `<img src="${img2}" alt="" style="width:100%;height:240px;object-fit:cover;display:block;border-radius:12px;object-position:${focalPos(img2Obj)};"/>`
+              ? `<div style="overflow:hidden;border-radius:12px;height:240px;"><img src="${img2}" alt="" style="width:100%;height:240px;object-fit:cover;display:block;object-position:${focalPos(img2Obj)};transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/></div>`
               : `<div style="width:100%;height:240px;background:#e0e4ea;border-radius:12px;"></div>`}
           </td>
         </tr>
@@ -2063,7 +2073,7 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
 
       ${img3 ? `
       <div style="padding-top:12px;line-height:0;font-size:0;">
-        <img src="${img3}" alt="" style="width:100%;height:300px;object-fit:cover;display:block;border-radius:12px;object-position:${focalPos(img3Obj)};"/>
+        <div style="overflow:hidden;border-radius:12px;height:300px;"><img src="${img3}" alt="" style="width:100%;height:300px;object-fit:cover;display:block;object-position:${focalPos(img3Obj)};transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/></div>
       </div>` : ''}
 
     </td></tr>`
@@ -2317,6 +2327,9 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
   const [img3Scale, setImg3Scale] = useState(1)
   const [img3X,     setImg3X]     = useState(0)
   const [img3Y,     setImg3Y]     = useState(0)
+  const [img4Scale, setImg4Scale] = useState(1)
+  const [img4X,     setImg4X]     = useState(0)
+  const [img4Y,     setImg4Y]     = useState(0)
 
   // Reset slider defaults when switching between editable templates
   useEffect(() => {
@@ -2325,6 +2338,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     setImg1Scale(1); setImg1X(0); setImg1Y(0)
     setImg2Scale(1); setImg2X(0); setImg2Y(0)
     setImg3Scale(1); setImg3X(0); setImg3Y(0)
+    setImg4Scale(1); setImg4X(0); setImg4Y(0)
     if (tpl?.id === 10) { setTextSize(38); setTextTop(32);  setTextLeft(24);  setLogoColor('original'); setLogoTop(32); setLogoRight(200); setLogoSize(40) }
     if (tpl?.id === 11) { setTextSize(40); setTextTop(14);  setTextLeft(52);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
     if (tpl?.id === 12) { setTextSize(38); setTextTop(20);  setTextLeft(48);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
@@ -2350,14 +2364,14 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
       if (tplUrls.sec)  effectiveImages[4] = { url: tplUrls.sec,  focalX: 50, focalY: 50 }
       if (tplUrls.ter)  effectiveImages[5] = { url: tplUrls.ter,  focalX: 50, focalY: 50 }
     }
-    const editorProps = isEditable ? { heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y } : {}
+    const editorProps = isEditable ? { heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y } : {}
     const isHeroGenerated = [10, 11, 12, 13, 14].includes(tpl?.id) && !!tplUrls.hero
     const effectiveFooterData = clientFooter
       ? { ...clientFooter, logoColor: footerLogoColor, footerLogoSize }
       : clientFooter
     console.log('[baseHtml] tplId:', tpl?.id, 'isHeroGenerated:', isHeroGenerated, 'tplUrls:', tplUrls, 'effectiveImages[4]:', effectiveImages?.[4], 'effectiveImages[5]:', effectiveImages?.[5])
     return tpl.build({ client:selectedClient, copy:generatedCopy, images:effectiveImages, headerStyle, imageStyle, footerData: effectiveFooterData, isHeroGenerated, ...editorProps })
-  }, [active, selectedClient, generatedCopy, selectedImages, headerStyle, imageStyle, clientFooter, footerLogoColor, footerLogoSize, weekGenUrls, heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y])
+  }, [active, selectedClient, generatedCopy, selectedImages, headerStyle, imageStyle, clientFooter, footerLogoColor, footerLogoSize, weekGenUrls, heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y])
 
   // Keep store in sync so ApprovalPanel always has the latest HTML
   useEffect(() => {
@@ -3371,7 +3385,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
           </div>
 
           {/* Sub-image adjusters — shown for templates that have sub-images */}
-          {[11].includes(tpl?.id) && [
+          {[10, 11, 13, 14].includes(tpl?.id) && [
             { key: 'sub1', label: 'Sub Image 1', color: '#7c3aed', bg: dark ? 'rgba(124,58,237,0.15)' : '#f5f3ff',
               controls: [
                 { name: 'Pan X', min: -200, max: 200, step: 4, val: img1X,     set: setImg1X,     unit: 'px' },
@@ -3393,6 +3407,13 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
                 { name: 'Zoom',  min: 1,    max: 2.5, step: 0.05, val: img3Scale, set: setImg3Scale, unit: 'x', toDisplay: v => v.toFixed(2) },
               ]
             },
+            ...(tpl?.id === 13 ? [{ key: 'sub4', label: 'Sub Image 4', color: '#0891b2', bg: dark ? 'rgba(8,145,178,0.15)' : '#ecfeff',
+              controls: [
+                { name: 'Pan X', min: -200, max: 200, step: 4, val: img4X,     set: setImg4X,     unit: 'px' },
+                { name: 'Pan Y', min: -200, max: 200, step: 4, val: img4Y,     set: setImg4Y,     unit: 'px' },
+                { name: 'Zoom',  min: 1,    max: 2.5, step: 0.05, val: img4Scale, set: setImg4Scale, unit: 'x', toDisplay: v => v.toFixed(2) },
+              ]
+            }] : []),
           ].map(section => (
             <div key={section.key} style={{ marginBottom: 4 }}>
               <div onClick={() => setEditorSection(s => s === section.key ? null : section.key)}
@@ -3440,7 +3461,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
           <div style={{ height: 1, background: dark ? 'rgba(255,255,255,0.07)' : '#f0f1f3', margin: '12px 0 8px' }} />
           <button onClick={() => {
             setHeroScale(1); setHeroX(0); setHeroY(0); setFooterLogoColor('original'); setFooterLogoSize(40)
-            setImg1Scale(1); setImg1X(0); setImg1Y(0); setImg2Scale(1); setImg2X(0); setImg2Y(0); setImg3Scale(1); setImg3X(0); setImg3Y(0)
+            setImg1Scale(1); setImg1X(0); setImg1Y(0); setImg2Scale(1); setImg2X(0); setImg2Y(0); setImg3Scale(1); setImg3X(0); setImg3Y(0); setImg4Scale(1); setImg4X(0); setImg4Y(0)
             if (tpl?.id === 10) { setTextSize(38); setTextTop(32);  setTextLeft(24);  setLogoColor('original'); setLogoTop(32); setLogoRight(200); setLogoSize(40) }
             if (tpl?.id === 11) { setTextSize(40); setTextTop(14);  setTextLeft(52);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
             if (tpl?.id === 12) { setTextSize(38); setTextTop(20);  setTextLeft(48);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
