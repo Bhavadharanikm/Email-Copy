@@ -5,7 +5,7 @@
  *
  * Order: Casa · Tropica · Refined · Newsletter · MasterClass · Blueprint
  */
-import { useMemo, useState, useEffect, useCallback } from 'react'
+import { useMemo, useState, useEffect, useCallback, useRef } from 'react'
 import { useCampaignStore }  from '../store/campaignStore'
 import { useTheme } from '../context/ThemeContext'
 import { recommendTemplate, analyzeImageFocal, htmlToImage, fetchFooterData } from '../lib/api'
@@ -2414,6 +2414,21 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     return baseHtml.replace('<body', `<body style="zoom:${zoom}"`)
   }, [baseHtml, zoom])
 
+  // Write preview HTML into the iframe without reloading the document so scroll position is preserved
+  const iframeRef = useRef(null)
+  useEffect(() => {
+    const iframe = iframeRef.current
+    if (!iframe || !previewHtml) return
+    const savedY = iframe.contentWindow?.scrollY ?? 0
+    iframe.contentDocument.open()
+    iframe.contentDocument.write(previewHtml)
+    iframe.contentDocument.close()
+    // Two rAFs: first lets the DOM settle, second lets paint finish before restoring scroll
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      iframe.contentWindow?.scrollTo(0, savedY)
+    }))
+  }, [previewHtml])
+
   const { setHeaderStyle, setImageStyle, setTemplateStyle } = useCampaignStore(s => ({
     setHeaderStyle:  s.setHeaderStyle,
     setImageStyle:   s.setImageStyle,
@@ -3562,9 +3577,9 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
           )
         ) : (
           <iframe
+            ref={iframeRef}
             key={`${active}-${weekGenUrls[tpl?.id]?.hero || 'none'}`}
             title="Email Preview"
-            srcDoc={previewHtml}
             style={{ width: '100%', height: 860, border: 'none', display: 'block' }}
             sandbox="allow-same-origin"
           />
