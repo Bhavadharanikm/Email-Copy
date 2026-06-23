@@ -134,7 +134,7 @@ export default function ApprovalPanel() {
           {[
             { label: 'Client',  value: selectedClient?.name },
             { label: 'Subject', value: generatedCopy.subjectLine },
-            { label: 'Preview', value: generatedCopy.subhead },
+            { label: 'Preview', value: generatedCopy.previewText },
             { label: 'CTA',     value: generatedCopy.ctaText },
           ].map(({ label, value }) => (
             <div key={label} style={{ display: 'flex', gap: 8 }}>
