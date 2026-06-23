@@ -462,6 +462,9 @@ function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated 
   heroScale=1, heroX=0, heroY=0,
   textSize=40, textTop=14, textLeft=52,
   logoColor='white', logoTop=40, logoRight=36, logoSize=44,
+  img1Scale=1, img1X=0, img1Y=0,
+  img2Scale=1, img2X=0, img2Y=0,
+  img3Scale=1, img3X=0, img3Y=0,
 }) {
   const heroObj  = images?.[0]; const heroImg = heroObj?.url||''
   const img1Obj  = images?.[1]; const img1    = img1Obj?.url||''
@@ -498,10 +501,10 @@ function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated 
       ? `<tr><td class="gmailfix" style="padding:32px 0 8px;text-align:center;${WHITE_BG};line-height:0;font-size:0;">
           <div style="position:relative;width:600px;height:420px;${WHITE_BG};">
             <div style="position:absolute;left:28px;top:24px;width:272px;height:372px;border-radius:20px;transform:rotate(-3deg);transform-origin:center center;box-shadow:4px 0 20px rgba(0,0,0,0.18);overflow:hidden;z-index:1;">
-              <img src="${img1}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:${focalPos(img1Obj)};"/>
+              <img src="${img1}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:${focalPos(img1Obj)};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/>
             </div>
             <div style="position:absolute;left:296px;top:24px;width:272px;height:372px;border-radius:20px;transform:rotate(3deg);transform-origin:center center;box-shadow:-4px 0 20px rgba(0,0,0,0.18);overflow:hidden;z-index:2;">
-              <img src="${card2Src}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:${focalPos(card2Obj)};"/>
+              <img src="${card2Src}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:${focalPos(card2Obj)};transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/>
             </div>
           </div>
         </td></tr>`
@@ -583,8 +586,10 @@ function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated 
     ${isHeroGenerated && img5
       ? `<tr><td class="gmailfix" style="padding:0;line-height:0;font-size:0;text-align:center;${WHITE_BG};"><img src="${img5}" alt="" width="600" style="display:block;width:600px;max-width:100%;"/></td></tr>`
       : (img3 || img1) ? `
-    <tr><td class="gmailfix" style="padding:20px 40px 0;${WHITE_BG};line-height:0;font-size:0;">
-      <img src="${img3 || img1}" alt="" width="520" style="width:100%;max-width:520px;height:320px;object-fit:cover;display:block;border-radius:14px;object-position:${focalPos(img3 ? img3Obj : img1Obj)};"/>
+    <tr><td class="gmailfix" style="padding:20px 40px 0;${WHITE_BG};line-height:0;font-size:0;text-align:center;">
+      <div style="display:inline-block;width:100%;max-width:520px;height:320px;border-radius:14px;overflow:hidden;">
+        <img src="${img3 || img1}" alt="" width="520" style="width:100%;height:320px;object-fit:cover;display:block;object-position:${focalPos(img3 ? img3Obj : img1Obj)};transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/>
+      </div>
     </td></tr>` : ''}
 
     ${(copy.bodyBlock2 || copy.closingLine) ? `
@@ -2303,11 +2308,23 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
   const [logoSize,    setLogoSize]    = useState(70)
   const [editorSection, setEditorSection] = useState(null) // 'image' | 'headline' | 'logo' | null
   const [editorOpen,    setEditorOpen]    = useState(true)
+  const [img1Scale, setImg1Scale] = useState(1)
+  const [img1X,     setImg1X]     = useState(0)
+  const [img1Y,     setImg1Y]     = useState(0)
+  const [img2Scale, setImg2Scale] = useState(1)
+  const [img2X,     setImg2X]     = useState(0)
+  const [img2Y,     setImg2Y]     = useState(0)
+  const [img3Scale, setImg3Scale] = useState(1)
+  const [img3X,     setImg3X]     = useState(0)
+  const [img3Y,     setImg3Y]     = useState(0)
 
   // Reset slider defaults when switching between editable templates
   useEffect(() => {
     if (!isEditable) return
     setHeroScale(1); setHeroX(0); setHeroY(0)
+    setImg1Scale(1); setImg1X(0); setImg1Y(0)
+    setImg2Scale(1); setImg2X(0); setImg2Y(0)
+    setImg3Scale(1); setImg3X(0); setImg3Y(0)
     if (tpl?.id === 10) { setTextSize(38); setTextTop(32);  setTextLeft(24);  setLogoColor('original'); setLogoTop(32); setLogoRight(200); setLogoSize(40) }
     if (tpl?.id === 11) { setTextSize(40); setTextTop(14);  setTextLeft(52);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
     if (tpl?.id === 12) { setTextSize(38); setTextTop(20);  setTextLeft(48);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
@@ -2333,14 +2350,14 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
       if (tplUrls.sec)  effectiveImages[4] = { url: tplUrls.sec,  focalX: 50, focalY: 50 }
       if (tplUrls.ter)  effectiveImages[5] = { url: tplUrls.ter,  focalX: 50, focalY: 50 }
     }
-    const editorProps = isEditable ? { heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize } : {}
+    const editorProps = isEditable ? { heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y } : {}
     const isHeroGenerated = [10, 11, 12, 13, 14].includes(tpl?.id) && !!tplUrls.hero
     const effectiveFooterData = clientFooter
       ? { ...clientFooter, logoColor: footerLogoColor, footerLogoSize }
       : clientFooter
     console.log('[baseHtml] tplId:', tpl?.id, 'isHeroGenerated:', isHeroGenerated, 'tplUrls:', tplUrls, 'effectiveImages[4]:', effectiveImages?.[4], 'effectiveImages[5]:', effectiveImages?.[5])
     return tpl.build({ client:selectedClient, copy:generatedCopy, images:effectiveImages, headerStyle, imageStyle, footerData: effectiveFooterData, isHeroGenerated, ...editorProps })
-  }, [active, selectedClient, generatedCopy, selectedImages, headerStyle, imageStyle, clientFooter, footerLogoColor, footerLogoSize, weekGenUrls, heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize])
+  }, [active, selectedClient, generatedCopy, selectedImages, headerStyle, imageStyle, clientFooter, footerLogoColor, footerLogoSize, weekGenUrls, heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y])
 
   // Keep store in sync so ApprovalPanel always has the latest HTML
   useEffect(() => {
@@ -3338,10 +3355,77 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
             </>}
           </div>
 
+          {/* Sub-image adjusters — shown for templates that have sub-images */}
+          {[11].includes(tpl?.id) && [
+            { key: 'sub1', label: 'Sub Image 1', color: '#7c3aed', bg: dark ? 'rgba(124,58,237,0.15)' : '#f5f3ff',
+              controls: [
+                { name: 'Pan X', min: -200, max: 200, step: 4, val: img1X,     set: setImg1X,     unit: 'px' },
+                { name: 'Pan Y', min: -200, max: 200, step: 4, val: img1Y,     set: setImg1Y,     unit: 'px' },
+                { name: 'Zoom',  min: 1,    max: 2.5, step: 0.05, val: img1Scale, set: setImg1Scale, unit: 'x', toDisplay: v => v.toFixed(2) },
+              ]
+            },
+            { key: 'sub2', label: 'Sub Image 2', color: '#db2777', bg: dark ? 'rgba(219,39,119,0.15)' : '#fdf2f8',
+              controls: [
+                { name: 'Pan X', min: -200, max: 200, step: 4, val: img2X,     set: setImg2X,     unit: 'px' },
+                { name: 'Pan Y', min: -200, max: 200, step: 4, val: img2Y,     set: setImg2Y,     unit: 'px' },
+                { name: 'Zoom',  min: 1,    max: 2.5, step: 0.05, val: img2Scale, set: setImg2Scale, unit: 'x', toDisplay: v => v.toFixed(2) },
+              ]
+            },
+            { key: 'sub3', label: 'Sub Image 3', color: '#ea580c', bg: dark ? 'rgba(234,88,12,0.15)' : '#fff7ed',
+              controls: [
+                { name: 'Pan X', min: -200, max: 200, step: 4, val: img3X,     set: setImg3X,     unit: 'px' },
+                { name: 'Pan Y', min: -200, max: 200, step: 4, val: img3Y,     set: setImg3Y,     unit: 'px' },
+                { name: 'Zoom',  min: 1,    max: 2.5, step: 0.05, val: img3Scale, set: setImg3Scale, unit: 'x', toDisplay: v => v.toFixed(2) },
+              ]
+            },
+          ].map(section => (
+            <div key={section.key} style={{ marginBottom: 4 }}>
+              <div onClick={() => setEditorSection(s => s === section.key ? null : section.key)}
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  background: editorSection === section.key ? section.bg : (dark ? 'rgba(255,255,255,0.04)' : '#f9fafb'),
+                  color: editorSection === section.key ? section.color : (dark ? '#9ca3af' : '#6b7280'),
+                  borderRadius: 10, padding: '7px 10px',
+                  fontSize: 11, fontWeight: 700, letterSpacing: '0.04em',
+                  textTransform: 'uppercase', marginBottom: editorSection === section.key ? 10 : 0,
+                  marginTop: 4,
+                  cursor: 'pointer', userSelect: 'none',
+                  border: `1.5px solid ${editorSection === section.key ? section.color + '44' : (dark ? 'rgba(255,255,255,0.07)' : '#e8eaed')}`,
+                  transition: 'all 0.15s',
+                }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+                  </svg>
+                  {section.label}
+                </span>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"
+                  style={{ transform: editorSection === section.key ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </div>
+              {editorSection === section.key && section.controls.map(ctrl => (
+                <div key={ctrl.name} style={{ marginBottom: 8 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
+                    <span style={{ fontSize: 11, color: dark ? '#9ca3af' : '#6b7280', fontWeight: 500 }}>{ctrl.name}</span>
+                    <span style={{ fontSize: 10, fontWeight: 600, background: dark ? 'rgba(255,255,255,0.08)' : '#f3f4f6', color: dark ? '#e5e7eb' : '#374151', borderRadius: 5, padding: '1px 6px' }}>
+                      {ctrl.toDisplay ? ctrl.toDisplay(ctrl.val) : ctrl.val}{ctrl.unit}
+                    </span>
+                  </div>
+                  <input type="range" min={ctrl.min} max={ctrl.max} step={ctrl.step} value={ctrl.val}
+                    onChange={e => ctrl.set(Number(e.target.value))}
+                    style={{ width: '100%', accentColor: section.color, cursor: 'pointer', height: 3 }}
+                  />
+                </div>
+              ))}
+            </div>
+          ))}
+
           {/* Divider + Reset */}
           <div style={{ height: 1, background: dark ? 'rgba(255,255,255,0.07)' : '#f0f1f3', margin: '12px 0 8px' }} />
           <button onClick={() => {
             setHeroScale(1); setHeroX(0); setHeroY(0); setFooterLogoColor('original'); setFooterLogoSize(40)
+            setImg1Scale(1); setImg1X(0); setImg1Y(0); setImg2Scale(1); setImg2X(0); setImg2Y(0); setImg3Scale(1); setImg3X(0); setImg3Y(0)
             if (tpl?.id === 10) { setTextSize(38); setTextTop(32);  setTextLeft(24);  setLogoColor('original'); setLogoTop(32); setLogoRight(200); setLogoSize(40) }
             if (tpl?.id === 11) { setTextSize(40); setTextTop(14);  setTextLeft(52);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
             if (tpl?.id === 12) { setTextSize(38); setTextTop(20);  setTextLeft(48);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
