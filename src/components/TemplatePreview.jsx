@@ -2729,8 +2729,12 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:#ffffff;}</style>
 </head><body>
 <div style="position:relative;width:600px;height:420px;background:#ffffff;">
-  <div style="position:absolute;left:28px;top:24px;width:272px;height:372px;border-radius:20px;transform:rotate(-3deg);transform-origin:center center;box-shadow:4px 0 20px rgba(0,0,0,0.18);z-index:1;background:${img1Url ? `url('${img1Url}') center/cover no-repeat` : '#ccc'};"></div>
-  <div style="position:absolute;left:296px;top:24px;width:272px;height:372px;border-radius:20px;transform:rotate(3deg);transform-origin:center center;box-shadow:-4px 0 20px rgba(0,0,0,0.18);z-index:2;background:${card2Url ? `url('${card2Url}') center/cover no-repeat` : '#ddd'};"></div>
+  <div style="position:absolute;left:28px;top:24px;width:272px;height:372px;border-radius:20px;transform:rotate(-3deg);transform-origin:center center;box-shadow:4px 0 20px rgba(0,0,0,0.18);overflow:hidden;z-index:1;">
+    ${img1Url ? `<img src="${img1Url}" style="width:272px;height:372px;object-fit:cover;display:block;object-position:${card1Fp4};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/>` : ''}
+  </div>
+  <div style="position:absolute;left:296px;top:24px;width:272px;height:372px;border-radius:20px;transform:rotate(3deg);transform-origin:center center;box-shadow:-4px 0 20px rgba(0,0,0,0.18);overflow:hidden;z-index:2;">
+    ${card2Url ? `<img src="${card2Url}" style="width:272px;height:372px;object-fit:cover;display:block;object-position:${img2Url ? card2Fp4 : card1Fp4};transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/>` : ''}
+  </div>
 </div>
 </body></html>`
 
@@ -2743,7 +2747,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:#ffffff;}</style>
 </head><body>
 <div style="padding:20px 40px 0;background:#ffffff;width:600px;">
-  ${w3BodySrc ? `<img src="${w3BodySrc}" alt="" width="520" style="width:520px;height:320px;object-fit:cover;display:block;border-radius:14px;object-position:${w3BodyFp};"/>` : `<div style="width:520px;height:320px;background:#e8e4de;border-radius:14px;"></div>`}
+  ${w3BodySrc ? `<div style="overflow:hidden;width:520px;height:320px;border-radius:14px;"><img src="${w3BodySrc}" alt="" width="520" style="width:520px;height:320px;object-fit:cover;display:block;object-position:${w3BodyFp};transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/></div>` : `<div style="width:520px;height:320px;background:#e8e4de;border-radius:14px;"></div>`}
 </div>
 </body></html>`
 
@@ -2788,21 +2792,21 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
 <table width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;border-collapse:collapse;background:#ffffff;">
   <tr>
     <td width="297" style="width:297px;vertical-align:top;line-height:0;font-size:0;">
-      ${img1Url ? `<img src="${img1Url}" alt="" width="297" style="width:297px;height:262px;object-fit:cover;display:block;object-position:${grid1Fp};"/>` : `<div style="width:297px;height:262px;background:#e8e4de;"></div>`}
+      ${img1Url ? `<div style="overflow:hidden;width:297px;height:262px;"><img src="${img1Url}" alt="" width="297" style="width:297px;height:262px;object-fit:cover;display:block;object-position:${grid1Fp};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/></div>` : `<div style="width:297px;height:262px;background:#e8e4de;"></div>`}
     </td>
     <td width="6" style="width:6px;line-height:0;font-size:0;background:#ffffff;"></td>
     <td width="297" style="width:297px;vertical-align:top;line-height:0;font-size:0;">
-      ${img2Url ? `<img src="${img2Url}" alt="" width="297" style="width:297px;height:262px;object-fit:cover;display:block;object-position:${grid2Fp};"/>` : `<div style="width:297px;height:262px;background:#e8e4de;"></div>`}
+      ${img2Url ? `<div style="overflow:hidden;width:297px;height:262px;"><img src="${img2Url}" alt="" width="297" style="width:297px;height:262px;object-fit:cover;display:block;object-position:${grid2Fp};transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/></div>` : `<div style="width:297px;height:262px;background:#e8e4de;"></div>`}
     </td>
   </tr>
   <tr><td colspan="3" height="6" style="height:6px;line-height:0;font-size:0;background:#ffffff;"></td></tr>
   <tr>
     <td width="297" style="width:297px;vertical-align:top;line-height:0;font-size:0;">
-      ${(img4Url || img1Url) ? `<img src="${img4Url || img1Url}" alt="" width="297" style="width:297px;height:262px;object-fit:cover;display:block;object-position:${img4Url ? grid4Fp : grid1Fp};"/>` : `<div style="width:297px;height:262px;background:#e8e4de;"></div>`}
+      ${(img4Url || img1Url) ? `<div style="overflow:hidden;width:297px;height:262px;"><img src="${img4Url || img1Url}" alt="" width="297" style="width:297px;height:262px;object-fit:cover;display:block;object-position:${img4Url ? grid4Fp : grid1Fp};transform:translate(${img4X}px,${img4Y}px) scale(${img4Scale});transform-origin:center center;"/></div>` : `<div style="width:297px;height:262px;background:#e8e4de;"></div>`}
     </td>
     <td width="6" style="width:6px;line-height:0;font-size:0;background:#ffffff;"></td>
     <td width="297" style="width:297px;vertical-align:top;line-height:0;font-size:0;">
-      ${(img3Url || img1Url) ? `<img src="${img3Url || img1Url}" alt="" width="297" style="width:297px;height:262px;object-fit:cover;display:block;object-position:${img3Url ? grid3Fp : grid1Fp};"/>` : `<div style="width:297px;height:262px;background:#e8e4de;"></div>`}
+      ${(img3Url || img1Url) ? `<div style="overflow:hidden;width:297px;height:262px;"><img src="${img3Url || img1Url}" alt="" width="297" style="width:297px;height:262px;object-fit:cover;display:block;object-position:${img3Url ? grid3Fp : grid1Fp};transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/></div>` : `<div style="width:297px;height:262px;background:#e8e4de;"></div>`}
     </td>
   </tr>
 </table>
@@ -2875,15 +2879,15 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
   <table width="560" cellpadding="0" cellspacing="0" border="0" style="width:560px;border-collapse:collapse;">
     <tr>
       <td width="277" style="width:277px;vertical-align:top;line-height:0;font-size:0;">
-        ${img1Url ? `<img src="${img1Url}" alt="" width="277" style="width:277px;height:240px;object-fit:cover;display:block;border-radius:12px;object-position:${w6grid1Fp};"/>` : `<div style="width:277px;height:240px;background:#e0e4ea;border-radius:12px;"></div>`}
+        ${img1Url ? `<div style="overflow:hidden;width:277px;height:240px;border-radius:12px;"><img src="${img1Url}" alt="" width="277" style="width:277px;height:240px;object-fit:cover;display:block;object-position:${w6grid1Fp};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/></div>` : `<div style="width:277px;height:240px;background:#e0e4ea;border-radius:12px;"></div>`}
       </td>
       <td width="6" style="width:6px;line-height:0;font-size:0;"></td>
       <td width="277" style="width:277px;vertical-align:top;line-height:0;font-size:0;">
-        ${img2Url ? `<img src="${img2Url}" alt="" width="277" style="width:277px;height:240px;object-fit:cover;display:block;border-radius:12px;object-position:${w6grid2Fp};"/>` : `<div style="width:277px;height:240px;background:#e0e4ea;border-radius:12px;"></div>`}
+        ${img2Url ? `<div style="overflow:hidden;width:277px;height:240px;border-radius:12px;"><img src="${img2Url}" alt="" width="277" style="width:277px;height:240px;object-fit:cover;display:block;object-position:${w6grid2Fp};transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/></div>` : `<div style="width:277px;height:240px;background:#e0e4ea;border-radius:12px;"></div>`}
       </td>
     </tr>
   </table>
-  ${(img3Url || img1Url) ? `<div style="padding-top:12px;line-height:0;font-size:0;"><img src="${img3Url || img1Url}" alt="" width="560" style="width:560px;height:300px;object-fit:cover;display:block;border-radius:12px;object-position:${img3Url ? w6grid3Fp : w6grid1Fp};"/></div>` : ''}
+  ${(img3Url || img1Url) ? `<div style="padding-top:12px;line-height:0;font-size:0;"><div style="overflow:hidden;width:560px;height:300px;border-radius:12px;"><img src="${img3Url || img1Url}" alt="" width="560" style="width:560px;height:300px;object-fit:cover;display:block;object-position:${img3Url ? w6grid3Fp : w6grid1Fp};transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/></div></div>` : ''}
 </div>
 </body></html>`
 
