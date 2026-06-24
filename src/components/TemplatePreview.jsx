@@ -2161,11 +2161,18 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
 
   return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="color-scheme" content="light dark"/>
+<meta name="supported-color-schemes" content="light dark"/>
 <link href="https://fonts.googleapis.com/css2?family=Lora:wght@700&display=swap" rel="stylesheet"/>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
+  :root{color-scheme:light dark}
   body{background-color:#ffffff;color:#1a1a1a;}
   table{border-collapse:collapse;}
+  @media (prefers-color-scheme:dark){
+    .gmailfix { background-color:${pageBg}!important; background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)!important; }
+    .gmailfix p { color:${mutedTextCol}!important; }
+  }
 </style>
 </head><body class="body" style="background-color:#ffffff;margin:0;padding:0;">
 <table width="100%" cellpadding="0" cellspacing="0" bgcolor="#ffffff" style="background-color:#ffffff;">
