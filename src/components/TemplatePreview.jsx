@@ -2167,7 +2167,7 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   :root{color-scheme:light dark}
-  body{background-color:${pageBg};color:#1a1a1a;}
+  body{background-color:#ffffff;color:#1a1a1a;}
   table{border-collapse:collapse;}
   @media (prefers-color-scheme:dark){
     body.body, .v4outer { background-color:#1a1a1a!important; }
@@ -2175,9 +2175,9 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
     .gmailfix p { color:#ffffff!important; }
   }
 </style>
-</head><body class="body" style="background-color:${pageBg};margin:0;padding:0;">
-<table width="100%" cellpadding="0" cellspacing="0" class="v4outer" bgcolor="${pageBg}" style="background-color:${pageBg};">
-<tr><td align="center" class="v4outer" style="padding:32px 0;background-color:${pageBg};">
+</head><body class="body" style="background-color:#ffffff;margin:0;padding:0;">
+<table width="100%" cellpadding="0" cellspacing="0" class="v4outer" bgcolor="#ffffff" style="background-color:#ffffff;">
+<tr><td align="center" class="v4outer" style="padding:32px 0;background-color:#ffffff;">
   <table width="600" cellpadding="0" cellspacing="0" class="v4inner" bgcolor="${pageBg}" style="width:600px;max-width:600px;${WHITE_BG};border-radius:20px;overflow:hidden;">
 
     <!-- ── HERO: padded inset image + dark gradient + logo + headline ── -->
