@@ -2153,11 +2153,17 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
 
   return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="color-scheme" content="light dark"/>
+<meta name="supported-color-schemes" content="light dark"/>
 <link href="https://fonts.googleapis.com/css2?family=Lora:wght@700&display=swap" rel="stylesheet"/>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
+  :root{color-scheme:light dark}
   body{background-color:#ffffff;color:#1a1a1a;}
   table{border-collapse:collapse;}
+  @media (prefers-color-scheme:dark){
+    .btn-text { color:#ffffff!important; -webkit-text-fill-color:#ffffff!important; }
+  }
 </style>
 </head><body class="body" style="background-color:#ffffff;margin:0;padding:0;">
 <table width="100%" cellpadding="0" cellspacing="0" bgcolor="#ffffff" style="background-color:#ffffff;">
@@ -2188,7 +2194,7 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
     <tr><td style="padding:24px 48px 8px;text-align:center;${BG};">
       <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr>
         <td style="background:${accent};border-radius:999px;">
-          <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;"><span style="color:#ffffff!important;-webkit-text-fill-color:#ffffff;">${copy.ctaText} &rarr;</span></a>
+          <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;"><span class="btn-text" style="color:#ffffff!important;-webkit-text-fill-color:#ffffff;">${copy.ctaText} &rarr;</span></a>
         </td>
       </tr></table>
     </td></tr>` : ''}
@@ -2223,7 +2229,7 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
     <tr><td style="padding:24px 48px 44px;text-align:center;${BG};">
       <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr>
         <td style="background:${accent};border-radius:999px;">
-          <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;"><span style="color:#ffffff!important;-webkit-text-fill-color:#ffffff;">${copy.ctaText} &rarr;</span></a>
+          <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;"><span class="btn-text" style="color:#ffffff!important;-webkit-text-fill-color:#ffffff;">${copy.ctaText} &rarr;</span></a>
         </td>
       </tr></table>
     </td></tr>` : ''}
