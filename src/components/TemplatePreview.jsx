@@ -533,10 +533,7 @@ function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated 
   }
 </style></head><body class="body" style="margin:0;padding:0;">
 
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
-<tr><td align="center" style="padding:24px 0 48px;">
-
-  <table width="600" cellpadding="0" cellspacing="0" border="0" class="gmailfix" bgcolor="${pageBg}" style="width:600px;max-width:600px;${WHITE_BG};border-collapse:collapse;border-radius:20px;overflow:hidden;">
+<table width="600" cellpadding="0" cellspacing="0" border="0" class="gmailfix" bgcolor="${pageBg}" style="width:600px;max-width:600px;${WHITE_BG};border-collapse:collapse;border-radius:20px;overflow:hidden;">
 
     <!-- ── HERO ── -->
     ${isHeroGenerated
@@ -608,8 +605,6 @@ function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated 
     <tr><td class="gmailfix" style="padding:0;line-height:0;font-size:0;${WHITE_BG};">${buildFooter(client, footerData, { defaultBg: pageBg, gmailClass: 'gmailfix' })}</td></tr>
   </table>
 
-</td></tr>
-</table>
 </body></html>`
 }
 
