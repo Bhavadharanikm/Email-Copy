@@ -92,8 +92,8 @@ function buildFooter(client, footerData = null, options = {}) {
     return (0.299*r + 0.587*g + 0.114*b) > 160
   }
   const light    = isLight(bgRaw)
-  const textCol  = light ? 'rgba(0,0,0,0.55)'  : 'rgba(255,255,255,0.55)'
-  const linkCol  = light ? 'rgba(0,0,0,0.4)'   : 'rgba(255,255,255,0.35)'
+  const textCol  = options.textColor || (light ? 'rgba(0,0,0,0.55)'  : 'rgba(255,255,255,0.55)')
+  const linkCol  = options.textColor || (light ? 'rgba(0,0,0,0.4)'   : 'rgba(255,255,255,0.35)')
   const divCol   = light ? 'rgba(0,0,0,0.08)'  : 'rgba(255,255,255,0.1)'
 
   // Social icon URLs (GHL CDN circular icons)
@@ -604,7 +604,7 @@ function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated 
       <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td class="gmailbtn" style="background-color:${accentClr};background-image:linear-gradient(to top,${accentClr} 0%,${accentClr} 100%);border-radius:100px;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:16px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;letter-spacing:.04em;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>
     </td></tr>` : ''}
 
-    <tr><td class="gmailfix" style="padding:0;line-height:0;font-size:0;${WHITE_BG};">${buildFooter(client, footerData, { defaultBg: pageBg, gmailClass: 'gmailfix' })}</td></tr>
+    <tr><td class="gmailfix" style="padding:0;line-height:0;font-size:0;${WHITE_BG};">${buildFooter(client, footerData, { defaultBg: pageBg, gmailClass: 'gmailfix', textColor: '#878787' })}</td></tr>
   </table>
 
 </body></html>`
