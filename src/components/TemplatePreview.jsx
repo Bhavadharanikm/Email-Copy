@@ -533,9 +533,9 @@ function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated 
     .gmailtext-dark  { color:#1a1a1a!important; }
     .gmailtext-muted { color:#555!important; }
   }
-</style></head><body class="body" style="margin:0;padding:0;">
+</style></head><body class="body" style="margin:0;padding:32px 0 48px;">
 
-<table width="600" cellpadding="0" cellspacing="0" border="0" class="gmailfix" bgcolor="${pageBg}" style="width:600px;max-width:600px;${WHITE_BG};border-collapse:collapse;border-radius:20px;overflow:hidden;">
+<table width="600" cellpadding="0" cellspacing="0" border="0" class="gmailfix" bgcolor="${pageBg}" style="width:600px;max-width:600px;margin:0 auto;${WHITE_BG};border-collapse:collapse;border-radius:20px;overflow:hidden;">
 
     <!-- ── HERO ── -->
     ${isHeroGenerated
