@@ -2288,7 +2288,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
   }, [active])  // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Hero editor — all week templates ─────────────────────────────────────────
-  const isEditable = [10, 11, 12, 13, 14].includes(tpl?.id)
+  const isEditable = [10, 11, 12, 13, 14, 15].includes(tpl?.id)
   const [heroScale,   setHeroScale]   = useState(1)
   const [heroX,       setHeroX]       = useState(0)
   const [heroY,       setHeroY]       = useState(0)
