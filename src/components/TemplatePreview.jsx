@@ -2664,7 +2664,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
       <div style="font-family:'Playfair Display',Georgia,serif;font-size:${textSize}px;font-weight:600;line-height:1.12;color:#fff;text-shadow:0 2px 20px rgba(0,0,0,0.4);">${headline}</div>
     </div>
   </div>
-  <div style="position:absolute;bottom:0;left:0;right:0;height:160px;background:linear-gradient(to bottom,rgba(255,255,255,0),rgba(255,255,255,1));"></div>
+  <div style="position:absolute;bottom:0;left:0;right:0;height:160px;background:linear-gradient(to bottom,${midBg}00,${midBg});"></div>
 </div>
 </body></html>`
       : `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
