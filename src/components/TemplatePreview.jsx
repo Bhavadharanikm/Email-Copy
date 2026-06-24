@@ -560,7 +560,7 @@ function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated 
     <!-- ── SUBHEAD + CTA ── -->
     <tr><td class="gmailfix" style="padding:${isHeroGenerated ? '40px' : '10px'} 52px 36px;text-align:center;${WHITE_BG};">
       ${copy.subhead ? `<div style="font-family:Georgia,serif;font-size:18px;font-style:italic;color:#878787!important;line-height:1.6;margin-bottom:32px;max-width:460px;margin-left:auto;margin-right:auto;">${copy.subhead}</div>` : ''}
-      ${copy.ctaText ? `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accentClr};border-radius:100px;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:16px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff!important;text-decoration:none!important;letter-spacing:.04em;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>` : ''}
+      ${copy.ctaText ? `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accentClr};border-radius:100px;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:16px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;letter-spacing:.04em;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>` : ''}
     </td></tr>
 
     <!-- ── DIVIDER ── -->
@@ -605,7 +605,7 @@ function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated 
     <!-- ── REPEAT CTA ── -->
     ${copy.ctaText ? `
     <tr><td class="gmailfix" style="padding:8px 52px 44px;text-align:center;${WHITE_BG};">
-      <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accentClr};border-radius:100px;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:16px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff!important;text-decoration:none!important;letter-spacing:.04em;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>
+      <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accentClr};border-radius:100px;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:16px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;letter-spacing:.04em;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>
     </td></tr>` : ''}
 
     <tr><td class="gmailfix" style="padding:0;line-height:0;font-size:0;${WHITE_BG};">${buildFooter(client, footerData, { defaultBg: pageBg })}</td></tr>
@@ -1637,7 +1637,7 @@ function buildTemplateWeek4({ client, copy, images, footerData, isHeroGenerated 
     <tr><td class="gmailfix" style="padding:24px 48px 8px;text-align:center;${WHITE_BG};">
       <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr>
         <td style="background:${accent};border-radius:999px;">
-          <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#fff!important;text-decoration:none!important;">${copy.ctaText} &rarr;</a>
+          <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#fff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;">${copy.ctaText} &rarr;</a>
         </td>
       </tr></table>
     </td></tr>` : ''}
@@ -1672,7 +1672,7 @@ function buildTemplateWeek4({ client, copy, images, footerData, isHeroGenerated 
     <tr><td class="gmailfix" style="padding:24px 48px 44px;text-align:center;${WHITE_BG};">
       <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr>
         <td style="background:${accent};border-radius:999px;">
-          <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#fff!important;text-decoration:none!important;">${copy.ctaText} &rarr;</a>
+          <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#fff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;">${copy.ctaText} &rarr;</a>
         </td>
       </tr></table>
     </td></tr>` : ''}
@@ -1816,7 +1816,7 @@ function buildTemplateWeek5({ client, copy, images, footerData, isHeroGenerated 
     <tr><td class="gmailfix" style="padding:20px 52px 8px;text-align:center;${WHITE_BG};">
       <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto;"><tr>
         <td style="background:${accent}!important;border-radius:100px;">
-          <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:16px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff!important;text-decoration:none!important;letter-spacing:.03em;white-space:nowrap;">${copy.ctaText} &rarr;</a>
+          <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:16px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;letter-spacing:.03em;white-space:nowrap;">${copy.ctaText} &rarr;</a>
         </td>
       </tr></table>
     </td></tr>` : ''}
@@ -1898,7 +1898,7 @@ function buildTemplateWeek5({ client, copy, images, footerData, isHeroGenerated 
     <tr><td class="gmailfix" style="padding:28px 52px 44px;text-align:center;${WHITE_BG};">
       <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto;"><tr>
         <td style="background:${accent}!important;border-radius:100px;">
-          <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:16px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff!important;text-decoration:none!important;letter-spacing:.03em;white-space:nowrap;">${copy.ctaText} &rarr;</a>
+          <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:16px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;letter-spacing:.03em;white-space:nowrap;">${copy.ctaText} &rarr;</a>
         </td>
       </tr></table>
     </td></tr>` : ''}
@@ -2022,7 +2022,7 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
           <div style="position:absolute;top:610px;left:0;right:0;text-align:center;line-height:normal;font-size:initial;">
             <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto;display:inline-table;"><tr>
               <td style="background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.85)!important;border-radius:100px;">
-                <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:14px 44px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff!important;text-decoration:none!important;letter-spacing:.03em;white-space:nowrap;">${copy.ctaText}</a>
+                <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:14px 44px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;letter-spacing:.03em;white-space:nowrap;">${copy.ctaText}</a>
               </td>
             </tr></table>
             <div style="margin-top:10px;line-height:0;font-size:0;text-align:center;">
@@ -2214,7 +2214,7 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
     <tr><td class="gmailfix" style="padding:24px 48px 8px;text-align:center;${WHITE_BG};">
       <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr>
         <td style="background:${accent};border-radius:999px;">
-          <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#fff!important;text-decoration:none!important;">${copy.ctaText} &rarr;</a>
+          <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#fff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;">${copy.ctaText} &rarr;</a>
         </td>
       </tr></table>
     </td></tr>` : ''}
@@ -2250,7 +2250,7 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
     <tr><td class="gmailfix" style="padding:24px 48px 44px;text-align:center;${WHITE_BG};">
       <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr>
         <td style="background:${accent};border-radius:999px;">
-          <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#fff!important;text-decoration:none!important;">${copy.ctaText} &rarr;</a>
+          <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#fff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;">${copy.ctaText} &rarr;</a>
         </td>
       </tr></table>
     </td></tr>` : ''}
