@@ -561,7 +561,7 @@ function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated 
 
     <!-- ── DIVIDER ── -->
     <tr><td class="gmailfix" style="padding:0 48px;${WHITE_BG};">
-      <div style="height:1px;width:100%;background:rgba(0,0,0,0.1);font-size:0;line-height:0;"></div>
+      <div style="height:1px;width:100%;background:#878787;font-size:0;line-height:0;"></div>
     </td></tr>
 
     <!-- ── IMAGE ── -->
@@ -574,7 +574,7 @@ function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated 
 
     <!-- ── DIVIDER 2 ── -->
     <tr><td class="gmailfix" style="padding:0 48px;${WHITE_BG};">
-      <div style="height:1px;width:100%;background:rgba(0,0,0,0.1);font-size:0;line-height:0;"></div>
+      <div style="height:1px;width:100%;background:#878787;font-size:0;line-height:0;"></div>
     </td></tr>
 
     <!-- ── BODY BLOCK 2 TITLE + IMAGE + TEXT ── -->
