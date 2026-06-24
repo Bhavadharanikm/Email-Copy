@@ -2328,10 +2328,11 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     if (tpl?.id === 12) { setTextSize(38); setTextTop(20);  setTextLeft(48);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
     if (tpl?.id === 13) { setTextSize(52); setTextTop(32);  setTextLeft(36);  setLogoColor('white');    setLogoTop(28); setLogoRight(36);  setLogoSize(40) }
     if (tpl?.id === 14) { setTextSize(46); setTextTop(32);  setTextLeft(36);  setLogoColor('original'); setLogoTop(28); setLogoRight(40);  setLogoSize(32) }
+    if (tpl?.id === 15) { setTextSize(38); setTextTop(20);  setTextLeft(48);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
   }, [tpl?.id])  // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Week template image generation ───────────────────────────────────────────
-  const isWeekTemplate = [9, 10, 11, 12, 13, 14, 5].includes(tpl?.id)
+  const isWeekTemplate = [9, 10, 11, 12, 13, 14, 15, 5].includes(tpl?.id)
   const [weekGenUrls,     setWeekGenUrls]     = useState({})  // { [tplId]: { hero, sec, ter } }
   const [weekGenLoading,  setWeekGenLoading]  = useState(false)
   const [weekGenError,    setWeekGenError]    = useState(null)
@@ -2611,7 +2612,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     // Week 4: bake hero inset card + two stacked property card images
     const isWeek2 = tpl?.id === 10
     const isWeek3 = tpl?.id === 11
-    const isWeek4 = tpl?.id === 12
+    const isWeek4 = tpl?.id === 12 || tpl?.id === 15
     const isWeek5 = tpl?.id === 13
     const isWeek6 = tpl?.id === 14
     const renderLogoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
@@ -3455,6 +3456,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
             if (tpl?.id === 12) { setTextSize(38); setTextTop(20);  setTextLeft(48);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
             if (tpl?.id === 13) { setTextSize(52); setTextTop(32);  setTextLeft(36);  setLogoColor('white');    setLogoTop(28); setLogoRight(36);  setLogoSize(40) }
             if (tpl?.id === 14) { setTextSize(46); setTextTop(32);  setTextLeft(36);  setLogoColor('original'); setLogoTop(28); setLogoRight(40);  setLogoSize(32) }
+            if (tpl?.id === 15) { setTextSize(38); setTextTop(20);  setTextLeft(48);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
           }} style={{
             width: '100%', padding: '7px 0', borderRadius: 8, fontSize: 11, fontWeight: 600,
             cursor: 'pointer',
