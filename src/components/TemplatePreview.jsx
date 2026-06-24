@@ -2151,6 +2151,7 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <meta name="color-scheme" content="light">
 <meta name="supported-color-schemes" content="light">
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@700&display=swap" rel="stylesheet"/>
 <style>
   :root{color-scheme:light;supported-color-schemes:light}
   *{box-sizing:border-box;margin:0;padding:0}
@@ -2183,7 +2184,7 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
         <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.78) 0%,rgba(0,0,0,0.38) 45%,rgba(0,0,0,0.05) 75%,rgba(0,0,0,0) 100%);">
           <div style="text-align:center;padding-top:${logoTop}px;">${logoHeroHtml}</div>
           <div style="text-align:center;padding:${textTop}px ${textLeft}px 0;">
-            <div style="font-family:Georgia,'Times New Roman',serif;font-size:${textSize}px;font-weight:700;line-height:1.12;color:#fff;">${copy.headlineText||''}</div>
+            <div style="font-family:'Lora',Georgia,serif;font-size:${textSize}px;font-weight:700;line-height:1.12;color:#fff;">${copy.headlineText||''}</div>
           </div>
         </div>
       </div>
@@ -2669,6 +2670,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
 
     const w4heroBg = isWeek4v2 ? 'transparent' : '#fff'
     const week4HeroHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@700&display=swap" rel="stylesheet"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:${w4heroBg};}</style>
 </head><body>
 <div style="padding:20px 20px 0;background:${w4heroBg};line-height:0;font-size:0;">
@@ -2677,7 +2679,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.78) 0%,rgba(0,0,0,0.38) 45%,rgba(0,0,0,0.05) 75%,rgba(0,0,0,0) 100%);line-height:normal;font-size:initial;">
       <div style="text-align:center;padding-top:${logoTop}px;">${logoHtml}</div>
       <div style="text-align:center;padding:${textTop}px ${textLeft}px 0;">
-        <div style="font-family:Georgia,'Times New Roman',serif;font-size:${textSize}px;font-weight:700;line-height:1.12;color:#fff;">${headline}</div>
+        <div style="font-family:'Lora',Georgia,serif;font-size:${textSize}px;font-weight:700;line-height:1.12;color:#fff;">${headline}</div>
       </div>
     </div>
   </div>
