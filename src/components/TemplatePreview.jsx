@@ -486,6 +486,7 @@ function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated 
 
   const PAGE_BG  = `background-color:${pageBg};background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)`
   const WHITE_BG = PAGE_BG
+  const OUTER_BG = 'background-color:#ffffff;background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%)'
 
   const logoHtml = logoUrl
     ? `<img src="${logoUrl}" alt="${client?.name||''}" style="height:${logoSize}px;width:auto;max-width:${logoSize * 5}px;display:inline-block;filter:${logoFilter};"/>`
@@ -520,23 +521,23 @@ function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated 
 <style>
   :root{color-scheme:light;supported-color-schemes:light}
   *{box-sizing:border-box;margin:0;padding:0}
-  body{${PAGE_BG};color:#1a1a1a;}
+  body{${OUTER_BG};color:#1a1a1a;}
   table{border-collapse:collapse;}
   u + .body .gmailfix { background-color:${pageBg}!important; background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)!important; }
-  u + .body .gmailfix-page { background-color:${pageBg}!important; background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)!important; }
+  u + .body .gmailfix-page { background-color:#ffffff!important; background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%)!important; }
   u + .body .gmailtext-dark  { color:#1a1a1a!important; }
   u + .body .gmailtext-muted { color:#555!important; }
   @media (prefers-color-scheme:dark){
-    html,body{ ${PAGE_BG}; color:#1a1a1a!important; }
+    html,body{ ${OUTER_BG}; color:#1a1a1a!important; }
     .gmailfix { background-color:${pageBg}!important; background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)!important; }
-    .gmailfix-page { background-color:${pageBg}!important; background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)!important; }
+    .gmailfix-page { background-color:#ffffff!important; background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%)!important; }
     .gmailtext-dark  { color:#1a1a1a!important; }
     .gmailtext-muted { color:#555!important; }
   }
-</style></head><body class="body" style="${PAGE_BG};margin:0;padding:0;">
+</style></head><body class="body" style="${OUTER_BG};margin:0;padding:0;">
 
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;${PAGE_BG};border-collapse:collapse;">
-<tr><td align="center" class="gmailfix-page" style="padding:24px 0 48px;${PAGE_BG};">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;${OUTER_BG};border-collapse:collapse;">
+<tr><td align="center" class="gmailfix-page" style="padding:24px 0 48px;${OUTER_BG};">
 
   <table width="600" cellpadding="0" cellspacing="0" border="0" class="gmailfix" bgcolor="${pageBg}" style="width:600px;max-width:600px;${WHITE_BG};border-collapse:collapse;border-radius:20px;overflow:hidden;">
 
