@@ -2251,7 +2251,7 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
       </tr></table>
     </td></tr>` : ''}
 
-    <tr><td style="padding:0;line-height:0;font-size:0;">${buildFooter(client, footerData, { defaultBg: pageBg, gmailClass: 'gmailfix' })}</td></tr>
+    <tr><td style="padding:0;line-height:0;font-size:0;">${buildFooter(client, footerData, { defaultBg: pageBg, gmailClass: 'gmailfix', textColor: mutedTextCol, dividerColor: dividerCol })}</td></tr>
   </table>
 </td></tr>
 </table>
