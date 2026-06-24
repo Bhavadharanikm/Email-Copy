@@ -65,7 +65,7 @@ async function uploadToGHL(apiKey, locationId, buffer) {
 
 // ── Puppeteer ─────────────────────────────────────────────────────────────
 
-async function callPuppeteer(html, width, height, locationId, ghlKey) {
+async function callPuppeteer(html, width, height, locationId, ghlKey, transparent) {
   if (!ghlKey)     throw new Error('GHL API key not provided')
   if (!locationId) throw new Error('locationId required for Puppeteer fallback (GHL upload)')
 
@@ -115,26 +115,28 @@ export const handler = async (event) => {
     const { html, width = 600, height = 580, locationId, apiKey, transparent } = JSON.parse(event.body || '{}')
     if (!html) throw new Error('html is required')
 
-    // ── 1. VPS screenshot server (primary) ──────────────────────────────
-    const VPS_URL = 'http://2.24.211.60:3001/screenshot'
-    try {
-      const vpsRes = await fetch(VPS_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ html, width, height, locationId, ghlApiKey: apiKey, transparent }),
-        signal: AbortSignal.timeout(30_000),
-      })
-      const vpsData = await vpsRes.json()
-      if (!vpsRes.ok || !vpsData.url) throw new Error(vpsData.error || 'VPS returned no URL')
-      console.log('[html-to-image] VPS OK:', vpsData.url)
-      return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: vpsData.url }) }
-    } catch (vpsErr) {
-      console.warn('[html-to-image] VPS failed:', vpsErr.message, '— trying local Puppeteer')
+    // ── 1. VPS screenshot server (primary, skipped for transparent renders) ──
+    if (!transparent) {
+      const VPS_URL = 'http://2.24.211.60:3001/screenshot'
+      try {
+        const vpsRes = await fetch(VPS_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ html, width, height, locationId, ghlApiKey: apiKey }),
+          signal: AbortSignal.timeout(30_000),
+        })
+        const vpsData = await vpsRes.json()
+        if (!vpsRes.ok || !vpsData.url) throw new Error(vpsData.error || 'VPS returned no URL')
+        console.log('[html-to-image] VPS OK:', vpsData.url)
+        return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: vpsData.url }) }
+      } catch (vpsErr) {
+        console.warn('[html-to-image] VPS failed:', vpsErr.message, '— trying local Puppeteer')
+      }
     }
 
-    // ── 2. Local Puppeteer fallback ──────────────────────────────────────
+    // ── 2. Local Puppeteer (always used for transparent renders) ────────────
     try {
-      const url = await callPuppeteer(html, width, height, locationId, apiKey || process.env.GHL_API_KEY)
+      const url = await callPuppeteer(html, width, height, locationId, apiKey || process.env.GHL_API_KEY, transparent)
       return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) }
     } catch (puppeteerErr) {
       console.warn('[html-to-image] Puppeteer failed:', puppeteerErr.message, '— trying html2image.net fallback')
