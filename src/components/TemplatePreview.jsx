@@ -2145,7 +2145,7 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
     return (0.299*r + 0.587*g + 0.114*b) > 160
   }
   const lightBg      = isLightBg(pageBg)
-  const mutedTextCol = lightBg ? 'rgba(0,0,0,0.65)'  : 'rgba(255,255,255,0.75)'
+  const mutedTextCol = lightBg ? 'rgba(0,0,0,0.65)'  : '#ffffff'
   const dividerCol   = lightBg ? 'rgba(0,0,0,0.08)'  : 'rgba(255,255,255,0.12)'
 
   // Logo — white version for dark hero overlay, dark version for cards below
