@@ -135,7 +135,7 @@ export function useCopyGeneration() {
         // Fallback: n8n returned flat copy object (no variations)
         setGeneratedCopy(result)
       }
-      setStep(3)
+      setStep(2)
 
     } catch (err) {
       setError(err.message)
