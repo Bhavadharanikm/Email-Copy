@@ -2263,7 +2263,6 @@ const TEMPLATES = [
   { id:12, label:'⭐ Week 4',    build:buildTemplateWeek4 },
   { id:13, label:'⭐ Week 5',    build:buildTemplateWeek5 },
   { id:14, label:'⭐ Week 6',    build:buildTemplateWeek6 },
-  { id:15, label:'⭐ Week 4 v2', build:buildTemplateWeek4v2 },
 ]
 
 /* ─────────────────────────── component ─────────────────────────────────── */
