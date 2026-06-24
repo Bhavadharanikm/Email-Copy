@@ -2581,8 +2581,8 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
   }, [hctiTrigger])
 
   // Calls html2image.net first; falls back to Puppeteer + GHL upload
-  const renderImage = useCallback(async ({ html, width, height }) => {
-    return await htmlToImage({ html, width, height, locationId, apiKey: selectedClient?.ghlApiKey })
+  const renderImage = useCallback(async ({ html, width, height, transparent }) => {
+    return await htmlToImage({ html, width, height, locationId, apiKey: selectedClient?.ghlApiKey, transparent })
   }, [locationId, selectedClient?.ghlApiKey])
 
   // Week template image generation effect
@@ -2612,7 +2612,8 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     // Week 4: bake hero inset card + two stacked property card images
     const isWeek2 = tpl?.id === 10
     const isWeek3 = tpl?.id === 11
-    const isWeek4 = tpl?.id === 12 || tpl?.id === 15
+    const isWeek4   = tpl?.id === 12 || tpl?.id === 15
+    const isWeek4v2 = tpl?.id === 15
     const isWeek5 = tpl?.id === 13
     const isWeek6 = tpl?.id === 14
     const renderLogoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
@@ -2684,10 +2685,11 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
 
     // ── Week 4 stacked card PNGs (background-image approach for Chromium reliability) ──
     // Card 1: height=460 → total stacked area = 508px, outer padding 28/8 top/bottom, 72 sides
+    const w4c1Bg = isWeek4v2 ? 'transparent' : '#fff'
     const week4Card1Html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:#fff;}</style>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:${w4c1Bg};}</style>
 </head><body>
-<div style="padding:28px 72px 8px;background:#fff;">
+<div style="padding:28px 72px 8px;background:${w4c1Bg};">
   <div style="position:relative;height:508px;">
     <div style="position:absolute;top:24px;left:24px;right:24px;bottom:24px;border-radius:16px;transform:rotate(5deg);transform-origin:center;background:url('${card1ImgUrl}') ${card1Fp4}/cover no-repeat;opacity:0.45;"></div>
     <div style="position:absolute;top:24px;left:24px;right:24px;bottom:24px;border-radius:16px;overflow:hidden;z-index:1;background:url('${card1ImgUrl}') ${card1Fp4}/cover no-repeat;"></div>
@@ -2696,10 +2698,11 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
 </body></html>`
 
     // Card 2: height=520 → total stacked area = 568px, outer padding 16/8 top/bottom, 72 sides
+    const w4c2Bg = isWeek4v2 ? 'transparent' : '#fff'
     const week4Card2Html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:#fff;}</style>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:${w4c2Bg};}</style>
 </head><body>
-<div style="padding:16px 72px 8px;background:#fff;">
+<div style="padding:16px 72px 8px;background:${w4c2Bg};">
   <div style="position:relative;height:568px;">
     <div style="position:absolute;top:24px;left:24px;right:24px;bottom:24px;border-radius:16px;transform:rotate(5deg);transform-origin:center;background:url('${card2ImgUrl}') ${card2Fp4}/cover no-repeat;opacity:0.45;"></div>
     <div style="position:absolute;top:24px;left:24px;right:24px;bottom:24px;border-radius:16px;overflow:hidden;z-index:1;background:url('${card2ImgUrl}') ${card2Fp4}/cover no-repeat;"></div>
@@ -2880,7 +2883,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     const secondaryPromise = isWeek3 && (img1Url || img2Url)
       ? renderImage({ html: stackedHtml, width: 600, height: 420 })
       : isWeek4
-        ? renderImage({ html: week4Card1Html, width: 600, height: 544 })
+        ? renderImage({ html: week4Card1Html, width: 600, height: 544, transparent: isWeek4v2 })
         : isWeek5 && (img1Url || img2Url)
           ? renderImage({ html: week5GridHtml, width: 600, height: 530 })
           : isWeek6 && (img1Url || img2Url || img3Url)
@@ -2892,7 +2895,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     const tertiaryPromise = isWeek3 && (img3Url || img1Url)
       ? renderImage({ html: week3BodyHtml, width: 600, height: 340 })
       : isWeek4
-        ? renderImage({ html: week4Card2Html, width: 600, height: 592 })
+        ? renderImage({ html: week4Card2Html, width: 600, height: 592, transparent: isWeek4v2 })
         : Promise.resolve(null)
 
     const heroHtmlToUse = isWeek4 ? week4HeroHtml : isWeek5 ? week5HeroHtml : isWeek6 ? week6HeroHtml : heroHtml

@@ -96,7 +96,7 @@ async function callPuppeteer(html, width, height, locationId, ghlKey) {
     await page.setViewport({ width, height, deviceScaleFactor: 2 })
     await page.setContent(html, { waitUntil: 'networkidle0', timeout: 20_000 })
     await sleep(400)   // let fonts/transforms settle
-    const buffer = await page.screenshot({ type: 'png', clip: { x: 0, y: 0, width, height } })
+    const buffer = await page.screenshot({ type: 'png', omitBackground: !!transparent, clip: { x: 0, y: 0, width, height } })
     console.log('[html-to-image] Puppeteer screenshot done, uploading to GHL...')
     const url = await uploadToGHL(ghlKey, locationId, buffer)
     console.log('[html-to-image] GHL upload OK:', url)
@@ -112,7 +112,7 @@ export const handler = async (event) => {
   if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' }
 
   try {
-    const { html, width = 600, height = 580, locationId, apiKey } = JSON.parse(event.body || '{}')
+    const { html, width = 600, height = 580, locationId, apiKey, transparent } = JSON.parse(event.body || '{}')
     if (!html) throw new Error('html is required')
 
     // ── 1. VPS screenshot server (primary) ──────────────────────────────
@@ -121,7 +121,7 @@ export const handler = async (event) => {
       const vpsRes = await fetch(VPS_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ html, width, height, locationId, ghlApiKey: apiKey }),
+        body: JSON.stringify({ html, width, height, locationId, ghlApiKey: apiKey, transparent }),
         signal: AbortSignal.timeout(30_000),
       })
       const vpsData = await vpsRes.json()

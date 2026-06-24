@@ -73,8 +73,8 @@ export const analyzeImageFocal = ({ imageUrl }) =>
   post('/analyze-image-focal', { imageUrl })
 
 // ── HTML → PNG via server (html2image.net → Puppeteer fallback) ──
-export const htmlToImage = ({ html, width, height, locationId, apiKey }) =>
-  post('/html-to-image', { html, width, height, locationId, apiKey })
+export const htmlToImage = ({ html, width, height, locationId, apiKey, transparent }) =>
+  post('/html-to-image', { html, width, height, locationId, apiKey, transparent })
 
 // ── Upload base64 PNG to GHL Media Library ────────────────────────
 export const uploadScreenshot = ({ base64, locationId }) =>
