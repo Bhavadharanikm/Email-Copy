@@ -2667,10 +2667,11 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     const card1ImgUrl = selectedImages?.[1]?.url || heroImgUrl
     const card2ImgUrl = selectedImages?.[2]?.url || heroImgUrl
 
+    const w4heroBg = isWeek4v2 ? 'transparent' : '#fff'
     const week4HeroHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:#fff;}</style>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:${w4heroBg};}</style>
 </head><body>
-<div style="padding:20px 20px 0;background:#fff;line-height:0;font-size:0;">
+<div style="padding:20px 20px 0;background:${w4heroBg};line-height:0;font-size:0;">
   <div style="position:relative;width:560px;height:720px;overflow:hidden;border-radius:16px;background:#1a1a1a;">
     ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;top:${Math.min(0,Math.max(720*(1-heroScale),-(720*(heroScale-1)/2)+heroY))}px;left:${Math.min(0,Math.max(560*(1-heroScale),-(560*(heroScale-1)/2)+heroX))}px;width:${560*heroScale}px;height:${720*heroScale}px;object-fit:cover;display:block;"/>` : `<div style="width:560px;height:720px;background:#2a2a2a;"></div>`}
     <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.78) 0%,rgba(0,0,0,0.38) 45%,rgba(0,0,0,0.05) 75%,rgba(0,0,0,0) 100%);line-height:normal;font-size:initial;">
@@ -2901,7 +2902,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     const heroHtmlToUse = isWeek4 ? week4HeroHtml : isWeek5 ? week5HeroHtml : isWeek6 ? week6HeroHtml : heroHtml
 
     Promise.all([
-      renderImage({ html: heroHtmlToUse, width: 600, height: heroHeight }),
+      renderImage({ html: heroHtmlToUse, width: 600, height: heroHeight, transparent: isWeek4v2 }),
       secondaryPromise,
       tertiaryPromise,
     ])
