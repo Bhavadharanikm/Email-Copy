@@ -94,7 +94,7 @@ function buildFooter(client, footerData = null, options = {}) {
   const light    = isLight(bgRaw)
   const textCol  = options.textColor || (light ? 'rgba(0,0,0,0.55)'  : 'rgba(255,255,255,0.55)')
   const linkCol  = options.textColor || (light ? 'rgba(0,0,0,0.4)'   : 'rgba(255,255,255,0.35)')
-  const divCol   = light ? 'rgba(0,0,0,0.08)'  : 'rgba(255,255,255,0.1)'
+  const divCol   = options.dividerColor || (light ? 'rgba(0,0,0,0.08)'  : 'rgba(255,255,255,0.1)')
 
   // Social icon URLs (GHL CDN circular icons)
   const CDN = 'https://storage.googleapis.com/preview-production-assets/email/img/hl_default_img/social'
@@ -483,6 +483,15 @@ function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated 
   const cardBg     = '#fffffe'
   const accentClr  = footerData?.buttonColor || '#1a1a1a'
   const secondaryClr = footerData?.secondaryColor || accentClr
+  function darkenHex(hex, factor = 0.55) {
+    const h = (hex||'').replace('#','')
+    if (h.length !== 6) return hex
+    const r = Math.round(parseInt(h.slice(0,2),16) * factor)
+    const g = Math.round(parseInt(h.slice(2,4),16) * factor)
+    const b = Math.round(parseInt(h.slice(4,6),16) * factor)
+    return '#' + [r,g,b].map(v => v.toString(16).padStart(2,'0')).join('')
+  }
+  const deepBg = darkenHex(pageBg)
   const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
 
   const PAGE_BG  = `background-color:${pageBg};background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)`
@@ -550,7 +559,7 @@ function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated 
               <div style="font-family:'Playfair Display',Georgia,serif;font-size:${textSize}px;font-weight:600;line-height:1.12;color:#fff;text-shadow:0 2px 20px rgba(0,0,0,0.4);">${copy.headlineText||''}</div>
             </div>
           </div>
-          <div style="position:absolute;bottom:0;left:0;right:0;height:160px;background:linear-gradient(to bottom,${pageBg}00,${pageBg});pointer-events:none;"></div>
+          <div style="position:absolute;bottom:0;left:0;right:0;height:240px;background:linear-gradient(to bottom,${pageBg}00,${deepBg});pointer-events:none;"></div>
         </td></tr>`}
 
     <!-- ── SUBHEAD + CTA ── -->
@@ -604,7 +613,7 @@ function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated 
       <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td class="gmailbtn" style="background-color:${accentClr};background-image:linear-gradient(to top,${accentClr} 0%,${accentClr} 100%);border-radius:100px;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:16px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;letter-spacing:.04em;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>
     </td></tr>` : ''}
 
-    <tr><td class="gmailfix" style="padding:0;line-height:0;font-size:0;${WHITE_BG};">${buildFooter(client, footerData, { defaultBg: pageBg, gmailClass: 'gmailfix', textColor: '#878787' })}</td></tr>
+    <tr><td class="gmailfix" style="padding:0;line-height:0;font-size:0;${WHITE_BG};">${buildFooter(client, footerData, { defaultBg: pageBg, gmailClass: 'gmailfix', textColor: '#878787', dividerColor: '#878787' })}</td></tr>
   </table>
 
 </body></html>`
@@ -2613,6 +2622,14 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     const w5Last  = w5words.length >= 3 ? w5words[w5words.length - 1] : ''
     const w5Main  = w5words.length >= 3 ? w5words.slice(1, -1).join(' ') : w5words.length === 2 ? w5words[1] : w5words[0] || ''
     const midBg      = clientFooter?.bgColor || '#fff'
+    const deepMidBg  = (() => {
+      const h = midBg.replace('#','')
+      if (h.length !== 6) return midBg
+      const r = Math.round(parseInt(h.slice(0,2),16) * 0.55)
+      const g = Math.round(parseInt(h.slice(2,4),16) * 0.55)
+      const b = Math.round(parseInt(h.slice(4,6),16) * 0.55)
+      return '#' + [r,g,b].map(v => v.toString(16).padStart(2,'0')).join('')
+    })()
 
     setWeekGenLoading(true)
     setWeekGenError(null)
@@ -2658,7 +2675,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
       <div style="font-family:'Playfair Display',Georgia,serif;font-size:${textSize}px;font-weight:600;line-height:1.12;color:#fff;text-shadow:0 2px 20px rgba(0,0,0,0.4);">${headline}</div>
     </div>
   </div>
-  <div style="position:absolute;bottom:0;left:0;right:0;height:160px;background:linear-gradient(to bottom,${midBg}00,${midBg});"></div>
+  <div style="position:absolute;bottom:0;left:0;right:0;height:240px;background:linear-gradient(to bottom,${midBg}00,${deepMidBg});"></div>
 </div>
 </body></html>`
       : `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
