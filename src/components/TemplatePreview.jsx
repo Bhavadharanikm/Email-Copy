@@ -133,9 +133,10 @@ function buildFooter(client, footerData = null, options = {}) {
     ? `<div style="font-size:14px;color:${linkCol};font-family:Arial,sans-serif;margin-bottom:20px;max-width:440px;margin-left:auto;margin-right:auto;line-height:1.7">${footerText}</div>`
     : ''
 
+  const divClass = options.gmailClass ? ` class="${options.gmailClass}"` : ''
   return `
   <!-- Footer -->
-  <div style="background:${bgRaw};padding:44px 48px 36px;text-align:center;border-top:1px solid ${divCol}">
+  <div${divClass} style="background:${bgRaw};padding:44px 48px 36px;text-align:center;border-top:1px solid ${divCol}">
     ${logoHtml}
     ${socialHtml}
     ${contactHtml}
@@ -486,7 +487,6 @@ function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated 
 
   const PAGE_BG  = `background-color:${pageBg};background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)`
   const WHITE_BG = PAGE_BG
-  const OUTER_BG = 'background-color:#ffffff;background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%)'
 
   const logoHtml = logoUrl
     ? `<img src="${logoUrl}" alt="${client?.name||''}" style="height:${logoSize}px;width:auto;max-width:${logoSize * 5}px;display:inline-block;filter:${logoFilter};"/>`
@@ -521,23 +521,20 @@ function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated 
 <style>
   :root{color-scheme:light;supported-color-schemes:light}
   *{box-sizing:border-box;margin:0;padding:0}
-  body{${OUTER_BG};color:#1a1a1a;}
+  body{margin:0;padding:0;color:#1a1a1a;}
   table{border-collapse:collapse;}
   u + .body .gmailfix { background-color:${pageBg}!important; background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)!important; }
-  u + .body .gmailfix-page { background-color:#ffffff!important; background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%)!important; }
   u + .body .gmailtext-dark  { color:#1a1a1a!important; }
   u + .body .gmailtext-muted { color:#555!important; }
   @media (prefers-color-scheme:dark){
-    html,body{ ${OUTER_BG}; color:#1a1a1a!important; }
     .gmailfix { background-color:${pageBg}!important; background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)!important; }
-    .gmailfix-page { background-color:#ffffff!important; background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%)!important; }
     .gmailtext-dark  { color:#1a1a1a!important; }
     .gmailtext-muted { color:#555!important; }
   }
-</style></head><body class="body" style="${OUTER_BG};margin:0;padding:0;">
+</style></head><body class="body" style="margin:0;padding:0;">
 
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;${OUTER_BG};border-collapse:collapse;">
-<tr><td align="center" class="gmailfix-page" style="padding:24px 0 48px;${OUTER_BG};">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
+<tr><td align="center" style="padding:24px 0 48px;">
 
   <table width="600" cellpadding="0" cellspacing="0" border="0" class="gmailfix" bgcolor="${pageBg}" style="width:600px;max-width:600px;${WHITE_BG};border-collapse:collapse;border-radius:20px;overflow:hidden;">
 
@@ -608,7 +605,7 @@ function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated 
       <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accentClr};border-radius:100px;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:16px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;letter-spacing:.04em;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>
     </td></tr>` : ''}
 
-    <tr><td class="gmailfix" style="padding:0;line-height:0;font-size:0;${WHITE_BG};">${buildFooter(client, footerData, { defaultBg: pageBg })}</td></tr>
+    <tr><td class="gmailfix" style="padding:0;line-height:0;font-size:0;${WHITE_BG};">${buildFooter(client, footerData, { defaultBg: pageBg, gmailClass: 'gmailfix' })}</td></tr>
   </table>
 
 </td></tr>
