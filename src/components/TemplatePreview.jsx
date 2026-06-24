@@ -2159,32 +2159,18 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
     { imgUrl:img3, imgObj:eff3Obj, bodyText:copy.closingLine||copy.bodyText||'', isLast:true },
   ]
 
-  return `<!DOCTYPE html><html lang="en" style="color-scheme:light"><head><meta charset="UTF-8"/>
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<meta name="color-scheme" content="light">
-<meta name="supported-color-schemes" content="light">
 <link href="https://fonts.googleapis.com/css2?family=Lora:wght@700&display=swap" rel="stylesheet"/>
 <style>
-  :root{color-scheme:light;supported-color-schemes:light}
   *{box-sizing:border-box;margin:0;padding:0}
-  body{background-color:#ffffff;background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%);color:#1a1a1a;}
+  body{background-color:#ffffff;color:#1a1a1a;}
   table{border-collapse:collapse;}
-  u + .body .gmailfix { background-color:${pageBg}!important; background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)!important; }
-  u + .body .gmailfix-page { background-color:#ffffff!important; background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%)!important; background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%)!important; }
-  u + .body .gmailtext-dark  { color:#1a1a1a!important; }
-  u + .body .gmailtext-muted { color:#555!important; }
-  @media (prefers-color-scheme:dark){
-    html,body{ background-color:#ffffff;background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%); color:#1a1a1a!important; }
-    .gmailfix { background-color:${pageBg}!important; background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)!important; }
-    .gmailfix-page { background-color:#ffffff!important; background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%)!important; background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%)!important; }
-    .gmailtext-dark  { color:#1a1a1a!important; }
-    .gmailtext-muted { color:#555!important; }
-  }
 </style>
-</head><body class="body" style="background-color:#ffffff;background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%);margin:0;padding:0;">
-<table width="100%" cellpadding="0" cellspacing="0" bgcolor="#ffffff" style="background-color:#ffffff;background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%);">
-<tr><td align="center" class="gmailfix-page" style="padding:32px 0;background-color:#ffffff;background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%);">
-  <table width="600" cellpadding="0" cellspacing="0" class="gmailfix" bgcolor="${pageBg}" style="width:600px;max-width:600px;${WHITE_BG};border-radius:20px;overflow:hidden;">
+</head><body class="body" style="background-color:#ffffff;margin:0;padding:0;">
+<table width="100%" cellpadding="0" cellspacing="0" bgcolor="#ffffff" style="background-color:#ffffff;">
+<tr><td align="center" style="padding:32px 0;background-color:#ffffff;">
+  <table width="600" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="width:600px;max-width:600px;${WHITE_BG};border-radius:20px;overflow:hidden;">
 
     <!-- ── HERO: padded inset image + dark gradient + logo + headline ── -->
     ${isHeroGenerated
