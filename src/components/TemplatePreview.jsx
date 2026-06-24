@@ -2135,18 +2135,8 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
   const secondary = footerData?.secondaryColor || accent
   const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
 
-  const PAGE_BG  = `background-color:${pageBg};background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)`
-  const WHITE_BG = PAGE_BG
-
-  function isLightBg(hex) {
-    const h = (hex||'').replace('#','')
-    if (h.length < 6) return true
-    const r = parseInt(h.slice(0,2),16), g = parseInt(h.slice(2,4),16), b = parseInt(h.slice(4,6),16)
-    return (0.299*r + 0.587*g + 0.114*b) > 160
-  }
-  const lightBg      = isLightBg(pageBg)
-  const mutedTextCol = lightBg ? 'rgba(0,0,0,0.65)'  : '#ffffff'
-  const dividerCol   = lightBg ? 'rgba(0,0,0,0.08)'  : 'rgba(255,255,255,0.12)'
+  const mutedTextCol = 'rgba(0,0,0,0.65)'
+  const dividerCol   = 'rgba(0,0,0,0.08)'
 
   // Logo — white version for dark hero overlay, dark version for cards below
   const logoHeroHtml = logoUrl
@@ -2159,34 +2149,27 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
     { imgUrl:img3, imgObj:eff3Obj, bodyText:copy.closingLine||copy.bodyText||'', isLast:true },
   ]
 
+  const BG = `background-color:${pageBg}`
+
   return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<meta name="color-scheme" content="light dark"/>
-<meta name="supported-color-schemes" content="light dark"/>
 <link href="https://fonts.googleapis.com/css2?family=Lora:wght@700&display=swap" rel="stylesheet"/>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
-  :root{color-scheme:light dark}
   body{background-color:#ffffff;color:#1a1a1a;}
   table{border-collapse:collapse;}
-  @media (prefers-color-scheme:dark){
-    body.body, .v4outer { background-color:#1a1a1a!important; }
-    .v4inner, .gmailfix { background-color:#242424!important; background-image:none!important; }
-    .gmailfix p { color:#ffffff!important; }
-  }
 </style>
 </head><body class="body" style="background-color:#ffffff;margin:0;padding:0;">
-<table width="100%" cellpadding="0" cellspacing="0" class="v4outer" bgcolor="#ffffff" style="background-color:#ffffff;">
-<tr><td align="center" class="v4outer" style="padding:32px 0;background-color:#ffffff;">
-  <table width="600" cellpadding="0" cellspacing="0" class="v4inner" bgcolor="${pageBg}" style="width:600px;max-width:600px;${WHITE_BG};border-radius:20px;overflow:hidden;">
+<table width="100%" cellpadding="0" cellspacing="0" bgcolor="#ffffff" style="background-color:#ffffff;">
+<tr><td align="center" style="padding:32px 0;background-color:#ffffff;">
+  <table width="600" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="width:600px;max-width:600px;${BG};border-radius:20px;overflow:hidden;">
 
     <!-- ── HERO: padded inset image + dark gradient + logo + headline ── -->
     ${isHeroGenerated
       ? `<tr><td style="padding:0;line-height:0;font-size:0;"><img src="${heroImg}" alt="" width="600" style="display:block;width:600px;"/></td></tr>`
-      : `<tr><td class="gmailfix" style="padding:20px 20px 0;${WHITE_BG};line-height:0;font-size:0;">
+      : `<tr><td style="padding:20px 20px 0;${BG};line-height:0;font-size:0;">
       <div style="position:relative;width:560px;height:720px;overflow:hidden;border-radius:16px;background:#1a1a1a;">
         ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:${Math.min(0,Math.max(720*(1-heroScale),-(720*(heroScale-1)/2)+heroY))}px;left:${Math.min(0,Math.max(560*(1-heroScale),-(560*(heroScale-1)/2)+heroX))}px;width:${560*heroScale}px;height:${720*heroScale}px;object-fit:cover;display:block;"/>` : ''}
-        <!-- dark gradient top-down -->
         <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.78) 0%,rgba(0,0,0,0.38) 45%,rgba(0,0,0,0.05) 75%,rgba(0,0,0,0) 100%);">
           <div style="text-align:center;padding-top:${logoTop}px;">${logoHeroHtml}</div>
           <div style="text-align:center;padding:${textTop}px ${textLeft}px 0;">
@@ -2198,46 +2181,46 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
 
     <!-- ── Subhead + CTA after hero ── -->
     ${copy.subhead ? `
-    <tr><td class="gmailfix" style="padding:32px 64px 4px;text-align:center;${WHITE_BG};">
+    <tr><td style="padding:32px 64px 4px;text-align:center;${BG};">
       <p style="font-family:Georgia,'Times New Roman',serif;font-size:20px;font-style:italic;line-height:1.7;color:${mutedTextCol};margin:0;">${copy.subhead}</p>
     </td></tr>` : ''}
     ${copy.ctaText ? `
-    <tr><td class="gmailfix" style="padding:24px 48px 8px;text-align:center;${WHITE_BG};">
+    <tr><td style="padding:24px 48px 8px;text-align:center;${BG};">
       <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr>
         <td style="background:${accent};border-radius:999px;">
           <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#fff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;">${copy.ctaText} &rarr;</a>
         </td>
       </tr></table>
     </td></tr>` : ''}
-    <tr><td class="gmailfix" style="padding:32px 40px 0;${WHITE_BG};"><div style="height:1px;background:${dividerCol};font-size:0;line-height:0;"></div></td></tr>
+    <tr><td style="padding:32px 40px 0;${BG};"><div style="height:1px;background:${dividerCol};font-size:0;line-height:0;"></div></td></tr>
 
     <!-- Card 1: full width -->
     ${isHeroGenerated && card1PngUrl
       ? `<tr><td style="padding:0;line-height:0;font-size:0;"><img src="${card1PngUrl}" alt="" width="600" style="display:block;width:600px;"/></td></tr>
-         ${cards[0].bodyText ? `<tr><td class="gmailfix" style="padding:24px 52px 32px;${WHITE_BG};text-align:center;"><p style="font-family:Arial,sans-serif;font-size:17px;color:${mutedTextCol};line-height:1.85;margin:0;">${cards[0].bodyText.replace(/\n/g,'<br>')}</p></td></tr>` : ''}`
-      : w4Card({ ...cards[0], bg: WHITE_BG, textCol: mutedTextCol })}
+         ${cards[0].bodyText ? `<tr><td style="padding:24px 52px 32px;${BG};text-align:center;"><p style="font-family:Arial,sans-serif;font-size:17px;color:${mutedTextCol};line-height:1.85;margin:0;">${cards[0].bodyText.replace(/\n/g,'<br>')}</p></td></tr>` : ''}`
+      : w4Card({ ...cards[0], bg: BG, textCol: mutedTextCol })}
 
     <!-- Divider -->
-    <tr><td class="gmailfix" style="padding:0 40px;${WHITE_BG};"><div style="height:1px;background:${dividerCol};font-size:0;line-height:0;"></div></td></tr>
+    <tr><td style="padding:0 40px;${BG};"><div style="height:1px;background:${dividerCol};font-size:0;line-height:0;"></div></td></tr>
 
     <!-- Card 2: bodyBlock2Title + image + bodyBlock2 + closingLine + CTA -->
     ${copy.bodyBlock2Title ? `
-    <tr><td class="gmailfix" style="padding:32px 52px 8px;${WHITE_BG};text-align:center;">
+    <tr><td style="padding:32px 52px 8px;${BG};text-align:center;">
       <p style="font-family:Georgia,'Times New Roman',serif;font-size:25px;font-weight:700;color:${secondary};line-height:1.3;margin:0;">${copy.bodyBlock2Title}</p>
     </td></tr>` : ''}
     ${isHeroGenerated && card2PngUrl
       ? `<tr><td style="padding:0;line-height:0;font-size:0;"><img src="${card2PngUrl}" alt="" width="600" style="display:block;width:600px;"/></td></tr>`
-      : `<tr><td class="gmailfix" style="padding:16px 72px 8px;${WHITE_BG};line-height:normal;">${w4StackedImage(cards[1].imgUrl, cards[1].imgObj, 520)}</td></tr>`}
+      : `<tr><td style="padding:16px 72px 8px;${BG};line-height:normal;">${w4StackedImage(cards[1].imgUrl, cards[1].imgObj, 520)}</td></tr>`}
     ${copy.bodyBlock2 ? `
-    <tr><td class="gmailfix" style="padding:20px 52px 0;${WHITE_BG};text-align:center;">
+    <tr><td style="padding:20px 52px 0;${BG};text-align:center;">
       <p style="font-family:Arial,sans-serif;font-size:17px;color:${mutedTextCol};line-height:1.85;margin:0;">${(copy.bodyBlock2).replace(/\n/g,'<br>')}</p>
     </td></tr>` : ''}
     ${copy.closingLine ? `
-    <tr><td class="gmailfix" style="padding:20px 52px 0;${WHITE_BG};text-align:center;">
+    <tr><td style="padding:20px 52px 0;${BG};text-align:center;">
       <p style="font-family:Georgia,'Times New Roman',serif;font-size:18px;font-style:italic;color:${mutedTextCol};line-height:1.7;margin:0;">${copy.closingLine}</p>
     </td></tr>` : ''}
     ${copy.ctaText ? `
-    <tr><td class="gmailfix" style="padding:24px 48px 44px;text-align:center;${WHITE_BG};">
+    <tr><td style="padding:24px 48px 44px;text-align:center;${BG};">
       <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr>
         <td style="background:${accent};border-radius:999px;">
           <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#fff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;">${copy.ctaText} &rarr;</a>
