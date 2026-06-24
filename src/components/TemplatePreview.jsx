@@ -2191,11 +2191,11 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
 
     <!-- ── Subhead + CTA after hero ── -->
     ${copy.subhead ? `
-    <tr><td class="gmailfix" style="padding:12px 64px 0;text-align:center;${WHITE_BG};">
+    <tr><td class="gmailfix" style="padding:32px 64px 4px;text-align:center;${WHITE_BG};">
       <p style="font-family:Georgia,'Times New Roman',serif;font-size:20px;font-style:italic;line-height:1.7;color:#878787;margin:0;">${copy.subhead}</p>
     </td></tr>` : ''}
     ${copy.ctaText ? `
-    <tr><td class="gmailfix" style="padding:12px 48px 8px;text-align:center;${WHITE_BG};">
+    <tr><td class="gmailfix" style="padding:24px 48px 8px;text-align:center;${WHITE_BG};">
       <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr>
         <td style="background:${accent};border-radius:999px;">
           <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#fff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;">${copy.ctaText} &rarr;</a>
