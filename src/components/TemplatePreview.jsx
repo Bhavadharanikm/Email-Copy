@@ -1511,29 +1511,30 @@ function buildTemplateWeek1({ client, copy, images, footerData, heroScale=1, her
    White cards · stacked same-image effect · serif title · pill CTA
    ══════════════════════════════════════════════════════════════════════════ */
 
-function w4StackedImage(imgUrl, imgObj, height = 460) {
+function w4StackedImage(imgUrl, imgObj, height = 460, imgX = 0, imgY = 0, imgScale = 1) {
   if (!imgUrl) return ''
   const fp = imgObj?.focalX != null ? `${imgObj.focalX}% ${imgObj.focalY}%` : '50% 50%'
+  const tf = `transform:translate(${imgX}px,${imgY}px) scale(${imgScale});transform-origin:center center;`
   // Extra padding so rotated corners aren't clipped
   return `
   <div style="position:relative;height:${height + 48}px;padding:24px;">
     <!-- Back card: offset + rotated so it peeks clearly on all 4 sides -->
     <div style="position:absolute;top:24px;left:24px;right:24px;bottom:24px;border-radius:16px;overflow:hidden;transform:rotate(5deg);transform-origin:center;background:#d4d8dd;">
-      <img src="${imgUrl}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:${fp};opacity:0.45;display:block;"/>
+      <img src="${imgUrl}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:${fp};opacity:0.45;display:block;${tf}"/>
     </div>
     <!-- Front card -->
     <div style="position:absolute;top:24px;left:24px;right:24px;bottom:24px;border-radius:16px;overflow:hidden;z-index:1;">
-      <img src="${imgUrl}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:${fp};display:block;"/>
+      <img src="${imgUrl}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:${fp};display:block;${tf}"/>
     </div>
   </div>`
 }
 
-function w4Card({ imgUrl, imgObj, bodyText, isLast }) {
+function w4Card({ imgUrl, imgObj, bodyText, isLast, imgX = 0, imgY = 0, imgScale = 1 }) {
   const body = (bodyText||'').replace(/\n/g,'<br>')
   const W = 'background-color:#ffffff;background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%)'
   return `
     <tr><td class="gmailfix" style="padding:28px 72px 8px;${W};line-height:0;font-size:0;">
-      ${w4StackedImage(imgUrl, imgObj)}
+      ${w4StackedImage(imgUrl, imgObj, 460, imgX, imgY, imgScale)}
     </td></tr>
     ${body ? `
     <tr><td class="gmailfix" style="padding:24px 52px ${isLast ? '40px' : '32px'};${W};text-align:center;">
@@ -2133,8 +2134,18 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
   const secondary = footerData?.secondaryColor || accent
   const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
 
-  const WHITE_BG = 'background-color:#ffffff;background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%)'
   const PAGE_BG  = `background-color:${pageBg};background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)`
+  const WHITE_BG = PAGE_BG
+
+  function isLightBg(hex) {
+    const h = (hex||'').replace('#','')
+    if (h.length < 6) return true
+    const r = parseInt(h.slice(0,2),16), g = parseInt(h.slice(2,4),16), b = parseInt(h.slice(4,6),16)
+    return (0.299*r + 0.587*g + 0.114*b) > 160
+  }
+  const lightBg      = isLightBg(pageBg)
+  const mutedTextCol = lightBg ? 'rgba(0,0,0,0.65)'  : 'rgba(255,255,255,0.75)'
+  const dividerCol   = lightBg ? 'rgba(0,0,0,0.08)'  : 'rgba(255,255,255,0.12)'
 
   // Logo — white version for dark hero overlay, dark version for cards below
   const logoHeroHtml = logoUrl
@@ -2157,13 +2168,13 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
   *{box-sizing:border-box;margin:0;padding:0}
   body{${PAGE_BG};color:#1a1a1a;}
   table{border-collapse:collapse;}
-  u + .body .gmailfix { background-color:#ffffff!important; background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%)!important; }
+  u + .body .gmailfix { background-color:${pageBg}!important; background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)!important; }
   u + .body .gmailfix-page { background-color:${pageBg}!important; background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)!important; }
   u + .body .gmailtext-dark  { color:#1a1a1a!important; }
   u + .body .gmailtext-muted { color:#555!important; }
   @media (prefers-color-scheme:dark){
     html,body{ ${PAGE_BG}; color:#1a1a1a!important; }
-    .gmailfix { background-color:#ffffff!important; background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%)!important; }
+    .gmailfix { background-color:${pageBg}!important; background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)!important; }
     .gmailfix-page { background-color:${pageBg}!important; background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)!important; }
     .gmailtext-dark  { color:#1a1a1a!important; }
     .gmailtext-muted { color:#555!important; }
@@ -2172,7 +2183,7 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
 </head><body class="body" style="${PAGE_BG};margin:0;padding:0;">
 <table width="100%" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="${PAGE_BG};">
 <tr><td align="center" class="gmailfix-page" style="padding:32px 0;${PAGE_BG};">
-  <table width="600" cellpadding="0" cellspacing="0" class="gmailfix" bgcolor="#ffffff" style="width:600px;max-width:600px;${WHITE_BG};border-radius:20px;overflow:hidden;">
+  <table width="600" cellpadding="0" cellspacing="0" class="gmailfix" bgcolor="${pageBg}" style="width:600px;max-width:600px;${WHITE_BG};border-radius:20px;overflow:hidden;">
 
     <!-- ── HERO: padded inset image + dark gradient + logo + headline ── -->
     ${isHeroGenerated
@@ -2193,7 +2204,7 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
     <!-- ── Subhead + CTA after hero ── -->
     ${copy.subhead ? `
     <tr><td class="gmailfix" style="padding:32px 64px 4px;text-align:center;${WHITE_BG};">
-      <p style="font-family:Georgia,'Times New Roman',serif;font-size:20px;font-style:italic;line-height:1.7;color:#878787;margin:0;">${copy.subhead}</p>
+      <p style="font-family:Georgia,'Times New Roman',serif;font-size:20px;font-style:italic;line-height:1.7;color:${mutedTextCol};margin:0;">${copy.subhead}</p>
     </td></tr>` : ''}
     ${copy.ctaText ? `
     <tr><td class="gmailfix" style="padding:24px 48px 8px;text-align:center;${WHITE_BG};">
@@ -2203,16 +2214,16 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
         </td>
       </tr></table>
     </td></tr>` : ''}
-    <tr><td class="gmailfix" style="padding:32px 40px 0;${WHITE_BG};"><div style="height:1px;background:#e5e5e5;font-size:0;line-height:0;"></div></td></tr>
+    <tr><td class="gmailfix" style="padding:32px 40px 0;${WHITE_BG};"><div style="height:1px;background:${dividerCol};font-size:0;line-height:0;"></div></td></tr>
 
     <!-- Card 1: full width -->
     ${isHeroGenerated && card1PngUrl
       ? `<tr><td style="padding:0;line-height:0;font-size:0;"><img src="${card1PngUrl}" alt="" width="600" style="display:block;width:600px;"/></td></tr>
-         ${cards[0].bodyText ? `<tr><td class="gmailfix" style="padding:24px 52px 32px;${WHITE_BG};text-align:center;"><p style="font-family:Arial,sans-serif;font-size:17px;color:#878787;line-height:1.85;margin:0;">${cards[0].bodyText.replace(/\n/g,'<br>')}</p></td></tr>` : ''}`
+         ${cards[0].bodyText ? `<tr><td class="gmailfix" style="padding:24px 52px 32px;${WHITE_BG};text-align:center;"><p style="font-family:Arial,sans-serif;font-size:17px;color:${mutedTextCol};line-height:1.85;margin:0;">${cards[0].bodyText.replace(/\n/g,'<br>')}</p></td></tr>` : ''}`
       : w4Card(cards[0])}
 
     <!-- Divider -->
-    <tr><td class="gmailfix" style="padding:0 40px;${WHITE_BG};"><div style="height:1px;background:#ebebeb;font-size:0;line-height:0;"></div></td></tr>
+    <tr><td class="gmailfix" style="padding:0 40px;${WHITE_BG};"><div style="height:1px;background:${dividerCol};font-size:0;line-height:0;"></div></td></tr>
 
     <!-- Card 2: bodyBlock2Title + image + bodyBlock2 + closingLine + CTA -->
     ${copy.bodyBlock2Title ? `
@@ -2224,11 +2235,11 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
       : `<tr><td class="gmailfix" style="padding:16px 72px 8px;${WHITE_BG};line-height:normal;">${w4StackedImage(cards[1].imgUrl, cards[1].imgObj, 520)}</td></tr>`}
     ${copy.bodyBlock2 ? `
     <tr><td class="gmailfix" style="padding:20px 52px 0;${WHITE_BG};text-align:center;">
-      <p style="font-family:Arial,sans-serif;font-size:17px;color:#878787;line-height:1.85;margin:0;">${(copy.bodyBlock2).replace(/\n/g,'<br>')}</p>
+      <p style="font-family:Arial,sans-serif;font-size:17px;color:${mutedTextCol};line-height:1.85;margin:0;">${(copy.bodyBlock2).replace(/\n/g,'<br>')}</p>
     </td></tr>` : ''}
     ${copy.closingLine ? `
     <tr><td class="gmailfix" style="padding:20px 52px 0;${WHITE_BG};text-align:center;">
-      <p style="font-family:Georgia,'Times New Roman',serif;font-size:18px;font-style:italic;color:#878787;line-height:1.7;margin:0;">${copy.closingLine}</p>
+      <p style="font-family:Georgia,'Times New Roman',serif;font-size:18px;font-style:italic;color:${mutedTextCol};line-height:1.7;margin:0;">${copy.closingLine}</p>
     </td></tr>` : ''}
     ${copy.ctaText ? `
     <tr><td class="gmailfix" style="padding:24px 48px 44px;text-align:center;${WHITE_BG};">
@@ -2239,7 +2250,7 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
       </tr></table>
     </td></tr>` : ''}
 
-    <tr><td style="padding:0;line-height:0;font-size:0;">${buildFooter(client, footerData, { defaultBg: '#1a1a1a' })}</td></tr>
+    <tr><td style="padding:0;line-height:0;font-size:0;">${buildFooter(client, footerData, { defaultBg: pageBg, gmailClass: 'gmailfix' })}</td></tr>
   </table>
 </td></tr>
 </table>
