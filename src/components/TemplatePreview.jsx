@@ -607,7 +607,7 @@ function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated 
       <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accentClr};border-radius:100px;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:16px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff!important;text-decoration:none!important;letter-spacing:.04em;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>
     </td></tr>` : ''}
 
-    <tr><td style="padding:0;line-height:0;font-size:0;">${buildFooter(client, footerData, { defaultBg: '#1a1a1a' })}</td></tr>
+    <tr><td class="gmailfix" style="padding:0;line-height:0;font-size:0;${WHITE_BG};">${buildFooter(client, footerData, { defaultBg: '#1a1a1a' })}</td></tr>
   </table>
 
 </td></tr>
