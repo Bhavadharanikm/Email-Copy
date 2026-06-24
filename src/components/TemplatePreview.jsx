@@ -68,7 +68,7 @@ function divOn(hex) {
 // Falls back gracefully when footerData is null or fields are empty.
 function buildFooter(client, footerData = null, options = {}) {
   const fd          = footerData || {}
-  const bgRaw       = fd.bgColor      || options.defaultBg  || '#1c1c1c'
+  const bgRaw       = options.bgOverride || fd.bgColor || options.defaultBg  || '#1c1c1c'
   const btnColor    = fd.buttonColor  || options.defaultBtn || '#b07a50'
   const contactInfo   = fd.contactInfo   || ''
   const contactNumber = fd.contactNumber || ''
@@ -607,7 +607,7 @@ function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated 
       <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accentClr};border-radius:100px;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:16px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff!important;text-decoration:none!important;letter-spacing:.04em;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>
     </td></tr>` : ''}
 
-    <tr><td class="gmailfix" style="padding:0;line-height:0;font-size:0;${WHITE_BG};">${buildFooter(client, footerData, { defaultBg: '#1a1a1a' })}</td></tr>
+    <tr><td class="gmailfix" style="padding:0;line-height:0;font-size:0;${WHITE_BG};">${buildFooter(client, footerData, { defaultBg: '#ffffff', bgOverride: '#ffffff' })}</td></tr>
   </table>
 
 </td></tr>
