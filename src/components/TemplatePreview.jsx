@@ -2727,9 +2727,9 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     const card2Url = img2Url || img1Url
 
     const stackedHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:#ffffff;}</style>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:${midBg};}</style>
 </head><body>
-<div style="position:relative;width:600px;height:420px;background:#ffffff;">
+<div style="position:relative;width:600px;height:420px;background:${midBg};">
   <div style="position:absolute;left:28px;top:24px;width:272px;height:372px;border-radius:20px;transform:rotate(-3deg);transform-origin:center center;box-shadow:4px 0 20px rgba(0,0,0,0.18);overflow:hidden;z-index:1;">
     ${img1Url ? `<img src="${img1Url}" style="width:272px;height:372px;object-fit:cover;display:block;object-position:${card1Fp4};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/>` : ''}
   </div>
@@ -2745,9 +2745,9 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
       ? `${(img3Url ? selectedImages[3] : selectedImages[1]).focalX}% ${(img3Url ? selectedImages[3] : selectedImages[1]).focalY}%`
       : '50% 50%'
     const week3BodyHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:#ffffff;}</style>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:${midBg};}</style>
 </head><body>
-<div style="padding:20px 40px 0;background:#ffffff;width:600px;">
+<div style="padding:20px 40px 0;background:${midBg};width:600px;">
   ${w3BodySrc ? `<div style="overflow:hidden;width:520px;height:320px;border-radius:14px;"><img src="${w3BodySrc}" alt="" width="520" style="width:520px;height:320px;object-fit:cover;display:block;object-position:${w3BodyFp};transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/></div>` : `<div style="width:520px;height:320px;background:#e8e4de;border-radius:14px;"></div>`}
 </div>
 </body></html>`
