@@ -2114,6 +2114,7 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
   heroScale=1, heroX=0, heroY=0,
   textSize=38, textTop=20, textLeft=48,
   logoColor='white', logoTop=40, logoRight=36, logoSize=44,
+  btnImgUrl = null,
 }) {
   // images[0] = hero (or hero PNG when generated), images[1-3] = card photos
   // images[4] = card1 stacked PNG (when generated), images[5] = card2 stacked PNG (when generated)
@@ -2193,11 +2194,13 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
     </td></tr>` : ''}
     ${copy.ctaText ? `
     <tr><td style="padding:24px 48px 8px;text-align:center;${BG};">
-      <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr>
+      ${btnImgUrl
+        ? `<a href="${copy.ctaUrl||'#'}" style="display:inline-block;text-decoration:none;"><img src="${btnImgUrl}" alt="${copy.ctaText}" height="56" style="height:56px;width:auto;max-width:100%;display:block;border:0;"/></a>`
+        : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr>
         <td style="background:${accent};border-radius:999px;">
           <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;"><span class="btn-text" style="color:#ffffff!important;-webkit-text-fill-color:#ffffff;"><font color="#ffffff">${copy.ctaText} &rarr;</font></span></a>
         </td>
-      </tr></table>
+      </tr></table>`}
     </td></tr>` : ''}
     <tr><td style="padding:32px 40px 0;${BG};"><div style="height:1px;background:${dividerCol};font-size:0;line-height:0;"></div></td></tr>
 
@@ -2228,11 +2231,13 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
     </td></tr>` : ''}
     ${copy.ctaText ? `
     <tr><td style="padding:24px 48px 44px;text-align:center;${BG};">
-      <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr>
+      ${btnImgUrl
+        ? `<a href="${copy.ctaUrl||'#'}" style="display:inline-block;text-decoration:none;"><img src="${btnImgUrl}" alt="${copy.ctaText}" height="56" style="height:56px;width:auto;max-width:100%;display:block;border:0;"/></a>`
+        : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr>
         <td style="background:${accent};border-radius:999px;">
           <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;"><span class="btn-text" style="color:#ffffff!important;-webkit-text-fill-color:#ffffff;">${copy.ctaText} &rarr;</span></a>
         </td>
-      </tr></table>
+      </tr></table>`}
     </td></tr>` : ''}
 
     <tr><td style="padding:0;line-height:0;font-size:0;">${buildFooter(client, footerData, { defaultBg: pageBg, gmailClass: 'gmailfix', textColor: mutedTextCol, dividerColor: dividerCol })}</td></tr>
@@ -2352,7 +2357,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
       ? { ...clientFooter, logoColor: footerLogoColor, footerLogoSize }
       : clientFooter
     console.log('[baseHtml] tplId:', tpl?.id, 'isHeroGenerated:', isHeroGenerated, 'tplUrls:', tplUrls, 'effectiveImages[4]:', effectiveImages?.[4], 'effectiveImages[5]:', effectiveImages?.[5])
-    return tpl.build({ client:selectedClient, copy:generatedCopy, images:effectiveImages, headerStyle, imageStyle, footerData: effectiveFooterData, isHeroGenerated, ...editorProps })
+    return tpl.build({ client:selectedClient, copy:generatedCopy, images:effectiveImages, headerStyle, imageStyle, footerData: effectiveFooterData, isHeroGenerated, btnImgUrl: tplUrls.btn || null, ...editorProps })
   }, [active, selectedClient, generatedCopy, selectedImages, headerStyle, imageStyle, clientFooter, footerLogoColor, footerLogoSize, weekGenUrls, heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y])
 
   // Keep store in sync so ApprovalPanel always has the latest HTML
@@ -2696,6 +2701,19 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
 </div>
 </body></html>`
 
+    // Button PNG for Week 4 v2 — transparent pill screenshot to survive dark mode
+    const w4AccentColor = clientFooter?.buttonColor || '#1a1a1a'
+    const w4CtaText     = generatedCopy?.ctaText || 'Book Now'
+    const w4ButtonHtml  = isWeek4v2 ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
+</head><body>
+<div style="width:600px;text-align:center;padding:8px 0;">
+  <div style="display:inline-block;background:${w4AccentColor};border-radius:999px;padding:15px 40px;">
+    <span style="font-family:Arial,Helvetica,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff;white-space:nowrap;">${w4CtaText} →</span>
+  </div>
+</div>
+</body></html>` : null
+
     // Card 2: height=520 → total stacked area = 568px, outer padding 16/8 top/bottom, 72 sides
     const w4c2Bg = isWeek4v2 ? 'transparent' : '#fff'
     const week4Card2Html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
@@ -2897,16 +2915,21 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
         ? renderImage({ html: week4Card2Html, width: 600, height: 592, transparent: isWeek4v2 })
         : Promise.resolve(null)
 
+    const buttonPromise = isWeek4v2 && w4ButtonHtml
+      ? renderImage({ html: w4ButtonHtml, width: 600, height: 72, transparent: true })
+      : Promise.resolve(null)
+
     const heroHtmlToUse = isWeek4 ? week4HeroHtml : isWeek5 ? week5HeroHtml : isWeek6 ? week6HeroHtml : heroHtml
 
     Promise.all([
       renderImage({ html: heroHtmlToUse, width: 600, height: heroHeight, transparent: isWeek4v2 }),
       secondaryPromise,
       tertiaryPromise,
+      buttonPromise,
     ])
-      .then(([heroRes, secRes, terRes]) => {
-        console.log('[WeekGen] Promise.all resolved:', { tplId: tpl?.id, heroRes, secRes, terRes })
-        const urls = { hero: heroRes?.url || null, sec: secRes?.url || null, ter: terRes?.url || null }
+      .then(([heroRes, secRes, terRes, btnRes]) => {
+        console.log('[WeekGen] Promise.all resolved:', { tplId: tpl?.id, heroRes, secRes, terRes, btnRes })
+        const urls = { hero: heroRes?.url || null, sec: secRes?.url || null, ter: terRes?.url || null, btn: btnRes?.url || null }
         console.log('[WeekGen] Calling setWeekGenUrls with:', urls)
         setWeekGenUrls(prev => {
           const next = { ...prev, [tpl?.id]: urls }
