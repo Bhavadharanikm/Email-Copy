@@ -2707,9 +2707,9 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     const w4ButtonHtml  = isWeek4v2 ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
 </head><body>
-<div style="width:600px;text-align:center;padding:8px 0;">
+<div style="width:600px;text-align:center;">
   <div style="display:inline-block;background:${w4AccentColor};border-radius:999px;padding:15px 40px;">
-    <span style="font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff;white-space:nowrap;">${w4CtaText} →</span>
+    <span style="font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff;white-space:nowrap;">${w4CtaText} &rarr;</span>
   </div>
 </div>
 </body></html>` : null
