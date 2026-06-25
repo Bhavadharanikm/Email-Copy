@@ -121,7 +121,7 @@ export default function ImagePicker() {
         reader.onerror = reject
         reader.readAsDataURL(file)
       })
-      const rowIndex = parseInt(selectedClient.id.replace('client-', ''), 10)
+      const rowIndex = selectedClient.sheetRow
       const result = await uploadLogo({
         base64, mimeType: file.type, fileName: file.name,
         locationId: selectedClient.ghl?.locationId,

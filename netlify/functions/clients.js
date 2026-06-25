@@ -63,20 +63,22 @@ export const handler = async () => {
     // Skip header row (row 0), build client objects
     const clients = rows
       .slice(1)
-      .filter(row => row[0]?.trim()) // must have at minimum a name
-      .map((row, i) => {
-        console.log(`[clients] Row ${i + 2}: name="${row[0]}" apiKey="${row[1]?.substring(0,10)}..." locationId="${row[2]}"`)
+      .map((row, i) => ({ row, sheetRow: i + 2 })) // track actual 1-indexed sheet row before filtering
+      .filter(({ row }) => row[0]?.trim()) // must have at minimum a name
+      .map(({ row, sheetRow }, i) => {
+        console.log(`[clients] Sheet row ${sheetRow}: name="${row[0]}" apiKey="${row[1]?.substring(0,10)}..." locationId="${row[2]}"`)
         // Parse brand colors from col E (JSON string)
         let brandColors = null
         try {
           const raw = row[4]?.trim()
           if (raw) brandColors = JSON.parse(raw)
         } catch (e) {
-          console.warn(`[clients] Could not parse brandColors for row ${i + 2}:`, row[4])
+          console.warn(`[clients] Could not parse brandColors for sheet row ${sheetRow}:`, row[4])
         }
 
         return {
           id:         `client-${i}`,
+          sheetRow,                        // actual sheet row number (1-indexed, includes header)
           name:       row[0]?.trim() || '',
           ghlApiKey:  row[1]?.trim() || '',
           ghl: {

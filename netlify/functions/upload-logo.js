@@ -90,8 +90,8 @@ async function uploadToGHL(apiKey, locationId, base64, mimeType, fileName) {
 
 // ── Write logoUrl to Google Sheet column D (row = clientRowIndex + 2, 1-indexed + header) ──
 async function writeLogoUrlToSheet(token, rowIndex, logoUrl) {
-  // rowIndex is 0-based (from the clients array), so sheet row = rowIndex + 2 (skip header row 1)
-  const sheetRow  = rowIndex + 2
+  // rowIndex is the actual 1-indexed sheet row (includes header), passed directly from clients.sheetRow
+  const sheetRow  = rowIndex
   const range     = encodeURIComponent(`${SHEET_NAME}!D${sheetRow}`)
   const res = await fetch(
     `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${range}?valueInputOption=RAW`,
