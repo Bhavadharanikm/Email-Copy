@@ -2162,9 +2162,9 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
   body{background-color:#ffffff;color:#1a1a1a;}
   table{border-collapse:collapse;}
   @media (prefers-color-scheme:dark){
-    .btn-text { color:#ffffff!important; -webkit-text-fill-color:#ffffff!important; }
+    .btn-text { color:#878787!important; -webkit-text-fill-color:#878787!important; }
   }
-  u + .body .btn-text { color:#ffffff!important; -webkit-text-fill-color:#ffffff!important; }
+  u + .body .btn-text { color:#878787!important; -webkit-text-fill-color:#878787!important; }
 </style>
 </head><body class="body" style="background-color:#ffffff;margin:0;padding:0;">
 <table width="100%" cellpadding="0" cellspacing="0" bgcolor="#ffffff" style="background-color:#ffffff;">
@@ -2195,7 +2195,7 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
     <tr><td style="padding:24px 48px 8px;text-align:center;${BG};">
       <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr>
         <td style="background:${accent};border-radius:999px;">
-          <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;"><span class="btn-text" style="color:#ffffff!important;-webkit-text-fill-color:#ffffff;"><font color="#ffffff">${copy.ctaText} &rarr;</font></span></a>
+          <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#878787!important;-webkit-text-fill-color:#878787;text-decoration:none!important;"><span class="btn-text" style="color:#878787!important;-webkit-text-fill-color:#878787;"><font color="#878787">${copy.ctaText} &rarr;</font></span></a>
         </td>
       </tr></table>
     </td></tr>` : ''}
@@ -2230,7 +2230,7 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
     <tr><td style="padding:24px 48px 44px;text-align:center;${BG};">
       <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr>
         <td style="background:${accent};border-radius:999px;">
-          <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-shadow:0 0 1px #ffffff;text-decoration:none!important;"><span class="btn-text" style="color:#ffffff!important;-webkit-text-fill-color:#ffffff;">${copy.ctaText} &rarr;</span></a>
+          <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#878787!important;-webkit-text-fill-color:#878787;text-shadow:0 0 1px #878787;text-decoration:none!important;"><span class="btn-text" style="color:#878787!important;-webkit-text-fill-color:#878787;">${copy.ctaText} &rarr;</span></a>
         </td>
       </tr></table>
     </td></tr>` : ''}
