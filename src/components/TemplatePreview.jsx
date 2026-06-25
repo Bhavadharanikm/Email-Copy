@@ -2709,7 +2709,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
 </head><body>
 <div style="width:600px;text-align:center;">
   <div style="display:inline-block;background:${w4AccentColor};border-radius:999px;padding:15px 40px;">
-    <span style="font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff;white-space:nowrap;">${w4CtaText} –›</span>
+    <span style="font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff;white-space:nowrap;display:inline-flex;align-items:center;gap:10px;">${w4CtaText}<span style="display:inline-flex;align-items:center;gap:0;"><span style="display:inline-block;width:12px;height:2px;background:#ffffff;vertical-align:middle;"></span><span style="display:inline-block;width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:7px solid #ffffff;vertical-align:middle;"></span></span></span>
   </div>
 </div>
 </body></html>` : null
