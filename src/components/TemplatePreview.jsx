@@ -2195,7 +2195,7 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
     ${copy.ctaText ? `
     <tr><td style="padding:24px 48px 8px;text-align:center;${BG};">
       ${btnImgUrl
-        ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;"><img src="${btnImgUrl}" alt="${copy.ctaText}" width="600" style="width:100%;max-width:600px;display:block;border:0;"/></a>`
+        ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img src="${btnImgUrl}" alt="${copy.ctaText}" width="600" style="width:100%;max-width:600px;display:block;border:0;outline:none;"/></a>`
         : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr>
         <td style="background:${accent};border-radius:999px;">
           <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;"><span class="btn-text" style="color:#ffffff!important;-webkit-text-fill-color:#ffffff;"><font color="#ffffff">${copy.ctaText} &rarr;</font></span></a>
@@ -2232,7 +2232,7 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
     ${copy.ctaText ? `
     <tr><td style="padding:24px 48px 44px;text-align:center;${BG};">
       ${btnImgUrl
-        ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;"><img src="${btnImgUrl}" alt="${copy.ctaText}" width="600" style="width:100%;max-width:600px;display:block;border:0;"/></a>`
+        ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img src="${btnImgUrl}" alt="${copy.ctaText}" width="600" style="width:100%;max-width:600px;display:block;border:0;outline:none;"/></a>`
         : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr>
         <td style="background:${accent};border-radius:999px;">
           <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;"><span class="btn-text" style="color:#ffffff!important;-webkit-text-fill-color:#ffffff;">${copy.ctaText} &rarr;</span></a>
@@ -2709,7 +2709,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
 </head><body>
 <div style="width:600px;text-align:center;">
   <div style="display:inline-block;background:${w4AccentColor};border-radius:999px;padding:15px 40px;">
-    <span style="font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff;white-space:nowrap;">${w4CtaText} &rarr;</span>
+    <span style="font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff;white-space:nowrap;">${w4CtaText} →</span>
   </div>
 </div>
 </body></html>` : null
