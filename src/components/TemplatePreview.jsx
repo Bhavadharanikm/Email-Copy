@@ -2136,8 +2136,11 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
   const secondary = footerData?.secondaryColor || accent
   const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
 
-  const mutedTextCol = 'rgba(0,0,0,0.65)'
-  const dividerCol   = 'rgba(0,0,0,0.08)'
+  const _rgb = pageBg.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i)
+  const _lum = _rgb ? (0.299*parseInt(_rgb[1],16) + 0.587*parseInt(_rgb[2],16) + 0.114*parseInt(_rgb[3],16))/255 : 1
+  const lightBg      = _lum > 0.55
+  const mutedTextCol = lightBg ? 'rgba(0,0,0,0.65)'   : 'rgba(255,255,255,0.85)'
+  const dividerCol   = lightBg ? 'rgba(0,0,0,0.08)'   : 'rgba(255,255,255,0.15)'
 
   // Logo — white version for dark hero overlay, dark version for cards below
   const logoHeroHtml = logoUrl
