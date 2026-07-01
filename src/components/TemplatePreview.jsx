@@ -620,6 +620,7 @@ function buildTemplateWeek3v2({ client, copy, images, footerData, isHeroGenerate
   img1Scale=1, img1X=0, img1Y=0,
   img2Scale=1, img2X=0, img2Y=0,
   img3Scale=1, img3X=0, img3Y=0,
+  btnImgUrl = null,
 }) {
   const heroObj  = images?.[0]; const heroImg = heroObj?.url||''
   const img1Obj  = images?.[1]; const img1    = img1Obj?.url||''
@@ -705,7 +706,9 @@ function buildTemplateWeek3v2({ client, copy, images, footerData, isHeroGenerate
     <!-- ── SUBHEAD + CTA ── -->
     <tr><td class="gmailfix" style="padding:${isHeroGenerated ? '40px' : '32px'} 52px 36px;text-align:center;${WHITE_BG};">
       ${copy.subhead ? `<div style="font-family:Georgia,serif;font-size:18px;font-style:italic;color:#878787!important;line-height:1.6;margin-bottom:24px;max-width:460px;margin-left:auto;margin-right:auto;">${copy.subhead}</div>` : ''}
-      ${copy.ctaText ? `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td class="gmailbtn" style="background-color:${accentClr};background-image:linear-gradient(to top,${accentClr} 0%,${accentClr} 100%);border-radius:100px;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:16px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;letter-spacing:.04em;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>` : ''}
+      ${btnImgUrl
+        ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img src="${btnImgUrl}" alt="${copy.ctaText}" width="600" style="width:100%;max-width:600px;display:block;border:0;outline:none;"/></a>`
+        : copy.ctaText ? `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td class="gmailbtn" style="background-color:${accentClr};background-image:linear-gradient(to top,${accentClr} 0%,${accentClr} 100%);border-radius:100px;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:16px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;letter-spacing:.04em;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>` : ''}
     </td></tr>
 
     <!-- ── DIVIDER ── -->
@@ -750,7 +753,9 @@ function buildTemplateWeek3v2({ client, copy, images, footerData, isHeroGenerate
     <!-- ── REPEAT CTA ── -->
     ${copy.ctaText ? `
     <tr><td class="gmailfix" style="padding:8px 52px 44px;text-align:center;${WHITE_BG};">
-      <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td class="gmailbtn" style="background-color:${accentClr};background-image:linear-gradient(to top,${accentClr} 0%,${accentClr} 100%);border-radius:100px;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:16px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;letter-spacing:.04em;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>
+      ${btnImgUrl
+        ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img src="${btnImgUrl}" alt="${copy.ctaText}" width="600" style="width:100%;max-width:600px;display:block;border:0;outline:none;"/></a>`
+        : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td class="gmailbtn" style="background-color:${accentClr};background-image:linear-gradient(to top,${accentClr} 0%,${accentClr} 100%);border-radius:100px;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:16px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;letter-spacing:.04em;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`}
     </td></tr>` : ''}
 
     <tr><td class="gmailfix" style="padding:0;line-height:0;font-size:0;${WHITE_BG};">${buildFooter(client, footerData, { defaultBg: pageBg, gmailClass: 'gmailfix', textColor: '#878787', dividerColor: '#878787' })}</td></tr>
@@ -2441,7 +2446,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
   }, [active])  // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Hero editor — all week templates ─────────────────────────────────────────
-  const isEditable = [10, 11, 12, 13, 14, 15].includes(tpl?.id)
+  const isEditable = [10, 11, 12, 13, 14, 15, 16].includes(tpl?.id)
   const [heroScale,   setHeroScale]   = useState(1)
   const [heroX,       setHeroX]       = useState(0)
   const [heroY,       setHeroY]       = useState(0)
@@ -2483,10 +2488,11 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     if (tpl?.id === 13) { setTextSize(52); setTextTop(32);  setTextLeft(36);  setLogoColor('white');    setLogoTop(28); setLogoRight(36);  setLogoSize(40) }
     if (tpl?.id === 14) { setTextSize(46); setTextTop(32);  setTextLeft(36);  setLogoColor('original'); setLogoTop(28); setLogoRight(40);  setLogoSize(32) }
     if (tpl?.id === 15) { setTextSize(38); setTextTop(20);  setTextLeft(48);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
+    if (tpl?.id === 16) { setTextSize(40); setTextTop(14);  setTextLeft(52);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
   }, [tpl?.id])  // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Week template image generation ───────────────────────────────────────────
-  const isWeekTemplate = [9, 10, 11, 12, 13, 14, 15, 5].includes(tpl?.id)
+  const isWeekTemplate = [9, 10, 11, 12, 13, 14, 15, 16, 5].includes(tpl?.id)
   const [weekGenUrls,     setWeekGenUrls]     = useState({})  // { [tplId]: { hero, sec, ter } }
   const [weekGenLoading,  setWeekGenLoading]  = useState(false)
   const [weekGenError,    setWeekGenError]    = useState(null)
@@ -2504,7 +2510,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
       if (tplUrls.ter)  effectiveImages[5] = { url: tplUrls.ter,  focalX: 50, focalY: 50 }
     }
     const editorProps = isEditable ? { heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y } : {}
-    const isHeroGenerated = [10, 11, 12, 13, 14, 15].includes(tpl?.id) && !!tplUrls.hero
+    const isHeroGenerated = [10, 11, 12, 13, 14, 15, 16].includes(tpl?.id) && !!tplUrls.hero
     const effectiveFooterData = clientFooter
       ? { ...clientFooter, logoColor: footerLogoColor, footerLogoSize }
       : clientFooter
@@ -2766,6 +2772,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     // Week 4: bake hero inset card + two stacked property card images
     const isWeek2 = tpl?.id === 10
     const isWeek3 = tpl?.id === 11
+    const isWeek3v2 = tpl?.id === 16
     const isWeek4   = tpl?.id === 12 || tpl?.id === 15
     const isWeek4v2 = tpl?.id === 15
     const isWeek5 = tpl?.id === 13
@@ -2790,7 +2797,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
   </div>
 </div>
 </body></html>`
-      : isWeek3
+      : (isWeek3 || isWeek3v2)
       ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&display=swap" rel="stylesheet"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;}</style>
@@ -2907,6 +2914,40 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
   ${w3BodySrc ? `<div style="overflow:hidden;width:520px;height:320px;border-radius:14px;"><img src="${w3BodySrc}" alt="" width="520" style="width:520px;height:320px;object-fit:cover;display:block;object-position:${w3BodyFp};transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/></div>` : `<div style="width:520px;height:320px;background:#e8e4de;border-radius:14px;"></div>`}
 </div>
 </body></html>`
+
+    // Week 3 v2 transparent versions (no midBg fill — lets page background show through)
+    const w3v2StackedHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
+</head><body>
+<div style="position:relative;width:600px;height:420px;background:transparent;">
+  <div style="position:absolute;left:28px;top:24px;width:272px;height:372px;border-radius:20px;transform:rotate(-3deg);transform-origin:center center;box-shadow:4px 0 20px rgba(0,0,0,0.18);overflow:hidden;z-index:1;">
+    ${img1Url ? `<img src="${img1Url}" style="width:272px;height:372px;object-fit:cover;display:block;object-position:${card1Fp4};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/>` : ''}
+  </div>
+  <div style="position:absolute;left:296px;top:24px;width:272px;height:372px;border-radius:20px;transform:rotate(3deg);transform-origin:center center;box-shadow:-4px 0 20px rgba(0,0,0,0.18);overflow:hidden;z-index:2;">
+    ${card2Url ? `<img src="${card2Url}" style="width:272px;height:372px;object-fit:cover;display:block;object-position:${img2Url ? card2Fp4 : card1Fp4};transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/>` : ''}
+  </div>
+</div>
+</body></html>`
+
+    const w3v2BodyHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
+</head><body>
+<div style="padding:20px 40px 0;background:transparent;width:600px;">
+  ${w3BodySrc ? `<div style="overflow:hidden;width:520px;height:320px;border-radius:14px;"><img src="${w3BodySrc}" alt="" width="520" style="width:520px;height:320px;object-fit:cover;display:block;object-position:${w3BodyFp};transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/></div>` : `<div style="width:520px;height:320px;background:#e8e4de;border-radius:14px;"></div>`}
+</div>
+</body></html>`
+
+    const w3v2AccentColor = clientFooter?.buttonColor || '#1a1a1a'
+    const w3v2CtaText     = generatedCopy?.ctaText || 'Book Now'
+    const w3v2ButtonHtml  = isWeek3v2 ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
+</head><body>
+<div style="width:600px;text-align:center;">
+  <div style="display:inline-block;background:${w3v2AccentColor};border-radius:999px;padding:15px 40px;">
+    <span style="font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff;white-space:nowrap;display:inline-flex;align-items:center;gap:10px;">${w3v2CtaText}<span style="display:inline-flex;align-items:center;gap:0;"><span style="display:inline-block;width:12px;height:2px;background:#ffffff;vertical-align:middle;"></span><span style="display:inline-block;width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:7px solid #ffffff;vertical-align:middle;"></span></span></span>
+  </div>
+</div>
+</body></html>` : null
 
     const polaroidHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:#f5f0e8}</style>
@@ -3048,8 +3089,10 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
 </div>
 </body></html>`
 
-    const heroHeight = isWeek2 ? 460 : isWeek3 ? 600 : isWeek4 ? 740 : isWeek5 ? 720 : isWeek6 ? 820 : 400
-    const secondaryPromise = isWeek3 && (img1Url || img2Url)
+    const heroHeight = isWeek2 ? 460 : (isWeek3 || isWeek3v2) ? 600 : isWeek4 ? 740 : isWeek5 ? 720 : isWeek6 ? 820 : 400
+    const secondaryPromise = isWeek3v2 && (img1Url || img2Url)
+      ? renderImage({ html: w3v2StackedHtml, width: 600, height: 420, transparent: true })
+      : isWeek3 && (img1Url || img2Url)
       ? renderImage({ html: stackedHtml, width: 600, height: 420 })
       : isWeek4
         ? renderImage({ html: week4Card1Html, width: 600, height: 544, transparent: isWeek4v2 })
@@ -3061,7 +3104,9 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
               ? renderImage({ html: polaroidHtml, width: 600, height: 340 })
               : Promise.resolve(null)
 
-    const tertiaryPromise = isWeek3 && (img3Url || img1Url)
+    const tertiaryPromise = isWeek3v2 && (img3Url || img1Url)
+      ? renderImage({ html: w3v2BodyHtml, width: 600, height: 340, transparent: true })
+      : isWeek3 && (img3Url || img1Url)
       ? renderImage({ html: week3BodyHtml, width: 600, height: 340 })
       : isWeek4
         ? renderImage({ html: week4Card2Html, width: 600, height: 592, transparent: isWeek4v2 })
@@ -3069,12 +3114,14 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
 
     const buttonPromise = isWeek4v2 && w4ButtonHtml
       ? renderImage({ html: w4ButtonHtml, width: 600, height: 72, transparent: true })
+      : isWeek3v2 && w3v2ButtonHtml
+      ? renderImage({ html: w3v2ButtonHtml, width: 600, height: 72, transparent: true })
       : Promise.resolve(null)
 
     const heroHtmlToUse = isWeek4 ? week4HeroHtml : isWeek5 ? week5HeroHtml : isWeek6 ? week6HeroHtml : heroHtml
 
     Promise.all([
-      renderImage({ html: heroHtmlToUse, width: 600, height: heroHeight, transparent: isWeek4v2 }),
+      renderImage({ html: heroHtmlToUse, width: 600, height: heroHeight, transparent: isWeek4v2 || isWeek3v2 }),
       secondaryPromise,
       tertiaryPromise,
       buttonPromise,
@@ -3634,6 +3681,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
             if (tpl?.id === 13) { setTextSize(52); setTextTop(32);  setTextLeft(36);  setLogoColor('white');    setLogoTop(28); setLogoRight(36);  setLogoSize(40) }
             if (tpl?.id === 14) { setTextSize(46); setTextTop(32);  setTextLeft(36);  setLogoColor('original'); setLogoTop(28); setLogoRight(40);  setLogoSize(32) }
             if (tpl?.id === 15) { setTextSize(38); setTextTop(20);  setTextLeft(48);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
+            if (tpl?.id === 16) { setTextSize(40); setTextTop(14);  setTextLeft(52);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
           }} style={{
             width: '100%', padding: '7px 0', borderRadius: 8, fontSize: 11, fontWeight: 600,
             cursor: 'pointer',
