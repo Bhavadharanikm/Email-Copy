@@ -474,6 +474,7 @@ function buildTemplateWeek2v2({ client, copy, images, footerData, isHeroGenerate
   const img2Obj  = images?.[2]; const img2    = img2Obj?.url||''
   const img3Obj  = images?.[3]; const img3    = img3Obj?.url||''
   const img4     = images?.[4]?.url || ''
+  const img5     = images?.[5]?.url || ''
   const body     = (copy.bodyText||'').replace(/\n/g,'<br>')
   const b2body   = (copy.bodyBlock2||'').replace(/\n/g,'<br>')
   const logoUrl  = client?.logoUrl||''
@@ -532,11 +533,18 @@ function buildTemplateWeek2v2({ client, copy, images, footerData, isHeroGenerate
   <!-- CTA -->
   ${copy.ctaText ? `<div style="padding:24px 48px 28px;text-align:center;background-color:${pageBg};"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;background:${accent};color:#ffffff;padding:14px 40px;font-size:16px;font-weight:600;letter-spacing:.06em;text-decoration:none;font-family:Arial,sans-serif;border-radius:50px;">${copy.ctaText}</a></div>` : ''}
 
-  <!-- SUB IMAGES: transparent PNG when generated, inline otherwise -->
+  <!-- LONG IMAGE (img1): transparent PNG above body text -->
   ${isHeroGenerated && img4
     ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><img src="${img4}" alt="" width="600" style="width:100%;display:block;max-width:600px;"/></div>`
-    : `${img1 ? `<div style="line-height:0;font-size:0;padding:0 36px 16px;background-color:${pageBg};"><div style="overflow:hidden;border-radius:8px;height:260px;"><img src="${img1}" alt="" style="width:100%;height:260px;object-fit:cover;display:block;object-position:${focalPos(img1Obj)};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/></div></div>` : ''}
-    ${img2 ? `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;background-color:${pageBg};">
+    : img1 ? `<div style="line-height:0;font-size:0;padding:0 36px 16px;background-color:${pageBg};"><div style="overflow:hidden;border-radius:8px;height:260px;"><img src="${img1}" alt="" style="width:100%;height:260px;object-fit:cover;display:block;object-position:${focalPos(img1Obj)};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/></div></div>` : ''}
+
+  <!-- BODY BLOCK -->
+  ${copy.bodyText ? `<div style="padding:24px 48px 32px;background-color:${pageBg};"><div style="font-size:18px;line-height:1.8;color:${mutedTextCol};margin-bottom:18px;font-family:Arial,sans-serif;">${body}</div></div>` : ''}
+
+  <!-- STRIP IMAGES (img2+img3): transparent PNG after body text -->
+  ${isHeroGenerated && img5
+    ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><img src="${img5}" alt="" width="600" style="width:100%;display:block;max-width:600px;"/></div>`
+    : img2 ? `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;background-color:${pageBg};">
       <tr><td style="padding:0 36px 24px;">
         <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;line-height:0;font-size:0;">
           <tr>
@@ -545,10 +553,7 @@ function buildTemplateWeek2v2({ client, copy, images, footerData, isHeroGenerate
           </tr>
         </table>
       </td></tr>
-    </table>` : ''}`}
-
-  <!-- BODY BLOCK -->
-  ${copy.bodyText ? `<div style="padding:24px 48px 32px;background-color:${pageBg};"><div style="font-size:18px;line-height:1.8;color:${mutedTextCol};margin-bottom:18px;font-family:Arial,sans-serif;">${body}</div></div>` : ''}
+    </table>` : ''}
 
   <!-- BODY BLOCK 2: title + body2 + closing + CTA -->
   ${(copy.bodyBlock2Title || copy.bodyBlock2 || copy.closingLine) ? `
@@ -3154,23 +3159,31 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
 </div>
 </body></html>`
 
-    // ── Week 2 sub-images: long img1 + side-by-side img2/img3, transparent bg ──
+    // ── Week 2 v2: img1 (long) and img2/img3 (strip) as separate transparent PNGs ──
     const w2img1Fp = selectedImages?.[1]?.focalX != null ? `${selectedImages[1].focalX}% ${selectedImages[1].focalY}%` : '50% 50%'
     const w2img2Fp = selectedImages?.[2]?.focalX != null ? `${selectedImages[2].focalX}% ${selectedImages[2].focalY}%` : '50% 50%'
     const w2img3Fp = selectedImages?.[3]?.focalX != null ? `${selectedImages[3].focalX}% ${selectedImages[3].focalY}%` : '50% 50%'
-    const week2SubImgHeight = (img1Url ? 276 : 0) + (img2Url ? 244 : 0)
-    const week2SubImgHtml = (img1Url || img2Url) ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+    const week2LongImgHtml = img1Url ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
 </head><body>
-<div style="width:600px;background:transparent;">
-  ${img1Url ? `<div style="padding:0 36px 16px;line-height:0;font-size:0;"><div style="overflow:hidden;border-radius:8px;height:260px;"><img src="${img1Url}" alt="" style="width:100%;height:260px;object-fit:cover;display:block;object-position:${w2img1Fp};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/></div></div>` : ''}
-  ${img2Url ? `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;"><tr><td style="padding:0 4px 24px 36px;vertical-align:top;"><div style="overflow:hidden;border-radius:6px;height:220px;"><img src="${img2Url}" alt="" style="width:100%;height:220px;object-fit:cover;display:block;object-position:${w2img2Fp};transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/></div></td>${img3Url ? `<td style="padding:0 36px 24px 4px;vertical-align:top;"><div style="overflow:hidden;border-radius:6px;height:220px;"><img src="${img3Url}" alt="" style="width:100%;height:220px;object-fit:cover;display:block;object-position:${w2img3Fp};transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/></div></td>` : ''}</tr></table>` : ''}
+<div style="padding:0 36px 16px;line-height:0;font-size:0;background:transparent;">
+  <div style="overflow:hidden;border-radius:8px;height:260px;"><img src="${img1Url}" alt="" style="width:100%;height:260px;object-fit:cover;display:block;object-position:${w2img1Fp};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/></div>
 </div>
 </body></html>` : null
+    const week2StripHtml = img2Url ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
+</head><body>
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;background:transparent;">
+  <tr>
+    <td style="padding:0 4px 24px 36px;vertical-align:top;"><div style="overflow:hidden;border-radius:6px;height:220px;"><img src="${img2Url}" alt="" style="width:100%;height:220px;object-fit:cover;display:block;object-position:${w2img2Fp};transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/></div></td>
+    ${img3Url ? `<td style="padding:0 36px 24px 4px;vertical-align:top;"><div style="overflow:hidden;border-radius:6px;height:220px;"><img src="${img3Url}" alt="" style="width:100%;height:220px;object-fit:cover;display:block;object-position:${w2img3Fp};transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/></div></td>` : ''}
+  </tr>
+</table>
+</body></html>` : null
 
-    const heroHeight = (isWeek2 || isWeek2v2) ? 580 :(isWeek3 || isWeek3v2) ? 600 : isWeek4 ? 740 : isWeek5 ? 720 : isWeek6 ? 820 : 400
-    const secondaryPromise = isWeek2v2 && (img1Url || img2Url)
-      ? renderImage({ html: week2SubImgHtml, width: 600, height: week2SubImgHeight, transparent: true })
+    const heroHeight = (isWeek2 || isWeek2v2) ? 580 : (isWeek3 || isWeek3v2) ? 600 : isWeek4 ? 740 : isWeek5 ? 720 : isWeek6 ? 820 : 400
+    const secondaryPromise = isWeek2v2 && img1Url
+      ? renderImage({ html: week2LongImgHtml, width: 600, height: 276, transparent: true })
       : isWeek3v2 && (img1Url || img2Url)
       ? renderImage({ html: w3v2StackedHtml, width: 600, height: 420, transparent: true })
       : isWeek3 && (img1Url || img2Url)
@@ -3185,7 +3198,9 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
               ? renderImage({ html: polaroidHtml, width: 600, height: 340 })
               : Promise.resolve(null)
 
-    const tertiaryPromise = isWeek3v2 && (img3Url || img1Url)
+    const tertiaryPromise = isWeek2v2 && img2Url
+      ? renderImage({ html: week2StripHtml, width: 600, height: 244, transparent: true })
+      : isWeek3v2 && (img3Url || img1Url)
       ? renderImage({ html: w3v2BodyHtml, width: 600, height: 340, transparent: true })
       : isWeek3 && (img3Url || img1Url)
       ? renderImage({ html: week3BodyHtml, width: 600, height: 340 })
