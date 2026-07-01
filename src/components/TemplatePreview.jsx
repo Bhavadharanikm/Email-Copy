@@ -362,57 +362,50 @@ function buildTemplateWeek2({ client, copy, images, footerData, isHeroGenerated 
   const img1Obj  = images?.[1]; const img1    = img1Obj?.url||''
   const img2Obj  = images?.[2]; const img2    = img2Obj?.url||''
   const img3Obj  = images?.[3]; const img3    = img3Obj?.url||''
+  const img4     = images?.[4]?.url || ''
   const body     = (copy.bodyText||'').replace(/\n/g,'<br>')
   const b2body   = (copy.bodyBlock2||'').replace(/\n/g,'<br>')
   const logoUrl  = client?.logoUrl||''
-  const pageBg     = footerData?.bgColor      || '#1e2a4a'
-  const midBg      = '#fffffe'
-  const accentClr  = footerData?.buttonColor || '#d4006a'
-  const secondaryClr = footerData?.secondaryColor || accentClr
+  const pageBg   = footerData?.bgColor || '#1e2a4a'
+  const accent   = footerData?.buttonColor || '#d4006a'
+  const secondary = footerData?.secondaryColor || accent
   const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
 
-  const WHITE_BG = 'background-color:#ffffff;background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%)'
-  const PAGE_BG  = `background-color:${pageBg};background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)`
+  const _rgb = pageBg.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i)
+  const _r = _rgb ? parseInt(_rgb[1],16) : 30
+  const _g = _rgb ? parseInt(_rgb[2],16) : 42
+  const _b = _rgb ? parseInt(_rgb[3],16) : 74
+  const _lum = (0.299*_r + 0.587*_g + 0.114*_b)/255
+  const lightBg      = _lum > 0.55
+  const mutedTextCol = lightBg ? '#595959' : '#d4d4d4'
+  const dividerCol   = lightBg ? '#e0e0e0' : '#444444'
 
   const logoOverlay = logoUrl
     ? `<img src="${logoUrl}" alt="${client?.name||''}" style="display:inline-block;height:${logoSize}px;width:auto;max-width:${logoSize * 6}px;filter:${logoFilter};"/>`
-    : `<div style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:#1a1a1a;margin-bottom:10px;">${client?.name||''}</div>`
+    : `<div style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:${mutedTextCol};margin-bottom:10px;">${client?.name||''}</div>`
 
-  return `<!DOCTYPE html><html lang="en" style="color-scheme:light"><head><meta charset="UTF-8"/>
-<meta name="color-scheme" content="light">
-<meta name="supported-color-schemes" content="light">
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
 <style>
-  :root{color-scheme:light;supported-color-schemes:light}
   *{box-sizing:border-box;margin:0;padding:0}
-  body{${PAGE_BG};color:#1a1a1a;}
+  body{margin:0;padding:0;color:#1a1a1a;}
   table{border-collapse:collapse;}
-  u + .body .gmailfix { background-color:#ffffff!important; background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%)!important; }
-  u + .body .gmailfix-page { background-color:${pageBg}!important; background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)!important; }
-  u + .body .gmailtext-dark  { color:#1a1a1a!important; }
-  u + .body .gmailtext-muted { color:#555!important; }
-  @media (prefers-color-scheme:dark){
-    html,body{ ${PAGE_BG}; color:#1a1a1a!important; }
-    .gmailfix { background-color:#ffffff!important; background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%)!important; }
-    .gmailfix-page { background-color:${pageBg}!important; background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)!important; }
-    .gmailtext-dark  { color:#1a1a1a!important; }
-    .gmailtext-muted { color:#555!important; }
-  }
-</style></head><body class="body" style="${PAGE_BG};margin:0;padding:0;font-family:Arial,sans-serif;color:#1a1a1a!important;">
-<table width="100%" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="${PAGE_BG};border-collapse:collapse;">
-<tr><td align="center" class="gmailfix-page" style="padding:32px 0;${PAGE_BG};">
-<table width="600" cellpadding="0" cellspacing="0" class="gmailfix" bgcolor="#ffffff" style="width:600px;max-width:600px;${WHITE_BG};border-collapse:collapse;border-radius:20px;overflow:hidden;">
-<tr><td class="gmailfix" style="${WHITE_BG};">
+</style></head>
+<body style="margin:0;padding:32px 0 48px;background-color:#ffffff;">
 
-  <!-- LOGO HEADER (always above arch) -->
-  <div style="padding:${logoTop}px 32px 18px;text-align:center;${WHITE_BG};">${logoOverlay}</div>
+<table width="600" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="width:600px;max-width:600px;margin:0 auto;background-color:${pageBg};border-collapse:collapse;border-radius:20px;overflow:hidden;">
+<tr><td style="background-color:${pageBg};">
 
-  <!-- HERO: generated composite PNG (logo+arch+text baked in) or CSS fallback for preview -->
+  <!-- LOGO HEADER -->
+  <div style="padding:${logoTop}px 32px 18px;text-align:center;background-color:${pageBg};">${logoOverlay}</div>
+
+  <!-- HERO: transparent PNG or CSS preview -->
   ${isHeroGenerated
-    ? `<div style="line-height:0;font-size:0;${WHITE_BG};"><img src="${heroImg}" alt="" width="600" style="width:100%;display:block;max-width:600px;"/></div>`
-    : `<div style="position:relative;line-height:0;font-size:0;padding:0 36px;${WHITE_BG};height:580px;overflow:hidden;">
+    ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><img src="${heroImg}" alt="" width="600" style="width:100%;display:block;max-width:600px;"/></div>`
+    : `<div style="position:relative;line-height:0;font-size:0;padding:0 36px;background-color:${pageBg};height:460px;overflow:hidden;">
     ${heroImg
-      ? `<img src="${heroImg}" alt="" style="width:100%;height:580px;object-fit:cover;display:block;border-radius:999px 999px 0 0;object-position:calc(50% + ${heroX}px) calc(50% + ${heroY}px);transform:scale(${heroScale});transform-origin:50% 50%;"/>`
-      : `<div style="width:100%;height:580px;background:#f0c8b8;border-radius:999px 999px 0 0;text-align:center;color:${accentClr};font-size:12px;font-family:Arial,sans-serif;line-height:580px;">Hero image</div>`}
+      ? `<img src="${heroImg}" alt="" style="width:100%;height:460px;object-fit:cover;display:block;border-radius:999px 999px 0 0;object-position:calc(50% + ${heroX}px) calc(50% + ${heroY}px);transform:scale(${heroScale});transform-origin:50% 50%;"/>`
+      : `<div style="width:100%;height:460px;background:#f0c8b8;border-radius:999px 999px 0 0;text-align:center;color:${accent};font-size:12px;font-family:Arial,sans-serif;line-height:460px;">Hero image</div>`}
     <div style="position:absolute;top:0;left:36px;right:36px;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0) 0%,rgba(0,0,0,0) 50%,rgba(0,0,0,0.45) 100%);border-radius:999px 999px 0 0;">
       <table width="100%" height="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;height:100%;border-collapse:collapse;">
         <tr><td valign="bottom" align="center" style="vertical-align:bottom;text-align:center;padding:0 ${textLeft}px ${textTop}px;">
@@ -423,42 +416,43 @@ function buildTemplateWeek2({ client, copy, images, footerData, isHeroGenerated 
   </div>`}
 
   <!-- SUBHEAD -->
-  ${copy.subhead ? `<div style="padding:28px 48px 4px;text-align:center;${WHITE_BG};"><div style="font-family:Georgia,serif;font-size:20px;font-weight:400;font-style:italic;color:#878787;line-height:1.5;">${copy.subhead}</div></div>` : ''}
+  ${copy.subhead ? `<div style="padding:28px 48px 4px;text-align:center;background-color:${pageBg};"><div style="font-family:Georgia,serif;font-size:20px;font-weight:400;font-style:italic;color:${mutedTextCol};line-height:1.5;">${copy.subhead}</div></div>` : ''}
 
   <!-- CTA -->
-  ${copy.ctaText ? `<div style="padding:24px 48px 28px;text-align:center;${WHITE_BG};"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;background:${accentClr};color:#fff!important;padding:14px 40px;font-size:16px;font-weight:600;letter-spacing:.06em;text-decoration:none!important;font-family:Arial,sans-serif;border-radius:50px;">${copy.ctaText}</a></div>` : ''}
+  ${copy.ctaText ? `<div style="padding:24px 48px 28px;text-align:center;background-color:${pageBg};"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;background:${accent};color:#ffffff;padding:14px 40px;font-size:16px;font-weight:600;letter-spacing:.06em;text-decoration:none;font-family:Arial,sans-serif;border-radius:50px;">${copy.ctaText}</a></div>` : ''}
 
-  <!-- LONG IMAGE (img1) -->
-  ${img1 ? `<div style="line-height:0;font-size:0;padding:0 36px 16px;${WHITE_BG};"><div style="overflow:hidden;border-radius:8px;height:260px;"><img src="${img1}" alt="" style="width:100%;height:260px;object-fit:cover;display:block;object-position:${focalPos(img1Obj)};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/></div></div>` : ''}
+  <!-- SUB IMAGES: transparent PNG when generated, inline otherwise -->
+  ${isHeroGenerated && img4
+    ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><img src="${img4}" alt="" width="600" style="width:100%;display:block;max-width:600px;"/></div>`
+    : `${img1 ? `<div style="line-height:0;font-size:0;padding:0 36px 16px;background-color:${pageBg};"><div style="overflow:hidden;border-radius:8px;height:260px;"><img src="${img1}" alt="" style="width:100%;height:260px;object-fit:cover;display:block;object-position:${focalPos(img1Obj)};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/></div></div>` : ''}
+    ${img2 ? `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;background-color:${pageBg};">
+      <tr><td style="padding:0 36px 24px;">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;line-height:0;font-size:0;">
+          <tr>
+            <td width="49%" style="padding-right:4px;vertical-align:top;"><div style="overflow:hidden;border-radius:6px;height:220px;"><img src="${img2}" alt="" width="100%" style="width:100%;height:220px;object-fit:cover;display:block;object-position:${focalPos(img2Obj)};transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/></div></td>
+            ${img3 ? `<td width="49%" style="padding-left:4px;vertical-align:top;"><div style="overflow:hidden;border-radius:6px;height:220px;"><img src="${img3}" alt="" width="100%" style="width:100%;height:220px;object-fit:cover;display:block;object-position:${focalPos(img3Obj)};transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/></div></td>` : ''}
+          </tr>
+        </table>
+      </td></tr>
+    </table>` : ''}`}
 
   <!-- BODY BLOCK -->
-  ${copy.bodyText ? `<div style="padding:24px 48px 32px;${WHITE_BG};"><div style="font-size:18px;line-height:1.8;color:#878787!important;margin-bottom:18px;font-family:Arial,sans-serif;">${body}</div></div>` : ''}
-
-  <!-- STRIP IMAGES (img2 + img3) — table layout, no flex -->
-  ${img2 ? `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;${WHITE_BG};">
-    <tr><td style="padding:0 36px 24px;">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;line-height:0;font-size:0;">
-        <tr>
-          ${img2 ? `<td width="49%" style="padding-right:4px;vertical-align:top;"><div style="overflow:hidden;border-radius:6px;height:220px;"><img src="${img2}" alt="" width="100%" style="width:100%;height:220px;object-fit:cover;display:block;object-position:${focalPos(img2Obj)};transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/></div></td>` : ''}
-          ${img3 ? `<td width="49%" style="padding-left:4px;vertical-align:top;"><div style="overflow:hidden;border-radius:6px;height:220px;"><img src="${img3}" alt="" width="100%" style="width:100%;height:220px;object-fit:cover;display:block;object-position:${focalPos(img3Obj)};transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/></div></td>` : ''}
-        </tr>
-      </table>
-    </td></tr>
-  </table>` : ''}
+  ${copy.bodyText ? `<div style="padding:24px 48px 32px;background-color:${pageBg};"><div style="font-size:18px;line-height:1.8;color:${mutedTextCol};margin-bottom:18px;font-family:Arial,sans-serif;">${body}</div></div>` : ''}
 
   <!-- BODY BLOCK 2: title + body2 + closing + CTA -->
   ${(copy.bodyBlock2Title || copy.bodyBlock2 || copy.closingLine) ? `
-  <div style="${WHITE_BG};padding:8px 36px 0;">
-    <div style="${WHITE_BG};border-radius:10px;padding:16px 20px;">
-      ${copy.bodyBlock2Title ? `<div style="font-size:14px;font-weight:700;font-family:Arial,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:${accentClr}!important;margin-bottom:6px;text-align:left;">${copy.bodyBlock2Title}</div>` : ''}
-      ${copy.bodyBlock2 ? `<div style="font-size:18px;line-height:1.8;color:#878787!important;margin-bottom:18px;font-family:Arial,sans-serif;">${b2body}</div>` : ''}
-      ${copy.closingLine ? `<div style="font-size:17px;line-height:1.7;color:#878787!important;font-style:italic;margin-bottom:24px;font-family:Georgia,serif;">${copy.closingLine}</div>` : ''}
+  <div style="background-color:${pageBg};padding:8px 36px 0;">
+    <div style="background-color:${pageBg};border-radius:10px;padding:16px 20px;">
+      ${copy.bodyBlock2Title ? `<div style="font-size:14px;font-weight:700;font-family:Arial,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:${secondary};margin-bottom:6px;text-align:left;">${copy.bodyBlock2Title}</div>` : ''}
+      ${copy.bodyBlock2 ? `<div style="font-size:18px;line-height:1.8;color:${mutedTextCol};margin-bottom:18px;font-family:Arial,sans-serif;">${b2body}</div>` : ''}
+      ${copy.closingLine ? `<div style="font-size:17px;line-height:1.7;color:${mutedTextCol};font-style:italic;margin-bottom:24px;font-family:Georgia,serif;">${copy.closingLine}</div>` : ''}
     </div>
-    ${copy.ctaText ? `<div style="padding:16px 0 36px;text-align:center;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;background:${accentClr};color:#fff!important;padding:14px 40px;font-size:16px;font-weight:600;letter-spacing:.06em;text-decoration:none!important;font-family:Arial,sans-serif;border-radius:50px;">${copy.ctaText}</a></div>` : ''}
+    ${copy.ctaText ? `<div style="padding:16px 0 36px;text-align:center;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;background:${accent};color:#ffffff;padding:14px 40px;font-size:16px;font-weight:600;letter-spacing:.06em;text-decoration:none;font-family:Arial,sans-serif;border-radius:50px;">${copy.ctaText}</a></div>` : ''}
   </div>` : ''}
 
-  ${buildFooter(client, footerData, { defaultBg: '#d4006a' })}
-</td></tr></table></td></tr></table></body></html>`
+  <div style="background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: dividerCol, sectionGap: 28, footerTextSize: 9 })}</div>
+</td></tr></table>
+</body></html>`
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -2714,9 +2708,9 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
 
     const heroHtml = isWeek2
       ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:${midBg};}</style>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
 </head><body>
-<div style="width:600px;height:460px;padding:0 36px;background:${midBg};box-sizing:border-box;line-height:0;font-size:0;">
+<div style="width:600px;height:460px;padding:0 36px;background:transparent;box-sizing:border-box;line-height:0;font-size:0;">
   <div style="position:relative;width:528px;height:460px;border-radius:999px 999px 0 0;overflow:hidden;">
     ${heroImgUrl ? `<img src="${heroImgUrl}" style="width:528px;height:460px;object-fit:cover;display:block;object-position:50% 50%;"/>` : `<div style="width:528px;height:460px;background:#c8c0b5;"></div>`}
     <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0) 0%,rgba(0,0,0,0) 50%,rgba(0,0,0,0.45) 100%);">
@@ -3043,8 +3037,24 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
 </div>
 </body></html>`
 
+    // ── Week 2 sub-images: long img1 + side-by-side img2/img3, transparent bg ──
+    const w2img1Fp = selectedImages?.[1]?.focalX != null ? `${selectedImages[1].focalX}% ${selectedImages[1].focalY}%` : '50% 50%'
+    const w2img2Fp = selectedImages?.[2]?.focalX != null ? `${selectedImages[2].focalX}% ${selectedImages[2].focalY}%` : '50% 50%'
+    const w2img3Fp = selectedImages?.[3]?.focalX != null ? `${selectedImages[3].focalX}% ${selectedImages[3].focalY}%` : '50% 50%'
+    const week2SubImgHeight = (img1Url ? 276 : 0) + (img2Url ? 244 : 0)
+    const week2SubImgHtml = (img1Url || img2Url) ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
+</head><body>
+<div style="width:600px;background:transparent;">
+  ${img1Url ? `<div style="padding:0 36px 16px;line-height:0;font-size:0;"><div style="overflow:hidden;border-radius:8px;height:260px;"><img src="${img1Url}" alt="" style="width:100%;height:260px;object-fit:cover;display:block;object-position:${w2img1Fp};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/></div></div>` : ''}
+  ${img2Url ? `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;"><tr><td style="padding:0 4px 24px 36px;vertical-align:top;"><div style="overflow:hidden;border-radius:6px;height:220px;"><img src="${img2Url}" alt="" style="width:100%;height:220px;object-fit:cover;display:block;object-position:${w2img2Fp};transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/></div></td>${img3Url ? `<td style="padding:0 36px 24px 4px;vertical-align:top;"><div style="overflow:hidden;border-radius:6px;height:220px;"><img src="${img3Url}" alt="" style="width:100%;height:220px;object-fit:cover;display:block;object-position:${w2img3Fp};transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/></div></td>` : ''}</tr></table>` : ''}
+</div>
+</body></html>` : null
+
     const heroHeight = isWeek2 ? 460 : (isWeek3 || isWeek3v2) ? 600 : isWeek4 ? 740 : isWeek5 ? 720 : isWeek6 ? 820 : 400
-    const secondaryPromise = isWeek3v2 && (img1Url || img2Url)
+    const secondaryPromise = isWeek2 && (img1Url || img2Url)
+      ? renderImage({ html: week2SubImgHtml, width: 600, height: week2SubImgHeight, transparent: true })
+      : isWeek3v2 && (img1Url || img2Url)
       ? renderImage({ html: w3v2StackedHtml, width: 600, height: 420, transparent: true })
       : isWeek3 && (img1Url || img2Url)
       ? renderImage({ html: stackedHtml, width: 600, height: 420 })
@@ -3079,7 +3089,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     const heroHtmlToUse = isWeek4 ? week4HeroHtml : isWeek5 ? week5HeroHtml : isWeek6 ? week6HeroHtml : heroHtml
 
     Promise.all([
-      renderImage({ html: heroHtmlToUse, width: 600, height: heroHeight, transparent: isWeek4v2 || isWeek3v2 || isWeek5 || isWeek6 }),
+      renderImage({ html: heroHtmlToUse, width: 600, height: heroHeight, transparent: isWeek2 || isWeek4v2 || isWeek3v2 || isWeek5 || isWeek6 }),
       secondaryPromise,
       tertiaryPromise,
       buttonPromise,
