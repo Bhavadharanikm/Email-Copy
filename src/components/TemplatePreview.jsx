@@ -468,6 +468,7 @@ function buildTemplateWeek2v2({ client, copy, images, footerData, isHeroGenerate
   img1Scale=1, img1X=0, img1Y=0,
   img2Scale=1, img2X=0, img2Y=0,
   img3Scale=1, img3X=0, img3Y=0,
+  btnImgUrl = null,
 }) {
   const heroObj  = images?.[0]; const heroImg = heroObj?.url||''
   const img1Obj  = images?.[1]; const img1    = img1Obj?.url||''
@@ -564,7 +565,10 @@ function buildTemplateWeek2v2({ client, copy, images, footerData, isHeroGenerate
       ${copy.bodyBlock2 ? `<div style="font-size:15px;line-height:1.8;color:${mutedTextCol};margin-bottom:18px;font-family:Arial,sans-serif;">${b2body}</div>` : ''}
       ${copy.closingLine ? `<div style="font-size:15px;line-height:1.7;color:${mutedTextCol};font-style:italic;margin-bottom:24px;font-family:Georgia,serif;">${copy.closingLine}</div>` : ''}
     </div>
-    ${copy.ctaText ? `<div style="padding:16px 0 36px;text-align:center;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;background:${accent};color:#ffffff;padding:14px 40px;font-size:16px;font-weight:600;letter-spacing:.06em;text-decoration:none;font-family:Arial,sans-serif;border-radius:50px;">${copy.ctaText}</a></div>` : ''}
+    ${copy.ctaText ? `<div style="padding:16px 0 36px;text-align:center;">${btnImgUrl
+      ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img src="${btnImgUrl}" alt="${copy.ctaText}" width="600" style="width:100%;max-width:600px;display:block;border:0;outline:none;"/></a>`
+      : `<a href="${copy.ctaUrl||'#'}" style="display:inline-block;background:${accent};color:#ffffff;padding:14px 40px;font-size:16px;font-weight:600;letter-spacing:.06em;text-decoration:none;font-family:Arial,sans-serif;border-radius:50px;">${copy.ctaText}</a>`
+    }</div>` : ''}
   </div>` : ''}
 
   <div style="background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: dividerCol, sectionGap: 28, footerTextSize: 9 })}</div>
@@ -3010,6 +3014,18 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 
     const w3v2AccentColor = clientFooter?.buttonColor || '#1a1a1a'
     const w3v2CtaText     = generatedCopy?.ctaText || 'Book Now'
+    const w2v2AccentColor = clientFooter?.buttonColor || '#d4006a'
+    const w2v2CtaText     = generatedCopy?.ctaText || 'Book Now'
+    const w2v2ButtonHtml  = isWeek2v2 ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
+</head><body>
+<div style="width:600px;text-align:center;">
+  <div style="display:inline-block;background:${w2v2AccentColor};border-radius:999px;padding:15px 40px;">
+    <span style="font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff;white-space:nowrap;display:inline-flex;align-items:center;gap:10px;">${w2v2CtaText}<span style="display:inline-flex;align-items:center;gap:0;"><span style="display:inline-block;width:12px;height:2px;background:#ffffff;vertical-align:middle;"></span><span style="display:inline-block;width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:7px solid #ffffff;vertical-align:middle;"></span></span></span>
+  </div>
+</div>
+</body></html>` : null
+
     const w3v2ButtonHtml  = isWeek3v2 ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
 </head><body>
@@ -3233,7 +3249,9 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
         ? renderImage({ html: week4Card2Html, width: 600, height: 592, transparent: isWeek4v2 })
         : Promise.resolve(null)
 
-    const buttonPromise = isWeek4v2 && w4ButtonHtml
+    const buttonPromise = isWeek2v2 && w2v2ButtonHtml
+      ? renderImage({ html: w2v2ButtonHtml, width: 600, height: 72, transparent: true })
+      : isWeek4v2 && w4ButtonHtml
       ? renderImage({ html: w4ButtonHtml, width: 600, height: 72, transparent: true })
       : isWeek3v2 && w3v2ButtonHtml
       ? renderImage({ html: w3v2ButtonHtml, width: 600, height: 72, transparent: true })
