@@ -510,8 +510,8 @@ function buildTemplateWeek2v2({ client, copy, images, footerData, isHeroGenerate
 <table width="600" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="width:600px;max-width:600px;margin:0 auto;background-color:${pageBg};border-collapse:collapse;border-radius:20px;overflow:hidden;">
 <tr><td style="background-color:${pageBg};">
 
-  <!-- LOGO HEADER -->
-  <div style="padding:${logoTop}px 32px 18px;text-align:center;background-color:${pageBg};">${logoOverlay}</div>
+  <!-- LOGO HEADER: only in CSS preview; generated PNG already includes the logo -->
+  ${!isHeroGenerated ? `<div style="padding:${logoTop}px 32px 18px;text-align:center;background-color:${pageBg};">${logoOverlay}</div>` : ''}
 
   <!-- HERO: transparent PNG or CSS preview -->
   ${isHeroGenerated
