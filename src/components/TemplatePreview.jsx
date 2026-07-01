@@ -643,8 +643,8 @@ function buildTemplateWeek3v2({ client, copy, images, footerData, isHeroGenerate
   const _rgb = pageBg.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i)
   const _lum = _rgb ? (0.299*parseInt(_rgb[1],16) + 0.587*parseInt(_rgb[2],16) + 0.114*parseInt(_rgb[3],16))/255 : 1
   const lightBg      = _lum > 0.55
-  const mutedTextCol = lightBg ? 'rgba(0,0,0,0.65)'  : 'rgba(255,255,255,0.85)'
-  const dividerCol   = lightBg ? 'rgba(0,0,0,0.12)'  : 'rgba(255,255,255,0.2)'
+  const mutedTextCol = lightBg ? '#595959'  : '#d4d4d4'
+  const dividerCol   = lightBg ? '#e0e0e0'  : '#444444'
 
   const logoHtml = logoUrl
     ? `<img src="${logoUrl}" alt="${client?.name||''}" style="height:${logoSize}px;width:auto;max-width:${logoSize * 5}px;display:inline-block;filter:${logoFilter};"/>`
@@ -670,28 +670,18 @@ function buildTemplateWeek3v2({ client, copy, images, footerData, isHeroGenerate
         </td></tr>`
       : ''
 
-  return `<!DOCTYPE html><html lang="en" style="color-scheme:light"><head><meta charset="UTF-8"/>
-<meta name="color-scheme" content="light">
-<meta name="supported-color-schemes" content="light">
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/>
+<meta name="color-scheme" content="light dark"/>
+<meta name="supported-color-schemes" content="light dark"/>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&display=swap"/>
 <style>
-  :root{color-scheme:light;supported-color-schemes:light}
+  :root{color-scheme:light dark}
   *{box-sizing:border-box;margin:0;padding:0}
   body{margin:0;padding:0;color:#1a1a1a;}
   table{border-collapse:collapse;}
-  u + .body .gmailfix { background-color:${pageBg}!important; background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)!important; }
-  u + .body .gmailbtn { background-color:${accentClr}!important; background-image:linear-gradient(to top,${accentClr} 0%,${accentClr} 100%)!important; }
-  u + .body .gmailtext-dark  { color:#1a1a1a!important; }
-  u + .body .gmailtext-muted { color:#555!important; }
-  @media (prefers-color-scheme:dark){
-    .gmailfix { background-color:${pageBg}!important; background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)!important; }
-    .gmailbtn { background-color:${accentClr}!important; background-image:linear-gradient(to top,${accentClr} 0%,${accentClr} 100%)!important; }
-    .gmailtext-dark  { color:#1a1a1a!important; }
-    .gmailtext-muted { color:#555!important; }
-  }
 </style></head><body class="body" style="margin:0;padding:32px 0 48px;">
 
-<table width="600" cellpadding="0" cellspacing="0" border="0" class="gmailfix" bgcolor="${pageBg}" style="width:600px;max-width:600px;margin:0 auto;${WHITE_BG};border-collapse:collapse;border-radius:20px;overflow:hidden;">
+<table width="600" cellpadding="0" cellspacing="0" border="0" bgcolor="${pageBg}" style="width:600px;max-width:600px;margin:0 auto;${WHITE_BG};border-collapse:collapse;border-radius:20px;overflow:hidden;">
 
     <!-- ── HERO ── -->
     ${isHeroGenerated
