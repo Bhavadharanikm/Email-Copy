@@ -2975,8 +2975,8 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;overflow:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}</style>
 </head><body>
-<!-- White header: logo left + nav link right -->
-<div style="background:#ffffff;width:600px;padding:0 0 20px;box-sizing:border-box;line-height:normal;font-size:initial;">
+<!-- Header: logo left + nav link right, bg matches email card pageBg -->
+<div style="background:${midBg};width:600px;padding:0 0 20px;box-sizing:border-box;line-height:normal;font-size:initial;">
   <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;width:100%;">
     <tr>
       <td style="padding:${logoTop}px 0 0 ${logoRight}px;vertical-align:top;">${w6LogoHtml}</td>
