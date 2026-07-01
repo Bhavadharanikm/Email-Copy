@@ -2050,9 +2050,9 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
   body{margin:0;padding:0;color:#1a1a1a;}
   table{border-collapse:collapse;}
 </style></head>
-<body class="body" style="margin:0;padding:0;background-color:${pageBg};">
+<body class="body" style="margin:0;padding:0;background-color:#ffffff;">
 
-<table width="100%" cellpadding="0" cellspacing="0" style="background-color:${pageBg};border-collapse:collapse;"><tr><td align="center" style="padding:24px 0 48px;background-color:${pageBg};">
+<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-collapse:collapse;"><tr><td align="center" style="padding:24px 0 48px;background-color:#ffffff;">
 
   <table width="600" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="width:600px;max-width:600px;background-color:${pageBg};border-collapse:collapse;border-radius:20px;overflow:hidden;">
 
