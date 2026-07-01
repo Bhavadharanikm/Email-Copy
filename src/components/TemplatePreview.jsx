@@ -105,8 +105,8 @@ function buildFooter(client, footerData = null, options = {}) {
     { url: website,   icon: `${CDN}/website_circle_grey.png`,   label: 'Website'   },
   ].filter(s => s.url)
 
-  const sectionGap     = options.sectionGap     || null
-  const footerTextSize = options.footerTextSize || 14
+  const sectionGap     = options.sectionGap     !== undefined ? options.sectionGap     : 28
+  const footerTextSize = options.footerTextSize !== undefined ? options.footerTextSize : 9
 
   const socialHtml = socialIcons.length ? `
     <div style="margin:0 0 ${sectionGap || 20}px;text-align:center;font-size:0">
