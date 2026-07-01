@@ -114,11 +114,11 @@ function buildFooter(client, footerData = null, options = {}) {
       ).join('')}
     </div>` : ''
 
-  const footerLogoFilter = logoColorOpt === 'white' ? 'brightness(0) invert(1)'
-    : logoColorOpt === 'black' ? 'brightness(0)'
-    : 'none'
+  const footerLogoFilter = logoColorOpt === 'original' ? 'none'
+    : light ? 'brightness(0)'
+    : 'brightness(0) invert(1)'
   const logoHtml = logoUrl
-    ? `<div style="margin:0 0 20px;text-align:center"><img src="${logoUrl}" alt="${name}" style="height:${fd.footerLogoSize || 40}px;width:auto;object-fit:contain;display:inline-block;filter:${footerLogoFilter};opacity:.8"/></div>`
+    ? `<div style="margin:0 0 20px;text-align:center"><img src="${logoUrl}" alt="${name}" style="height:${fd.footerLogoSize || 40}px;width:auto;object-fit:contain;display:inline-block;filter:${footerLogoFilter};opacity:.8;background-color:${bgRaw};"/></div>`
     : `<div style="margin:0 0 20px;font-size:16px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:${textCol};font-family:Arial,sans-serif">${name}</div>`
 
   const contactParts = [
@@ -2254,7 +2254,6 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
 const TEMPLATES = [
   { id:10, label:'⭐ Week 2',    build:buildTemplateWeek2 },
   { id:11, label:'⭐ Week 3',    build:buildTemplateWeek3 },
-  { id:12, label:'⭐ Week 4',    build:buildTemplateWeek4 },
   { id:13, label:'⭐ Week 5',    build:buildTemplateWeek5 },
   { id:14, label:'⭐ Week 6',    build:buildTemplateWeek6 },
   { id:15, label:'⭐ Week 4 v2', build:buildTemplateWeek4v2 },
