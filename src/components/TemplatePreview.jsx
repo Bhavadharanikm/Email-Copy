@@ -638,10 +638,14 @@ function buildTemplateWeek3v2({ client, copy, images, footerData, isHeroGenerate
   const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
 
   const _rgb = pageBg.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i)
-  const _lum = _rgb ? (0.299*parseInt(_rgb[1],16) + 0.587*parseInt(_rgb[2],16) + 0.114*parseInt(_rgb[3],16))/255 : 1
+  const _r = _rgb ? parseInt(_rgb[1],16) : 245
+  const _g = _rgb ? parseInt(_rgb[2],16) : 244
+  const _b = _rgb ? parseInt(_rgb[3],16) : 242
+  const _lum = (0.299*_r + 0.587*_g + 0.114*_b)/255
   const lightBg      = _lum > 0.55
   const mutedTextCol = lightBg ? '#595959'  : '#d4d4d4'
   const dividerCol   = lightBg ? '#e0e0e0'  : '#444444'
+  const pageBgRgba0  = `rgba(${_r},${_g},${_b},0)`
 
   const logoHtml = logoUrl
     ? `<img src="${logoUrl}" alt="${client?.name||''}" style="height:${logoSize}px;width:auto;max-width:${logoSize * 5}px;display:inline-block;filter:${logoFilter};"/>`
@@ -690,7 +694,7 @@ function buildTemplateWeek3v2({ client, copy, images, footerData, isHeroGenerate
               <div style="font-family:'Playfair Display',Georgia,serif;font-size:${textSize}px;font-weight:600;line-height:1.12;color:#fff;text-shadow:0 2px 20px rgba(0,0,0,0.4);">${copy.headlineText||''}</div>
             </div>
           </div>
-          <div style="position:absolute;bottom:0;left:0;right:0;height:160px;background:linear-gradient(to bottom,${pageBg}00,${pageBg});pointer-events:none;"></div>
+          <div style="position:absolute;bottom:0;left:0;right:0;height:200px;background:linear-gradient(to bottom,${pageBgRgba0} 0%,rgba(${_r},${_g},${_b},0.5) 60%,${pageBg} 100%);pointer-events:none;"></div>
         </td></tr>`}
 
     <!-- ── SUBHEAD + CTA ── -->
