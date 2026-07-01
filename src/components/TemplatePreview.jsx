@@ -637,8 +637,7 @@ function buildTemplateWeek3v2({ client, copy, images, footerData, isHeroGenerate
   const secondaryClr = footerData?.secondaryColor || accentClr
   const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
 
-  const PAGE_BG  = `background-color:${pageBg};background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)`
-  const WHITE_BG = PAGE_BG
+  const WHITE_BG = `background-color:${pageBg}`
 
   const _rgb = pageBg.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i)
   const _lum = _rgb ? (0.299*parseInt(_rgb[1],16) + 0.587*parseInt(_rgb[2],16) + 0.114*parseInt(_rgb[3],16))/255 : 1
