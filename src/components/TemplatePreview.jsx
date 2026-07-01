@@ -2049,6 +2049,11 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
   *{box-sizing:border-box;margin:0;padding:0}
   body{margin:0;padding:0;color:#1a1a1a;}
   table{border-collapse:collapse;}
+  @media only screen and (max-width:620px){
+    .w6-b2title{font-size:22px!important}
+    .w6-b2body{font-size:17px!important;line-height:1.85!important}
+    .w6-closing{font-size:17px!important;line-height:1.7!important}
+  }
 </style></head>
 <body class="body" style="margin:0;padding:24px 0 48px;background-color:#ffffff;">
 
@@ -2123,7 +2128,7 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
     <!-- ── Body block 2 title ── -->
     ${copy.bodyBlock2Title ? `
     <tr><td style="padding:32px 52px 16px;text-align:center;background-color:${pageBg};">
-      <p style="font-family:'Lora',serif;font-size:20px;font-weight:700;color:${secondary};line-height:1.25;margin:0;">${copy.bodyBlock2Title}</p>
+      <p class="w6-b2title" style="font-family:'Lora',serif;font-size:20px;font-weight:700;color:${secondary};line-height:1.25;margin:0;">${copy.bodyBlock2Title}</p>
     </td></tr>` : ''}
 
     <!-- ── Image grid ── -->
@@ -2159,13 +2164,13 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
     <!-- ── Body block 2 text ── -->
     ${copy.bodyBlock2 ? `
     <tr><td style="padding:32px 52px 0;text-align:center;background-color:${pageBg};">
-      <p style="font-family:Arial,sans-serif;font-size:15px;line-height:1.85;color:${mutedTextCol};margin:0;">${b2body}</p>
+      <p class="w6-b2body" style="font-family:Arial,sans-serif;font-size:15px;line-height:1.85;color:${mutedTextCol};margin:0;">${b2body}</p>
     </td></tr>` : ''}
 
     <!-- ── Closing line ── -->
     ${copy.closingLine ? `
     <tr><td style="padding:20px 52px 0;text-align:center;background-color:${pageBg};">
-      <p style="font-family:'Lora',serif;font-size:15px;font-style:italic;color:${mutedTextCol};line-height:1.7;margin:0;">${copy.closingLine}</p>
+      <p class="w6-closing" style="font-family:'Lora',serif;font-size:15px;font-style:italic;color:${mutedTextCol};line-height:1.7;margin:0;">${copy.closingLine}</p>
     </td></tr>` : ''}
 
     <!-- ── Final CTA ── -->
@@ -2335,7 +2340,7 @@ const TEMPLATES = [
   { id:10, label:'⭐ Week 2',  build:buildTemplateWeek2 },
   { id:16, label:'✅ Week 3',  build:buildTemplateWeek3v2 },
   { id:13, label:'✅ Week 5',  build:buildTemplateWeek5 },
-  { id:14, label:'⭐ Week 6',  build:buildTemplateWeek6 },
+  { id:14, label:'✅ Week 6',  build:buildTemplateWeek6 },
   { id:15, label:'✅ Week 4',  build:buildTemplateWeek4v2 },
 ]
 
