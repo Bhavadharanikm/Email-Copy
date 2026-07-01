@@ -637,8 +637,6 @@ function buildTemplateWeek3v2({ client, copy, images, footerData, isHeroGenerate
   const secondaryClr = footerData?.secondaryColor || accentClr
   const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
 
-  const WHITE_BG = `background-color:${pageBg}`
-
   const _rgb = pageBg.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i)
   const _lum = _rgb ? (0.299*parseInt(_rgb[1],16) + 0.587*parseInt(_rgb[2],16) + 0.114*parseInt(_rgb[3],16))/255 : 1
   const lightBg      = _lum > 0.55
@@ -653,12 +651,12 @@ function buildTemplateWeek3v2({ client, copy, images, footerData, isHeroGenerate
   const card2Obj = img2 ? img2Obj : img1Obj
 
   const stackedSection = isHeroGenerated && img4
-    ? `<tr><td class="gmailfix" style="padding:32px 0 8pt;text-align:center;${WHITE_BG};line-height:0;font-size:0;">
+    ? `<tr><td style="padding:32px 0 8pt;text-align:center;background-color:${pageBg};line-height:0;font-size:0;">
         <img src="${img4}" alt="" width="600" style="width:600px;max-width:100%;display:inline-block;"/>
       </td></tr>`
     : img1
-      ? `<tr><td class="gmailfix" style="padding:32px 0 8px;text-align:center;${WHITE_BG};line-height:0;font-size:0;">
-          <div style="position:relative;width:600px;height:420px;${WHITE_BG};">
+      ? `<tr><td style="padding:32px 0 8px;text-align:center;background-color:${pageBg};line-height:0;font-size:0;">
+          <div style="position:relative;width:600px;height:420px;background-color:${pageBg};">
             <div style="position:absolute;left:28px;top:24px;width:272px;height:372px;border-radius:20px;transform:rotate(-3deg);transform-origin:center center;box-shadow:4px 0 20px rgba(0,0,0,0.18);overflow:hidden;z-index:1;">
               <img src="${img1}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:${focalPos(img1Obj)};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/>
             </div>
@@ -670,17 +668,14 @@ function buildTemplateWeek3v2({ client, copy, images, footerData, isHeroGenerate
       : ''
 
   return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/>
-<meta name="color-scheme" content="light dark"/>
-<meta name="supported-color-schemes" content="light dark"/>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&display=swap"/>
 <style>
-  :root{color-scheme:light dark}
   *{box-sizing:border-box;margin:0;padding:0}
   body{margin:0;padding:0;color:#1a1a1a;}
   table{border-collapse:collapse;}
 </style></head><body class="body" style="margin:0;padding:32px 0 48px;">
 
-<table width="600" cellpadding="0" cellspacing="0" border="0" bgcolor="${pageBg}" style="width:600px;max-width:600px;margin:0 auto;${WHITE_BG};border-collapse:collapse;border-radius:20px;overflow:hidden;">
+<table width="600" cellpadding="0" cellspacing="0" border="0" bgcolor="${pageBg}" style="width:600px;max-width:600px;margin:0 auto;background-color:${pageBg};border-collapse:collapse;border-radius:20px;overflow:hidden;">
 
     <!-- ── HERO ── -->
     ${isHeroGenerated
@@ -699,15 +694,15 @@ function buildTemplateWeek3v2({ client, copy, images, footerData, isHeroGenerate
         </td></tr>`}
 
     <!-- ── SUBHEAD + CTA ── -->
-    <tr><td class="gmailfix" style="padding:${isHeroGenerated ? '40px' : '32px'} 52px 36px;text-align:center;${WHITE_BG};">
+    <tr><td style="padding:${isHeroGenerated ? '40px' : '32px'} 52px 36px;text-align:center;background-color:${pageBg};">
       ${copy.subhead ? `<div style="font-family:Georgia,serif;font-size:18px;font-style:italic;color:${mutedTextCol};line-height:1.6;margin-bottom:24px;max-width:460px;margin-left:auto;margin-right:auto;">${copy.subhead}</div>` : ''}
       ${btnImgUrl
         ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img src="${btnImgUrl}" alt="${copy.ctaText}" width="600" style="width:100%;max-width:600px;display:block;border:0;outline:none;"/></a>`
-        : copy.ctaText ? `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td class="gmailbtn" style="background-color:${accentClr};background-image:linear-gradient(to top,${accentClr} 0%,${accentClr} 100%);border-radius:100px;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:16px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;letter-spacing:.04em;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>` : ''}
+        : copy.ctaText ? `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background-color:${accentClr};border-radius:100px;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:16px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;letter-spacing:.04em;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>` : ''}
     </td></tr>
 
     <!-- ── DIVIDER ── -->
-    <tr><td class="gmailfix" style="padding:0 48px;${WHITE_BG};">
+    <tr><td style="padding:0 48px;background-color:${pageBg};">
       <div style="height:1px;width:100%;background:${dividerCol};font-size:0;line-height:0;"></div>
     </td></tr>
 
@@ -715,45 +710,45 @@ function buildTemplateWeek3v2({ client, copy, images, footerData, isHeroGenerate
     ${stackedSection}
 
     <!-- ── BODY TEXT ── -->
-    <tr><td class="gmailfix" style="padding:36px 52px 24px;${WHITE_BG};text-align:center;">
+    <tr><td style="padding:36px 52px 24px;background-color:${pageBg};text-align:center;">
       ${copy.bodyText ? `<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.9;color:${mutedTextCol};max-width:460px;margin-left:auto;margin-right:auto;">${body}</div>` : ''}
     </td></tr>
 
     <!-- ── DIVIDER 2 ── -->
-    <tr><td class="gmailfix" style="padding:0 48px;${WHITE_BG};">
+    <tr><td style="padding:0 48px;background-color:${pageBg};">
       <div style="height:1px;width:100%;background:${dividerCol};font-size:0;line-height:0;"></div>
     </td></tr>
 
     <!-- ── BODY BLOCK 2 TITLE + IMAGE + TEXT ── -->
     ${copy.bodyBlock2Title ? `
-    <tr><td class="gmailfix" style="padding:36px 52px 0;${WHITE_BG};text-align:center;">
+    <tr><td style="padding:36px 52px 0;background-color:${pageBg};text-align:center;">
       <div style="font-family:Arial,sans-serif;font-size:16px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:${secondaryClr};margin-bottom:0;">${copy.bodyBlock2Title}</div>
     </td></tr>` : ''}
 
     ${isHeroGenerated && img5
-      ? `<tr><td class="gmailfix" style="padding:0;line-height:0;font-size:0;text-align:center;${WHITE_BG};"><img src="${img5}" alt="" width="600" style="display:block;width:600px;max-width:100%;"/></td></tr>`
+      ? `<tr><td style="padding:0;line-height:0;font-size:0;text-align:center;background-color:${pageBg};"><img src="${img5}" alt="" width="600" style="display:block;width:600px;max-width:100%;"/></td></tr>`
       : (img3 || img1) ? `
-    <tr><td class="gmailfix" style="padding:20px 40px 0;${WHITE_BG};line-height:0;font-size:0;text-align:center;">
+    <tr><td style="padding:20px 40px 0;background-color:${pageBg};line-height:0;font-size:0;text-align:center;">
       <div style="display:inline-block;width:100%;max-width:520px;height:320px;border-radius:14px;overflow:hidden;">
         <img src="${img3 || img1}" alt="" width="520" style="width:100%;height:320px;object-fit:cover;display:block;object-position:${focalPos(img3 ? img3Obj : img1Obj)};transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/>
       </div>
     </td></tr>` : ''}
 
     ${(copy.bodyBlock2 || copy.closingLine) ? `
-    <tr><td class="gmailfix" style="padding:28px 52px 0;${WHITE_BG};text-align:center;">
+    <tr><td style="padding:28px 52px 0;background-color:${pageBg};text-align:center;">
       ${copy.bodyBlock2 ? `<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.9;color:${mutedTextCol};margin-bottom:18px;max-width:460px;margin-left:auto;margin-right:auto;">${b2body}</div>` : ''}
       ${copy.closingLine ? `<div style="font-family:Georgia,serif;font-size:15px;font-style:italic;color:${mutedTextCol};margin-bottom:28px;">${copy.closingLine}</div>` : ''}
     </td></tr>` : ''}
 
     <!-- ── REPEAT CTA ── -->
     ${copy.ctaText ? `
-    <tr><td class="gmailfix" style="padding:8px 52px 44px;text-align:center;${WHITE_BG};">
+    <tr><td style="padding:8px 52px 44px;text-align:center;background-color:${pageBg};">
       ${btnImgUrl
         ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img src="${btnImgUrl}" alt="${copy.ctaText}" width="600" style="width:100%;max-width:600px;display:block;border:0;outline:none;"/></a>`
-        : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td class="gmailbtn" style="background-color:${accentClr};background-image:linear-gradient(to top,${accentClr} 0%,${accentClr} 100%);border-radius:100px;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:16px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;letter-spacing:.04em;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`}
+        : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background-color:${accentClr};border-radius:100px;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:16px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;letter-spacing:.04em;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`}
     </td></tr>` : ''}
 
-    <tr><td class="gmailfix" style="padding:0;line-height:0;font-size:0;${WHITE_BG};">${buildFooter(client, footerData, { defaultBg: pageBg, gmailClass: 'gmailfix', textColor: mutedTextCol, dividerColor: dividerCol })}</td></tr>
+    <tr><td style="padding:0;line-height:0;font-size:0;background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: dividerCol })}</td></tr>
   </table>
 
 </body></html>`
