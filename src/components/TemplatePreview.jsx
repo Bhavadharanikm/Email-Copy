@@ -611,6 +611,155 @@ function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated 
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
+   WEEK 3 v2 — duplicate of Week 3
+   ══════════════════════════════════════════════════════════════════════════ */
+function buildTemplateWeek3v2({ client, copy, images, footerData, isHeroGenerated = false,
+  heroScale=1, heroX=0, heroY=0,
+  textSize=40, textTop=14, textLeft=52,
+  logoColor='white', logoTop=40, logoRight=36, logoSize=44,
+  img1Scale=1, img1X=0, img1Y=0,
+  img2Scale=1, img2X=0, img2Y=0,
+  img3Scale=1, img3X=0, img3Y=0,
+}) {
+  const heroObj  = images?.[0]; const heroImg = heroObj?.url||''
+  const img1Obj  = images?.[1]; const img1    = img1Obj?.url||''
+  const img2Obj  = images?.[2]; const img2    = img2Obj?.url||''
+  const img3Obj  = images?.[3]; const img3    = img3Obj?.url||''
+  const img4Obj  = images?.[4]; const img4    = img4Obj?.url||''
+  const img5Obj  = images?.[5]; const img5    = img5Obj?.url||''
+  const body     = (copy.bodyText||'').replace(/\n/g,'<br>')
+  const b2body   = (copy.bodyBlock2||'').replace(/\n/g,'<br>')
+  const logoUrl  = client?.logoUrl||''
+  const pageBg     = footerData?.bgColor || '#f5f4f2'
+  const cardBg     = '#fffffe'
+  const accentClr  = footerData?.buttonColor || '#1a1a1a'
+  const secondaryClr = footerData?.secondaryColor || accentClr
+  const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
+
+  const PAGE_BG  = `background-color:${pageBg};background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)`
+  const WHITE_BG = PAGE_BG
+
+  const logoHtml = logoUrl
+    ? `<img src="${logoUrl}" alt="${client?.name||''}" style="height:${logoSize}px;width:auto;max-width:${logoSize * 5}px;display:inline-block;filter:${logoFilter};"/>`
+    : `<span style="font-family:Arial,sans-serif;font-size:15px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff;">${client?.name||''}</span>`
+
+  const card2Src = img2 || img1
+  const card2Obj = img2 ? img2Obj : img1Obj
+
+  const stackedSection = isHeroGenerated && img4
+    ? `<tr><td class="gmailfix" style="padding:32px 0 8pt;text-align:center;${WHITE_BG};line-height:0;font-size:0;">
+        <img src="${img4}" alt="" width="600" style="width:600px;max-width:100%;display:inline-block;"/>
+      </td></tr>`
+    : img1
+      ? `<tr><td class="gmailfix" style="padding:32px 0 8px;text-align:center;${WHITE_BG};line-height:0;font-size:0;">
+          <div style="position:relative;width:600px;height:420px;${WHITE_BG};">
+            <div style="position:absolute;left:28px;top:24px;width:272px;height:372px;border-radius:20px;transform:rotate(-3deg);transform-origin:center center;box-shadow:4px 0 20px rgba(0,0,0,0.18);overflow:hidden;z-index:1;">
+              <img src="${img1}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:${focalPos(img1Obj)};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/>
+            </div>
+            <div style="position:absolute;left:296px;top:24px;width:272px;height:372px;border-radius:20px;transform:rotate(3deg);transform-origin:center center;box-shadow:-4px 0 20px rgba(0,0,0,0.18);overflow:hidden;z-index:2;">
+              <img src="${card2Src}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:${focalPos(card2Obj)};transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/>
+            </div>
+          </div>
+        </td></tr>`
+      : ''
+
+  return `<!DOCTYPE html><html lang="en" style="color-scheme:light"><head><meta charset="UTF-8"/>
+<meta name="color-scheme" content="light">
+<meta name="supported-color-schemes" content="light">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&display=swap"/>
+<style>
+  :root{color-scheme:light;supported-color-schemes:light}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{margin:0;padding:0;color:#1a1a1a;}
+  table{border-collapse:collapse;}
+  u + .body .gmailfix { background-color:${pageBg}!important; background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)!important; }
+  u + .body .gmailbtn { background-color:${accentClr}!important; background-image:linear-gradient(to top,${accentClr} 0%,${accentClr} 100%)!important; }
+  u + .body .gmailtext-dark  { color:#1a1a1a!important; }
+  u + .body .gmailtext-muted { color:#555!important; }
+  @media (prefers-color-scheme:dark){
+    .gmailfix { background-color:${pageBg}!important; background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)!important; }
+    .gmailbtn { background-color:${accentClr}!important; background-image:linear-gradient(to top,${accentClr} 0%,${accentClr} 100%)!important; }
+    .gmailtext-dark  { color:#1a1a1a!important; }
+    .gmailtext-muted { color:#555!important; }
+  }
+</style></head><body class="body" style="margin:0;padding:32px 0 48px;">
+
+<table width="600" cellpadding="0" cellspacing="0" border="0" class="gmailfix" bgcolor="${pageBg}" style="width:600px;max-width:600px;margin:0 auto;${WHITE_BG};border-collapse:collapse;border-radius:20px;overflow:hidden;">
+
+    <!-- ── HERO ── -->
+    ${isHeroGenerated
+      ? `<tr><td style="line-height:0;font-size:0;padding:0;border-radius:20px 20px 0 0;overflow:hidden;">
+          <img src="${heroImg}" alt="" width="600" style="width:100%;display:block;max-width:600px;border-radius:20px 20px 0 0;"/>
+        </td></tr>`
+      : `<tr><td style="position:relative;line-height:0;font-size:0;padding:0;height:600px;overflow:hidden;background:#1a1a1a;border-radius:20px 20px 0 0;">
+          ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:${Math.min(0,Math.max(600*(1-heroScale),-(600*(heroScale-1)/2)+heroY))}px;left:${Math.min(0,Math.max(600*(1-heroScale),-(600*(heroScale-1)/2)+heroX))}px;width:${600*heroScale}px;height:${600*heroScale}px;object-fit:cover;display:block;border-radius:20px 20px 0 0;"/>` : `<div style="width:100%;height:600px;background:#2a2a2a;border-radius:20px 20px 0 0;"></div>`}
+          <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.7) 0%,rgba(0,0,0,0.25) 40%,rgba(0,0,0,0) 62%);border-radius:20px 20px 0 0;">
+            <div style="text-align:center;padding:${logoTop}px 48px 0;">${logoHtml}</div>
+            <div style="text-align:center;padding:${textTop}px ${textLeft}px 0;">
+              <div style="font-family:'Playfair Display',Georgia,serif;font-size:${textSize}px;font-weight:600;line-height:1.12;color:#fff;text-shadow:0 2px 20px rgba(0,0,0,0.4);">${copy.headlineText||''}</div>
+            </div>
+          </div>
+          <div style="position:absolute;bottom:0;left:0;right:0;height:160px;background:linear-gradient(to bottom,${pageBg}00,${pageBg});pointer-events:none;"></div>
+        </td></tr>`}
+
+    <!-- ── SUBHEAD + CTA ── -->
+    <tr><td class="gmailfix" style="padding:${isHeroGenerated ? '40px' : '32px'} 52px 36px;text-align:center;${WHITE_BG};">
+      ${copy.subhead ? `<div style="font-family:Georgia,serif;font-size:18px;font-style:italic;color:#878787!important;line-height:1.6;margin-bottom:24px;max-width:460px;margin-left:auto;margin-right:auto;">${copy.subhead}</div>` : ''}
+      ${copy.ctaText ? `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td class="gmailbtn" style="background-color:${accentClr};background-image:linear-gradient(to top,${accentClr} 0%,${accentClr} 100%);border-radius:100px;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:16px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;letter-spacing:.04em;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>` : ''}
+    </td></tr>
+
+    <!-- ── DIVIDER ── -->
+    <tr><td class="gmailfix" style="padding:0 48px;${WHITE_BG};">
+      <div style="height:1px;width:100%;background:#878787;font-size:0;line-height:0;"></div>
+    </td></tr>
+
+    <!-- ── IMAGE ── -->
+    ${stackedSection}
+
+    <!-- ── BODY TEXT ── -->
+    <tr><td class="gmailfix" style="padding:36px 52px 24px;${WHITE_BG};text-align:center;">
+      ${copy.bodyText ? `<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.9;color:#878787!important;max-width:460px;margin-left:auto;margin-right:auto;">${body}</div>` : ''}
+    </td></tr>
+
+    <!-- ── DIVIDER 2 ── -->
+    <tr><td class="gmailfix" style="padding:0 48px;${WHITE_BG};">
+      <div style="height:1px;width:100%;background:#878787;font-size:0;line-height:0;"></div>
+    </td></tr>
+
+    <!-- ── BODY BLOCK 2 TITLE + IMAGE + TEXT ── -->
+    ${copy.bodyBlock2Title ? `
+    <tr><td class="gmailfix" style="padding:36px 52px 0;${WHITE_BG};text-align:center;">
+      <div style="font-family:Arial,sans-serif;font-size:16px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:${secondaryClr}!important;margin-bottom:0;">${copy.bodyBlock2Title}</div>
+    </td></tr>` : ''}
+
+    ${isHeroGenerated && img5
+      ? `<tr><td class="gmailfix" style="padding:0;line-height:0;font-size:0;text-align:center;${WHITE_BG};"><img src="${img5}" alt="" width="600" style="display:block;width:600px;max-width:100%;"/></td></tr>`
+      : (img3 || img1) ? `
+    <tr><td class="gmailfix" style="padding:20px 40px 0;${WHITE_BG};line-height:0;font-size:0;text-align:center;">
+      <div style="display:inline-block;width:100%;max-width:520px;height:320px;border-radius:14px;overflow:hidden;">
+        <img src="${img3 || img1}" alt="" width="520" style="width:100%;height:320px;object-fit:cover;display:block;object-position:${focalPos(img3 ? img3Obj : img1Obj)};transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/>
+      </div>
+    </td></tr>` : ''}
+
+    ${(copy.bodyBlock2 || copy.closingLine) ? `
+    <tr><td class="gmailfix" style="padding:28px 52px 0;${WHITE_BG};text-align:center;">
+      ${copy.bodyBlock2 ? `<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.9;color:#878787!important;margin-bottom:18px;max-width:460px;margin-left:auto;margin-right:auto;">${b2body}</div>` : ''}
+      ${copy.closingLine ? `<div style="font-family:Georgia,serif;font-size:15px;font-style:italic;color:#878787!important;margin-bottom:28px;">${copy.closingLine}</div>` : ''}
+    </td></tr>` : ''}
+
+    <!-- ── REPEAT CTA ── -->
+    ${copy.ctaText ? `
+    <tr><td class="gmailfix" style="padding:8px 52px 44px;text-align:center;${WHITE_BG};">
+      <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td class="gmailbtn" style="background-color:${accentClr};background-image:linear-gradient(to top,${accentClr} 0%,${accentClr} 100%);border-radius:100px;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:16px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;letter-spacing:.04em;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>
+    </td></tr>` : ''}
+
+    <tr><td class="gmailfix" style="padding:0;line-height:0;font-size:0;${WHITE_BG};">${buildFooter(client, footerData, { defaultBg: pageBg, gmailClass: 'gmailfix', textColor: '#878787', dividerColor: '#878787' })}</td></tr>
+  </table>
+
+</body></html>`
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
    T5 · CASA  (WatchHouse + Scottsdale Plaza)
    Cream · terracotta border · centered brand · alternating sections
    ══════════════════════════════════════════════════════════════════════════ */
@@ -2254,6 +2403,7 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
 const TEMPLATES = [
   { id:10, label:'⭐ Week 2',    build:buildTemplateWeek2 },
   { id:11, label:'⭐ Week 3',    build:buildTemplateWeek3 },
+  { id:16, label:'⭐ Week 3 v2', build:buildTemplateWeek3v2 },
   { id:13, label:'⭐ Week 5',    build:buildTemplateWeek5 },
   { id:14, label:'⭐ Week 6',    build:buildTemplateWeek6 },
   { id:15, label:'✅ Week 4',    build:buildTemplateWeek4v2 },
