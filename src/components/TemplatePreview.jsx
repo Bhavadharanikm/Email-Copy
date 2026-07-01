@@ -516,16 +516,18 @@ function buildTemplateWeek2v2({ client, copy, images, footerData, isHeroGenerate
   <!-- HERO: transparent PNG or CSS preview -->
   ${isHeroGenerated
     ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><img src="${heroImg}" alt="" width="600" style="width:100%;display:block;max-width:600px;"/></div>`
-    : `<div style="position:relative;line-height:0;font-size:0;padding:0 36px;background-color:${pageBg};height:680px;overflow:hidden;">
-    ${heroImg
-      ? `<img src="${heroImg}" alt="" style="width:100%;height:680px;object-fit:cover;display:block;border-radius:999px 999px 0 0;object-position:calc(50% + ${heroX}px) calc(50% + ${heroY}px);transform:scale(${heroScale});transform-origin:50% 50%;"/>`
-      : `<div style="width:100%;height:680px;background:#f0c8b8;border-radius:999px 999px 0 0;text-align:center;color:${accent};font-size:12px;font-family:Arial,sans-serif;line-height:680px;">Hero image</div>`}
-    <div style="position:absolute;top:0;left:36px;right:36px;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0) 0%,rgba(0,0,0,0) 50%,rgba(0,0,0,0.45) 100%);border-radius:999px 999px 0 0;">
-      <table width="100%" height="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;height:100%;border-collapse:collapse;">
-        <tr><td valign="bottom" align="center" style="vertical-align:bottom;text-align:center;padding:0 ${textLeft}px ${textTop}px;">
-          <div style="font-family:'Lora',Georgia,serif;font-size:${textSize}px;font-weight:700;color:#fff;line-height:1.12;text-shadow:0 2px 10px rgba(0,0,0,.3);display:inline-block;max-width:360px;">${copy.headlineText||''}</div>
-        </td></tr>
-      </table>
+    : `<div style="line-height:0;font-size:0;padding:0 36px;background-color:${pageBg};">
+    <div style="position:relative;width:528px;height:680px;border-radius:999px 999px 0 0;overflow:hidden;">
+      ${heroImg
+        ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:528px;height:680px;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
+        : `<div style="width:528px;height:680px;background:#f0c8b8;text-align:center;color:${accent};font-size:12px;font-family:Arial,sans-serif;line-height:680px;">Hero image</div>`}
+      <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0) 0%,rgba(0,0,0,0) 50%,rgba(0,0,0,0.45) 100%);">
+        <table width="100%" height="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;height:100%;border-collapse:collapse;">
+          <tr><td valign="bottom" align="center" style="vertical-align:bottom;text-align:center;padding:0 ${textLeft}px ${textTop}px;">
+            <div style="font-family:'Lora',Georgia,serif;font-size:${textSize}px;font-weight:700;color:#fff;line-height:1.12;text-shadow:0 2px 10px rgba(0,0,0,.3);display:inline-block;max-width:360px;">${copy.headlineText||''}</div>
+          </td></tr>
+        </table>
+      </div>
     </div>
   </div>`}
 
