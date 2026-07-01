@@ -539,7 +539,7 @@ function buildTemplateWeek2v2({ client, copy, images, footerData, isHeroGenerate
     : img1 ? `<div style="line-height:0;font-size:0;padding:0 36px 16px;background-color:${pageBg};"><div style="overflow:hidden;border-radius:8px;height:260px;"><img src="${img1}" alt="" style="width:100%;height:260px;object-fit:cover;display:block;object-position:${focalPos(img1Obj)};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/></div></div>` : ''}
 
   <!-- BODY BLOCK -->
-  ${copy.bodyText ? `<div style="padding:24px 48px 32px;background-color:${pageBg};"><div style="font-size:18px;line-height:1.8;color:${mutedTextCol};margin-bottom:18px;font-family:Arial,sans-serif;">${body}</div></div>` : ''}
+  ${copy.bodyText ? `<div style="padding:24px 48px 32px;background-color:${pageBg};"><div style="font-size:15px;line-height:1.8;color:${mutedTextCol};margin-bottom:18px;font-family:Arial,sans-serif;">${body}</div></div>` : ''}
 
   <!-- STRIP IMAGES (img2+img3): transparent PNG after body text -->
   ${isHeroGenerated && img5
@@ -559,9 +559,9 @@ function buildTemplateWeek2v2({ client, copy, images, footerData, isHeroGenerate
   ${(copy.bodyBlock2Title || copy.bodyBlock2 || copy.closingLine) ? `
   <div style="background-color:${pageBg};padding:8px 36px 0;">
     <div style="background-color:${pageBg};border-radius:10px;padding:16px 20px;">
-      ${copy.bodyBlock2Title ? `<div style="font-size:14px;font-weight:700;font-family:Arial,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:${secondary};margin-bottom:6px;text-align:left;">${copy.bodyBlock2Title}</div>` : ''}
-      ${copy.bodyBlock2 ? `<div style="font-size:18px;line-height:1.8;color:${mutedTextCol};margin-bottom:18px;font-family:Arial,sans-serif;">${b2body}</div>` : ''}
-      ${copy.closingLine ? `<div style="font-size:17px;line-height:1.7;color:${mutedTextCol};font-style:italic;margin-bottom:24px;font-family:Georgia,serif;">${copy.closingLine}</div>` : ''}
+      ${copy.bodyBlock2Title ? `<div style="font-size:15px;font-weight:700;font-family:Arial,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:${secondary};margin-bottom:6px;text-align:left;">${copy.bodyBlock2Title}</div>` : ''}
+      ${copy.bodyBlock2 ? `<div style="font-size:15px;line-height:1.8;color:${mutedTextCol};margin-bottom:18px;font-family:Arial,sans-serif;">${b2body}</div>` : ''}
+      ${copy.closingLine ? `<div style="font-size:15px;line-height:1.7;color:${mutedTextCol};font-style:italic;margin-bottom:24px;font-family:Georgia,serif;">${copy.closingLine}</div>` : ''}
     </div>
     ${copy.ctaText ? `<div style="padding:16px 0 36px;text-align:center;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;background:${accent};color:#ffffff;padding:14px 40px;font-size:16px;font-weight:600;letter-spacing:.06em;text-decoration:none;font-family:Arial,sans-serif;border-radius:50px;">${copy.ctaText}</a></div>` : ''}
   </div>` : ''}
