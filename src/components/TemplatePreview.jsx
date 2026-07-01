@@ -689,23 +689,22 @@ function buildTemplateWeek3v2({ client, copy, images, footerData, isHeroGenerate
 
     <!-- ── HERO ── -->
     ${isHeroGenerated
-      ? `<tr><td style="line-height:0;font-size:0;padding:0;overflow:hidden;">
-          <img src="${heroImg}" alt="" width="600" style="width:100%;display:block;max-width:600px;"/>
+      ? `<tr><td style="line-height:0;font-size:0;padding:0;border-radius:20px 20px 0 0;overflow:hidden;">
+          <img src="${heroImg}" alt="" width="600" style="width:100%;display:block;max-width:600px;border-radius:20px 20px 0 0;"/>
         </td></tr>`
-      : `<tr><td class="gmailfix" style="line-height:0;font-size:0;padding:20px 20px 0;${WHITE_BG};">
-          <div style="position:relative;width:560px;height:600px;overflow:hidden;border-radius:16px;background:#1a1a1a;margin:0 auto;">
-            ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:${Math.min(0,Math.max(600*(1-heroScale),-(600*(heroScale-1)/2)+heroY))}px;left:${Math.min(0,Math.max(560*(1-heroScale),-(560*(heroScale-1)/2)+heroX))}px;width:${560*heroScale}px;height:${600*heroScale}px;object-fit:cover;display:block;"/>` : `<div style="width:560px;height:600px;background:#2a2a2a;"></div>`}
-            <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.7) 0%,rgba(0,0,0,0.25) 40%,rgba(0,0,0,0) 62%);">
-              <div style="text-align:center;padding:${logoTop}px 48px 0;">${logoHtml}</div>
-              <div style="text-align:center;padding:${textTop}px ${textLeft}px 0;">
-                <div style="font-family:'Playfair Display',Georgia,serif;font-size:${textSize}px;font-weight:600;line-height:1.12;color:#fff;text-shadow:0 2px 20px rgba(0,0,0,0.4);">${copy.headlineText||''}</div>
-              </div>
+      : `<tr><td style="position:relative;line-height:0;font-size:0;padding:0;height:600px;overflow:hidden;background:#1a1a1a;border-radius:20px 20px 0 0;">
+          ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:${Math.min(0,Math.max(600*(1-heroScale),-(600*(heroScale-1)/2)+heroY))}px;left:${Math.min(0,Math.max(600*(1-heroScale),-(600*(heroScale-1)/2)+heroX))}px;width:${600*heroScale}px;height:${600*heroScale}px;object-fit:cover;display:block;border-radius:20px 20px 0 0;"/>` : `<div style="width:100%;height:600px;background:#2a2a2a;border-radius:20px 20px 0 0;"></div>`}
+          <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.7) 0%,rgba(0,0,0,0.25) 40%,rgba(0,0,0,0) 62%);border-radius:20px 20px 0 0;">
+            <div style="text-align:center;padding:${logoTop}px 48px 0;">${logoHtml}</div>
+            <div style="text-align:center;padding:${textTop}px ${textLeft}px 0;">
+              <div style="font-family:'Playfair Display',Georgia,serif;font-size:${textSize}px;font-weight:600;line-height:1.12;color:#fff;text-shadow:0 2px 20px rgba(0,0,0,0.4);">${copy.headlineText||''}</div>
             </div>
           </div>
+          <div style="position:absolute;bottom:0;left:0;right:0;height:160px;background:linear-gradient(to bottom,${pageBg}00,${pageBg});pointer-events:none;"></div>
         </td></tr>`}
 
     <!-- ── SUBHEAD + CTA ── -->
-    <tr><td class="gmailfix" style="padding:40px 52px 36px;text-align:center;${WHITE_BG};">
+    <tr><td class="gmailfix" style="padding:${isHeroGenerated ? '40px' : '32px'} 52px 36px;text-align:center;${WHITE_BG};">
       ${copy.subhead ? `<div style="font-family:Georgia,serif;font-size:18px;font-style:italic;color:#878787!important;line-height:1.6;margin-bottom:24px;max-width:460px;margin-left:auto;margin-right:auto;">${copy.subhead}</div>` : ''}
       ${btnImgUrl
         ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img src="${btnImgUrl}" alt="${copy.ctaText}" width="600" style="width:100%;max-width:600px;display:block;border:0;outline:none;"/></a>`
@@ -2798,24 +2797,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
   </div>
 </div>
 </body></html>`
-      : isWeek3v2
-      ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&display=swap" rel="stylesheet"/>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
-</head><body>
-<div style="padding:20px 20px 0;background:transparent;">
-  <div style="position:relative;width:560px;height:600px;overflow:hidden;border-radius:16px;background:#1a1a1a;">
-    ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;top:${Math.min(0,Math.max(600*(1-heroScale),-(600*(heroScale-1)/2)+heroY))}px;left:${Math.min(0,Math.max(560*(1-heroScale),-(560*(heroScale-1)/2)+heroX))}px;width:${560*heroScale}px;height:${600*heroScale}px;object-fit:cover;display:block;"/>` : `<div style="width:560px;height:600px;background:#2a2a2a;"></div>`}
-    <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.72) 0%,rgba(0,0,0,0.28) 42%,rgba(0,0,0,0) 65%);">
-      <div style="text-align:center;padding-top:${logoTop}px;">${logoHtml}</div>
-      <div style="text-align:center;padding:${textTop}px ${textLeft}px 0;">
-        <div style="font-family:'Playfair Display',Georgia,serif;font-size:${textSize}px;font-weight:600;line-height:1.12;color:#fff;text-shadow:0 2px 20px rgba(0,0,0,0.4);">${headline}</div>
-      </div>
-    </div>
-  </div>
-</div>
-</body></html>`
-      : isWeek3
+      : (isWeek3 || isWeek3v2)
       ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&display=swap" rel="stylesheet"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;}</style>
@@ -3107,7 +3089,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
 </div>
 </body></html>`
 
-    const heroHeight = isWeek2 ? 460 : isWeek3v2 ? 620 : isWeek3 ? 600 : isWeek4 ? 740 : isWeek5 ? 720 : isWeek6 ? 820 : 400
+    const heroHeight = isWeek2 ? 460 : (isWeek3 || isWeek3v2) ? 600 : isWeek4 ? 740 : isWeek5 ? 720 : isWeek6 ? 820 : 400
     const secondaryPromise = isWeek3v2 && (img1Url || img2Url)
       ? renderImage({ html: w3v2StackedHtml, width: 600, height: 420, transparent: true })
       : isWeek3 && (img1Url || img2Url)
