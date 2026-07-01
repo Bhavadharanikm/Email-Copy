@@ -105,8 +105,11 @@ function buildFooter(client, footerData = null, options = {}) {
     { url: website,   icon: `${CDN}/website_circle_grey.png`,   label: 'Website'   },
   ].filter(s => s.url)
 
+  const sectionGap     = options.sectionGap     || null
+  const footerTextSize = options.footerTextSize || 14
+
   const socialHtml = socialIcons.length ? `
-    <div style="margin:0 0 20px;text-align:center;font-size:0">
+    <div style="margin:0 0 ${sectionGap || 20}px;text-align:center;font-size:0">
       ${socialIcons.map(s =>
         `<a href="${s.url}" target="_blank" rel="noopener" style="display:inline-block;line-height:0;margin:0 7px">
            <img src="${s.icon}" alt="${s.label}" width="36" height="36" style="display:block;width:36px;height:36px;border-radius:50%"/>
@@ -126,11 +129,11 @@ function buildFooter(client, footerData = null, options = {}) {
     contactNumber ? `<a href="tel:${contactNumber.replace(/\s/g,'')}" style="color:${textCol};text-decoration:none">${contactNumber}</a>` : '',
   ].filter(Boolean)
   const contactHtml = contactParts.length
-    ? `<div style="font-size:15px;color:${textCol};font-family:Arial,sans-serif;margin-bottom:16px">${contactParts.join(`&nbsp;&nbsp;·&nbsp;&nbsp;`)}</div>`
+    ? `<div style="font-size:15px;color:${textCol};font-family:Arial,sans-serif;margin-bottom:${sectionGap || 16}px">${contactParts.join(`&nbsp;&nbsp;·&nbsp;&nbsp;`)}</div>`
     : ''
 
   const footerTextHtml = footerText
-    ? `<div style="font-size:14px;color:${linkCol};font-family:Arial,sans-serif;margin-bottom:20px;max-width:440px;margin-left:auto;margin-right:auto;line-height:1.7">${footerText}</div>`
+    ? `<div style="font-size:${footerTextSize}px;color:${linkCol};font-family:Arial,sans-serif;margin-bottom:${sectionGap || 20}px;max-width:440px;margin-left:auto;margin-right:auto;line-height:1.7">${footerText}</div>`
     : ''
 
   const divClass = options.gmailClass ? ` class="${options.gmailClass}"` : ''
@@ -2051,18 +2054,18 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
 
 <table width="100%" cellpadding="0" cellspacing="0" style="background-color:${pageBg};border-collapse:collapse;"><tr><td align="center" style="padding:24px 0 48px;background-color:${pageBg};">
 
-  <table width="600" cellpadding="0" cellspacing="0" bgcolor="#ffffff" style="width:600px;max-width:600px;background-color:#ffffff;border-collapse:collapse;border-radius:20px;overflow:hidden;">
+  <table width="600" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="width:600px;max-width:600px;background-color:${pageBg};border-collapse:collapse;border-radius:20px;overflow:hidden;">
 
     <!-- ── Header + Hero ── -->
     ${isHeroGenerated
-      ? `<tr><td style="padding:0;background-color:#ffffff;line-height:0;font-size:0;"><img src="${heroImg}" alt="" width="600" style="display:block;width:600px;"/></td></tr>`
+      ? `<tr><td style="padding:0;background-color:${pageBg};line-height:0;font-size:0;"><img src="${heroImg}" alt="" width="600" style="display:block;width:600px;"/></td></tr>`
       : `
-    <tr><td style="padding:0 0 20px;background-color:#ffffff;">
+    <tr><td style="padding:0 0 20px;background-color:${pageBg};">
       <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
         <tr>
           <td style="padding:${logoTop}px 0 0 ${logoRight}px;vertical-align:top;">${logoHtml}</td>
           <td style="text-align:right;vertical-align:middle;padding-right:40px;">
-            ${copy.ctaText ? `<a href="${copy.ctaUrl||'#'}" style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#1a1a1a;text-decoration:underline;letter-spacing:.01em;">${copy.ctaText} ›</a>` : ''}
+            ${copy.ctaText ? `<a href="${copy.ctaUrl||'#'}" style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:${lightBg ? '#1a1a1a' : '#ffffff'};text-decoration:underline;letter-spacing:.01em;">${copy.ctaText} ›</a>` : ''}
           </td>
         </tr>
       </table>
@@ -2110,26 +2113,26 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
 
     <!-- ── Body text ── -->
     ${copy.bodyText ? `
-    <tr><td style="padding:20px 52px 8px;text-align:center;background-color:#ffffff;">
-      <p style="font-family:Arial,sans-serif;font-size:15px;line-height:1.9;color:#878787;margin:0;">${body}</p>
+    <tr><td style="padding:20px 52px 8px;text-align:center;background-color:${pageBg};">
+      <p style="font-family:Arial,sans-serif;font-size:15px;line-height:1.9;color:${mutedTextCol};margin:0;">${body}</p>
     </td></tr>` : ''}
 
     <!-- ── Divider ── -->
-    <tr><td style="padding:0 40px;background-color:#ffffff;">
-      <div style="height:1px;background:rgba(0,0,0,0.08);font-size:0;line-height:0;"></div>
+    <tr><td style="padding:0 40px;background-color:${pageBg};">
+      <div style="height:1px;background:${dividerCol};font-size:0;line-height:0;"></div>
     </td></tr>
 
     <!-- ── Body block 2 title ── -->
     ${copy.bodyBlock2Title ? `
-    <tr><td style="padding:32px 52px 16px;text-align:center;background-color:#ffffff;">
+    <tr><td style="padding:32px 52px 16px;text-align:center;background-color:${pageBg};">
       <p style="font-family:'Lora',serif;font-size:20px;font-weight:700;color:${secondary};line-height:1.25;margin:0;">${copy.bodyBlock2Title}</p>
     </td></tr>` : ''}
 
     <!-- ── Image grid ── -->
     ${hasGrid
       ? isHeroGenerated && img4
-        ? `<tr><td style="padding:0;line-height:0;font-size:0;text-align:center;background-color:#ffffff;"><img src="${img4}" alt="" width="600" style="display:block;width:600px;max-width:100%;"/></td></tr>`
-        : `<tr><td style="padding:32px 20px 0;background-color:#ffffff;">
+        ? `<tr><td style="padding:0;line-height:0;font-size:0;text-align:center;background-color:${pageBg};"><img src="${img4}" alt="" width="600" style="display:block;width:600px;max-width:100%;"/></td></tr>`
+        : `<tr><td style="padding:32px 20px 0;background-color:${pageBg};">
 
       ${(img1 || img2) ? `
       <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
@@ -2157,19 +2160,19 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
 
     <!-- ── Body block 2 text ── -->
     ${copy.bodyBlock2 ? `
-    <tr><td style="padding:32px 52px 0;text-align:center;background-color:#ffffff;">
-      <p style="font-family:Arial,sans-serif;font-size:15px;line-height:1.85;color:#878787;margin:0;">${b2body}</p>
+    <tr><td style="padding:32px 52px 0;text-align:center;background-color:${pageBg};">
+      <p style="font-family:Arial,sans-serif;font-size:15px;line-height:1.85;color:${mutedTextCol};margin:0;">${b2body}</p>
     </td></tr>` : ''}
 
     <!-- ── Closing line ── -->
     ${copy.closingLine ? `
-    <tr><td style="padding:20px 52px 0;text-align:center;background-color:#ffffff;">
-      <p style="font-family:'Lora',serif;font-size:15px;font-style:italic;color:#878787;line-height:1.7;margin:0;">${copy.closingLine}</p>
+    <tr><td style="padding:20px 52px 0;text-align:center;background-color:${pageBg};">
+      <p style="font-family:'Lora',serif;font-size:15px;font-style:italic;color:${mutedTextCol};line-height:1.7;margin:0;">${copy.closingLine}</p>
     </td></tr>` : ''}
 
     <!-- ── Final CTA ── -->
     ${copy.ctaText ? `
-    <tr><td style="padding:28px 52px 44px;text-align:center;background-color:#ffffff;">
+    <tr><td style="padding:28px 52px 44px;text-align:center;background-color:${pageBg};">
       ${btnImgUrl
         ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img src="${btnImgUrl}" alt="${copy.ctaText}" width="600" style="width:100%;max-width:600px;display:block;border:0;outline:none;"/></a>`
         : `<table cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto;"><tr>
@@ -2177,9 +2180,9 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
           <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:14px 44px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:${accent};text-decoration:none;letter-spacing:.03em;white-space:nowrap;">${copy.ctaText}</a>
         </td>
       </tr></table>`}
-    </td></tr>` : `<tr><td style="padding:20px 0;background-color:#ffffff;font-size:0;line-height:0;"></td></tr>`}
+    </td></tr>` : `<tr><td style="padding:20px 0;background-color:${pageBg};font-size:0;line-height:0;"></td></tr>`}
 
-    <tr><td style="padding:0;line-height:0;font-size:0;background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: dividerCol })}</td></tr>
+    <tr><td style="padding:0;line-height:0;font-size:0;background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: dividerCol, sectionGap: 28, footerTextSize: 9 })}</td></tr>
   </table>
 
 </td></tr>
