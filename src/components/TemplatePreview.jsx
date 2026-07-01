@@ -1897,7 +1897,7 @@ function buildTemplateWeek5({ client, copy, images, footerData, isHeroGenerated 
 
     <!-- ── HERO ── -->
     ${isHeroGenerated
-      ? `<tr><td style="padding:0;line-height:0;font-size:0;"><img src="${heroImg}" alt="" width="600" style="display:block;width:600px;"/></td></tr>`
+      ? `<tr><td style="padding:20px 0 0;background-color:${pageBg};line-height:0;font-size:0;"><img src="${heroImg}" alt="" width="600" style="display:block;width:600px;"/></td></tr>`
       : `<tr><td style="padding:20px 20px 0;background-color:${pageBg};line-height:0;font-size:0;">
       <div style="position:relative;width:560px;height:680px;overflow:hidden;border-radius:16px;background:#1a1a1a;">
         ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:${Math.min(0,Math.max(680*(1-heroScale),-(680*(heroScale-1)/2)+heroY))}px;left:${Math.min(0,Math.max(560*(1-heroScale),-(560*(heroScale-1)/2)+heroX))}px;width:${560*heroScale}px;height:${680*heroScale}px;object-fit:cover;display:block;"/>` : `<div style="width:560px;height:680px;background:#2a2a2a;"></div>`}
@@ -2004,6 +2004,7 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
   img1Scale=1, img1X=0, img1Y=0,
   img2Scale=1, img2X=0, img2Y=0,
   img3Scale=1, img3X=0, img3Y=0,
+  btnImgUrl = null,
 }) {
   const heroObj = images?.[0]; const heroImg = heroObj?.url || ''
   const img1Obj = images?.[1]; const img1    = img1Obj?.url || ''
@@ -2017,62 +2018,51 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
   const accent    = footerData?.buttonColor || '#1a1a1a'
   const secondary = footerData?.secondaryColor || accent
   const pageBg    = footerData?.bgColor || '#edf1f7'
-  const cardBg    = '#fffffe'
   const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
 
-  const WHITE_BG = 'background-color:#ffffff;background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%)'
-  const PAGE_BG  = `background-color:${pageBg};background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)`
+  const _rgb = pageBg.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i)
+  const _r = _rgb ? parseInt(_rgb[1],16) : 237
+  const _g = _rgb ? parseInt(_rgb[2],16) : 241
+  const _b = _rgb ? parseInt(_rgb[3],16) : 247
+  const _lum = (0.299*_r + 0.587*_g + 0.114*_b)/255
+  const lightBg      = _lum > 0.55
+  const mutedTextCol = lightBg ? '#595959'  : '#d4d4d4'
+  const dividerCol   = lightBg ? '#e0e0e0'  : '#444444'
 
   const logoHtml = logoUrl
     ? `<img src="${logoUrl}" alt="${name}" style="height:${logoSize}px;width:auto;max-width:150px;display:inline-block;filter:${logoFilter};"/>`
     : `<span style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#1a1a1a;">${name}</span>`
 
-  // Headline: all words except last → bold serif | last word → italic serif emphasis
   const hw6 = (copy.headlineText || '').trim().split(/\s+/).filter(Boolean)
   const hw6Body = hw6.length > 1 ? hw6.slice(0, -1).join(' ') : hw6[0] || ''
   const hw6Last = hw6.length > 1 ? hw6[hw6.length - 1] : ''
 
   const hasGrid = img1 || img2 || img3
 
-  return `<!DOCTYPE html><html lang="en" style="color-scheme:light"><head><meta charset="UTF-8"/>
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<meta name="color-scheme" content="light">
-<meta name="supported-color-schemes" content="light">
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
 <style>
-  :root{color-scheme:light;supported-color-schemes:light}
   *{box-sizing:border-box;margin:0;padding:0}
-  body{${PAGE_BG};color:#1a1a1a;}
+  body{margin:0;padding:0;color:#1a1a1a;}
   table{border-collapse:collapse;}
-  u + .body .gmailfix { background-color:#ffffff!important; background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%)!important; }
-  u + .body .gmailfix-page { background-color:${pageBg}!important; background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)!important; }
-  u + .body .gmailtext-dark  { color:#1a1a1a!important; }
-  u + .body .gmailtext-muted { color:#555!important; }
-  @media (prefers-color-scheme:dark){
-    html,body{ ${PAGE_BG}; color:#1a1a1a!important; }
-    .gmailfix { background-color:#ffffff!important; background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%)!important; }
-    .gmailfix-page { background-color:${pageBg}!important; background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)!important; }
-    .gmailtext-dark  { color:#1a1a1a!important; }
-    .gmailtext-muted { color:#555!important; }
-  }
 </style></head>
-<body class="body" style="${PAGE_BG};margin:0;padding:0;">
+<body class="body" style="margin:0;padding:0;background-color:${pageBg};">
 
-<table width="100%" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="${PAGE_BG};border-collapse:collapse;">
-<tr><td align="center" class="gmailfix-page" style="padding:24px 0 48px;${PAGE_BG};">
+<table width="100%" cellpadding="0" cellspacing="0" style="background-color:${pageBg};border-collapse:collapse;"><tr><td align="center" style="padding:24px 0 48px;background-color:${pageBg};">
 
-  <table width="600" cellpadding="0" cellspacing="0" class="gmailfix" bgcolor="#ffffff" style="width:600px;max-width:600px;${WHITE_BG};border-collapse:collapse;border-radius:20px;overflow:hidden;">
+  <table width="600" cellpadding="0" cellspacing="0" bgcolor="#ffffff" style="width:600px;max-width:600px;background-color:#ffffff;border-collapse:collapse;border-radius:20px;overflow:hidden;">
 
-    <!-- ── Header + Hero: header baked into PNG when generated ── -->
+    <!-- ── Header + Hero ── -->
     ${isHeroGenerated
-      ? `<tr><td style="padding:0;line-height:0;font-size:0;"><img src="${heroImg}" alt="" width="600" style="display:block;width:600px;"/></td></tr>`
+      ? `<tr><td style="padding:0;background-color:#ffffff;line-height:0;font-size:0;"><img src="${heroImg}" alt="" width="600" style="display:block;width:600px;"/></td></tr>`
       : `
-    <tr><td class="gmailfix" style="padding:0 0 20px;${WHITE_BG};">
+    <tr><td style="padding:0 0 20px;background-color:#ffffff;">
       <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
         <tr>
           <td style="padding:${logoTop}px 0 0 ${logoRight}px;vertical-align:top;">${logoHtml}</td>
           <td style="text-align:right;vertical-align:middle;padding-right:40px;">
-            ${copy.ctaText ? `<a href="${copy.ctaUrl||'#'}" style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#1a1a1a!important;text-decoration:underline;letter-spacing:.01em;">${copy.ctaText} ›</a>` : ''}
+            ${copy.ctaText ? `<a href="${copy.ctaUrl||'#'}" style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#1a1a1a;text-decoration:underline;letter-spacing:.01em;">${copy.ctaText} ›</a>` : ''}
           </td>
         </tr>
       </table>
@@ -2096,7 +2086,7 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
             </div>
           </div>
 
-          <!-- Subhead on gradient — positioned just above CTA -->
+          <!-- Subhead on gradient -->
           ${copy.subhead ? `
           <div style="position:absolute;top:548px;left:44px;right:44px;text-align:center;line-height:normal;font-size:initial;">
             <p style="font-family:'Lora',serif;font-size:17px;font-style:italic;line-height:1.6;color:#fff;margin:0;text-shadow:0 1px 8px rgba(0,0,0,.25);">${copy.subhead}</p>
@@ -2106,8 +2096,8 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
           ${copy.ctaText ? `
           <div style="position:absolute;top:610px;left:0;right:0;text-align:center;line-height:normal;font-size:initial;">
             <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto;display:inline-table;"><tr>
-              <td style="background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.85)!important;border-radius:100px;">
-                <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:14px 44px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;letter-spacing:.03em;white-space:nowrap;">${copy.ctaText}</a>
+              <td style="background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.85);border-radius:100px;">
+                <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:14px 44px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff;text-decoration:none;letter-spacing:.03em;white-space:nowrap;">${copy.ctaText}</a>
               </td>
             </tr></table>
             <div style="margin-top:10px;line-height:0;font-size:0;text-align:center;">
@@ -2118,28 +2108,28 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
         </div>
       </td></tr>`}
 
-    <!-- ── Body text (on white, below gradient) ── -->
+    <!-- ── Body text ── -->
     ${copy.bodyText ? `
-    <tr><td class="gmailfix" style="padding:20px 52px 8px;text-align:center;${WHITE_BG};">
-      <p style="font-family:Arial,sans-serif;font-size:15px;line-height:1.9;color:#878787!important;margin:0;">${body}</p>
+    <tr><td style="padding:20px 52px 8px;text-align:center;background-color:#ffffff;">
+      <p style="font-family:Arial,sans-serif;font-size:15px;line-height:1.9;color:#878787;margin:0;">${body}</p>
     </td></tr>` : ''}
 
     <!-- ── Divider ── -->
-    <tr><td class="gmailfix" style="padding:0 40px;${WHITE_BG};">
+    <tr><td style="padding:0 40px;background-color:#ffffff;">
       <div style="height:1px;background:rgba(0,0,0,0.08);font-size:0;line-height:0;"></div>
     </td></tr>
 
-    <!-- ── Body block 2 title (below divider, above grid) ── -->
+    <!-- ── Body block 2 title ── -->
     ${copy.bodyBlock2Title ? `
-    <tr><td class="gmailfix" style="padding:32px 52px 16px;text-align:center;${WHITE_BG};">
-      <p style="font-family:'Lora',serif;font-size:20px;font-weight:700;color:${secondary}!important;line-height:1.25;margin:0;">${copy.bodyBlock2Title}</p>
+    <tr><td style="padding:32px 52px 16px;text-align:center;background-color:#ffffff;">
+      <p style="font-family:'Lora',serif;font-size:20px;font-weight:700;color:${secondary};line-height:1.25;margin:0;">${copy.bodyBlock2Title}</p>
     </td></tr>` : ''}
 
-    <!-- ── Image grid: 2-up top row + 1 full-width bottom ── -->
+    <!-- ── Image grid ── -->
     ${hasGrid
       ? isHeroGenerated && img4
-        ? `<tr><td class="gmailfix" style="padding:0;line-height:0;font-size:0;text-align:center;${WHITE_BG};"><img src="${img4}" alt="" width="600" style="display:block;width:600px;max-width:100%;"/></td></tr>`
-        : `<tr><td class="gmailfix" style="padding:32px 20px 0;${WHITE_BG};">
+        ? `<tr><td style="padding:0;line-height:0;font-size:0;text-align:center;background-color:#ffffff;"><img src="${img4}" alt="" width="600" style="display:block;width:600px;max-width:100%;"/></td></tr>`
+        : `<tr><td style="padding:32px 20px 0;background-color:#ffffff;">
 
       ${(img1 || img2) ? `
       <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
@@ -2167,27 +2157,29 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
 
     <!-- ── Body block 2 text ── -->
     ${copy.bodyBlock2 ? `
-    <tr><td class="gmailfix" style="padding:32px 52px 0;text-align:center;${WHITE_BG};">
-      <p style="font-family:Arial,sans-serif;font-size:15px;line-height:1.85;color:#878787!important;margin:0;">${b2body}</p>
+    <tr><td style="padding:32px 52px 0;text-align:center;background-color:#ffffff;">
+      <p style="font-family:Arial,sans-serif;font-size:15px;line-height:1.85;color:#878787;margin:0;">${b2body}</p>
     </td></tr>` : ''}
 
     <!-- ── Closing line ── -->
     ${copy.closingLine ? `
-    <tr><td class="gmailfix" style="padding:20px 52px 0;text-align:center;${WHITE_BG};">
-      <p style="font-family:'Lora',serif;font-size:15px;font-style:italic;color:#878787!important;line-height:1.7;margin:0;">${copy.closingLine}</p>
+    <tr><td style="padding:20px 52px 0;text-align:center;background-color:#ffffff;">
+      <p style="font-family:'Lora',serif;font-size:15px;font-style:italic;color:#878787;line-height:1.7;margin:0;">${copy.closingLine}</p>
     </td></tr>` : ''}
 
     <!-- ── Final CTA ── -->
     ${copy.ctaText ? `
-    <tr><td class="gmailfix" style="padding:28px 52px 44px;text-align:center;${WHITE_BG};">
-      <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto;"><tr>
-        <td style="border:2px solid ${accent}!important;border-radius:100px;">
-          <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:14px 44px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:${accent}!important;text-decoration:none!important;letter-spacing:.03em;white-space:nowrap;">${copy.ctaText}</a>
+    <tr><td style="padding:28px 52px 44px;text-align:center;background-color:#ffffff;">
+      ${btnImgUrl
+        ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img src="${btnImgUrl}" alt="${copy.ctaText}" width="600" style="width:100%;max-width:600px;display:block;border:0;outline:none;"/></a>`
+        : `<table cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto;"><tr>
+        <td style="border:2px solid ${accent};border-radius:100px;">
+          <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:14px 44px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:${accent};text-decoration:none;letter-spacing:.03em;white-space:nowrap;">${copy.ctaText}</a>
         </td>
-      </tr></table>
-    </td></tr>` : `<tr><td class="gmailfix" style="padding:20px 0;${WHITE_BG};font-size:0;line-height:0;"></td></tr>`}
+      </tr></table>`}
+    </td></tr>` : `<tr><td style="padding:20px 0;background-color:#ffffff;font-size:0;line-height:0;"></td></tr>`}
 
-    <tr><td style="padding:0;line-height:0;font-size:0;">${buildFooter(client, footerData, { defaultBg: '#1a1a1a' })}</td></tr>
+    <tr><td style="padding:0;line-height:0;font-size:0;background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: dividerCol })}</td></tr>
   </table>
 
 </td></tr>
@@ -2343,7 +2335,7 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
 const TEMPLATES = [
   { id:10, label:'⭐ Week 2',  build:buildTemplateWeek2 },
   { id:16, label:'✅ Week 3',  build:buildTemplateWeek3v2 },
-  { id:13, label:'⭐ Week 5',  build:buildTemplateWeek5 },
+  { id:13, label:'✅ Week 5',  build:buildTemplateWeek5 },
   { id:14, label:'⭐ Week 6',  build:buildTemplateWeek6 },
   { id:15, label:'✅ Week 4',  build:buildTemplateWeek4v2 },
 ]
@@ -2895,6 +2887,18 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
 </div>
 </body></html>` : null
 
+    const w6AccentColor = clientFooter?.buttonColor || '#1a1a1a'
+    const w6CtaText     = generatedCopy?.ctaText || 'Book Now'
+    const w6ButtonHtml  = isWeek6 ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
+</head><body>
+<div style="width:600px;text-align:center;">
+  <div style="display:inline-block;background:${w6AccentColor};border-radius:999px;padding:15px 40px;">
+    <span style="font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff;white-space:nowrap;display:inline-flex;align-items:center;gap:10px;">${w6CtaText}<span style="display:inline-flex;align-items:center;gap:0;"><span style="display:inline-block;width:12px;height:2px;background:#ffffff;vertical-align:middle;"></span><span style="display:inline-block;width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:7px solid #ffffff;vertical-align:middle;"></span></span></span>
+  </div>
+</div>
+</body></html>` : null
+
     const polaroidHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:#f5f0e8}</style>
 </head><body>
@@ -2911,7 +2915,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}</style>
 </head><body>
-<div style="padding:20px 20px 0;background:transparent;line-height:0;font-size:0;">
+<div style="padding:0 20px 0;background:transparent;line-height:0;font-size:0;">
   <div style="position:relative;width:560px;height:680px;overflow:hidden;border-radius:16px;background:#1a1a1a;">
     ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;top:${Math.min(0,Math.max(680*(1-heroScale),-(680*(heroScale-1)/2)+heroY))}px;left:${Math.min(0,Math.max(560*(1-heroScale),-(560*(heroScale-1)/2)+heroX))}px;width:${560*heroScale}px;height:${680*heroScale}px;object-fit:cover;display:block;"/>` : `<div style="width:560px;height:680px;background:#2a2a2a;"></div>`}
     <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.25) 40%,rgba(0,0,0,0.45) 100%);line-height:normal;font-size:initial;">
@@ -3017,9 +3021,9 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     const w6grid2Fp = selectedImages?.[2]?.focalX != null ? `${selectedImages[2].focalX}% ${selectedImages[2].focalY}%` : '50% 50%'
     const w6grid3Fp = selectedImages?.[3]?.focalX != null ? `${selectedImages[3].focalX}% ${selectedImages[3].focalY}%` : '50% 50%'
     const week6GridHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:#ffffff;}</style>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
 </head><body>
-<div style="padding:32px 20px 0;background:#ffffff;width:600px;">
+<div style="padding:32px 20px 0;background:transparent;width:600px;">
   <table width="560" cellpadding="0" cellspacing="0" border="0" style="width:560px;border-collapse:collapse;">
     <tr>
       <td width="277" style="width:277px;vertical-align:top;line-height:0;font-size:0;">
@@ -3045,7 +3049,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
         : isWeek5 && (img1Url || img2Url)
           ? renderImage({ html: week5GridHtml, width: 600, height: 530, transparent: true })
           : isWeek6 && (img1Url || img2Url || img3Url)
-            ? renderImage({ html: week6GridHtml, width: 600, height: 584 })
+            ? renderImage({ html: week6GridHtml, width: 600, height: 584, transparent: true })
             : (!isWeek2 && !isWeek3 && !isWeek5 && !isWeek6 && (img1Url || img2Url))
               ? renderImage({ html: polaroidHtml, width: 600, height: 340 })
               : Promise.resolve(null)
@@ -3064,12 +3068,14 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
       ? renderImage({ html: w3v2ButtonHtml, width: 600, height: 72, transparent: true })
       : isWeek5 && w5ButtonHtml
       ? renderImage({ html: w5ButtonHtml, width: 600, height: 72, transparent: true })
+      : isWeek6 && w6ButtonHtml
+      ? renderImage({ html: w6ButtonHtml, width: 600, height: 72, transparent: true })
       : Promise.resolve(null)
 
     const heroHtmlToUse = isWeek4 ? week4HeroHtml : isWeek5 ? week5HeroHtml : isWeek6 ? week6HeroHtml : heroHtml
 
     Promise.all([
-      renderImage({ html: heroHtmlToUse, width: 600, height: heroHeight, transparent: isWeek4v2 || isWeek3v2 || isWeek5 }),
+      renderImage({ html: heroHtmlToUse, width: 600, height: heroHeight, transparent: isWeek4v2 || isWeek3v2 || isWeek5 || isWeek6 }),
       secondaryPromise,
       tertiaryPromise,
       buttonPromise,
