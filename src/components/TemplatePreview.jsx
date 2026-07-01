@@ -3431,8 +3431,8 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
               ),
               key: 'image', label: 'Image', color: '#2563eb', bg: dark ? 'rgba(37,99,235,0.15)' : '#eff6ff',
               controls: [
-                { name: 'Pan X', min: -200, max: 200, step: 4, val: heroX,     set: setHeroX,     unit: 'px' },
-                { name: 'Pan Y', min: -200, max: 200, step: 4, val: heroY,     set: setHeroY,     unit: 'px' },
+                { name: 'Left', min: -200, max: 200, step: 4, val: heroX,     set: setHeroX,     unit: 'px' },
+                { name: 'Top', min: -200, max: 200, step: 4, val: heroY,     set: setHeroY,     unit: 'px' },
                 { name: 'Zoom',  min: 1,    max: 2.5, step: 0.05, val: heroScale, set: setHeroScale, unit: 'x', toDisplay: v => v.toFixed(2) },
               ]
             },
@@ -3604,32 +3604,32 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
           </div>
 
           {/* Sub-image adjusters — shown for templates that have sub-images */}
-          {[10, 11, 13, 14].includes(tpl?.id) && [
+          {[10, 11, 13, 14, 16].includes(tpl?.id) && [
             { key: 'sub1', label: 'Sub Image 1', color: '#7c3aed', bg: dark ? 'rgba(124,58,237,0.15)' : '#f5f3ff',
               controls: [
-                { name: 'Pan X', min: -200, max: 200, step: 4, val: img1X,     set: setImg1X,     unit: 'px' },
-                { name: 'Pan Y', min: -200, max: 200, step: 4, val: img1Y,     set: setImg1Y,     unit: 'px' },
+                { name: 'Left', min: -200, max: 200, step: 4, val: img1X,     set: setImg1X,     unit: 'px' },
+                { name: 'Top', min: -200, max: 200, step: 4, val: img1Y,     set: setImg1Y,     unit: 'px' },
                 { name: 'Zoom',  min: 1,    max: 2.5, step: 0.05, val: img1Scale, set: setImg1Scale, unit: 'x', toDisplay: v => v.toFixed(2) },
               ]
             },
             { key: 'sub2', label: 'Sub Image 2', color: '#db2777', bg: dark ? 'rgba(219,39,119,0.15)' : '#fdf2f8',
               controls: [
-                { name: 'Pan X', min: -200, max: 200, step: 4, val: img2X,     set: setImg2X,     unit: 'px' },
-                { name: 'Pan Y', min: -200, max: 200, step: 4, val: img2Y,     set: setImg2Y,     unit: 'px' },
+                { name: 'Left', min: -200, max: 200, step: 4, val: img2X,     set: setImg2X,     unit: 'px' },
+                { name: 'Top', min: -200, max: 200, step: 4, val: img2Y,     set: setImg2Y,     unit: 'px' },
                 { name: 'Zoom',  min: 1,    max: 2.5, step: 0.05, val: img2Scale, set: setImg2Scale, unit: 'x', toDisplay: v => v.toFixed(2) },
               ]
             },
             { key: 'sub3', label: 'Sub Image 3', color: '#ea580c', bg: dark ? 'rgba(234,88,12,0.15)' : '#fff7ed',
               controls: [
-                { name: 'Pan X', min: -200, max: 200, step: 4, val: img3X,     set: setImg3X,     unit: 'px' },
-                { name: 'Pan Y', min: -200, max: 200, step: 4, val: img3Y,     set: setImg3Y,     unit: 'px' },
+                { name: 'Left', min: -200, max: 200, step: 4, val: img3X,     set: setImg3X,     unit: 'px' },
+                { name: 'Top', min: -200, max: 200, step: 4, val: img3Y,     set: setImg3Y,     unit: 'px' },
                 { name: 'Zoom',  min: 1,    max: 2.5, step: 0.05, val: img3Scale, set: setImg3Scale, unit: 'x', toDisplay: v => v.toFixed(2) },
               ]
             },
             ...(tpl?.id === 13 ? [{ key: 'sub4', label: 'Sub Image 4', color: '#0891b2', bg: dark ? 'rgba(8,145,178,0.15)' : '#ecfeff',
               controls: [
-                { name: 'Pan X', min: -200, max: 200, step: 4, val: img4X,     set: setImg4X,     unit: 'px' },
-                { name: 'Pan Y', min: -200, max: 200, step: 4, val: img4Y,     set: setImg4Y,     unit: 'px' },
+                { name: 'Left', min: -200, max: 200, step: 4, val: img4X,     set: setImg4X,     unit: 'px' },
+                { name: 'Top', min: -200, max: 200, step: 4, val: img4Y,     set: setImg4Y,     unit: 'px' },
                 { name: 'Zoom',  min: 1,    max: 2.5, step: 0.05, val: img4Scale, set: setImg4Scale, unit: 'x', toDisplay: v => v.toFixed(2) },
               ]
             }] : []),
