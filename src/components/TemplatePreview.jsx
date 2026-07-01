@@ -409,10 +409,10 @@ function buildTemplateWeek2({ client, copy, images, footerData, isHeroGenerated 
   <!-- HERO: generated composite PNG (logo+arch+text baked in) or CSS fallback for preview -->
   ${isHeroGenerated
     ? `<div style="line-height:0;font-size:0;${WHITE_BG};"><img src="${heroImg}" alt="" width="600" style="width:100%;display:block;max-width:600px;"/></div>`
-    : `<div style="position:relative;line-height:0;font-size:0;padding:0 36px;${WHITE_BG};height:580px;overflow:hidden;">
+    : `<div style="position:relative;line-height:0;font-size:0;padding:0 36px;${WHITE_BG};height:680px;overflow:hidden;">
     ${heroImg
-      ? `<img src="${heroImg}" alt="" style="width:100%;height:580px;object-fit:cover;display:block;border-radius:999px 999px 0 0;object-position:calc(50% + ${heroX}px) calc(50% + ${heroY}px);transform:scale(${heroScale});transform-origin:50% 50%;"/>`
-      : `<div style="width:100%;height:580px;background:#f0c8b8;border-radius:999px 999px 0 0;text-align:center;color:${accentClr};font-size:12px;font-family:Arial,sans-serif;line-height:580px;">Hero image</div>`}
+      ? `<img src="${heroImg}" alt="" style="width:100%;height:680px;object-fit:cover;display:block;border-radius:999px 999px 0 0;object-position:calc(50% + ${heroX}px) calc(50% + ${heroY}px);transform:scale(${heroScale});transform-origin:50% 50%;"/>`
+      : `<div style="width:100%;height:680px;background:#f0c8b8;border-radius:999px 999px 0 0;text-align:center;color:${accentClr};font-size:12px;font-family:Arial,sans-serif;line-height:680px;">Hero image</div>`}
     <div style="position:absolute;top:0;left:36px;right:36px;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0) 0%,rgba(0,0,0,0) 50%,rgba(0,0,0,0.45) 100%);border-radius:999px 999px 0 0;">
       <table width="100%" height="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;height:100%;border-collapse:collapse;">
         <tr><td valign="bottom" align="center" style="vertical-align:bottom;text-align:center;padding:0 ${textLeft}px ${textTop}px;">
@@ -513,10 +513,10 @@ function buildTemplateWeek2v2({ client, copy, images, footerData, isHeroGenerate
   <!-- HERO: transparent PNG or CSS preview -->
   ${isHeroGenerated
     ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><img src="${heroImg}" alt="" width="600" style="width:100%;display:block;max-width:600px;"/></div>`
-    : `<div style="position:relative;line-height:0;font-size:0;padding:0 36px;background-color:${pageBg};height:460px;overflow:hidden;">
+    : `<div style="position:relative;line-height:0;font-size:0;padding:0 36px;background-color:${pageBg};height:680px;overflow:hidden;">
     ${heroImg
-      ? `<img src="${heroImg}" alt="" style="width:100%;height:460px;object-fit:cover;display:block;border-radius:999px 999px 0 0;object-position:calc(50% + ${heroX}px) calc(50% + ${heroY}px);transform:scale(${heroScale});transform-origin:50% 50%;"/>`
-      : `<div style="width:100%;height:460px;background:#f0c8b8;border-radius:999px 999px 0 0;text-align:center;color:${accent};font-size:12px;font-family:Arial,sans-serif;line-height:460px;">Hero image</div>`}
+      ? `<img src="${heroImg}" alt="" style="width:100%;height:680px;object-fit:cover;display:block;border-radius:999px 999px 0 0;object-position:calc(50% + ${heroX}px) calc(50% + ${heroY}px);transform:scale(${heroScale});transform-origin:50% 50%;"/>`
+      : `<div style="width:100%;height:680px;background:#f0c8b8;border-radius:999px 999px 0 0;text-align:center;color:${accent};font-size:12px;font-family:Arial,sans-serif;line-height:680px;">Hero image</div>`}
     <div style="position:absolute;top:0;left:36px;right:36px;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0) 0%,rgba(0,0,0,0) 50%,rgba(0,0,0,0.45) 100%);border-radius:999px 999px 0 0;">
       <table width="100%" height="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;height:100%;border-collapse:collapse;">
         <tr><td valign="bottom" align="center" style="vertical-align:bottom;text-align:center;padding:0 ${textLeft}px ${textTop}px;">
@@ -2822,9 +2822,9 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     const week2ArchHtml = (bg) => `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:${bg};}</style>
 </head><body>
-<div style="width:600px;height:460px;padding:0 36px;background:${bg};box-sizing:border-box;line-height:0;font-size:0;">
-  <div style="position:relative;width:528px;height:460px;border-radius:999px 999px 0 0;overflow:hidden;">
-    ${heroImgUrl ? `<img src="${heroImgUrl}" style="width:528px;height:460px;object-fit:cover;display:block;object-position:50% 50%;"/>` : `<div style="width:528px;height:460px;background:#c8c0b5;"></div>`}
+<div style="width:600px;height:580px;padding:0 36px;background:${bg};box-sizing:border-box;line-height:0;font-size:0;">
+  <div style="position:relative;width:528px;height:580px;border-radius:999px 999px 0 0;overflow:hidden;">
+    ${heroImgUrl ? `<img src="${heroImgUrl}" style="width:528px;height:580px;object-fit:cover;display:block;object-position:50% 50%;"/>` : `<div style="width:528px;height:580px;background:#c8c0b5;"></div>`}
     <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0) 0%,rgba(0,0,0,0) 50%,rgba(0,0,0,0.45) 100%);">
       <div style="position:absolute;bottom:32px;left:0;right:0;text-align:center;padding:0 24px;line-height:normal;">
         <div style="font-family:Georgia,'Times New Roman',serif;font-size:${textSize}px;font-weight:700;color:#fff;line-height:1.12;text-shadow:0 2px 10px rgba(0,0,0,.3);display:inline-block;max-width:360px;">${headline}</div>
@@ -3168,7 +3168,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
 </div>
 </body></html>` : null
 
-    const heroHeight = (isWeek2 || isWeek2v2) ? 460 : (isWeek3 || isWeek3v2) ? 600 : isWeek4 ? 740 : isWeek5 ? 720 : isWeek6 ? 820 : 400
+    const heroHeight = (isWeek2 || isWeek2v2) ? 580 :(isWeek3 || isWeek3v2) ? 600 : isWeek4 ? 740 : isWeek5 ? 720 : isWeek6 ? 820 : 400
     const secondaryPromise = isWeek2v2 && (img1Url || img2Url)
       ? renderImage({ html: week2SubImgHtml, width: 600, height: week2SubImgHeight, transparent: true })
       : isWeek3v2 && (img1Url || img2Url)
