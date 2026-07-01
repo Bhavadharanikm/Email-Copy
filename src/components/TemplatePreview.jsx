@@ -1897,7 +1897,7 @@ function buildTemplateWeek5({ client, copy, images, footerData, isHeroGenerated 
 
     <!-- ── HERO ── -->
     ${isHeroGenerated
-      ? `<tr><td style="padding:0;line-height:0;font-size:0;border-radius:20px 20px 0 0;overflow:hidden;"><img src="${heroImg}" alt="" width="600" style="display:block;width:600px;border-radius:20px 20px 0 0;"/></td></tr>`
+      ? `<tr><td style="padding:0;line-height:0;font-size:0;"><img src="${heroImg}" alt="" width="600" style="display:block;width:600px;"/></td></tr>`
       : `<tr><td style="padding:20px 20px 0;background-color:${pageBg};line-height:0;font-size:0;">
       <div style="position:relative;width:560px;height:680px;overflow:hidden;border-radius:16px;background:#1a1a1a;">
         ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:${Math.min(0,Math.max(680*(1-heroScale),-(680*(heroScale-1)/2)+heroY))}px;left:${Math.min(0,Math.max(560*(1-heroScale),-(560*(heroScale-1)/2)+heroX))}px;width:${560*heroScale}px;height:${680*heroScale}px;object-fit:cover;display:block;"/>` : `<div style="width:560px;height:680px;background:#2a2a2a;"></div>`}
