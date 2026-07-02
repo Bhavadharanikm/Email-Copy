@@ -16,6 +16,10 @@ export default function PromptForm({ onGenerate, dark = false }) {
   const [loadingClients, setLoadingClients] = useState(true)
   const [templateName, setTemplateName] = useState('')
   const [templateNameLoading, setTemplateNameLoading] = useState(false)
+  const [showAddClient, setShowAddClient]   = useState(false)
+  const [newClient, setNewClient]           = useState({ name: '', ghl_api_key: '', location_id: '', logo_url: '' })
+  const [addingClient, setAddingClient]     = useState(false)
+  const [addClientError, setAddClientError] = useState('')
 
   const {
     selectedClient, setClient,
@@ -131,6 +135,34 @@ export default function PromptForm({ onGenerate, dark = false }) {
     }
   }
 
+  const handleAddClient = async () => {
+    setAddClientError('')
+    setAddingClient(true)
+    try {
+      const res = await fetch('/.netlify/functions/add-client', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          client_name: newClient.name,
+          ghl_api_key: newClient.ghl_api_key,
+          location_id: newClient.location_id,
+          logo_url:    newClient.logo_url,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Failed to add client')
+      // Refresh client list
+      const updated = await fetch('/.netlify/functions/clients').then(r => r.json())
+      setClients(updated)
+      setShowAddClient(false)
+      setNewClient({ name: '', ghl_api_key: '', location_id: '', logo_url: '' })
+    } catch (err) {
+      setAddClientError(err.message)
+    } finally {
+      setAddingClient(false)
+    }
+  }
+
   const canGenerate = selectedClient && prompt.trim().length > 20 && !isGenerating
 
   /* ── shared input styles ── */
@@ -167,9 +199,18 @@ export default function PromptForm({ onGenerate, dark = false }) {
 
       {/* Client dropdown */}
       <div>
-        <label style={labelStyle}>
-          Client <span style={{ color: dark ? '#f59e0b' : '#3b82f6' }}>*</span>
-        </label>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+          <label style={{ ...labelStyle, marginBottom: 0 }}>
+            Client <span style={{ color: dark ? '#f59e0b' : '#3b82f6' }}>*</span>
+          </label>
+          <button
+            type="button"
+            onClick={() => { setShowAddClient(true); setAddClientError('') }}
+            style={{ fontSize: 12, fontWeight: 600, color: dark ? '#60a5fa' : '#3b82f6', background: 'none', border: 'none', cursor: 'pointer', padding: 0, letterSpacing: '0.01em' }}
+          >
+            + Add new client
+          </button>
+        </div>
         {loadingClients ? (
           <p style={{ fontSize: 13, color: dark ? 'rgba(255,255,255,0.3)' : '#9ca3af' }}>Loading clients…</p>
         ) : clientLoadError ? (
@@ -362,5 +403,88 @@ export default function PromptForm({ onGenerate, dark = false }) {
 
       <style>{`@keyframes spin { from { transform: rotate(0deg) } to { transform: rotate(360deg) } }`}</style>
     </div>
+
+    {/* Add New Client Modal */}
+    {showAddClient && (
+      <div
+        onClick={(e) => { if (e.target === e.currentTarget) setShowAddClient(false) }}
+        style={{
+          position: 'fixed', inset: 0, zIndex: 1000,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          padding: 16,
+        }}
+      >
+        <div style={{
+          background: dark ? '#1c1c1e' : '#fff',
+          borderRadius: 16,
+          padding: 28,
+          width: '100%',
+          maxWidth: 440,
+          boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+          border: `1px solid ${dark ? 'rgba(255,255,255,0.08)' : '#e5e7eb'}`,
+        }}>
+          <h3 style={{ margin: '0 0 20px', fontSize: 17, fontWeight: 700, color: dark ? '#fff' : '#111827', fontFamily: 'Inter, sans-serif' }}>
+            Add New Client
+          </h3>
+
+          {[
+            { key: 'name',        label: 'Client Name',  placeholder: 'e.g. Pine Valley Cabins', required: true },
+            { key: 'ghl_api_key', label: 'GHL API Key',  placeholder: 'pit-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx', required: true },
+            { key: 'location_id', label: 'Location ID',  placeholder: 'e.g. HyfxgDMC4NbHL9m3PKpM', required: true },
+            { key: 'logo_url',    label: 'Logo URL',     placeholder: 'https://... (optional)', required: false },
+          ].map(({ key, label, placeholder, required }) => (
+            <div key={key} style={{ marginBottom: 14 }}>
+              <label style={{ ...labelStyle, marginBottom: 5 }}>
+                {label} {required && <span style={{ color: dark ? '#f59e0b' : '#3b82f6' }}>*</span>}
+              </label>
+              <input
+                type="text"
+                value={newClient[key]}
+                onChange={(e) => setNewClient(prev => ({ ...prev, [key]: e.target.value }))}
+                placeholder={placeholder}
+                style={{ ...inputStyle }}
+              />
+            </div>
+          ))}
+
+          {addClientError && (
+            <p style={{ fontSize: 12, color: '#f87171', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, padding: '7px 11px', margin: '0 0 14px' }}>
+              {addClientError}
+            </p>
+          )}
+
+          <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
+            <button
+              type="button"
+              onClick={() => setShowAddClient(false)}
+              style={{
+                flex: 1, padding: '10px', borderRadius: 10, fontSize: 14, fontWeight: 600,
+                fontFamily: 'Inter, sans-serif', cursor: 'pointer',
+                background: 'transparent',
+                border: `1.5px solid ${dark ? 'rgba(255,255,255,0.15)' : '#e5e7eb'}`,
+                color: dark ? 'rgba(255,255,255,0.5)' : '#6b7280',
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleAddClient}
+              disabled={addingClient || !newClient.name.trim() || !newClient.ghl_api_key.trim() || !newClient.location_id.trim()}
+              style={{
+                flex: 2, padding: '10px', borderRadius: 10, fontSize: 14, fontWeight: 600,
+                fontFamily: 'Inter, sans-serif', cursor: 'pointer',
+                background: (addingClient || !newClient.name.trim() || !newClient.ghl_api_key.trim() || !newClient.location_id.trim()) ? (dark ? 'rgba(59,130,246,0.3)' : '#bfdbfe') : '#3b82f6',
+                border: 'none',
+                color: '#fff',
+              }}
+            >
+              {addingClient ? 'Saving…' : 'Add Client'}
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
   )
 }
