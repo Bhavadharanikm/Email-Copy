@@ -1,6 +1,7 @@
 import { runHandler } from './_adapter.js'
 import { handler as addClient }          from '../netlify/functions/add-client.js'
 import { handler as analyzeImageFocal }  from '../netlify/functions/analyze-image-focal.js'
+import { handler as deleteClient }       from '../netlify/functions/delete-client.js'
 import { handler as clients }            from '../netlify/functions/clients.js'
 import { handler as copyCallback }       from '../netlify/functions/copy-callback.js'
 import { handler as fetchBrandBoard }    from '../netlify/functions/fetch-brand-board.js'
@@ -31,6 +32,7 @@ export const config = {
 const HANDLERS = {
   'add-client':          addClient,
   'analyze-image-focal': analyzeImageFocal,
+  'delete-client':       deleteClient,
   'clients':             clients,
   'copy-callback':       copyCallback,
   'fetch-brand-board':   fetchBrandBoard,

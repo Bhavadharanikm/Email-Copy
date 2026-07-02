@@ -218,7 +218,47 @@ export default function Layout() {
   const { theme, toggle } = useTheme()
   const { user, logout } = useAuth()
   const dark = theme === 'dark'
-  const [feedbackOpen, setFeedbackOpen] = useState(false)
+  const [feedbackOpen, setFeedbackOpen]         = useState(false)
+  const [userMenuOpen, setUserMenuOpen]         = useState(false)
+  const [showDeleteClient, setShowDeleteClient] = useState(false)
+  const [deleteClientName, setDeleteClientName] = useState('')
+  const [deletingClient, setDeletingClient]     = useState(false)
+  const [deleteError, setDeleteError]           = useState('')
+  const [deleteSuccess, setDeleteSuccess]       = useState(false)
+  const userMenuRef = useRef(null)
+
+  useEffect(() => {
+    if (!userMenuOpen) return
+    function handleClick(e) {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) setUserMenuOpen(false)
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [userMenuOpen])
+
+  async function handleDeleteClient() {
+    setDeleteError('')
+    setDeletingClient(true)
+    try {
+      const res = await fetch('/.netlify/functions/delete-client', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ client_name: deleteClientName }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Failed to delete client')
+      setDeleteSuccess(true)
+      setTimeout(() => {
+        setShowDeleteClient(false)
+        setDeleteClientName('')
+        setDeleteSuccess(false)
+      }, 1500)
+    } catch (err) {
+      setDeleteError(err.message)
+    } finally {
+      setDeletingClient(false)
+    }
+  }
 
   function handleLogout() {
     logout()
@@ -371,34 +411,66 @@ export default function Layout() {
           {/* Logged-in user chip */}
           {user && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <div style={{
-                display: 'flex', alignItems: 'center', gap: 7,
-                padding: '6px 12px', borderRadius: 10,
-                background: dark ? 'rgba(255,255,255,0.06)' : '#f3f4f6',
-                border: dark ? '1px solid rgba(255,255,255,0.1)' : '1px solid #e5e7eb',
-                fontSize: 13, color: dark ? 'rgba(255,255,255,0.7)' : '#374151',
-              }}>
-                <div style={{
-                  width: 22, height: 22, borderRadius: '50%',
-                  background: dark ? 'rgba(245,158,11,0.2)' : 'rgba(59,130,246,0.15)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 11, fontWeight: 700,
-                  color: dark ? '#f59e0b' : '#3b82f6',
-                }}>
-                  {user.name?.charAt(0).toUpperCase()}
-                </div>
-                <span style={{ fontWeight: 600 }}>{user.name}</span>
-                {user.role && (
-                  <span style={{
-                    fontSize: 10, fontWeight: 700, letterSpacing: '0.05em',
-                    padding: '2px 6px', borderRadius: 5,
-                    background: dark ? 'rgba(245,158,11,0.15)' : 'rgba(59,130,246,0.1)',
+              <div ref={userMenuRef} style={{ position: 'relative' }}>
+                <button
+                  onClick={() => setUserMenuOpen(v => !v)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 7,
+                    padding: '6px 12px', borderRadius: 10,
+                    background: dark ? 'rgba(255,255,255,0.06)' : '#f3f4f6',
+                    border: dark ? '1px solid rgba(255,255,255,0.1)' : '1px solid #e5e7eb',
+                    fontSize: 13, color: dark ? 'rgba(255,255,255,0.7)' : '#374151',
+                    cursor: 'pointer', fontFamily: 'Inter, sans-serif',
+                  }}
+                >
+                  <div style={{
+                    width: 22, height: 22, borderRadius: '50%',
+                    background: dark ? 'rgba(245,158,11,0.2)' : 'rgba(59,130,246,0.15)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 11, fontWeight: 700,
                     color: dark ? '#f59e0b' : '#3b82f6',
                   }}>
-                    {user.role}
-                  </span>
+                    {user.name?.charAt(0).toUpperCase()}
+                  </div>
+                  <span style={{ fontWeight: 600 }}>{user.name}</span>
+                  {user.role && (
+                    <span style={{
+                      fontSize: 10, fontWeight: 700, letterSpacing: '0.05em',
+                      padding: '2px 6px', borderRadius: 5,
+                      background: dark ? 'rgba(245,158,11,0.15)' : 'rgba(59,130,246,0.1)',
+                      color: dark ? '#f59e0b' : '#3b82f6',
+                    }}>
+                      {user.role}
+                    </span>
+                  )}
+                </button>
+
+                {/* Dropdown menu */}
+                {userMenuOpen && (
+                  <div style={{
+                    position: 'absolute', top: 'calc(100% + 8px)', right: 0,
+                    background: dark ? '#1c1c1e' : '#fff',
+                    border: `1px solid ${dark ? 'rgba(255,255,255,0.1)' : '#e5e7eb'}`,
+                    borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                    minWidth: 170, zIndex: 200, overflow: 'hidden',
+                  }}>
+                    <button
+                      onClick={() => { setUserMenuOpen(false); setShowDeleteClient(true); setDeleteError(''); setDeleteSuccess(false) }}
+                      style={{
+                        width: '100%', padding: '10px 14px', textAlign: 'left',
+                        background: 'none', border: 'none', cursor: 'pointer',
+                        fontSize: 13, fontWeight: 500, fontFamily: 'Inter, sans-serif',
+                        color: '#ef4444', display: 'flex', alignItems: 'center', gap: 8,
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background = dark ? 'rgba(239,68,68,0.1)' : '#fff5f5'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                    >
+                      🗑 Delete client
+                    </button>
+                  </div>
                 )}
               </div>
+
               <button
                 onClick={handleLogout}
                 title="Sign out"
@@ -414,6 +486,83 @@ export default function Layout() {
               >
                 <IconLogout size={16} color={dark ? 'rgba(255,255,255,0.5)' : '#9ca3af'} stroke={1.8} />
               </button>
+            </div>
+          )}
+
+          {/* Delete Client Modal */}
+          {showDeleteClient && (
+            <div
+              onClick={(e) => { if (e.target === e.currentTarget) { setShowDeleteClient(false); setDeleteClientName('') } }}
+              style={{
+                position: 'fixed', inset: 0, zIndex: 1000,
+                background: 'rgba(0,0,0,0.5)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                padding: 16,
+              }}
+            >
+              <div style={{
+                background: dark ? '#1c1c1e' : '#fff',
+                borderRadius: 16, padding: 28, width: '100%', maxWidth: 400,
+                boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+                border: `1px solid ${dark ? 'rgba(255,255,255,0.08)' : '#e5e7eb'}`,
+                fontFamily: 'Inter, sans-serif',
+              }}>
+                <h3 style={{ margin: '0 0 6px', fontSize: 17, fontWeight: 700, color: dark ? '#fff' : '#111827' }}>
+                  Delete Client
+                </h3>
+                <p style={{ margin: '0 0 20px', fontSize: 13, color: dark ? 'rgba(255,255,255,0.4)' : '#6b7280' }}>
+                  Enter the exact client name to permanently remove them.
+                </p>
+                <input
+                  type="text"
+                  value={deleteClientName}
+                  onChange={(e) => setDeleteClientName(e.target.value)}
+                  placeholder="e.g. Pine Valley Cabins"
+                  style={{
+                    width: '100%', padding: '10px 14px', borderRadius: 10, fontSize: 14,
+                    fontFamily: 'Inter, sans-serif', outline: 'none', marginBottom: 14,
+                    boxSizing: 'border-box',
+                    background: dark ? 'rgba(255,255,255,0.06)' : '#f9fafb',
+                    border: `1px solid ${dark ? 'rgba(255,255,255,0.1)' : '#e5e7eb'}`,
+                    color: dark ? 'rgba(255,255,255,0.85)' : '#111827',
+                  }}
+                />
+                {deleteError && (
+                  <p style={{ fontSize: 12, color: '#f87171', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, padding: '7px 11px', margin: '0 0 14px' }}>
+                    {deleteError}
+                  </p>
+                )}
+                {deleteSuccess && (
+                  <p style={{ fontSize: 12, color: '#34d399', background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.2)', borderRadius: 8, padding: '7px 11px', margin: '0 0 14px' }}>
+                    Client deleted successfully.
+                  </p>
+                )}
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <button
+                    onClick={() => { setShowDeleteClient(false); setDeleteClientName(''); setDeleteError('') }}
+                    style={{
+                      flex: 1, padding: '10px', borderRadius: 10, fontSize: 14, fontWeight: 600,
+                      cursor: 'pointer', background: 'transparent',
+                      border: `1.5px solid ${dark ? 'rgba(255,255,255,0.15)' : '#e5e7eb'}`,
+                      color: dark ? 'rgba(255,255,255,0.5)' : '#6b7280',
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleDeleteClient}
+                    disabled={deletingClient || !deleteClientName.trim()}
+                    style={{
+                      flex: 2, padding: '10px', borderRadius: 10, fontSize: 14, fontWeight: 600,
+                      cursor: deletingClient || !deleteClientName.trim() ? 'not-allowed' : 'pointer',
+                      background: deletingClient || !deleteClientName.trim() ? 'rgba(239,68,68,0.3)' : '#ef4444',
+                      border: 'none', color: '#fff',
+                    }}
+                  >
+                    {deletingClient ? 'Deleting…' : 'Delete Client'}
+                  </button>
+                </div>
+              </div>
             </div>
           )}
 
