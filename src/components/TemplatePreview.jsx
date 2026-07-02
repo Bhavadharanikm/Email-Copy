@@ -2563,7 +2563,8 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
       ? { ...clientFooter, logoColor: footerLogoColor, footerLogoSize }
       : clientFooter
     console.log('[baseHtml] tplId:', tpl?.id, 'isHeroGenerated:', isHeroGenerated, 'tplUrls:', tplUrls, 'effectiveImages[4]:', effectiveImages?.[4], 'effectiveImages[5]:', effectiveImages?.[5])
-    return tpl.build({ client:selectedClient, copy:generatedCopy, images:effectiveImages, headerStyle, imageStyle, footerData: effectiveFooterData, isHeroGenerated, btnImgUrl: tplUrls.btn || null, ...editorProps })
+    const effectiveCopy = generatedCopy ? { ...generatedCopy, headlineText: (generatedCopy.headlineText || '').replace(/\.$/, '') } : generatedCopy
+    return tpl.build({ client:selectedClient, copy:effectiveCopy, images:effectiveImages, headerStyle, imageStyle, footerData: effectiveFooterData, isHeroGenerated, btnImgUrl: tplUrls.btn || null, ...editorProps })
   }, [active, selectedClient, generatedCopy, selectedImages, headerStyle, imageStyle, clientFooter, footerLogoColor, footerLogoSize, weekGenUrls, heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y])
 
   // Keep store in sync so ApprovalPanel always has the latest HTML
@@ -2803,7 +2804,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     const img3Url    = selectedImages?.[3]?.url || selectedImages?.[3]?.thumbnailUrl || ''
     const img4Url    = selectedImages?.[4]?.url || selectedImages?.[4]?.thumbnailUrl || ''
     const logoUrl    = selectedClient?.logoUrl || ''
-    const headline   = generatedCopy?.headlineText || ''
+    const headline   = (generatedCopy?.headlineText || '').replace(/\.$/, '')
     const clientName = selectedClient?.name || ''
     // Week 5 two-font split
     const w5words = headline.trim().split(/\s+/).filter(Boolean)
