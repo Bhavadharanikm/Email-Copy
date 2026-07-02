@@ -195,6 +195,7 @@ export default function PromptForm({ onGenerate, dark = false }) {
   }
 
   return (
+    <>
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
       {/* Client dropdown */}
@@ -486,5 +487,6 @@ export default function PromptForm({ onGenerate, dark = false }) {
         </div>
       </div>
     )}
+    </>
   )
 }
