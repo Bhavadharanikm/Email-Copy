@@ -535,7 +535,10 @@ function buildTemplateWeek2v2({ client, copy, images, footerData, isHeroGenerate
   ${copy.subhead ? `<div style="padding:28px 48px 4px;text-align:center;background-color:${pageBg};"><div style="font-family:Georgia,serif;font-size:20px;font-weight:400;font-style:italic;color:${mutedTextCol};line-height:1.5;">${copy.subhead}</div></div>` : ''}
 
   <!-- CTA -->
-  ${copy.ctaText ? `<div style="padding:24px 48px 28px;text-align:center;background-color:${pageBg};"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;background:${accent};color:#ffffff;padding:14px 40px;font-size:16px;font-weight:600;letter-spacing:.06em;text-decoration:none;font-family:Arial,sans-serif;border-radius:50px;">${copy.ctaText}</a></div>` : ''}
+  ${copy.ctaText ? `<div style="padding:24px 48px 28px;text-align:center;background-color:${pageBg};">${btnImgUrl
+    ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img src="${btnImgUrl}" alt="${copy.ctaText}" width="600" style="width:100%;max-width:600px;display:block;border:0;outline:none;"/></a>`
+    : `<a href="${copy.ctaUrl||'#'}" style="display:inline-block;background:${accent};color:#ffffff;padding:14px 40px;font-size:16px;font-weight:600;letter-spacing:.06em;text-decoration:none;font-family:Arial,sans-serif;border-radius:50px;">${copy.ctaText}</a>`
+  }</div>` : ''}
 
   <!-- LONG IMAGE (img1): transparent PNG above body text -->
   ${isHeroGenerated && img4
