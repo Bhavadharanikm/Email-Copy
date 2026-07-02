@@ -112,14 +112,12 @@ export default function PromptForm({ onGenerate, dark = false }) {
         reader.onerror = reject
         reader.readAsDataURL(file)
       })
-      const rowIndex = selectedClient.sheetRow
       const result = await uploadLogo({
         base64,
         mimeType: file.type,
         fileName: file.name,
         locationId: selectedClient.ghl?.locationId,
         apiKey: selectedClient.ghlApiKey,
-        clientRowIndex: rowIndex,
       })
       setClientLogoUrl(result.logoUrl)
       setLogoStatus('success')
