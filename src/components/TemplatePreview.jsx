@@ -2454,8 +2454,7 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
 
 /* ─────────────────────────── registry ──────────────────────────────────── */
 const TEMPLATES = [
-  { id:10, label:'⭐ Week 2',  build:buildTemplateWeek2 },
-  { id:17, label:'⭐ Week 2 v2', build:buildTemplateWeek2v2 },
+  { id:17, label:'✅ Week 2', build:buildTemplateWeek2v2 },
   { id:16, label:'✅ Week 3',  build:buildTemplateWeek3v2 },
   { id:13, label:'✅ Week 5',  build:buildTemplateWeek5 },
   { id:14, label:'✅ Week 6',  build:buildTemplateWeek6 },
