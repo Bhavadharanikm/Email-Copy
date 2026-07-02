@@ -2117,8 +2117,9 @@ const TEMPLATES = [
 
 /* ─────────────────────────── component ─────────────────────────────────── */
 export default function TemplatePreview({ pulseGenBtn = false }) {
-  const [active, setActive] = useState(0)
-  const [zoom,   setZoom]   = useState(1)
+  const [active, setActive]         = useState(0)
+  const [zoom,   setZoom]           = useState(1)
+  const [mobileView, setMobileView] = useState(false)
   const { theme } = useTheme()
   const dark = theme === 'dark'
 
@@ -3526,8 +3527,28 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
             </span>
           </div>
 
-          {/* Zoom controls */}
+          {/* Zoom + view controls */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            {/* Mobile view toggle — Week 2 only */}
+            {tpl?.id === 17 && (
+              <button
+                onClick={() => setMobileView(v => !v)}
+                title={mobileView ? 'Switch to desktop view' : 'Switch to mobile view'}
+                style={{
+                  width: 26, height: 26, borderRadius: 6, border: 'none', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: mobileView ? (dark ? 'rgba(59,130,246,0.35)' : '#dbeafe') : (dark ? 'rgba(255,255,255,0.08)' : '#e5e6e8'),
+                  color: mobileView ? '#3b82f6' : (dark ? 'rgba(255,255,255,0.7)' : '#555'),
+                  marginRight: 4,
+                }}
+              >
+                {/* Phone icon SVG */}
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+                  <line x1="12" y1="18" x2="12.01" y2="18"/>
+                </svg>
+              </button>
+            )}
             {[
               { label: '−', action: () => setZoom(z => Math.max(0.4, +(z - 0.1).toFixed(1))) },
               { label: '+', action: () => setZoom(z => Math.min(1.0, +(z + 0.1).toFixed(1))) },
@@ -3610,6 +3631,53 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
               </div>
             </div>
           )
+        ) : mobileView && tpl?.id === 17 ? (
+          /* ── Mobile view: phone frame at 375px ── */
+          <div style={{
+            background: dark ? '#111' : '#f0f2f5',
+            padding: '32px 0 40px',
+            display: 'flex', justifyContent: 'center', alignItems: 'flex-start',
+            minHeight: 860,
+          }}>
+            <div style={{
+              width: 393, borderRadius: 40,
+              background: dark ? '#1a1a1a' : '#1a1a1a',
+              boxShadow: '0 24px 64px rgba(0,0,0,0.45)',
+              padding: '14px 10px',
+              position: 'relative',
+            }}>
+              {/* Notch */}
+              <div style={{
+                width: 120, height: 28, borderRadius: 20,
+                background: '#000', margin: '0 auto 10px',
+              }} />
+              {/* Screen */}
+              <div style={{
+                borderRadius: 28, overflow: 'hidden',
+                background: '#fff',
+              }}>
+                <iframe
+                  ref={iframeRef}
+                  key={`${active}-mobile-${weekGenUrls[tpl?.id]?.hero || 'none'}`}
+                  title="Email Preview Mobile"
+                  style={{
+                    width: 373,
+                    height: 780,
+                    border: 'none',
+                    display: 'block',
+                    transform: `scale(${zoom})`,
+                    transformOrigin: 'top left',
+                  }}
+                  sandbox="allow-same-origin"
+                />
+              </div>
+              {/* Home bar */}
+              <div style={{
+                width: 120, height: 4, borderRadius: 4,
+                background: 'rgba(255,255,255,0.3)', margin: '10px auto 0',
+              }} />
+            </div>
+          </div>
         ) : (
           <iframe
             ref={iframeRef}
