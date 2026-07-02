@@ -3657,9 +3657,9 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
                 background: '#fff',
               }}>
                 <iframe
-                  ref={iframeRef}
                   key={`${active}-mobile-${weekGenUrls[tpl?.id]?.hero || 'none'}`}
                   title="Email Preview Mobile"
+                  srcDoc={previewHtml}
                   style={{
                     width: 373,
                     height: 780,
