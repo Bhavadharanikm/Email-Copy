@@ -489,82 +489,6 @@ export default function Layout() {
             </div>
           )}
 
-          {/* Delete Client Modal */}
-          {showDeleteClient && (
-            <div
-              onClick={(e) => { if (e.target === e.currentTarget) { setShowDeleteClient(false); setDeleteClientName('') } }}
-              style={{
-                position: 'fixed', inset: 0, zIndex: 1000,
-                background: 'rgba(0,0,0,0.5)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                padding: 16,
-              }}
-            >
-              <div style={{
-                background: dark ? '#1c1c1e' : '#fff',
-                borderRadius: 16, padding: 28, width: '100%', maxWidth: 400,
-                boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
-                border: `1px solid ${dark ? 'rgba(255,255,255,0.08)' : '#e5e7eb'}`,
-                fontFamily: 'Inter, sans-serif',
-              }}>
-                <h3 style={{ margin: '0 0 6px', fontSize: 17, fontWeight: 700, color: dark ? '#fff' : '#111827' }}>
-                  Delete Client
-                </h3>
-                <p style={{ margin: '0 0 20px', fontSize: 13, color: dark ? 'rgba(255,255,255,0.4)' : '#6b7280' }}>
-                  Enter the exact client name to permanently remove them.
-                </p>
-                <input
-                  type="text"
-                  value={deleteClientName}
-                  onChange={(e) => setDeleteClientName(e.target.value)}
-                  placeholder="e.g. Pine Valley Cabins"
-                  style={{
-                    width: '100%', padding: '10px 14px', borderRadius: 10, fontSize: 14,
-                    fontFamily: 'Inter, sans-serif', outline: 'none', marginBottom: 14,
-                    boxSizing: 'border-box',
-                    background: dark ? 'rgba(255,255,255,0.06)' : '#f9fafb',
-                    border: `1px solid ${dark ? 'rgba(255,255,255,0.1)' : '#e5e7eb'}`,
-                    color: dark ? 'rgba(255,255,255,0.85)' : '#111827',
-                  }}
-                />
-                {deleteError && (
-                  <p style={{ fontSize: 12, color: '#f87171', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, padding: '7px 11px', margin: '0 0 14px' }}>
-                    {deleteError}
-                  </p>
-                )}
-                {deleteSuccess && (
-                  <p style={{ fontSize: 12, color: '#34d399', background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.2)', borderRadius: 8, padding: '7px 11px', margin: '0 0 14px' }}>
-                    Client deleted successfully.
-                  </p>
-                )}
-                <div style={{ display: 'flex', gap: 10 }}>
-                  <button
-                    onClick={() => { setShowDeleteClient(false); setDeleteClientName(''); setDeleteError('') }}
-                    style={{
-                      flex: 1, padding: '10px', borderRadius: 10, fontSize: 14, fontWeight: 600,
-                      cursor: 'pointer', background: 'transparent',
-                      border: `1.5px solid ${dark ? 'rgba(255,255,255,0.15)' : '#e5e7eb'}`,
-                      color: dark ? 'rgba(255,255,255,0.5)' : '#6b7280',
-                    }}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleDeleteClient}
-                    disabled={deletingClient || !deleteClientName.trim()}
-                    style={{
-                      flex: 2, padding: '10px', borderRadius: 10, fontSize: 14, fontWeight: 600,
-                      cursor: deletingClient || !deleteClientName.trim() ? 'not-allowed' : 'pointer',
-                      background: deletingClient || !deleteClientName.trim() ? 'rgba(239,68,68,0.3)' : '#ef4444',
-                      border: 'none', color: '#fff',
-                    }}
-                  >
-                    {deletingClient ? 'Deleting…' : 'Delete Client'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* New Campaign */}
           <button
@@ -598,6 +522,83 @@ export default function Layout() {
           Hidden Gem Media · Email Production Studio
         </p>
       </div>
+
+      {/* Delete Client Modal */}
+      {showDeleteClient && (
+        <div
+          onClick={(e) => { if (e.target === e.currentTarget) { setShowDeleteClient(false); setDeleteClientName('') } }}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 1000,
+            background: 'rgba(0,0,0,0.5)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: 16,
+          }}
+        >
+          <div style={{
+            background: dark ? '#1c1c1e' : '#fff',
+            borderRadius: 16, padding: 28, width: '100%', maxWidth: 400,
+            boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+            border: `1px solid ${dark ? 'rgba(255,255,255,0.08)' : '#e5e7eb'}`,
+            fontFamily: 'Inter, sans-serif',
+          }}>
+            <h3 style={{ margin: '0 0 6px', fontSize: 17, fontWeight: 700, color: dark ? '#fff' : '#111827' }}>
+              Delete Client
+            </h3>
+            <p style={{ margin: '0 0 20px', fontSize: 13, color: dark ? 'rgba(255,255,255,0.4)' : '#6b7280' }}>
+              Enter the exact client name to permanently remove them.
+            </p>
+            <input
+              type="text"
+              value={deleteClientName}
+              onChange={(e) => setDeleteClientName(e.target.value)}
+              placeholder="e.g. Pine Valley Cabins"
+              style={{
+                width: '100%', padding: '10px 14px', borderRadius: 10, fontSize: 14,
+                fontFamily: 'Inter, sans-serif', outline: 'none', marginBottom: 14,
+                boxSizing: 'border-box',
+                background: dark ? 'rgba(255,255,255,0.06)' : '#f9fafb',
+                border: `1px solid ${dark ? 'rgba(255,255,255,0.1)' : '#e5e7eb'}`,
+                color: dark ? 'rgba(255,255,255,0.85)' : '#111827',
+              }}
+            />
+            {deleteError && (
+              <p style={{ fontSize: 12, color: '#f87171', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, padding: '7px 11px', margin: '0 0 14px' }}>
+                {deleteError}
+              </p>
+            )}
+            {deleteSuccess && (
+              <p style={{ fontSize: 12, color: '#34d399', background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.2)', borderRadius: 8, padding: '7px 11px', margin: '0 0 14px' }}>
+                Client deleted successfully.
+              </p>
+            )}
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button
+                onClick={() => { setShowDeleteClient(false); setDeleteClientName(''); setDeleteError('') }}
+                style={{
+                  flex: 1, padding: '10px', borderRadius: 10, fontSize: 14, fontWeight: 600,
+                  cursor: 'pointer', background: 'transparent',
+                  border: `1.5px solid ${dark ? 'rgba(255,255,255,0.15)' : '#e5e7eb'}`,
+                  color: dark ? 'rgba(255,255,255,0.5)' : '#6b7280',
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteClient}
+                disabled={deletingClient || !deleteClientName.trim()}
+                style={{
+                  flex: 2, padding: '10px', borderRadius: 10, fontSize: 14, fontWeight: 600,
+                  cursor: deletingClient || !deleteClientName.trim() ? 'not-allowed' : 'pointer',
+                  background: deletingClient || !deleteClientName.trim() ? 'rgba(239,68,68,0.3)' : '#ef4444',
+                  border: 'none', color: '#fff',
+                }}
+              >
+                {deletingClient ? 'Deleting…' : 'Delete Client'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   )
