@@ -225,6 +225,8 @@ export default function Layout() {
   const [deletingClient, setDeletingClient]     = useState(false)
   const [deleteError, setDeleteError]           = useState('')
   const [deleteSuccess, setDeleteSuccess]       = useState(false)
+  const [allClients, setAllClients]             = useState([])
+  const [showSuggestions, setShowSuggestions]   = useState(false)
   const userMenuRef = useRef(null)
 
   useEffect(() => {
@@ -235,6 +237,18 @@ export default function Layout() {
     document.addEventListener('mousedown', handleClick)
     return () => document.removeEventListener('mousedown', handleClick)
   }, [userMenuOpen])
+
+  useEffect(() => {
+    if (!showDeleteClient) return
+    fetch('/.netlify/functions/clients')
+      .then(r => r.json())
+      .then(data => setAllClients(Array.isArray(data) ? data : []))
+      .catch(() => {})
+  }, [showDeleteClient])
+
+  const clientSuggestions = deleteClientName.trim()
+    ? allClients.filter(c => c.name.toLowerCase().includes(deleteClientName.toLowerCase()))
+    : []
 
   async function handleDeleteClient() {
     setDeleteError('')
@@ -547,20 +561,51 @@ export default function Layout() {
             <p style={{ margin: '0 0 20px', fontSize: 13, color: dark ? 'rgba(255,255,255,0.4)' : '#6b7280' }}>
               Enter the exact client name to permanently remove them.
             </p>
-            <input
-              type="text"
-              value={deleteClientName}
-              onChange={(e) => setDeleteClientName(e.target.value)}
-              placeholder="e.g. Pine Valley Cabins"
-              style={{
-                width: '100%', padding: '10px 14px', borderRadius: 10, fontSize: 14,
-                fontFamily: 'Inter, sans-serif', outline: 'none', marginBottom: 14,
-                boxSizing: 'border-box',
-                background: dark ? 'rgba(255,255,255,0.06)' : '#f9fafb',
-                border: `1px solid ${dark ? 'rgba(255,255,255,0.1)' : '#e5e7eb'}`,
-                color: dark ? 'rgba(255,255,255,0.85)' : '#111827',
-              }}
-            />
+            <div style={{ position: 'relative', marginBottom: 14 }}>
+              <input
+                type="text"
+                value={deleteClientName}
+                onChange={(e) => { setDeleteClientName(e.target.value); setShowSuggestions(true) }}
+                onFocus={() => setShowSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                placeholder="e.g. Pine Valley Cabins"
+                style={{
+                  width: '100%', padding: '10px 14px', borderRadius: 10, fontSize: 14,
+                  fontFamily: 'Inter, sans-serif', outline: 'none',
+                  boxSizing: 'border-box',
+                  background: dark ? 'rgba(255,255,255,0.06)' : '#f9fafb',
+                  border: `1px solid ${dark ? 'rgba(255,255,255,0.1)' : '#e5e7eb'}`,
+                  color: dark ? 'rgba(255,255,255,0.85)' : '#111827',
+                }}
+              />
+              {showSuggestions && clientSuggestions.length > 0 && (
+                <div style={{
+                  position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0,
+                  background: dark ? '#2a2a2e' : '#fff',
+                  border: `1px solid ${dark ? 'rgba(255,255,255,0.1)' : '#e5e7eb'}`,
+                  borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                  zIndex: 10, overflow: 'hidden', maxHeight: 200, overflowY: 'auto',
+                }}>
+                  {clientSuggestions.map(c => (
+                    <button
+                      key={c.id}
+                      onMouseDown={() => { setDeleteClientName(c.name); setShowSuggestions(false) }}
+                      style={{
+                        width: '100%', padding: '9px 14px', textAlign: 'left',
+                        background: 'none', border: 'none', cursor: 'pointer',
+                        fontSize: 13, fontFamily: 'Inter, sans-serif',
+                        color: dark ? 'rgba(255,255,255,0.8)' : '#111827',
+                        borderBottom: `1px solid ${dark ? 'rgba(255,255,255,0.05)' : '#f3f4f6'}`,
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background = dark ? 'rgba(255,255,255,0.06)' : '#f9fafb'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                    >
+                      {c.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             {deleteError && (
               <p style={{ fontSize: 12, color: '#f87171', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, padding: '7px 11px', margin: '0 0 14px' }}>
                 {deleteError}
