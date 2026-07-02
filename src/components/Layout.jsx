@@ -225,6 +225,7 @@ export default function Layout() {
   const [deletingClient, setDeletingClient]     = useState(false)
   const [deleteError, setDeleteError]           = useState('')
   const [deleteSuccess, setDeleteSuccess]       = useState(false)
+  const [confirmDelete, setConfirmDelete]       = useState(false)
   const [allClients, setAllClients]             = useState([])
   const [showSuggestions, setShowSuggestions]   = useState(false)
   const userMenuRef = useRef(null)
@@ -266,6 +267,7 @@ export default function Layout() {
         setShowDeleteClient(false)
         setDeleteClientName('')
         setDeleteSuccess(false)
+        setConfirmDelete(false)
       }, 1500)
     } catch (err) {
       setDeleteError(err.message)
@@ -540,7 +542,7 @@ export default function Layout() {
       {/* Delete Client Modal */}
       {showDeleteClient && (
         <div
-          onClick={(e) => { if (e.target === e.currentTarget) { setShowDeleteClient(false); setDeleteClientName('') } }}
+          onClick={(e) => { if (e.target === e.currentTarget) { setShowDeleteClient(false); setDeleteClientName(''); setConfirmDelete(false) } }}
           style={{
             position: 'fixed', inset: 0, zIndex: 1000,
             background: 'rgba(0,0,0,0.5)',
@@ -616,31 +618,65 @@ export default function Layout() {
                 Client deleted successfully.
               </p>
             )}
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button
-                onClick={() => { setShowDeleteClient(false); setDeleteClientName(''); setDeleteError('') }}
-                style={{
-                  flex: 1, padding: '10px', borderRadius: 10, fontSize: 14, fontWeight: 600,
-                  cursor: 'pointer', background: 'transparent',
-                  border: `1.5px solid ${dark ? 'rgba(255,255,255,0.15)' : '#e5e7eb'}`,
-                  color: dark ? 'rgba(255,255,255,0.5)' : '#6b7280',
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDeleteClient}
-                disabled={deletingClient || !deleteClientName.trim()}
-                style={{
-                  flex: 2, padding: '10px', borderRadius: 10, fontSize: 14, fontWeight: 600,
-                  cursor: deletingClient || !deleteClientName.trim() ? 'not-allowed' : 'pointer',
-                  background: deletingClient || !deleteClientName.trim() ? 'rgba(239,68,68,0.3)' : '#ef4444',
-                  border: 'none', color: '#fff',
-                }}
-              >
-                {deletingClient ? 'Deleting…' : 'Delete Client'}
-              </button>
-            </div>
+
+            {!confirmDelete ? (
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button
+                  onClick={() => { setShowDeleteClient(false); setDeleteClientName(''); setDeleteError(''); setConfirmDelete(false) }}
+                  style={{
+                    flex: 1, padding: '10px', borderRadius: 10, fontSize: 14, fontWeight: 600,
+                    cursor: 'pointer', background: 'transparent',
+                    border: `1.5px solid ${dark ? 'rgba(255,255,255,0.15)' : '#e5e7eb'}`,
+                    color: dark ? 'rgba(255,255,255,0.5)' : '#6b7280',
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => setConfirmDelete(true)}
+                  disabled={!deleteClientName.trim()}
+                  style={{
+                    flex: 2, padding: '10px', borderRadius: 10, fontSize: 14, fontWeight: 600,
+                    cursor: !deleteClientName.trim() ? 'not-allowed' : 'pointer',
+                    background: !deleteClientName.trim() ? 'rgba(239,68,68,0.3)' : '#ef4444',
+                    border: 'none', color: '#fff',
+                  }}
+                >
+                  Delete Client
+                </button>
+              </div>
+            ) : (
+              <div>
+                <p style={{ fontSize: 14, fontWeight: 500, color: dark ? 'rgba(255,255,255,0.85)' : '#111827', margin: '0 0 16px', lineHeight: 1.5 }}>
+                  Are you sure you want to delete <strong>{deleteClientName}</strong>? This will permanently remove all their data.
+                </p>
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <button
+                    onClick={() => setConfirmDelete(false)}
+                    style={{
+                      flex: 1, padding: '10px', borderRadius: 10, fontSize: 14, fontWeight: 600,
+                      cursor: 'pointer', background: 'transparent',
+                      border: `1.5px solid ${dark ? 'rgba(255,255,255,0.15)' : '#e5e7eb'}`,
+                      color: dark ? 'rgba(255,255,255,0.5)' : '#6b7280',
+                    }}
+                  >
+                    No
+                  </button>
+                  <button
+                    onClick={handleDeleteClient}
+                    disabled={deletingClient}
+                    style={{
+                      flex: 2, padding: '10px', borderRadius: 10, fontSize: 14, fontWeight: 600,
+                      cursor: deletingClient ? 'not-allowed' : 'pointer',
+                      background: deletingClient ? 'rgba(239,68,68,0.3)' : '#ef4444',
+                      border: 'none', color: '#fff',
+                    }}
+                  >
+                    {deletingClient ? 'Deleting…' : 'Delete'}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
