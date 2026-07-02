@@ -63,6 +63,10 @@ export default function PromptForm({ onGenerate, dark = false }) {
   }, [])
 
   useEffect(() => {
+    if (selectedClient?.logoUrl) setClientLogoUrl(selectedClient.logoUrl)
+  }, [selectedClient?.logoUrl])
+
+  useEffect(() => {
     if (!locationId) { setTemplateName(''); return }
 
     // Auto-select client + pre-fill prompt whenever locationId is known,
