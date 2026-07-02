@@ -408,7 +408,7 @@ function buildTemplateWeek2({ client, copy, images, footerData, isHeroGenerated 
 
   <!-- HERO: generated composite PNG (logo+arch+text baked in) or CSS fallback for preview -->
   ${isHeroGenerated
-    ? `<div style="line-height:0;font-size:0;${WHITE_BG};"><img src="${heroImg}" alt="" width="600" style="width:100%;display:block;max-width:600px;"/></div>`
+    ? `<div style="line-height:0;font-size:0;${WHITE_BG};"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${heroImg}" alt="" width="600" style="width:100%;display:block;max-width:600px;border:0;"/></a></div>`
     : `<div style="position:relative;line-height:0;font-size:0;padding:0 36px;${WHITE_BG};height:680px;overflow:hidden;">
     ${heroImg
       ? `<img src="${heroImg}" alt="" style="width:100%;height:680px;object-fit:cover;display:block;border-radius:999px 999px 0 0;object-position:calc(50% + ${heroX}px) calc(50% + ${heroY}px);transform:scale(${heroScale});transform-origin:50% 50%;"/>`
@@ -515,7 +515,7 @@ function buildTemplateWeek2v2({ client, copy, images, footerData, isHeroGenerate
 
   <!-- HERO: transparent PNG or CSS preview -->
   ${isHeroGenerated
-    ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><img src="${heroImg}" alt="" width="600" style="width:100%;display:block;max-width:600px;"/></div>`
+    ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${heroImg}" alt="" width="600" style="width:100%;display:block;max-width:600px;border:0;"/></a></div>`
     : `<div style="line-height:0;font-size:0;padding:0 36px;background-color:${pageBg};">
     <div style="position:relative;width:528px;height:680px;border-radius:999px 999px 0 0;overflow:hidden;">
       ${heroImg
@@ -542,7 +542,7 @@ function buildTemplateWeek2v2({ client, copy, images, footerData, isHeroGenerate
 
   <!-- LONG IMAGE (img1): transparent PNG above body text -->
   ${isHeroGenerated && img4
-    ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><img src="${img4}" alt="" width="600" style="width:100%;display:block;max-width:600px;"/></div>`
+    ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${img4}" alt="" width="600" style="width:100%;display:block;max-width:600px;border:0;"/></a></div>`
     : img1 ? `<div style="line-height:0;font-size:0;padding:0 36px 16px;background-color:${pageBg};"><div style="overflow:hidden;border-radius:8px;height:360px;"><img src="${img1}" alt="" style="width:100%;height:360px;object-fit:cover;display:block;object-position:${focalPos(img1Obj)};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/></div></div>` : ''}
 
   <!-- BODY BLOCK -->
@@ -550,7 +550,7 @@ function buildTemplateWeek2v2({ client, copy, images, footerData, isHeroGenerate
 
   <!-- STRIP IMAGES (img2+img3): transparent PNG after body text -->
   ${isHeroGenerated && img5
-    ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><img src="${img5}" alt="" width="600" style="width:100%;display:block;max-width:600px;"/></div>`
+    ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${img5}" alt="" width="600" style="width:100%;display:block;max-width:600px;border:0;"/></a></div>`
     : img2 ? `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;background-color:${pageBg};">
       <tr><td style="padding:0 36px 24px;">
         <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;line-height:0;font-size:0;">
@@ -622,7 +622,7 @@ function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated 
 
   const stackedSection = isHeroGenerated && img4
     ? `<tr><td class="gmailfix" style="padding:32px 0 8pt;text-align:center;${WHITE_BG};line-height:0;font-size:0;">
-        <img src="${img4}" alt="" width="600" style="width:600px;max-width:100%;display:inline-block;"/>
+        <a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${img4}" alt="" width="600" style="width:600px;max-width:100%;display:inline-block;border:0;"/></a>
       </td></tr>`
     : img1
       ? `<tr><td class="gmailfix" style="padding:32px 0 8px;text-align:center;${WHITE_BG};line-height:0;font-size:0;">
@@ -662,9 +662,7 @@ function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated 
 
     <!-- ── HERO ── -->
     ${isHeroGenerated
-      ? `<tr><td style="line-height:0;font-size:0;padding:0;border-radius:20px 20px 0 0;overflow:hidden;">
-          <img src="${heroImg}" alt="" width="600" style="width:100%;display:block;max-width:600px;border-radius:20px 20px 0 0;"/>
-        </td></tr>`
+      ? `<tr><td style="line-height:0;font-size:0;padding:0;border-radius:20px 20px 0 0;overflow:hidden;"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${heroImg}" alt="" width="600" style="width:100%;display:block;max-width:600px;border-radius:20px 20px 0 0;border:0;"/></a></td></tr>`
       : `<tr><td style="position:relative;line-height:0;font-size:0;padding:0;height:600px;overflow:hidden;background:#1a1a1a;border-radius:20px 20px 0 0;">
           ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:${Math.min(0,Math.max(600*(1-heroScale),-(600*(heroScale-1)/2)+heroY))}px;left:${Math.min(0,Math.max(600*(1-heroScale),-(600*(heroScale-1)/2)+heroX))}px;width:${600*heroScale}px;height:${600*heroScale}px;object-fit:cover;display:block;border-radius:20px 20px 0 0;"/>` : `<div style="width:100%;height:600px;background:#2a2a2a;border-radius:20px 20px 0 0;"></div>`}
           <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.7) 0%,rgba(0,0,0,0.25) 40%,rgba(0,0,0,0) 62%);border-radius:20px 20px 0 0;">
@@ -707,7 +705,7 @@ function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated 
     </td></tr>` : ''}
 
     ${isHeroGenerated && img5
-      ? `<tr><td class="gmailfix" style="padding:0;line-height:0;font-size:0;text-align:center;${WHITE_BG};"><img src="${img5}" alt="" width="600" style="display:block;width:600px;max-width:100%;"/></td></tr>`
+      ? `<tr><td class="gmailfix" style="padding:0;line-height:0;font-size:0;text-align:center;${WHITE_BG};"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${img5}" alt="" width="600" style="display:block;width:600px;max-width:100%;border:0;"/></a></td></tr>`
       : (img3 || img1) ? `
     <tr><td class="gmailfix" style="padding:20px 40px 0;${WHITE_BG};line-height:0;font-size:0;text-align:center;">
       <div style="display:inline-block;width:100%;max-width:520px;height:320px;border-radius:14px;overflow:hidden;">
@@ -779,7 +777,7 @@ function buildTemplateWeek3v2({ client, copy, images, footerData, isHeroGenerate
 
   const stackedSection = isHeroGenerated && img4
     ? `<tr><td style="padding:32px 0 8pt;text-align:center;background-color:${pageBg};line-height:0;font-size:0;">
-        <img src="${img4}" alt="" width="600" style="width:600px;max-width:100%;display:inline-block;"/>
+        <a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${img4}" alt="" width="600" style="width:600px;max-width:100%;display:inline-block;border:0;"/></a>
       </td></tr>`
     : img1
       ? `<tr><td style="padding:32px 0 8px;text-align:center;background-color:${pageBg};line-height:0;font-size:0;">
@@ -806,9 +804,7 @@ function buildTemplateWeek3v2({ client, copy, images, footerData, isHeroGenerate
 
     <!-- ── HERO ── -->
     ${isHeroGenerated
-      ? `<tr><td style="line-height:0;font-size:0;padding:0;border-radius:20px 20px 0 0;overflow:hidden;">
-          <img src="${heroImg}" alt="" width="600" style="width:100%;display:block;max-width:600px;border-radius:20px 20px 0 0;"/>
-        </td></tr>`
+      ? `<tr><td style="line-height:0;font-size:0;padding:0;border-radius:20px 20px 0 0;overflow:hidden;"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${heroImg}" alt="" width="600" style="width:100%;display:block;max-width:600px;border-radius:20px 20px 0 0;border:0;"/></a></td></tr>`
       : `<tr><td style="position:relative;line-height:0;font-size:0;padding:0;height:600px;overflow:hidden;background:#1a1a1a;border-radius:20px 20px 0 0;">
           ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:${Math.min(0,Math.max(600*(1-heroScale),-(600*(heroScale-1)/2)+heroY))}px;left:${Math.min(0,Math.max(600*(1-heroScale),-(600*(heroScale-1)/2)+heroX))}px;width:${600*heroScale}px;height:${600*heroScale}px;object-fit:cover;display:block;border-radius:20px 20px 0 0;"/>` : `<div style="width:100%;height:600px;background:#2a2a2a;border-radius:20px 20px 0 0;"></div>`}
           <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.7) 0%,rgba(0,0,0,0.25) 40%,rgba(0,0,0,0) 62%);border-radius:20px 20px 0 0;">
@@ -853,7 +849,7 @@ function buildTemplateWeek3v2({ client, copy, images, footerData, isHeroGenerate
     </td></tr>` : ''}
 
     ${isHeroGenerated && img5
-      ? `<tr><td style="padding:0;line-height:0;font-size:0;text-align:center;background-color:${pageBg};"><img src="${img5}" alt="" width="600" style="display:block;width:600px;max-width:100%;"/></td></tr>`
+      ? `<tr><td style="padding:0;line-height:0;font-size:0;text-align:center;background-color:${pageBg};"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${img5}" alt="" width="600" style="display:block;width:600px;max-width:100%;border:0;"/></a></td></tr>`
       : (img3 || img1) ? `
     <tr><td style="padding:20px 40px 0;background-color:${pageBg};line-height:0;font-size:0;text-align:center;">
       <div style="display:inline-block;width:100%;max-width:520px;height:320px;border-radius:14px;overflow:hidden;">
@@ -1536,7 +1532,7 @@ function buildTemplateWeek4({ client, copy, images, footerData, isHeroGenerated 
 
     <!-- ── HERO: padded inset image + dark gradient + logo + headline ── -->
     ${isHeroGenerated
-      ? `<tr><td style="padding:0;line-height:0;font-size:0;"><img src="${heroImg}" alt="" width="600" style="display:block;width:600px;"/></td></tr>`
+      ? `<tr><td style="padding:0;line-height:0;font-size:0;"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${heroImg}" alt="" width="600" style="display:block;width:600px;border:0;"/></a></td></tr>`
       : `<tr><td class="gmailfix" style="padding:20px 20px 0;${WHITE_BG};line-height:0;font-size:0;">
       <div style="position:relative;width:560px;height:720px;overflow:hidden;border-radius:16px;background:#1a1a1a;">
         ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:${Math.min(0,Math.max(720*(1-heroScale),-(720*(heroScale-1)/2)+heroY))}px;left:${Math.min(0,Math.max(560*(1-heroScale),-(560*(heroScale-1)/2)+heroX))}px;width:${560*heroScale}px;height:${720*heroScale}px;object-fit:cover;display:block;"/>` : ''}
@@ -1567,7 +1563,7 @@ function buildTemplateWeek4({ client, copy, images, footerData, isHeroGenerated 
 
     <!-- Card 1: full width -->
     ${isHeroGenerated && card1PngUrl
-      ? `<tr><td style="padding:0;line-height:0;font-size:0;"><img src="${card1PngUrl}" alt="" width="600" style="display:block;width:600px;"/></td></tr>
+      ? `<tr><td style="padding:0;line-height:0;font-size:0;"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${card1PngUrl}" alt="" width="600" style="display:block;width:600px;border:0;"/></a></td></tr>
          ${cards[0].bodyText ? `<tr><td class="gmailfix" style="padding:24px 52px 32px;${WHITE_BG};text-align:center;"><p style="font-family:Arial,sans-serif;font-size:17px;color:#878787;line-height:1.85;margin:0;">${cards[0].bodyText.replace(/\n/g,'<br>')}</p></td></tr>` : ''}`
       : w4Card(cards[0])}
 
@@ -1580,7 +1576,7 @@ function buildTemplateWeek4({ client, copy, images, footerData, isHeroGenerated 
       <p style="font-family:Georgia,'Times New Roman',serif;font-size:25px;font-weight:700;color:${secondary};line-height:1.3;margin:0;">${copy.bodyBlock2Title}</p>
     </td></tr>` : ''}
     ${isHeroGenerated && card2PngUrl
-      ? `<tr><td style="padding:0;line-height:0;font-size:0;"><img src="${card2PngUrl}" alt="" width="600" style="display:block;width:600px;"/></td></tr>`
+      ? `<tr><td style="padding:0;line-height:0;font-size:0;"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${card2PngUrl}" alt="" width="600" style="display:block;width:600px;border:0;"/></a></td></tr>`
       : `<tr><td class="gmailfix" style="padding:16px 72px 8px;${WHITE_BG};line-height:normal;">${w4StackedImage(cards[1].imgUrl, cards[1].imgObj, 520)}</td></tr>`}
     ${copy.bodyBlock2 ? `
     <tr><td class="gmailfix" style="padding:20px 52px 0;${WHITE_BG};text-align:center;">
@@ -1675,7 +1671,7 @@ function buildTemplateWeek5({ client, copy, images, footerData, isHeroGenerated 
 
     <!-- ── HERO ── -->
     ${isHeroGenerated
-      ? `<tr><td style="padding:20px 0 0;background-color:${pageBg};line-height:0;font-size:0;"><img src="${heroImg}" alt="" width="600" style="display:block;width:600px;"/></td></tr>`
+      ? `<tr><td style="padding:20px 0 0;background-color:${pageBg};line-height:0;font-size:0;"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${heroImg}" alt="" width="600" style="display:block;width:600px;border:0;"/></a></td></tr>`
       : `<tr><td style="padding:20px 20px 0;background-color:${pageBg};line-height:0;font-size:0;">
       <div style="position:relative;width:560px;height:680px;overflow:hidden;border-radius:16px;background:#1a1a1a;">
         ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:${Math.min(0,Math.max(680*(1-heroScale),-(680*(heroScale-1)/2)+heroY))}px;left:${Math.min(0,Math.max(560*(1-heroScale),-(560*(heroScale-1)/2)+heroX))}px;width:${560*heroScale}px;height:${680*heroScale}px;object-fit:cover;display:block;"/>` : `<div style="width:560px;height:680px;background:#2a2a2a;"></div>`}
@@ -1723,7 +1719,7 @@ function buildTemplateWeek5({ client, copy, images, footerData, isHeroGenerated 
     <!-- ── Grid ── -->
     ${hasGrid
       ? isHeroGenerated && img4
-        ? `<tr><td style="padding:28px 0 0;background-color:${pageBg};line-height:0;font-size:0;text-align:center;"><img src="${img4}" alt="" width="600" style="display:block;width:600px;max-width:100%;"/></td></tr>`
+        ? `<tr><td style="padding:28px 0 0;background-color:${pageBg};line-height:0;font-size:0;text-align:center;"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${img4}" alt="" width="600" style="display:block;width:600px;max-width:100%;border:0;"/></a></td></tr>`
         : `<tr><td style="padding:28px 0 0;background-color:${pageBg};">
       <table width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;border-collapse:collapse;">
         <tr>
@@ -1836,7 +1832,7 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
 
     <!-- ── Header + Hero ── -->
     ${isHeroGenerated
-      ? `<tr><td style="padding:0;background-color:${pageBg};line-height:0;font-size:0;"><img src="${heroImg}" alt="" width="600" style="display:block;width:600px;"/></td></tr>`
+      ? `<tr><td style="padding:0;background-color:${pageBg};line-height:0;font-size:0;"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${heroImg}" alt="" width="600" style="display:block;width:600px;border:0;"/></a></td></tr>`
       : `
     <tr><td style="padding:0 0 20px;background-color:${pageBg};">
       <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
@@ -1909,7 +1905,7 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
     <!-- ── Image grid ── -->
     ${hasGrid
       ? isHeroGenerated && img4
-        ? `<tr><td style="padding:0;line-height:0;font-size:0;text-align:center;background-color:${pageBg};"><img src="${img4}" alt="" width="600" style="display:block;width:600px;max-width:100%;"/></td></tr>`
+        ? `<tr><td style="padding:0;line-height:0;font-size:0;text-align:center;background-color:${pageBg};"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${img4}" alt="" width="600" style="display:block;width:600px;max-width:100%;border:0;"/></a></td></tr>`
         : `<tr><td style="padding:32px 20px 0;background-color:${pageBg};">
 
       ${(img1 || img2) ? `
@@ -2037,7 +2033,7 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
 
     <!-- ── HERO: padded inset image + dark gradient + logo + headline ── -->
     ${isHeroGenerated
-      ? `<tr><td style="padding:0;line-height:0;font-size:0;"><img src="${heroImg}" alt="" width="600" style="display:block;width:600px;"/></td></tr>`
+      ? `<tr><td style="padding:0;line-height:0;font-size:0;"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${heroImg}" alt="" width="600" style="display:block;width:600px;border:0;"/></a></td></tr>`
       : `<tr><td style="padding:20px 20px 0;${BG};line-height:0;font-size:0;">
       <div style="position:relative;width:560px;height:720px;overflow:hidden;border-radius:16px;background:#1a1a1a;">
         ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:${Math.min(0,Math.max(720*(1-heroScale),-(720*(heroScale-1)/2)+heroY))}px;left:${Math.min(0,Math.max(560*(1-heroScale),-(560*(heroScale-1)/2)+heroX))}px;width:${560*heroScale}px;height:${720*heroScale}px;object-fit:cover;display:block;"/>` : ''}
@@ -2069,7 +2065,7 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
 
     <!-- Card 1: full width -->
     ${isHeroGenerated && card1PngUrl
-      ? `<tr><td style="padding:0;line-height:0;font-size:0;"><img src="${card1PngUrl}" alt="" width="600" style="display:block;width:600px;"/></td></tr>
+      ? `<tr><td style="padding:0;line-height:0;font-size:0;"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${card1PngUrl}" alt="" width="600" style="display:block;width:600px;border:0;"/></a></td></tr>
          ${cards[0].bodyText ? `<tr><td style="padding:24px 52px 32px;${BG};text-align:center;"><p style="font-family:Arial,sans-serif;font-size:17px;color:${mutedTextCol};line-height:1.85;margin:0;">${cards[0].bodyText.replace(/\n/g,'<br>')}</p></td></tr>` : ''}`
       : w4Card({ ...cards[0], bg: BG, textCol: mutedTextCol })}
 
@@ -2082,7 +2078,7 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
       <p style="font-family:Georgia,'Times New Roman',serif;font-size:25px;font-weight:700;color:${secondary};line-height:1.3;margin:0;">${copy.bodyBlock2Title}</p>
     </td></tr>` : ''}
     ${isHeroGenerated && card2PngUrl
-      ? `<tr><td style="padding:0;line-height:0;font-size:0;"><img src="${card2PngUrl}" alt="" width="600" style="display:block;width:600px;"/></td></tr>`
+      ? `<tr><td style="padding:0;line-height:0;font-size:0;"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${card2PngUrl}" alt="" width="600" style="display:block;width:600px;border:0;"/></a></td></tr>`
       : `<tr><td style="padding:16px 72px 8px;${BG};line-height:normal;">${w4StackedImage(cards[1].imgUrl, cards[1].imgObj, 520)}</td></tr>`}
     ${copy.bodyBlock2 ? `
     <tr><td style="padding:20px 52px 0;${BG};text-align:center;">
