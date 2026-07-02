@@ -2855,7 +2855,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 <link href="https://fonts.googleapis.com/css2?family=Lora:wght@700&display=swap" rel="stylesheet"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:${midBg};}</style>
 </head><body>
-<div style="background:${midBg};width:600px;padding:${logoTop}px ${logoRight}px 18px;box-sizing:border-box;line-height:normal;font-size:initial;text-align:right;">
+<div style="background:${midBg};width:600px;padding:${logoTop}px 32px 18px;box-sizing:border-box;line-height:normal;font-size:initial;text-align:center;">
   ${week2v2LogoHtml}
 </div>
 <div style="width:600px;padding:0 36px;background:${midBg};box-sizing:border-box;line-height:0;font-size:0;">
