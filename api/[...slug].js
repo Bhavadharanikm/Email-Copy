@@ -1,4 +1,5 @@
 import { runHandler } from './_adapter.js'
+import { handler as addClient }          from '../netlify/functions/add-client.js'
 import { handler as analyzeImageFocal }  from '../netlify/functions/analyze-image-focal.js'
 import { handler as clients }            from '../netlify/functions/clients.js'
 import { handler as copyCallback }       from '../netlify/functions/copy-callback.js'
@@ -28,6 +29,7 @@ export const config = {
 }
 
 const HANDLERS = {
+  'add-client':          addClient,
   'analyze-image-focal': analyzeImageFocal,
   'clients':             clients,
   'copy-callback':       copyCallback,
