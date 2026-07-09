@@ -2466,6 +2466,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     const w5Last  = w5words.length >= 3 ? w5words[w5words.length - 1] : ''
     const w5Main  = w5words.length >= 3 ? w5words.slice(1, -1).join(' ') : w5words.length === 2 ? w5words[1] : w5words[0] || ''
     const midBg      = clientFooter?.bgColor || '#fff'
+    const midBgIsLight = (() => { const m = midBg.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i); if (!m) return true; const [r,g,b]=[parseInt(m[1],16),parseInt(m[2],16),parseInt(m[3],16)]; return (0.299*r+0.587*g+0.114*b) > 128; })()
 
     setWeekGenLoading(true)
     setWeekGenError(null)
@@ -2783,9 +2784,10 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     const w6words = headline.trim().split(/\s+/).filter(Boolean)
     const w6Body  = w6words.length > 1 ? w6words.slice(0, -1).join(' ') : w6words[0] || ''
     const w6Last  = w6words.length > 1 ? w6words[w6words.length - 1] : ''
+    const w6NavTextColor = midBgIsLight ? '#1a1a1a' : '#ffffff'
     const w6LogoHtml = logoUrl
       ? `<img src="${logoUrl}" alt="" style="height:${logoSize}px;width:auto;max-width:${logoSize * 5}px;display:inline-block;filter:${renderLogoFilter};"/>`
-      : `<span style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#1a1a1a;">${clientName}</span>`
+      : `<span style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:${w6NavTextColor};">${clientName}</span>`
     const week6HeroHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;overflow:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}</style>
@@ -2796,7 +2798,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     <tr>
       <td style="padding:${logoTop}px 0 0 ${logoRight}px;vertical-align:top;">${w6LogoHtml}</td>
       <td style="text-align:right;vertical-align:middle;padding-right:40px;">
-        ${generatedCopy?.ctaText ? `<span style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:#1a1a1a;letter-spacing:.01em;">${generatedCopy.ctaText} ›</span>` : ''}
+        ${generatedCopy?.ctaText ? `<span style="font-family:Arial,sans-serif;font-size:13px;font-weight:600;color:${w6NavTextColor};letter-spacing:.01em;">${generatedCopy.ctaText} ›</span>` : ''}
       </td>
     </tr>
   </table>
@@ -3654,18 +3656,20 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
               {/* Screen */}
               <div style={{
                 borderRadius: 28, overflow: 'hidden',
+                width: 373, height: 780,
                 background: '#fff',
+                position: 'relative',
               }}>
                 <iframe
                   key={`${active}-mobile-${weekGenUrls[tpl?.id]?.hero || 'none'}`}
                   title="Email Preview Mobile"
                   srcDoc={previewHtml}
                   style={{
-                    width: 373,
-                    height: 780,
+                    width: 600,
+                    height: Math.ceil(780 / (373 / 600)),
                     border: 'none',
                     display: 'block',
-                    transform: `scale(${zoom})`,
+                    transform: `scale(${373 / 600})`,
                     transformOrigin: 'top left',
                   }}
                   sandbox="allow-same-origin"
