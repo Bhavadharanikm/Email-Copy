@@ -3806,7 +3806,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
             </div>
           )
         ) : mobileView ? (
-          /* ── Mobile view: phone frame at 375px ── */
+          /* ── Mobile view: phone frame at 390px ── */
           <div style={{
             background: dark ? '#111' : '#f0f2f5',
             padding: '32px 0 40px',
@@ -3814,7 +3814,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
             minHeight: 860,
           }}>
             <div style={{
-              width: 393, borderRadius: 40,
+              width: 410, borderRadius: 40,
               background: dark ? '#1a1a1a' : '#1a1a1a',
               boxShadow: '0 24px 64px rgba(0,0,0,0.45)',
               padding: '14px 10px',
@@ -3828,7 +3828,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
               {/* Screen */}
               <div style={{
                 borderRadius: 28, overflow: 'hidden',
-                width: 373, height: 780,
+                width: 390, height: 780,
                 background: '#fff',
                 position: 'relative',
               }}>
@@ -3838,10 +3838,10 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
                   srcDoc={previewHtml}
                   style={{
                     width: 600,
-                    height: Math.ceil(780 / (373 / 600)),
+                    height: Math.ceil(780 / (390 / 600)),
                     border: 'none',
                     display: 'block',
-                    transform: `scale(${373 / 600})`,
+                    transform: `scale(${390 / 600})`,
                     transformOrigin: 'top left',
                   }}
                   sandbox="allow-same-origin"
