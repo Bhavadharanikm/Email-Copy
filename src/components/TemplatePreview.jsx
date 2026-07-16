@@ -2882,8 +2882,8 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
 </head><body>
 <div style="width:600px;text-align:center;">
-  <div style="display:inline-block;background:${w5AccentColor};border-radius:999px;padding:15px 40px;">
-    <span style="font-family:Arial,sans-serif;font-size:17px;font-weight:700;color:#ffffff;white-space:nowrap;display:inline-flex;align-items:center;">${w5CtaText}<span style="display:inline-flex;align-items:center;margin-left:10px;"><span style="display:inline-block;width:12px;height:2px;background:#ffffff;"></span><span style="display:inline-block;width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:7px solid #ffffff;"></span></span></span>
+  <div style="display:inline-block;background:${w5AccentColor};border-radius:999px;padding:17px 48px;">
+    <span style="font-family:Arial,sans-serif;font-size:19px;font-weight:700;color:#ffffff;white-space:nowrap;display:inline-flex;align-items:center;">${w5CtaText}<span style="display:inline-flex;align-items:center;margin-left:10px;"><span style="display:inline-block;width:12px;height:2px;background:#ffffff;"></span><span style="display:inline-block;width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:7px solid #ffffff;"></span></span></span>
   </div>
 </div>
 </body></html>` : null
@@ -3097,7 +3097,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
       : isWeek3v2 && w3v2ButtonHtml
       ? renderImage({ html: w3v2ButtonHtml, width: 600, height: 72, transparent: true })
       : isWeek5 && w5ButtonHtml
-      ? renderImage({ html: w5ButtonHtml, width: 600, height: 72, transparent: true })
+      ? renderImage({ html: w5ButtonHtml, width: 600, height: 80, transparent: true })
       : isWeek6 && w6ButtonHtml
       ? renderImage({ html: w6ButtonHtml, width: 600, height: 72, transparent: true })
       : Promise.resolve(null)
