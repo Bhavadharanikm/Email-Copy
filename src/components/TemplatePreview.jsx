@@ -547,7 +547,7 @@ function buildTemplateWeek2v2({ client, copy, images, footerData, isHeroGenerate
     : img1 ? `<div style="line-height:0;font-size:0;padding:0 36px 16px;background-color:${pageBg};"><div style="overflow:hidden;border-radius:8px;height:360px;"><img src="${img1}" alt="" style="width:100%;height:360px;object-fit:cover;display:block;object-position:${focalPos(img1Obj)};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/></div></div>` : ''}
 
   <!-- BODY BLOCK -->
-  ${copy.bodyText ? `<div style="padding:24px 48px 32px;background-color:${pageBg};"><div style="font-size:15px;line-height:1.8;color:${mutedTextCol};margin-bottom:18px;font-family:Arial,sans-serif;">${body}</div></div>` : ''}
+  ${copy.bodyText ? `<div style="padding:24px 48px 32px;background-color:${pageBg};"><div class="mobile-body" style="font-size:15px;line-height:1.8;color:${mutedTextCol};margin-bottom:18px;font-family:Arial,sans-serif;">${body}</div></div>` : ''}
 
   <!-- STRIP IMAGES (img2+img3): transparent PNG after body text -->
   ${isHeroGenerated && img5
@@ -567,13 +567,13 @@ function buildTemplateWeek2v2({ client, copy, images, footerData, isHeroGenerate
   ${(copy.bodyBlock2Title || copy.bodyBlock2 || copy.closingLine) ? `
   <div style="background-color:${pageBg};padding:8px 36px 0;">
     <div style="background-color:${pageBg};border-radius:10px;padding:16px 20px;">
-      ${copy.bodyBlock2Title ? `<div style="font-size:15px;font-weight:700;font-family:Arial,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:${secondary};margin-bottom:6px;text-align:left;">${copy.bodyBlock2Title}</div>` : ''}
-      ${copy.bodyBlock2 ? `<div style="font-size:15px;line-height:1.8;color:${mutedTextCol};margin-bottom:18px;font-family:Arial,sans-serif;">${b2body}</div>` : ''}
-      ${copy.closingLine ? `<div style="font-size:15px;line-height:1.7;color:${mutedTextCol};font-style:italic;margin-bottom:24px;font-family:Georgia,serif;">${copy.closingLine}</div>` : ''}
+      ${copy.bodyBlock2Title ? `<div class="mobile-b2title" style="font-size:15px;font-weight:700;font-family:Arial,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:${secondary};margin-bottom:6px;text-align:left;">${copy.bodyBlock2Title}</div>` : ''}
+      ${copy.bodyBlock2 ? `<div class="mobile-body" style="font-size:15px;line-height:1.8;color:${mutedTextCol};margin-bottom:18px;font-family:Arial,sans-serif;">${b2body}</div>` : ''}
+      ${copy.closingLine ? `<div class="mobile-closing" style="font-size:15px;line-height:1.7;color:${mutedTextCol};font-style:italic;margin-bottom:24px;font-family:Georgia,serif;">${copy.closingLine}</div>` : ''}
     </div>
     ${copy.ctaText ? `<div style="padding:16px 0 36px;text-align:center;">${btnImgUrl
       ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img src="${btnImgUrl}" alt="${copy.ctaText}" width="600" style="width:100%;max-width:600px;display:block;border:0;outline:none;"/></a>`
-      : `<a href="${copy.ctaUrl||'#'}" style="display:inline-block;background:${accent};color:#ffffff;padding:14px 40px;font-size:16px;font-weight:600;letter-spacing:.06em;text-decoration:none;font-family:Arial,sans-serif;border-radius:50px;">${copy.ctaText}</a>`
+      : `<a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;background:${accent};color:#ffffff;padding:14px 40px;font-size:16px;font-weight:600;letter-spacing:.06em;text-decoration:none;font-family:Arial,sans-serif;border-radius:50px;">${copy.ctaText}</a>`
     }</div>` : ''}
   </div>` : ''}
 
@@ -799,6 +799,14 @@ function buildTemplateWeek3v2({ client, copy, images, footerData, isHeroGenerate
   *{box-sizing:border-box;margin:0;padding:0}
   body{margin:0;padding:0;color:#1a1a1a;}
   table{border-collapse:collapse;}
+  @media only screen and (max-width:600px){
+    .mobile-body    { font-size:18px!important; line-height:1.6!important; }
+    .mobile-subhead { font-size:18px!important; line-height:1.5!important; }
+    .mobile-b2title { font-size:18px!important; }
+    .mobile-closing { font-size:18px!important; line-height:1.6!important; }
+    .mobile-cta     { font-size:17px!important; padding:16px 32px!important; }
+    .mobile-footer  { font-size:13px!important; line-height:1.4!important; }
+  }
 </style></head><body class="body" style="margin:0;padding:32px 0 48px;">
 
 <table width="600" cellpadding="0" cellspacing="0" border="0" bgcolor="${pageBg}" style="width:600px;max-width:600px;margin:0 auto;background-color:${pageBg};border-collapse:collapse;border-radius:20px;overflow:hidden;">
@@ -819,10 +827,10 @@ function buildTemplateWeek3v2({ client, copy, images, footerData, isHeroGenerate
 
     <!-- ── SUBHEAD + CTA ── -->
     <tr><td style="padding:${isHeroGenerated ? '40px' : '32px'} 52px 36px;text-align:center;background-color:${pageBg};">
-      ${copy.subhead ? `<div style="font-family:Georgia,serif;font-size:18px;font-style:italic;color:${mutedTextCol};line-height:1.6;margin-bottom:24px;max-width:460px;margin-left:auto;margin-right:auto;">${copy.subhead}</div>` : ''}
+      ${copy.subhead ? `<div class="mobile-subhead" style="font-family:Georgia,serif;font-size:18px;font-style:italic;color:${mutedTextCol};line-height:1.6;margin-bottom:24px;max-width:460px;margin-left:auto;margin-right:auto;">${copy.subhead}</div>` : ''}
       ${btnImgUrl
         ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img src="${btnImgUrl}" alt="${copy.ctaText}" width="600" style="width:100%;max-width:600px;display:block;border:0;outline:none;"/></a>`
-        : copy.ctaText ? `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background-color:${accentClr};border-radius:100px;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:16px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;letter-spacing:.04em;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>` : ''}
+        : copy.ctaText ? `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background-color:${accentClr};border-radius:100px;"><a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:16px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;letter-spacing:.04em;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>` : ''}
     </td></tr>
 
     <!-- ── DIVIDER ── -->
@@ -835,7 +843,7 @@ function buildTemplateWeek3v2({ client, copy, images, footerData, isHeroGenerate
 
     <!-- ── BODY TEXT ── -->
     <tr><td style="padding:36px 52px 24px;background-color:${pageBg};text-align:center;">
-      ${copy.bodyText ? `<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.9;color:${mutedTextCol};max-width:460px;margin-left:auto;margin-right:auto;">${body}</div>` : ''}
+      ${copy.bodyText ? `<div class="mobile-body" style="font-family:Arial,sans-serif;font-size:15px;line-height:1.9;color:${mutedTextCol};max-width:460px;margin-left:auto;margin-right:auto;">${body}</div>` : ''}
     </td></tr>
 
     <!-- ── DIVIDER 2 ── -->
@@ -1869,7 +1877,7 @@ function buildTemplateWeek5v2({ client, copy, images, footerData, isHeroGenerate
     <tr><td style="padding:20px 52px 8px;text-align:center;background-color:${pageBg};">
       ${btnImgUrl
         ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img src="${btnImgUrl}" alt="${copy.ctaText}" width="600" style="width:100%;max-width:600px;display:block;border:0;outline:none;"/></a>`
-        : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background-color:${accent};border-radius:100px;"><a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:12px 32px;font-family:Arial,sans-serif;font-size:16px;font-weight:700;color:#fff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;letter-spacing:.03em;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`}
+        : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accent};border-radius:999px;"><a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`}
     </td></tr>` : ''}
 
     <!-- ── Body text ── -->
@@ -1934,7 +1942,7 @@ function buildTemplateWeek5v2({ client, copy, images, footerData, isHeroGenerate
     <tr><td style="padding:28px 52px 44px;text-align:center;background-color:${pageBg};">
       ${btnImgUrl
         ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img src="${btnImgUrl}" alt="${copy.ctaText}" width="600" style="width:100%;max-width:600px;display:block;border:0;outline:none;"/></a>`
-        : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background-color:${accent};border-radius:100px;"><a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:12px 32px;font-family:Arial,sans-serif;font-size:16px;font-weight:700;color:#fff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;letter-spacing:.03em;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`}
+        : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accent};border-radius:999px;"><a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`}
     </td></tr>` : ''}
 
     <tr><td style="padding:0;line-height:0;font-size:0;background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: dividerCol, bodyTextAlign: 'justify' })}</td></tr>
@@ -2875,7 +2883,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </head><body>
 <div style="width:600px;text-align:center;">
   <div style="display:inline-block;background:${w5AccentColor};border-radius:999px;padding:15px 40px;">
-    <span style="font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff;white-space:nowrap;display:inline-flex;align-items:center;gap:10px;">${w5CtaText}<span style="display:inline-flex;align-items:center;gap:0;"><span style="display:inline-block;width:12px;height:2px;background:#ffffff;vertical-align:middle;"></span><span style="display:inline-block;width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:7px solid #ffffff;vertical-align:middle;"></span></span></span>
+    <span style="font-family:Arial,sans-serif;font-size:17px;font-weight:700;color:#ffffff;white-space:nowrap;display:inline-flex;align-items:center;">${w5CtaText}<span style="display:inline-flex;align-items:center;margin-left:10px;"><span style="display:inline-block;width:12px;height:2px;background:#ffffff;"></span><span style="display:inline-block;width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:7px solid #ffffff;"></span></span></span>
   </div>
 </div>
 </body></html>` : null
