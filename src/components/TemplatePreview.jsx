@@ -106,7 +106,7 @@ function buildFooter(client, footerData = null, options = {}) {
   ].filter(s => s.url)
 
   const sectionGap     = options.sectionGap     !== undefined ? options.sectionGap     : 28
-  const footerTextSize = options.footerTextSize !== undefined ? options.footerTextSize : 9
+  const footerTextSize = options.footerTextSize !== undefined ? options.footerTextSize : 12
 
   const socialHtml = socialIcons.length ? `
     <div style="margin:0 0 ${sectionGap || 20}px;text-align:center;font-size:0">
@@ -125,29 +125,30 @@ function buildFooter(client, footerData = null, options = {}) {
     : `<div style="margin:0 0 20px;font-size:16px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:${textCol};font-family:Arial,sans-serif">${name}</div>`
 
   const contactParts = [
-    contactInfo   ? `<a href="mailto:${contactInfo}" style="color:${textCol};text-decoration:none">${contactInfo}</a>` : '',
-    contactNumber ? `<a href="tel:${contactNumber.replace(/\s/g,'')}" style="color:${textCol};text-decoration:none">${contactNumber}</a>` : '',
+    contactInfo   ? `<a href="mailto:${contactInfo}" style="color:${textCol};text-decoration:underline;font-weight:600">${contactInfo}</a>` : '',
+    contactNumber ? `<a href="tel:${contactNumber.replace(/\s/g,'')}" style="color:${textCol};text-decoration:underline;font-weight:600">${contactNumber}</a>` : '',
   ].filter(Boolean)
   const contactHtml = contactParts.length
-    ? `<div style="font-size:15px;color:${textCol};font-family:Arial,sans-serif;margin-bottom:${sectionGap || 16}px">${contactParts.join(`&nbsp;&nbsp;·&nbsp;&nbsp;`)}</div>`
+    ? `<div style="font-size:14px;color:${textCol};font-family:Arial,sans-serif;margin-bottom:${sectionGap || 16}px;line-height:1.25;text-align:center">${contactParts.join(`&nbsp;&nbsp;·&nbsp;&nbsp;`)}</div>`
     : ''
 
+  const bodyTextAlign  = options.bodyTextAlign || 'left'
   const footerTextHtml = footerText
-    ? `<div style="font-size:${footerTextSize}px;color:${linkCol};font-family:Arial,sans-serif;margin-bottom:${sectionGap || 20}px;max-width:440px;margin-left:auto;margin-right:auto;line-height:1.7">${footerText}</div>`
+    ? `<div style="font-size:${footerTextSize}px;color:${linkCol};font-family:Arial,sans-serif;margin-bottom:${sectionGap || 20}px;line-height:1.25;text-align:${bodyTextAlign}">${footerText}</div>`
     : ''
 
   const divClass = options.gmailClass ? ` class="${options.gmailClass}"` : ''
   return `
   <!-- Footer -->
-  <div${divClass} style="background:${bgRaw};padding:44px 48px 36px;text-align:center;border-top:1px solid ${divCol}">
+  <div${divClass} style="background:${bgRaw};padding:44px 48px 36px;text-align:left;border-top:1px solid ${divCol}">
     ${logoHtml}
     ${socialHtml}
     ${contactHtml}
     ${footerTextHtml}
-    <div style="font-size:13px;color:${linkCol};font-family:Arial,sans-serif;letter-spacing:.08em;margin-top:8px">
+    <div style="font-size:14px;color:${linkCol};font-family:Arial,sans-serif;line-height:1.25;margin-top:8px;text-align:center">
       <a href="{{email.view_in_browser_url}}" style="color:${linkCol};text-decoration:underline">View in browser</a>
       &nbsp;·&nbsp;
-      <a href="{{email.unsubscribe_link}}" style="color:${linkCol};text-decoration:underline">Unsubscribe</a>
+      <a href="{{email.unsubscribe_link}}" style="color:${linkCol};text-decoration:underline;font-weight:600">Unsubscribe</a>
     </div>
   </div>`
 }
@@ -1828,6 +1829,14 @@ function buildTemplateWeek5v2({ client, copy, images, footerData, isHeroGenerate
   *{box-sizing:border-box;margin:0;padding:0}
   body{margin:0;padding:0;color:#1a1a1a;}
   table{border-collapse:collapse;}
+  @media only screen and (max-width:600px){
+    .mobile-body    { font-size:18px!important; line-height:1.5!important; }
+    .mobile-subhead { font-size:20px!important; line-height:1.4!important; }
+    .mobile-b2title { font-size:22px!important; line-height:1.25!important; }
+    .mobile-closing { font-size:18px!important; line-height:1.5!important; }
+    .mobile-cta     { font-size:18px!important; padding:14px 36px!important; }
+    .mobile-footer  { font-size:12px!important; line-height:1.4!important; }
+  }
 </style></head>
 <body class="body" style="margin:0;padding:32px 0 48px;">
 
@@ -1852,7 +1861,7 @@ function buildTemplateWeek5v2({ client, copy, images, footerData, isHeroGenerate
     <!-- ── Subhead ── -->
     ${copy.subhead ? `
     <tr><td style="padding:32px 52px 8px;text-align:center;background-color:${pageBg};">
-      <p style="font-family:Georgia,'Times New Roman',serif;font-size:20px;font-style:italic;line-height:1.5;color:${mutedTextCol};margin:0;">${copy.subhead}</p>
+      <p class="mobile-subhead" style="font-family:Georgia,'Times New Roman',serif;font-size:20px;font-style:italic;line-height:1.5;color:${mutedTextCol};margin:0;">${copy.subhead}</p>
     </td></tr>` : ''}
 
     <!-- ── CTA ── -->
@@ -1860,13 +1869,13 @@ function buildTemplateWeek5v2({ client, copy, images, footerData, isHeroGenerate
     <tr><td style="padding:20px 52px 8px;text-align:center;background-color:${pageBg};">
       ${btnImgUrl
         ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img src="${btnImgUrl}" alt="${copy.ctaText}" width="600" style="width:100%;max-width:600px;display:block;border:0;outline:none;"/></a>`
-        : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background-color:${accent};border-radius:100px;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:12px 32px;font-family:Arial,sans-serif;font-size:16px;font-weight:700;color:#fff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;letter-spacing:.03em;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`}
+        : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background-color:${accent};border-radius:100px;"><a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:12px 32px;font-family:Arial,sans-serif;font-size:16px;font-weight:700;color:#fff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;letter-spacing:.03em;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`}
     </td></tr>` : ''}
 
     <!-- ── Body text ── -->
     ${copy.bodyText ? `
-    <tr><td style="padding:32px 52px 24px;text-align:center;background-color:${pageBg};">
-      <p style="font-family:Arial,sans-serif;font-size:16px;line-height:1.5;color:${mutedTextCol};margin:0;">${body}</p>
+    <tr><td style="padding:32px 52px 24px;text-align:left;background-color:${pageBg};">
+      <p class="mobile-body" style="font-family:Arial,sans-serif;font-size:16px;line-height:1.5;color:${mutedTextCol};margin:0;">${body}</p>
     </td></tr>` : ''}
 
     <!-- ── Divider ── -->
@@ -1877,7 +1886,7 @@ function buildTemplateWeek5v2({ client, copy, images, footerData, isHeroGenerate
     <!-- ── Body block 2 title ── -->
     ${copy.bodyBlock2Title ? `
     <tr><td style="padding:32px 52px 0;text-align:center;background-color:${pageBg};">
-      <p style="font-family:Georgia,'Times New Roman',serif;font-size:22px;font-weight:700;color:${secondary};line-height:1.25;margin:0;">${copy.bodyBlock2Title}</p>
+      <p class="mobile-b2title" style="font-family:Georgia,'Times New Roman',serif;font-size:22px;font-weight:700;color:${secondary};line-height:1.25;margin:0;">${copy.bodyBlock2Title}</p>
     </td></tr>` : ''}
 
     <!-- ── Grid ── -->
@@ -1911,13 +1920,13 @@ function buildTemplateWeek5v2({ client, copy, images, footerData, isHeroGenerate
 
     <!-- ── Body block 2 + closing ── -->
     ${copy.bodyBlock2 ? `
-    <tr><td style="padding:${copy.bodyBlock2Title ? '14px' : '32px'} 52px 0;text-align:center;background-color:${pageBg};">
-      <p style="font-family:Arial,sans-serif;font-size:16px;line-height:1.5;color:${mutedTextCol};margin:0;">${b2body}</p>
+    <tr><td style="padding:${copy.bodyBlock2Title ? '14px' : '32px'} 52px 0;text-align:left;background-color:${pageBg};">
+      <p class="mobile-body" style="font-family:Arial,sans-serif;font-size:16px;line-height:1.5;color:${mutedTextCol};margin:0;">${b2body}</p>
     </td></tr>` : ''}
 
     ${copy.closingLine ? `
     <tr><td style="padding:20px 52px 0;text-align:center;background-color:${pageBg};">
-      <p style="font-family:Georgia,'Times New Roman',serif;font-size:16px;font-style:italic;color:${mutedTextCol};line-height:1.5;margin:0;">${copy.closingLine}</p>
+      <p class="mobile-closing" style="font-family:Georgia,'Times New Roman',serif;font-size:16px;font-style:italic;color:${mutedTextCol};line-height:1.5;margin:0;">${copy.closingLine}</p>
     </td></tr>` : ''}
 
     <!-- ── Repeat CTA ── -->
@@ -1925,10 +1934,10 @@ function buildTemplateWeek5v2({ client, copy, images, footerData, isHeroGenerate
     <tr><td style="padding:28px 52px 44px;text-align:center;background-color:${pageBg};">
       ${btnImgUrl
         ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img src="${btnImgUrl}" alt="${copy.ctaText}" width="600" style="width:100%;max-width:600px;display:block;border:0;outline:none;"/></a>`
-        : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background-color:${accent};border-radius:100px;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:12px 32px;font-family:Arial,sans-serif;font-size:16px;font-weight:700;color:#fff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;letter-spacing:.03em;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`}
+        : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background-color:${accent};border-radius:100px;"><a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:12px 32px;font-family:Arial,sans-serif;font-size:16px;font-weight:700;color:#fff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;letter-spacing:.03em;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`}
     </td></tr>` : ''}
 
-    <tr><td style="padding:0;line-height:0;font-size:0;background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: dividerCol })}</td></tr>
+    <tr><td style="padding:0;line-height:0;font-size:0;background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: dividerCol, bodyTextAlign: 'justify' })}</td></tr>
   </table>
 
 </body></html>`
@@ -2454,7 +2463,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     requestAnimationFrame(() => requestAnimationFrame(() => {
       iframe.contentWindow?.scrollTo(0, savedY)
     }))
-  }, [previewHtml])
+  }, [previewHtml, mobileView])
 
   const { setHeaderStyle, setImageStyle, setTemplateStyle } = useCampaignStore(s => ({
     setHeaderStyle:  s.setHeaderStyle,
@@ -3168,7 +3177,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
           return (
             <button
               key={t.id}
-              onClick={() => setActive(i)}
+              onClick={() => { setActive(i); setMobileView(false); }}
               style={{
                 padding: '6px 14px', borderRadius: 8, fontSize: 12, fontWeight: 600,
                 fontFamily: 'Inter, sans-serif', cursor: 'pointer', transition: 'all 0.15s',
@@ -3696,26 +3705,24 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 
           {/* Zoom + view controls */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            {/* Mobile view toggle — Week 2 only */}
-            {tpl?.id === 17 && (
-              <button
-                onClick={() => setMobileView(v => !v)}
-                title={mobileView ? 'Switch to desktop view' : 'Switch to mobile view'}
-                style={{
-                  width: 26, height: 26, borderRadius: 6, border: 'none', cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  background: mobileView ? (dark ? 'rgba(59,130,246,0.35)' : '#dbeafe') : (dark ? 'rgba(255,255,255,0.08)' : '#e5e6e8'),
-                  color: mobileView ? '#3b82f6' : (dark ? 'rgba(255,255,255,0.7)' : '#555'),
-                  marginRight: 4,
-                }}
-              >
-                {/* Phone icon SVG */}
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
-                  <line x1="12" y1="18" x2="12.01" y2="18"/>
-                </svg>
-              </button>
-            )}
+            {/* Mobile view toggle */}
+            <button
+              onClick={() => setMobileView(v => !v)}
+              title={mobileView ? 'Switch to desktop view' : 'Switch to mobile view'}
+              style={{
+                width: 26, height: 26, borderRadius: 6, border: 'none', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: mobileView ? (dark ? 'rgba(59,130,246,0.35)' : '#dbeafe') : (dark ? 'rgba(255,255,255,0.08)' : '#e5e6e8'),
+                color: mobileView ? '#3b82f6' : (dark ? 'rgba(255,255,255,0.7)' : '#555'),
+                marginRight: 4,
+              }}
+            >
+              {/* Phone icon SVG */}
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+                <line x1="12" y1="18" x2="12.01" y2="18"/>
+              </svg>
+            </button>
             {[
               { label: '−', action: () => setZoom(z => Math.max(0.4, +(z - 0.1).toFixed(1))) },
               { label: '+', action: () => setZoom(z => Math.min(1.0, +(z + 0.1).toFixed(1))) },
@@ -3798,7 +3805,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
               </div>
             </div>
           )
-        ) : mobileView && tpl?.id === 17 ? (
+        ) : mobileView ? (
           /* ── Mobile view: phone frame at 375px ── */
           <div style={{
             background: dark ? '#111' : '#f0f2f5',
