@@ -1838,12 +1838,12 @@ function buildTemplateWeek5v2({ client, copy, images, footerData, isHeroGenerate
   body{margin:0;padding:0;color:#1a1a1a;}
   table{border-collapse:collapse;}
   @media only screen and (max-width:600px){
-    .mobile-body    { font-size:18px!important; line-height:1.5!important; }
+    .mobile-body    { font-size:20px!important; line-height:1.5!important; }
     .mobile-subhead { font-size:20px!important; line-height:1.4!important; }
     .mobile-b2title { font-size:22px!important; line-height:1.25!important; }
-    .mobile-closing { font-size:18px!important; line-height:1.5!important; }
-    .mobile-cta     { font-size:18px!important; padding:14px 36px!important; }
-    .mobile-footer  { font-size:12px!important; line-height:1.4!important; }
+    .mobile-closing { font-size:20px!important; line-height:1.5!important; }
+    .mobile-cta     { font-size:20px!important; padding:14px 36px!important; }
+    .mobile-footer  { font-size:13px!important; line-height:1.4!important; }
   }
 </style></head>
 <body class="body" style="margin:0;padding:32px 0 48px;">
