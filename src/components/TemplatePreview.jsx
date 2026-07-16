@@ -2322,7 +2322,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
   }, [active])  // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Hero editor — all week templates ─────────────────────────────────────────
-  const isEditable = [10, 11, 12, 13, 14, 15, 16, 17].includes(tpl?.id)
+  const isEditable = [10, 11, 12, 13, 14, 15, 16, 17, 18].includes(tpl?.id)
   const [heroScale,   setHeroScale]   = useState(1)
   const [heroX,       setHeroX]       = useState(0)
   const [heroY,       setHeroY]       = useState(0)
@@ -2368,7 +2368,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
   }, [tpl?.id])  // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Week template image generation ───────────────────────────────────────────
-  const isWeekTemplate = [9, 10, 11, 12, 13, 14, 15, 16, 17, 5].includes(tpl?.id)
+  const isWeekTemplate = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 5].includes(tpl?.id)
   const [weekGenUrls,     setWeekGenUrls]     = useState({})  // { [tplId]: { hero, sec, ter } }
   const [weekGenLoading,  setWeekGenLoading]  = useState(false)
   const [weekGenError,    setWeekGenError]    = useState(null)
@@ -2386,7 +2386,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
       if (tplUrls.ter)  effectiveImages[5] = { url: tplUrls.ter,  focalX: 50, focalY: 50 }
     }
     const editorProps = isEditable ? { heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y } : {}
-    const isHeroGenerated = [10, 11, 12, 13, 14, 15, 16, 17].includes(tpl?.id) && !!tplUrls.hero
+    const isHeroGenerated = [10, 11, 12, 13, 14, 15, 16, 17, 18].includes(tpl?.id) && !!tplUrls.hero
     const effectiveFooterData = clientFooter
       ? { ...clientFooter, logoColor: footerLogoColor, footerLogoSize }
       : clientFooter
