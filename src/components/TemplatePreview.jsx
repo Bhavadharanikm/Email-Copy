@@ -506,8 +506,9 @@ function buildTemplateWeek2v2({ client, copy, images, footerData, isHeroGenerate
   body{margin:0;padding:0;color:#1a1a1a;}
   table{border-collapse:collapse;}
   @media only screen and (max-width:600px){
-    .w2-section    { padding-left:20px!important; padding-right:20px!important; }
-    .w2-b2         { padding-left:20px!important; padding-right:20px!important; }
+    .w2-section    { padding-left:35px!important; padding-right:35px!important; }
+    .w2-btn-img    { width:260px!important; max-width:260px!important; }
+    .w2-b2         { padding-left:35px!important; padding-right:35px!important; }
     .w2-b2-inner   { padding-left:0!important;   padding-right:0!important;   }
     .mobile-body    { font-size:19px!important; line-height:1.5!important; }
     .mobile-subhead { font-size:19px!important; line-height:1.4!important; }
@@ -548,7 +549,7 @@ function buildTemplateWeek2v2({ client, copy, images, footerData, isHeroGenerate
 
   <!-- CTA -->
   ${copy.ctaText ? `<div class="w2-section" style="padding:24px 48px 28px;text-align:center;background-color:${pageBg};">${btnImgUrl
-    ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:375px;display:block;margin:0 auto;border:0;outline:none;"/></a>`
+    ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w2-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:375px;display:block;margin:0 auto;border:0;outline:none;"/></a>`
     : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accent};border-radius:999px;"><a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`
   }</div>` : ''}
 
@@ -583,7 +584,7 @@ function buildTemplateWeek2v2({ client, copy, images, footerData, isHeroGenerate
       ${copy.closingLine ? `<div class="mobile-closing" style="font-size:16px;line-height:1.7;color:${mutedTextCol};font-style:italic;margin-bottom:24px;font-family:Georgia,serif;">${copy.closingLine}</div>` : ''}
     </div>
     ${copy.ctaText ? `<div style="padding:16px 0 36px;text-align:center;">${btnImgUrl
-      ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:375px;display:block;margin:0 auto;border:0;outline:none;"/></a>`
+      ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w2-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:375px;display:block;margin:0 auto;border:0;outline:none;"/></a>`
       : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accent};border-radius:999px;"><a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`
     }</div>` : ''}
   </div>` : ''}
