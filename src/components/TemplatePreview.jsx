@@ -508,11 +508,12 @@ function buildTemplateWeek2v2({ client, copy, images, footerData, isHeroGenerate
   @media only screen and (max-width:600px){
     .w2-section    { padding-left:16px!important; padding-right:16px!important; }
     .w2-b2         { padding-left:16px!important; padding-right:16px!important; }
-    .mobile-body    { font-size:22px!important; line-height:1.5!important; }
-    .mobile-subhead { font-size:22px!important; line-height:1.4!important; }
+    .w2-b2-inner   { padding-left:0!important;   padding-right:0!important;   }
+    .mobile-body    { font-size:16px!important; line-height:1.5!important; }
+    .mobile-subhead { font-size:17px!important; line-height:1.4!important; }
     .mobile-b2title { font-size:22px!important; line-height:1.25!important; }
-    .mobile-closing { font-size:22px!important; line-height:1.5!important; }
-    .mobile-cta     { font-size:22px!important; padding:20px 80px!important; }
+    .mobile-closing { font-size:16px!important; line-height:1.5!important; }
+    .mobile-cta     { font-size:20px!important; padding:20px 80px!important; }
     .mobile-footer  { font-size:14px!important; line-height:1.4!important; }
   }
 </style></head>
@@ -576,7 +577,7 @@ function buildTemplateWeek2v2({ client, copy, images, footerData, isHeroGenerate
   <!-- BODY BLOCK 2: title + body2 + closing + CTA -->
   ${(copy.bodyBlock2Title || copy.bodyBlock2 || copy.closingLine) ? `
   <div class="w2-b2" style="background-color:${pageBg};padding:8px 36px 0;">
-    <div style="background-color:${pageBg};border-radius:10px;padding:16px 20px;">
+    <div class="w2-b2-inner" style="background-color:${pageBg};border-radius:10px;padding:16px 20px;">
       ${copy.bodyBlock2Title ? `<div class="mobile-b2title" style="font-size:22px;font-weight:700;font-family:Arial,sans-serif;letter-spacing:0;text-transform:uppercase;color:${secondary};margin-bottom:6px;text-align:left;">${copy.bodyBlock2Title}</div>` : ''}
       ${copy.bodyBlock2 ? `<div class="mobile-body" style="font-size:16px;line-height:1.8;color:${mutedTextCol};margin-bottom:18px;font-family:Arial,sans-serif;">${b2body}</div>` : ''}
       ${copy.closingLine ? `<div class="mobile-closing" style="font-size:16px;line-height:1.7;color:${mutedTextCol};font-style:italic;margin-bottom:24px;font-family:Georgia,serif;">${copy.closingLine}</div>` : ''}
@@ -2701,8 +2702,8 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
 </head><body>
 <div style="width:600px;text-align:center;">
-  <div style="display:inline-block;background:${w2v2AccentColor};border-radius:999px;padding:15px 40px;">
-    <span style="font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff;white-space:nowrap;display:inline-flex;align-items:center;gap:10px;">${w2v2CtaText}<span style="display:inline-flex;align-items:center;gap:0;"><span style="display:inline-block;width:12px;height:2px;background:#ffffff;vertical-align:middle;"></span><span style="display:inline-block;width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:7px solid #ffffff;vertical-align:middle;"></span></span></span>
+  <div style="display:inline-block;background:${w2v2AccentColor};border-radius:999px;padding:20px 80px;">
+    <span style="font-family:Arial,sans-serif;font-size:22px;font-weight:700;color:#ffffff;white-space:nowrap;display:inline-flex;align-items:center;">${w2v2CtaText}<span style="display:inline-flex;align-items:center;margin-left:10px;"><span style="display:inline-block;width:12px;height:2px;background:#ffffff;"></span><span style="display:inline-block;width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:7px solid #ffffff;"></span></span></span>
   </div>
 </div>
 </body></html>` : null
@@ -2932,7 +2933,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
         : Promise.resolve(null)
 
     const buttonPromise = isWeek2v2 && w2v2ButtonHtml
-      ? renderImage({ html: w2v2ButtonHtml, width: 600, height: 72, transparent: true })
+      ? renderImage({ html: w2v2ButtonHtml, width: 600, height: 88, transparent: true })
       : isWeek4v2 && w4ButtonHtml
       ? renderImage({ html: w4ButtonHtml, width: 600, height: 72, transparent: true })
       : isWeek3v2 && w3v2ButtonHtml
