@@ -1611,174 +1611,6 @@ function buildTemplateWeek4({ client, copy, images, footerData, isHeroGenerated 
 </body></html>`
 }
 
-/* ══════════════════════════════════════════════════════════════════════════
-   WEEK 5  ·  Editorial full-bleed hero (Free People style) + property grid
-   Two font styles: italic serif intro + bold caps headline overlaid on image
-   White card background · 2×2 property grid
-   ══════════════════════════════════════════════════════════════════════════ */
-function buildTemplateWeek5({ client, copy, images, footerData, isHeroGenerated = false,
-  heroScale=1, heroX=0, heroY=0,
-  textSize=52, textTop=32, textLeft=36,
-  logoColor='white', logoTop=28, logoRight=36, logoSize=40,
-  img1Scale=1, img1X=0, img1Y=0,
-  img2Scale=1, img2X=0, img2Y=0,
-  img3Scale=1, img3X=0, img3Y=0,
-  img4Scale=1, img4X=0, img4Y=0,
-  btnImgUrl = null,
-}) {
-  const heroObj = images?.[0]; const heroImg = heroObj?.url || ''
-  const img1Obj = images?.[1]; const img1    = img1Obj?.url || ''
-  const img2Obj = images?.[2]; const img2    = img2Obj?.url || ''
-  const img3Obj = images?.[3]; const img3    = img3Obj?.url || ''
-  const img4Obj = images?.[4]; const img4    = img4Obj?.url || ''
-  const body    = (copy.bodyText  || '').replace(/\n/g, '<br>')
-  const b2body  = (copy.bodyBlock2|| '').replace(/\n/g, '<br>')
-  const logoUrl = client?.logoUrl || ''
-  const name    = client?.name    || ''
-  const accent    = footerData?.buttonColor || '#1a1a1a'
-  const secondary = footerData?.secondaryColor || accent
-  const pageBg    = footerData?.bgColor || '#f5f4f2'
-  const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
-
-  const _rgb = pageBg.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i)
-  const _r = _rgb ? parseInt(_rgb[1],16) : 245
-  const _g = _rgb ? parseInt(_rgb[2],16) : 244
-  const _b = _rgb ? parseInt(_rgb[3],16) : 242
-  const _lum = (0.299*_r + 0.587*_g + 0.114*_b)/255
-  const lightBg      = _lum > 0.55
-  const mutedTextCol = lightBg ? '#595959' : '#d4d4d4'
-  const dividerCol   = lightBg ? '#e0e0e0' : '#444444'
-
-  const logoHtml = logoUrl
-    ? `<img src="${logoUrl}" alt="${name}" style="height:${logoSize}px;width:auto;max-width:160px;display:inline-block;filter:${logoFilter};"/>`
-    : `<span style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#fff;">${name}</span>`
-
-  const hw5 = (copy.headlineText || '').trim().split(/\s+/).filter(Boolean)
-  const hw5First = hw5.length >= 2 ? hw5[0] : ''
-  const hw5Last  = hw5.length >= 3 ? hw5[hw5.length - 1] : ''
-  const hw5Main  = hw5.length >= 3 ? hw5.slice(1, -1).join(' ') : hw5.length === 2 ? hw5[1] : hw5[0] || ''
-
-  const gridImgs = [
-    { obj: img1Obj, url: img1 },
-    { obj: img2Obj, url: img2 },
-    { obj: img3Obj, url: img3 },
-    { obj: img4Obj, url: img4 || img1 },
-  ]
-  const hasGrid = img1 || img2
-
-  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
-<style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{margin:0;padding:0;color:#1a1a1a;}
-  table{border-collapse:collapse;}
-</style></head>
-<body class="body" style="margin:0;padding:32px 0 48px;">
-
-<table width="600" cellpadding="0" cellspacing="0" border="0" bgcolor="${pageBg}" style="width:600px;max-width:600px;margin:0 auto;background-color:${pageBg};border-collapse:collapse;border-radius:20px;overflow:hidden;">
-
-    <!-- ── HERO ── -->
-    ${isHeroGenerated
-      ? `<tr><td style="padding:20px 0 0;background-color:${pageBg};line-height:0;font-size:0;"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${heroImg}" alt="" width="600" style="display:block;width:600px;border:0;"/></a></td></tr>`
-      : `<tr><td style="padding:20px 20px 0;background-color:${pageBg};line-height:0;font-size:0;">
-      <div style="position:relative;width:560px;height:680px;overflow:hidden;border-radius:16px;background:#1a1a1a;">
-        ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:${Math.min(0,Math.max(680*(1-heroScale),-(680*(heroScale-1)/2)+heroY))}px;left:${Math.min(0,Math.max(560*(1-heroScale),-(560*(heroScale-1)/2)+heroX))}px;width:${560*heroScale}px;height:${680*heroScale}px;object-fit:cover;display:block;"/>` : `<div style="width:560px;height:680px;background:#2a2a2a;"></div>`}
-        <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.25) 40%,rgba(0,0,0,0.45) 100%);">
-          <div style="text-align:center;padding-top:${logoTop}px;">${logoHtml}</div>
-          <div style="position:absolute;left:${textLeft}px;right:${textLeft}px;top:${textTop}%;">
-            ${hw5First ? `<div style="font-family:'Lora',serif;font-size:${Math.round(textSize*0.8)}px;font-style:italic;font-weight:400;color:#fff;line-height:1;text-shadow:0 2px 12px rgba(0,0,0,.3);margin-bottom:2px;">${hw5First}</div>` : ''}
-            <div style="font-family:'Lora',serif;font-size:${textSize}px;font-weight:700;text-transform:uppercase;color:#fff;line-height:1.0;text-shadow:0 2px 20px rgba(0,0,0,.25);">${hw5Main}${hw5Last ? ` <span style="font-family:'Lora',serif;font-style:italic;font-weight:400;text-transform:none;font-size:${Math.round(textSize*0.9)}px;">${hw5Last}</span>` : ''}</div>
-          </div>
-        </div>
-      </div>
-    </td></tr>`}
-
-    <!-- ── Subhead ── -->
-    ${copy.subhead ? `
-    <tr><td style="padding:32px 52px 8px;text-align:center;background-color:${pageBg};">
-      <p style="font-family:Georgia,'Times New Roman',serif;font-size:17px;font-style:italic;line-height:1.65;color:${mutedTextCol};margin:0;">${copy.subhead}</p>
-    </td></tr>` : ''}
-
-    <!-- ── CTA ── -->
-    ${copy.ctaText ? `
-    <tr><td style="padding:20px 52px 8px;text-align:center;background-color:${pageBg};">
-      ${btnImgUrl
-        ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img src="${btnImgUrl}" alt="${copy.ctaText}" width="600" style="width:100%;max-width:600px;display:block;border:0;outline:none;"/></a>`
-        : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background-color:${accent};border-radius:100px;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:16px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;letter-spacing:.03em;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`}
-    </td></tr>` : ''}
-
-    <!-- ── Body text ── -->
-    ${copy.bodyText ? `
-    <tr><td style="padding:32px 52px 24px;text-align:center;background-color:${pageBg};">
-      <p style="font-family:Arial,sans-serif;font-size:15px;line-height:1.85;color:${mutedTextCol};margin:0;">${body}</p>
-    </td></tr>` : ''}
-
-    <!-- ── Divider ── -->
-    <tr><td style="padding:0 48px;background-color:${pageBg};">
-      <div style="height:1px;background:${dividerCol};font-size:0;line-height:0;"></div>
-    </td></tr>
-
-    <!-- ── Body block 2 title ── -->
-    ${copy.bodyBlock2Title ? `
-    <tr><td style="padding:32px 52px 0;text-align:center;background-color:${pageBg};">
-      <p style="font-family:Georgia,'Times New Roman',serif;font-size:20px;font-weight:700;color:${secondary};line-height:1.25;margin:0;">${copy.bodyBlock2Title}</p>
-    </td></tr>` : ''}
-
-    <!-- ── Grid ── -->
-    ${hasGrid
-      ? isHeroGenerated && img4
-        ? `<tr><td style="padding:28px 0 0;background-color:${pageBg};line-height:0;font-size:0;text-align:center;"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${img4}" alt="" width="600" style="display:block;width:600px;max-width:100%;border:0;"/></a></td></tr>`
-        : `<tr><td style="padding:28px 0 0;background-color:${pageBg};">
-      <table width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;border-collapse:collapse;">
-        <tr>
-          <td width="297" style="width:297px;vertical-align:top;line-height:0;font-size:0;">
-            ${gridImgs[0].url ? `<div style="overflow:hidden;width:297px;height:262px;"><img src="${gridImgs[0].url}" alt="" width="297" style="width:297px;height:262px;object-fit:cover;display:block;object-position:${focalPos(gridImgs[0].obj)};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/></div>` : `<div style="width:297px;height:262px;background:#e8e4de;"></div>`}
-          </td>
-          <td width="6" style="width:6px;line-height:0;font-size:0;"></td>
-          <td width="297" style="width:297px;vertical-align:top;line-height:0;font-size:0;">
-            ${gridImgs[1].url ? `<div style="overflow:hidden;width:297px;height:262px;"><img src="${gridImgs[1].url}" alt="" width="297" style="width:297px;height:262px;object-fit:cover;display:block;object-position:${focalPos(gridImgs[1].obj)};transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/></div>` : `<div style="width:297px;height:262px;background:#e8e4de;"></div>`}
-          </td>
-        </tr>
-        <tr><td colspan="3" height="6" style="height:6px;line-height:0;font-size:0;"></td></tr>
-        <tr>
-          <td width="297" style="width:297px;vertical-align:top;line-height:0;font-size:0;">
-            ${gridImgs[3].url ? `<div style="overflow:hidden;width:297px;height:262px;"><img src="${gridImgs[3].url}" alt="" width="297" style="width:297px;height:262px;object-fit:cover;display:block;object-position:${focalPos(gridImgs[3].obj)};transform:translate(${img4X}px,${img4Y}px) scale(${img4Scale});transform-origin:center center;"/></div>` : `<div style="width:297px;height:262px;background:#e8e4de;"></div>`}
-          </td>
-          <td width="6" style="width:6px;line-height:0;font-size:0;"></td>
-          <td width="297" style="width:297px;vertical-align:top;line-height:0;font-size:0;">
-            ${gridImgs[2].url ? `<div style="overflow:hidden;width:297px;height:262px;"><img src="${gridImgs[2].url}" alt="" width="297" style="width:297px;height:262px;object-fit:cover;display:block;object-position:${focalPos(gridImgs[2].obj)};transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/></div>` : `<div style="width:297px;height:262px;background:#e8e4de;"></div>`}
-          </td>
-        </tr>
-      </table>
-    </td></tr>`
-      : ''}
-
-    <!-- ── Body block 2 + closing ── -->
-    ${copy.bodyBlock2 ? `
-    <tr><td style="padding:${copy.bodyBlock2Title ? '14px' : '32px'} 52px 0;text-align:center;background-color:${pageBg};">
-      <p style="font-family:Arial,sans-serif;font-size:15px;line-height:1.85;color:${mutedTextCol};margin:0;">${b2body}</p>
-    </td></tr>` : ''}
-
-    ${copy.closingLine ? `
-    <tr><td style="padding:20px 52px 0;text-align:center;background-color:${pageBg};">
-      <p style="font-family:Georgia,'Times New Roman',serif;font-size:15px;font-style:italic;color:${mutedTextCol};line-height:1.7;margin:0;">${copy.closingLine}</p>
-    </td></tr>` : ''}
-
-    <!-- ── Repeat CTA ── -->
-    ${copy.ctaText ? `
-    <tr><td style="padding:28px 52px 44px;text-align:center;background-color:${pageBg};">
-      ${btnImgUrl
-        ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img src="${btnImgUrl}" alt="${copy.ctaText}" width="600" style="width:100%;max-width:600px;display:block;border:0;outline:none;"/></a>`
-        : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background-color:${accent};border-radius:100px;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:16px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;letter-spacing:.03em;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`}
-    </td></tr>` : ''}
-
-    <tr><td style="padding:0;line-height:0;font-size:0;background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: dividerCol })}</td></tr>
-  </table>
-
-</body></html>`
-}
-
 /* ─────────────────────────── Week 5 v2 (sizing corrections) ────────────── */
 function buildTemplateWeek5v2({ client, copy, images, footerData, isHeroGenerated = false,
   heroScale=1, heroX=0, heroY=0,
@@ -1933,7 +1765,7 @@ function buildTemplateWeek5v2({ client, copy, images, footerData, isHeroGenerate
     </td></tr>` : ''}
 
     ${copy.closingLine ? `
-    <tr><td style="padding:20px 52px 0;text-align:center;background-color:${pageBg};">
+    <tr><td style="padding:20px 52px 0;text-align:left;background-color:${pageBg};">
       <p class="mobile-closing" style="font-family:Georgia,'Times New Roman',serif;font-size:16px;font-style:italic;color:${mutedTextCol};line-height:1.5;margin:0;">${copy.closingLine}</p>
     </td></tr>` : ''}
 
@@ -2291,8 +2123,7 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
 const TEMPLATES = [
   { id:17, label:'✅ Week 2', build:buildTemplateWeek2v2 },
   { id:16, label:'✅ Week 3',  build:buildTemplateWeek3v2 },
-  { id:13, label:'✅ Week 5',  build:buildTemplateWeek5 },
-  { id:18, label:'🔴 Week 5 v2', build:buildTemplateWeek5v2 },
+  { id:13, label:'✅ Week 5',  build:buildTemplateWeek5v2 },
   { id:14, label:'✅ Week 6',  build:buildTemplateWeek6 },
   { id:15, label:'✅ Week 4',  build:buildTemplateWeek4v2 },
 ]
@@ -2330,7 +2161,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
   }, [active])  // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Hero editor — all week templates ─────────────────────────────────────────
-  const isEditable = [10, 11, 12, 13, 14, 15, 16, 17, 18].includes(tpl?.id)
+  const isEditable = [10, 11, 12, 13, 14, 15, 16, 17].includes(tpl?.id)
   const [heroScale,   setHeroScale]   = useState(1)
   const [heroX,       setHeroX]       = useState(0)
   const [heroY,       setHeroY]       = useState(0)
@@ -2369,14 +2200,14 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     if (tpl?.id === 10 || tpl?.id === 17) { setTextSize(38); setTextTop(32);  setTextLeft(24);  setLogoColor('original'); setLogoTop(32); setLogoRight(200); setLogoSize(40) }
     if (tpl?.id === 11) { setTextSize(40); setTextTop(14);  setTextLeft(52);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
     if (tpl?.id === 12) { setTextSize(38); setTextTop(20);  setTextLeft(48);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
-    if (tpl?.id === 13 || tpl?.id === 18) { setTextSize(52); setTextTop(32);  setTextLeft(36);  setLogoColor('white');    setLogoTop(28); setLogoRight(36);  setLogoSize(40) }
+    if (tpl?.id === 13) { setTextSize(52); setTextTop(32);  setTextLeft(36);  setLogoColor('white');    setLogoTop(28); setLogoRight(36);  setLogoSize(40) }
     if (tpl?.id === 14) { setTextSize(46); setTextTop(32);  setTextLeft(36);  setLogoColor('original'); setLogoTop(28); setLogoRight(40);  setLogoSize(32) }
     if (tpl?.id === 15) { setTextSize(38); setTextTop(20);  setTextLeft(48);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
     if (tpl?.id === 16) { setTextSize(40); setTextTop(14);  setTextLeft(52);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
   }, [tpl?.id])  // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Week template image generation ───────────────────────────────────────────
-  const isWeekTemplate = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 5].includes(tpl?.id)
+  const isWeekTemplate = [9, 10, 11, 12, 13, 14, 15, 16, 17, 5].includes(tpl?.id)
   const [weekGenUrls,     setWeekGenUrls]     = useState({})  // { [tplId]: { hero, sec, ter } }
   const [weekGenLoading,  setWeekGenLoading]  = useState(false)
   const [weekGenError,    setWeekGenError]    = useState(null)
@@ -2394,7 +2225,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
       if (tplUrls.ter)  effectiveImages[5] = { url: tplUrls.ter,  focalX: 50, focalY: 50 }
     }
     const editorProps = isEditable ? { heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y } : {}
-    const isHeroGenerated = [10, 11, 12, 13, 14, 15, 16, 17, 18].includes(tpl?.id) && !!tplUrls.hero
+    const isHeroGenerated = [10, 11, 12, 13, 14, 15, 16, 17].includes(tpl?.id) && !!tplUrls.hero
     const effectiveFooterData = clientFooter
       ? { ...clientFooter, logoColor: footerLogoColor, footerLogoSize }
       : clientFooter
@@ -2662,7 +2493,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     const isWeek3v2 = tpl?.id === 16
     const isWeek4   = tpl?.id === 12 || tpl?.id === 15
     const isWeek4v2 = tpl?.id === 15
-    const isWeek5 = tpl?.id === 13 || tpl?.id === 18
+    const isWeek5 = tpl?.id === 13  // Week 5 v2 (renamed)
     const isWeek6 = tpl?.id === 14
     const renderLogoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
     const logoHtml = logoUrl
@@ -3604,7 +3435,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
                 { name: 'Zoom',  min: 1,    max: 2.5, step: 0.05, val: img3Scale, set: setImg3Scale, unit: 'x', toDisplay: v => v.toFixed(2) },
               ]
             },
-            ...((tpl?.id === 13 || tpl?.id === 18) ? [{ key: 'sub4', label: 'Sub Image 4', color: '#0891b2', bg: dark ? 'rgba(8,145,178,0.15)' : '#ecfeff',
+            ...((tpl?.id === 13) ? [{ key: 'sub4', label: 'Sub Image 4', color: '#0891b2', bg: dark ? 'rgba(8,145,178,0.15)' : '#ecfeff',
               controls: [
                 { name: 'Left', min: -200, max: 200, step: 4, val: img4X,     set: setImg4X,     unit: 'px' },
                 { name: 'Top', min: -200, max: 200, step: 4, val: img4Y,     set: setImg4Y,     unit: 'px' },
@@ -3662,7 +3493,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
             if (tpl?.id === 10 || tpl?.id === 17) { setTextSize(38); setTextTop(32);  setTextLeft(24);  setLogoColor('original'); setLogoTop(32); setLogoRight(200); setLogoSize(40) }
             if (tpl?.id === 11) { setTextSize(40); setTextTop(14);  setTextLeft(52);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
             if (tpl?.id === 12) { setTextSize(38); setTextTop(20);  setTextLeft(48);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
-            if (tpl?.id === 13 || tpl?.id === 18) { setTextSize(52); setTextTop(32);  setTextLeft(36);  setLogoColor('white');    setLogoTop(28); setLogoRight(36);  setLogoSize(40) }
+            if (tpl?.id === 13) { setTextSize(52); setTextTop(32);  setTextLeft(36);  setLogoColor('white');    setLogoTop(28); setLogoRight(36);  setLogoSize(40) }
             if (tpl?.id === 14) { setTextSize(46); setTextTop(32);  setTextLeft(36);  setLogoColor('original'); setLogoTop(28); setLogoRight(40);  setLogoSize(32) }
             if (tpl?.id === 15) { setTextSize(38); setTextTop(20);  setTextLeft(48);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
             if (tpl?.id === 16) { setTextSize(40); setTextTop(14);  setTextLeft(52);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
