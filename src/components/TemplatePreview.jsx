@@ -812,12 +812,12 @@ function buildTemplateWeek3v2({ client, copy, images, footerData, isHeroGenerate
   body{margin:0;padding:0;color:#1a1a1a;}
   table{border-collapse:collapse;}
   @media only screen and (max-width:600px){
-    .mobile-body    { font-size:18px!important; line-height:1.6!important; }
-    .mobile-subhead { font-size:18px!important; line-height:1.5!important; }
-    .mobile-b2title { font-size:18px!important; }
-    .mobile-closing { font-size:18px!important; line-height:1.6!important; }
-    .mobile-cta     { font-size:17px!important; padding:16px 32px!important; }
-    .mobile-footer  { font-size:13px!important; line-height:1.4!important; }
+    .mobile-body    { font-size:17px!important; line-height:1.5!important; }
+    .mobile-subhead { font-size:17px!important; line-height:1.4!important; }
+    .mobile-b2title { font-size:22px!important; line-height:1.25!important; }
+    .mobile-closing { font-size:17px!important; line-height:1.5!important; }
+    .mobile-cta     { font-size:20px!important; padding:20px 80px!important; }
+    .mobile-footer  { font-size:14px!important; line-height:1.4!important; }
   }
 </style></head><body class="body" style="margin:0;padding:32px 0 48px;">
 
@@ -880,8 +880,8 @@ function buildTemplateWeek3v2({ client, copy, images, footerData, isHeroGenerate
 
     ${(copy.bodyBlock2 || copy.closingLine) ? `
     <tr><td style="padding:28px 52px 0;background-color:${pageBg};text-align:center;">
-      ${copy.bodyBlock2 ? `<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.9;color:${mutedTextCol};margin-bottom:18px;max-width:460px;margin-left:auto;margin-right:auto;">${b2body}</div>` : ''}
-      ${copy.closingLine ? `<div style="font-family:Georgia,serif;font-size:15px;font-style:italic;color:${mutedTextCol};margin-bottom:28px;">${copy.closingLine}</div>` : ''}
+      ${copy.bodyBlock2 ? `<div class="mobile-body" style="font-family:Arial,sans-serif;font-size:17px;line-height:1.9;color:${mutedTextCol};margin-bottom:18px;max-width:460px;margin-left:auto;margin-right:auto;">${b2body}</div>` : ''}
+      ${copy.closingLine ? `<div class="mobile-closing" style="font-family:Georgia,serif;font-size:17px;font-style:italic;color:${mutedTextCol};margin-bottom:28px;">${copy.closingLine}</div>` : ''}
     </td></tr>` : ''}
 
     <!-- ── REPEAT CTA ── -->
@@ -1720,7 +1720,7 @@ function buildTemplateWeek5v2({ client, copy, images, footerData, isHeroGenerate
     ${copy.ctaText ? `
     <tr><td style="padding:20px 52px 8px;text-align:center;background-color:${pageBg};">
       ${btnImgUrl
-        ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:375px;display:block;margin:0 auto;border:0;outline:none;"/></a>`
+        ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img src="${btnImgUrl}" alt="${copy.ctaText}" width="450" style="width:450px;max-width:450px;display:block;margin:0 auto;border:0;outline:none;"/></a>`
         : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accent};border-radius:999px;"><a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`}
     </td></tr>` : ''}
 
@@ -1785,7 +1785,7 @@ function buildTemplateWeek5v2({ client, copy, images, footerData, isHeroGenerate
     ${copy.ctaText ? `
     <tr><td style="padding:28px 52px 44px;text-align:center;background-color:${pageBg};">
       ${btnImgUrl
-        ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:375px;display:block;margin:0 auto;border:0;outline:none;"/></a>`
+        ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img src="${btnImgUrl}" alt="${copy.ctaText}" width="450" style="width:450px;max-width:450px;display:block;margin:0 auto;border:0;outline:none;"/></a>`
         : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accent};border-radius:999px;"><a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`}
     </td></tr>` : ''}
 
@@ -2713,7 +2713,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </head><body>
 <div style="width:600px;text-align:center;">
   <div style="display:inline-block;background:${w3v2AccentColor};border-radius:999px;padding:20px 80px;">
-    <span style="font-family:Arial,sans-serif;font-size:22px;font-weight:700;letter-spacing:.04em;color:#ffffff;white-space:nowrap;display:inline-flex;align-items:center;gap:10px;">${w3v2CtaText}<span style="display:inline-flex;align-items:center;gap:0;"><span style="display:inline-block;width:12px;height:2px;background:#ffffff;vertical-align:middle;"></span><span style="display:inline-block;width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:7px solid #ffffff;vertical-align:middle;"></span></span></span>
+    <span style="font-family:Arial,sans-serif;font-size:28px;font-weight:700;letter-spacing:.04em;color:#ffffff;white-space:nowrap;display:inline-flex;align-items:center;gap:10px;">${w3v2CtaText}<span style="display:inline-flex;align-items:center;gap:0;"><span style="display:inline-block;width:12px;height:2px;background:#ffffff;vertical-align:middle;"></span><span style="display:inline-block;width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:7px solid #ffffff;vertical-align:middle;"></span></span></span>
   </div>
 </div>
 </body></html>` : null
