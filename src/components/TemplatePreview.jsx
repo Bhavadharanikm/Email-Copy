@@ -818,6 +818,7 @@ function buildTemplateWeek3v2({ client, copy, images, footerData, isHeroGenerate
     .mobile-closing { font-size:17px!important; line-height:1.5!important; }
     .mobile-cta     { font-size:20px!important; padding:20px 80px!important; }
     .mobile-footer  { font-size:14px!important; line-height:1.4!important; }
+    .w3-btn-img    { width:300px!important; max-width:300px!important; }
   }
 </style></head><body class="body" style="margin:0;padding:32px 0 48px;">
 
@@ -841,7 +842,7 @@ function buildTemplateWeek3v2({ client, copy, images, footerData, isHeroGenerate
     <tr><td style="padding:${isHeroGenerated ? '40px' : '32px'} 52px 36px;text-align:center;background-color:${pageBg};">
       ${copy.subhead ? `<div class="mobile-subhead" style="font-family:Georgia,serif;font-size:18px;font-style:italic;color:${mutedTextCol};line-height:1.6;margin-bottom:24px;max-width:460px;margin-left:auto;margin-right:auto;">${copy.subhead}</div>` : ''}
       ${btnImgUrl
-        ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img src="${btnImgUrl}" alt="${copy.ctaText}" width="600" style="width:100%;max-width:600px;display:block;border:0;outline:none;"/></a>`
+        ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w3-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:375px;display:block;margin:0 auto;border:0;outline:none;"/></a>`
         : copy.ctaText ? `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background-color:${accentClr};border-radius:100px;"><a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:16px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;letter-spacing:.04em;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>` : ''}
     </td></tr>
 
@@ -888,7 +889,7 @@ function buildTemplateWeek3v2({ client, copy, images, footerData, isHeroGenerate
     ${copy.ctaText ? `
     <tr><td style="padding:8px 52px 44px;text-align:center;background-color:${pageBg};">
       ${btnImgUrl
-        ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img src="${btnImgUrl}" alt="${copy.ctaText}" width="600" style="width:100%;max-width:600px;display:block;border:0;outline:none;"/></a>`
+        ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w3-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:375px;display:block;margin:0 auto;border:0;outline:none;"/></a>`
         : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background-color:${accentClr};border-radius:100px;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:16px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;letter-spacing:.04em;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`}
     </td></tr>` : ''}
 
@@ -1688,6 +1689,7 @@ function buildTemplateWeek5v2({ client, copy, images, footerData, isHeroGenerate
     .mobile-closing { font-size:22px!important; line-height:1.5!important; }
     .mobile-cta     { font-size:22px!important; padding:14px 36px!important; }
     .mobile-footer  { font-size:15px!important; line-height:1.4!important; }
+    .w5-btn-img    { width:300px!important; max-width:300px!important; }
   }
 </style></head>
 <body class="body" style="margin:0;padding:32px 0 48px;">
@@ -1720,7 +1722,7 @@ function buildTemplateWeek5v2({ client, copy, images, footerData, isHeroGenerate
     ${copy.ctaText ? `
     <tr><td style="padding:20px 52px 8px;text-align:center;background-color:${pageBg};">
       ${btnImgUrl
-        ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img src="${btnImgUrl}" alt="${copy.ctaText}" width="450" style="width:450px;max-width:450px;display:block;margin:0 auto;border:0;outline:none;"/></a>`
+        ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w5-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:375px;display:block;margin:0 auto;border:0;outline:none;"/></a>`
         : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accent};border-radius:999px;"><a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`}
     </td></tr>` : ''}
 
@@ -1785,7 +1787,7 @@ function buildTemplateWeek5v2({ client, copy, images, footerData, isHeroGenerate
     ${copy.ctaText ? `
     <tr><td style="padding:28px 52px 44px;text-align:center;background-color:${pageBg};">
       ${btnImgUrl
-        ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img src="${btnImgUrl}" alt="${copy.ctaText}" width="450" style="width:450px;max-width:450px;display:block;margin:0 auto;border:0;outline:none;"/></a>`
+        ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w5-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:375px;display:block;margin:0 auto;border:0;outline:none;"/></a>`
         : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accent};border-radius:999px;"><a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`}
     </td></tr>` : ''}
 
