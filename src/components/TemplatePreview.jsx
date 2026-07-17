@@ -134,7 +134,7 @@ function buildFooter(client, footerData = null, options = {}) {
 
   const bodyTextAlign  = options.bodyTextAlign || 'left'
   const footerTextHtml = footerText
-    ? `<div style="font-size:${footerTextSize}px;color:${linkCol};font-family:Arial,sans-serif;margin-bottom:${sectionGap || 20}px;line-height:1.25;text-align:${bodyTextAlign}">${footerText}</div>`
+    ? `<div class="mobile-footer" style="font-size:${footerTextSize}px;color:${linkCol};font-family:Arial,sans-serif;margin-bottom:${sectionGap || 20}px;line-height:1.25;text-align:${bodyTextAlign}">${footerText}</div>`
     : ''
 
   const divClass = options.gmailClass ? ` class="${options.gmailClass}"` : ''
@@ -506,9 +506,14 @@ function buildTemplateWeek2v2({ client, copy, images, footerData, isHeroGenerate
   body{margin:0;padding:0;color:#1a1a1a;}
   table{border-collapse:collapse;}
   @media only screen and (max-width:600px){
-    .w2-section { padding-left:20px!important; padding-right:20px!important; }
-    .w2-b2      { padding-left:16px!important; padding-right:16px!important; }
-    .mobile-cta { font-size:20px!important; padding:18px 52px!important; }
+    .w2-section    { padding-left:16px!important; padding-right:16px!important; }
+    .w2-b2         { padding-left:16px!important; padding-right:16px!important; }
+    .mobile-body    { font-size:22px!important; line-height:1.5!important; }
+    .mobile-subhead { font-size:22px!important; line-height:1.4!important; }
+    .mobile-b2title { font-size:22px!important; line-height:1.25!important; }
+    .mobile-closing { font-size:22px!important; line-height:1.5!important; }
+    .mobile-cta     { font-size:22px!important; padding:20px 80px!important; }
+    .mobile-footer  { font-size:14px!important; line-height:1.4!important; }
   }
 </style></head>
 <body style="margin:0;padding:32px 0 48px;background-color:#ffffff;">
@@ -538,7 +543,7 @@ function buildTemplateWeek2v2({ client, copy, images, footerData, isHeroGenerate
   </div>`}
 
   <!-- SUBHEAD -->
-  ${copy.subhead ? `<div class="w2-section" style="padding:28px 48px 4px;text-align:center;background-color:${pageBg};"><div style="font-family:Georgia,serif;font-size:20px;font-weight:400;font-style:italic;color:${mutedTextCol};line-height:1.5;">${copy.subhead}</div></div>` : ''}
+  ${copy.subhead ? `<div class="w2-section" style="padding:28px 48px 4px;text-align:center;background-color:${pageBg};"><div class="mobile-subhead" style="font-family:Georgia,serif;font-size:20px;font-weight:400;font-style:italic;color:${mutedTextCol};line-height:1.5;">${copy.subhead}</div></div>` : ''}
 
   <!-- CTA -->
   ${copy.ctaText ? `<div class="w2-section" style="padding:24px 48px 28px;text-align:center;background-color:${pageBg};">${btnImgUrl
