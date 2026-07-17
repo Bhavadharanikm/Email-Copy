@@ -206,7 +206,7 @@ ${emailClientHeader({client,copy})}
     ${copy.bodyBlock2Title||copy.bodyBlock2?`<div class="b2">${copy.bodyBlock2Title?`<div class="b2t">${copy.bodyBlock2Title}</div>`:''} ${copy.bodyBlock2?`<div class="b2b">${copy.bodyBlock2}</div>`:''}</div>`:''}
   </div>
   ${img1||img2?`<div class="pair">${img1?`<img src="${img1}" alt="" style="object-position:${focalPos(img1Obj)}"/>`:''}${img2?`<img src="${img2}" alt="" style="object-position:${focalPos(img2Obj)}"/>`:''}  </div>`:''}
-  ${buildFooter(client, footerData, { defaultBg: '#1c1c1c' })}
+  ${buildFooter(client, footerData, { defaultBg: '#1c1c1c', bodyTextAlign: 'justify' })}
 </div></body></html>`
 }
 
@@ -272,7 +272,7 @@ ${emailClientHeader({client,copy})}
     ${copy.bodyBlock2Title||copy.bodyBlock2?`<div class="b2">${copy.bodyBlock2Title?`<div class="b2t">${copy.bodyBlock2Title}</div>`:''} ${copy.bodyBlock2?`<div class="b2b">${copy.bodyBlock2}</div>`:''}</div>`:''}
   </div>
   ${img1||img2?`<div class="cinema">${img1?`<img src="${img1}" alt="" style="object-position:${focalPos(img1Obj)}"/>`:''}${img2?`<img src="${img2}" alt="" style="object-position:${focalPos(img2Obj)}"/>`:''}  </div>`:''}
-  ${buildFooter(client, footerData, { defaultBg: '#111' })}
+  ${buildFooter(client, footerData, { defaultBg: '#111', bodyTextAlign: 'justify' })}
 </div></body></html>`
 }
 
@@ -343,7 +343,7 @@ ${emailClientHeader({client,copy})}
   </div>
   ${copy.bodyBlock2Title||copy.bodyBlock2?`<div class="b2-section">${copy.bodyBlock2Title?`<div class="b2t">${copy.bodyBlock2Title}</div>`:''} ${copy.bodyBlock2?`<div class="b2b">${copy.bodyBlock2}</div>`:''}</div>`:''}
   ${img2?`<div class="mag-spread"><img src="${img2}" alt="" style="object-position:${focalPos(img2Obj)}"/></div>`:''}
-  ${buildFooter(client, footerData, { defaultBg: '#d4006a' })}
+  ${buildFooter(client, footerData, { defaultBg: '#d4006a', bodyTextAlign: 'justify' })}
 </div></body></html>`
 }
 
@@ -458,7 +458,7 @@ function buildTemplateWeek2({ client, copy, images, footerData, isHeroGenerated 
     ${copy.ctaText ? `<div style="padding:16px 0 36px;text-align:center;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;background:${accentClr};color:#fff!important;padding:14px 40px;font-size:16px;font-weight:600;letter-spacing:.06em;text-decoration:none!important;font-family:Arial,sans-serif;border-radius:50px;">${copy.ctaText}</a></div>` : ''}
   </div>` : ''}
 
-  ${buildFooter(client, footerData, { defaultBg: '#d4006a' })}
+  ${buildFooter(client, footerData, { defaultBg: '#d4006a', bodyTextAlign: 'justify' })}
 </td></tr></table></td></tr></table></body></html>`
 }
 
@@ -567,7 +567,7 @@ function buildTemplateWeek2v2({ client, copy, images, footerData, isHeroGenerate
   ${(copy.bodyBlock2Title || copy.bodyBlock2 || copy.closingLine) ? `
   <div style="background-color:${pageBg};padding:8px 36px 0;">
     <div style="background-color:${pageBg};border-radius:10px;padding:16px 20px;">
-      ${copy.bodyBlock2Title ? `<div class="mobile-b2title" style="font-size:22px;font-weight:700;font-family:Arial,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:${secondary};margin-bottom:6px;text-align:left;">${copy.bodyBlock2Title}</div>` : ''}
+      ${copy.bodyBlock2Title ? `<div class="mobile-b2title" style="font-size:22px;font-weight:700;font-family:Arial,sans-serif;letter-spacing:0;text-transform:uppercase;color:${secondary};margin-bottom:6px;text-align:left;">${copy.bodyBlock2Title}</div>` : ''}
       ${copy.bodyBlock2 ? `<div class="mobile-body" style="font-size:16px;line-height:1.8;color:${mutedTextCol};margin-bottom:18px;font-family:Arial,sans-serif;">${b2body}</div>` : ''}
       ${copy.closingLine ? `<div class="mobile-closing" style="font-size:16px;line-height:1.7;color:${mutedTextCol};font-style:italic;margin-bottom:24px;font-family:Georgia,serif;">${copy.closingLine}</div>` : ''}
     </div>
@@ -726,7 +726,7 @@ function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated 
       <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td class="gmailbtn" style="background-color:${accentClr};background-image:linear-gradient(to top,${accentClr} 0%,${accentClr} 100%);border-radius:100px;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:16px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;letter-spacing:.04em;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>
     </td></tr>` : ''}
 
-    <tr><td class="gmailfix" style="padding:0;line-height:0;font-size:0;${WHITE_BG};">${buildFooter(client, footerData, { defaultBg: pageBg, gmailClass: 'gmailfix', textColor: '#878787', dividerColor: '#878787' })}</td></tr>
+    <tr><td class="gmailfix" style="padding:0;line-height:0;font-size:0;${WHITE_BG};">${buildFooter(client, footerData, { defaultBg: pageBg, gmailClass: 'gmailfix', textColor: '#878787', dividerColor: '#878787', bodyTextAlign: 'justify' })}</td></tr>
   </table>
 
 </body></html>`
@@ -880,7 +880,7 @@ function buildTemplateWeek3v2({ client, copy, images, footerData, isHeroGenerate
         : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background-color:${accentClr};border-radius:100px;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:16px 40px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#fff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;letter-spacing:.04em;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`}
     </td></tr>` : ''}
 
-    <tr><td style="padding:0;line-height:0;font-size:0;background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: dividerCol })}</td></tr>
+    <tr><td style="padding:0;line-height:0;font-size:0;background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: dividerCol, bodyTextAlign: 'justify' })}</td></tr>
   </table>
 
 </body></html>`
@@ -951,7 +951,7 @@ ${emailClientHeader({client,copy})}
     <div class="comm-sub">Stay connected and be the first to know about exclusive offers.</div>
     <a class="comm-cta" href="#">Learn More</a>
   </div>
-  ${buildFooter(client, footerData, { defaultBg: '#1a1a1a' })}
+  ${buildFooter(client, footerData, { defaultBg: '#1a1a1a', bodyTextAlign: 'justify' })}
 </div></body></html>`
 }
 
@@ -1038,7 +1038,7 @@ function buildTemplate12({ client, copy, images, footerData, heroScale=1, heroX=
     ${copy.bodyBlock2?`<div class="dark-body">${copy.bodyBlock2}</div>`:''}
     ${copy.ctaText?`<a class="dark-cta" href="${copy.ctaUrl||'#'}">${copy.ctaText}</a>`:''}
   </div>
-  ${buildFooter(client, footerData, { defaultBg: '#f5f0e8' })}
+  ${buildFooter(client, footerData, { defaultBg: '#f5f0e8', bodyTextAlign: 'justify' })}
 </div></body></html>`
 }
 
@@ -1142,7 +1142,7 @@ ${emailClientHeader({client,copy})}
     <div class="action"><div><div class="action-title">Discover</div><div class="action-sub">${client?.name||'Brand'}</div></div><div class="action-arr">→</div></div>`}
   </div>
   ${copy.ctaText?`<div class="cta-row"><a class="cta" href="${copy.ctaUrl||'#'}">${copy.ctaText}</a></div>`:''}
-  ${buildFooter(client, footerData, { defaultBg: '#0d1f14' })}
+  ${buildFooter(client, footerData, { defaultBg: '#0d1f14', bodyTextAlign: 'justify' })}
 </div></body></html>`
 }
 
@@ -1604,7 +1604,7 @@ function buildTemplateWeek4({ client, copy, images, footerData, isHeroGenerated 
       </tr></table>
     </td></tr>` : ''}
 
-    <tr><td style="padding:0;line-height:0;font-size:0;">${buildFooter(client, footerData, { defaultBg: '#1a1a1a' })}</td></tr>
+    <tr><td style="padding:0;line-height:0;font-size:0;">${buildFooter(client, footerData, { defaultBg: '#1a1a1a', bodyTextAlign: 'justify' })}</td></tr>
   </table>
 </td></tr>
 </table>
@@ -1969,7 +1969,7 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
       </tr></table>`}
     </td></tr>` : `<tr><td style="padding:20px 0;background-color:${pageBg};font-size:0;line-height:0;"></td></tr>`}
 
-    <tr><td style="padding:0;line-height:0;font-size:0;background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: dividerCol, sectionGap: 28, footerTextSize: 9 })}</td></tr>
+    <tr><td style="padding:0;line-height:0;font-size:0;background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: dividerCol, bodyTextAlign: 'justify' })}</td></tr>
   </table>
 
 </body></html>`
@@ -2112,7 +2112,7 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
       </tr></table>`}
     </td></tr>` : ''}
 
-    <tr><td style="padding:0;line-height:0;font-size:0;">${buildFooter(client, footerData, { defaultBg: pageBg, gmailClass: 'gmailfix', textColor: mutedTextCol, dividerColor: dividerCol })}</td></tr>
+    <tr><td style="padding:0;line-height:0;font-size:0;">${buildFooter(client, footerData, { defaultBg: pageBg, gmailClass: 'gmailfix', textColor: mutedTextCol, dividerColor: dividerCol, bodyTextAlign: 'justify' })}</td></tr>
   </table>
 </td></tr>
 </table>
