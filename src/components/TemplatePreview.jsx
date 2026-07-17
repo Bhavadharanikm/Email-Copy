@@ -1838,12 +1838,12 @@ function buildTemplateWeek5v2({ client, copy, images, footerData, isHeroGenerate
   body{margin:0;padding:0;color:#1a1a1a;}
   table{border-collapse:collapse;}
   @media only screen and (max-width:600px){
-    .mobile-body    { font-size:20px!important; line-height:1.5!important; }
-    .mobile-subhead { font-size:20px!important; line-height:1.4!important; }
+    .mobile-body    { font-size:22px!important; line-height:1.5!important; }
+    .mobile-subhead { font-size:22px!important; line-height:1.4!important; }
     .mobile-b2title { font-size:22px!important; line-height:1.25!important; }
-    .mobile-closing { font-size:20px!important; line-height:1.5!important; }
-    .mobile-cta     { font-size:20px!important; padding:14px 36px!important; }
-    .mobile-footer  { font-size:13px!important; line-height:1.4!important; }
+    .mobile-closing { font-size:22px!important; line-height:1.5!important; }
+    .mobile-cta     { font-size:22px!important; padding:14px 36px!important; }
+    .mobile-footer  { font-size:14px!important; line-height:1.4!important; }
   }
 </style></head>
 <body class="body" style="margin:0;padding:32px 0 48px;">
@@ -1928,7 +1928,7 @@ function buildTemplateWeek5v2({ client, copy, images, footerData, isHeroGenerate
 
     <!-- ── Body block 2 + closing ── -->
     ${copy.bodyBlock2 ? `
-    <tr><td style="padding:${copy.bodyBlock2Title ? '14px' : '32px'} 52px 0;text-align:left;background-color:${pageBg};">
+    <tr><td style="padding:${copy.bodyBlock2Title ? '28px' : '40px'} 52px 0;text-align:left;background-color:${pageBg};">
       <p class="mobile-body" style="font-family:Arial,sans-serif;font-size:16px;line-height:1.5;color:${mutedTextCol};margin:0;">${b2body}</p>
     </td></tr>` : ''}
 
