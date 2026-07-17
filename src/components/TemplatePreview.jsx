@@ -559,7 +559,7 @@ function buildTemplateWeek2v2({ client, copy, images, footerData, isHeroGenerate
     : img1 ? `<div style="line-height:0;font-size:0;padding:0 36px 16px;background-color:${pageBg};"><div style="overflow:hidden;border-radius:8px;height:360px;"><img src="${img1}" alt="" style="width:100%;height:360px;object-fit:cover;display:block;object-position:${focalPos(img1Obj)};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/></div></div>` : ''}
 
   <!-- BODY BLOCK -->
-  ${copy.bodyText ? `<div class="w2-section" style="padding:24px 48px 32px;background-color:${pageBg};"><div class="mobile-body" style="font-size:16px;line-height:1.8;color:${mutedTextCol};margin-bottom:18px;font-family:Arial,sans-serif;">${body}</div></div>` : ''}
+  ${copy.bodyText ? `<div class="w2-section" style="padding:24px 48px 32px;background-color:${pageBg};"><div class="mobile-body" style="font-size:17px;line-height:1.8;color:${mutedTextCol};margin-bottom:18px;font-family:Arial,sans-serif;">${body}</div></div>` : ''}
 
   <!-- STRIP IMAGES (img2+img3): transparent PNG after body text -->
   ${isHeroGenerated && img5
@@ -580,8 +580,8 @@ function buildTemplateWeek2v2({ client, copy, images, footerData, isHeroGenerate
   <div class="w2-b2" style="background-color:${pageBg};padding:8px 36px 0;">
     <div class="w2-b2-inner" style="background-color:${pageBg};border-radius:10px;padding:16px 20px;">
       ${copy.bodyBlock2Title ? `<div class="mobile-b2title" style="font-size:22px;font-weight:700;font-family:Arial,sans-serif;letter-spacing:0;text-transform:uppercase;color:${secondary};margin-bottom:6px;text-align:left;">${copy.bodyBlock2Title}</div>` : ''}
-      ${copy.bodyBlock2 ? `<div class="mobile-body" style="font-size:16px;line-height:1.8;color:${mutedTextCol};margin-bottom:18px;font-family:Arial,sans-serif;">${b2body}</div>` : ''}
-      ${copy.closingLine ? `<div class="mobile-closing" style="font-size:16px;line-height:1.7;color:${mutedTextCol};font-style:italic;margin-bottom:24px;font-family:Georgia,serif;">${copy.closingLine}</div>` : ''}
+      ${copy.bodyBlock2 ? `<div class="mobile-body" style="font-size:17px;line-height:1.8;color:${mutedTextCol};margin-bottom:18px;font-family:Arial,sans-serif;">${b2body}</div>` : ''}
+      ${copy.closingLine ? `<div class="mobile-closing" style="font-size:17px;line-height:1.7;color:${mutedTextCol};font-style:italic;margin-bottom:24px;font-family:Georgia,serif;">${copy.closingLine}</div>` : ''}
     </div>
     ${copy.ctaText ? `<div style="padding:16px 0 36px;text-align:center;">${btnImgUrl
       ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w2-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:375px;display:block;margin:0 auto;border:0;outline:none;"/></a>`
@@ -1688,6 +1688,7 @@ function buildTemplateWeek5v2({ client, copy, images, footerData, isHeroGenerate
     .mobile-closing { font-size:22px!important; line-height:1.5!important; }
     .mobile-cta     { font-size:22px!important; padding:14px 36px!important; }
     .mobile-footer  { font-size:14px!important; line-height:1.4!important; }
+    .w5-btn-img    { width:300px!important; max-width:300px!important; }
   }
 </style></head>
 <body class="body" style="margin:0;padding:32px 0 48px;">
@@ -1720,14 +1721,14 @@ function buildTemplateWeek5v2({ client, copy, images, footerData, isHeroGenerate
     ${copy.ctaText ? `
     <tr><td style="padding:20px 52px 8px;text-align:center;background-color:${pageBg};">
       ${btnImgUrl
-        ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:375px;display:block;margin:0 auto;border:0;outline:none;"/></a>`
+        ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w5-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:375px;display:block;margin:0 auto;border:0;outline:none;"/></a>`
         : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accent};border-radius:999px;"><a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`}
     </td></tr>` : ''}
 
     <!-- ── Body text ── -->
     ${copy.bodyText ? `
     <tr><td style="padding:32px 52px 24px;text-align:left;background-color:${pageBg};">
-      <p class="mobile-body" style="font-family:Arial,sans-serif;font-size:16px;line-height:1.5;color:${mutedTextCol};margin:0;">${body}</p>
+      <p class="mobile-body" style="font-family:Arial,sans-serif;font-size:17px;line-height:1.5;color:${mutedTextCol};margin:0;">${body}</p>
     </td></tr>` : ''}
 
     <!-- ── Divider ── -->
@@ -1773,19 +1774,19 @@ function buildTemplateWeek5v2({ client, copy, images, footerData, isHeroGenerate
     <!-- ── Body block 2 + closing ── -->
     ${copy.bodyBlock2 ? `
     <tr><td style="padding:${copy.bodyBlock2Title ? '28px' : '40px'} 52px 0;text-align:left;background-color:${pageBg};">
-      <p class="mobile-body" style="font-family:Arial,sans-serif;font-size:16px;line-height:1.5;color:${mutedTextCol};margin:0;">${b2body}</p>
+      <p class="mobile-body" style="font-family:Arial,sans-serif;font-size:17px;line-height:1.5;color:${mutedTextCol};margin:0;">${b2body}</p>
     </td></tr>` : ''}
 
     ${copy.closingLine ? `
     <tr><td style="padding:20px 52px 0;text-align:left;background-color:${pageBg};">
-      <p class="mobile-closing" style="font-family:Georgia,'Times New Roman',serif;font-size:16px;font-style:italic;color:${mutedTextCol};line-height:1.5;margin:0;">${copy.closingLine}</p>
+      <p class="mobile-closing" style="font-family:Georgia,'Times New Roman',serif;font-size:17px;font-style:italic;color:${mutedTextCol};line-height:1.5;margin:0;">${copy.closingLine}</p>
     </td></tr>` : ''}
 
     <!-- ── Repeat CTA ── -->
     ${copy.ctaText ? `
     <tr><td style="padding:28px 52px 44px;text-align:center;background-color:${pageBg};">
       ${btnImgUrl
-        ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:375px;display:block;margin:0 auto;border:0;outline:none;"/></a>`
+        ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w5-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:375px;display:block;margin:0 auto;border:0;outline:none;"/></a>`
         : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accent};border-radius:999px;"><a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`}
     </td></tr>` : ''}
 
