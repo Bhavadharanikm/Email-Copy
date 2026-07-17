@@ -548,7 +548,7 @@ function buildTemplateWeek2v2({ client, copy, images, footerData, isHeroGenerate
 
   <!-- CTA -->
   ${copy.ctaText ? `<div class="w2-section" style="padding:24px 48px 28px;text-align:center;background-color:${pageBg};">${btnImgUrl
-    ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img src="${btnImgUrl}" alt="${copy.ctaText}" width="600" style="width:100%;max-width:600px;display:block;border:0;outline:none;"/></a>`
+    ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img src="${btnImgUrl}" alt="${copy.ctaText}" width="350" style="width:350px;max-width:350px;display:block;margin:0 auto;border:0;outline:none;"/></a>`
     : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accent};border-radius:999px;"><a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`
   }</div>` : ''}
 
@@ -583,7 +583,7 @@ function buildTemplateWeek2v2({ client, copy, images, footerData, isHeroGenerate
       ${copy.closingLine ? `<div class="mobile-closing" style="font-size:16px;line-height:1.7;color:${mutedTextCol};font-style:italic;margin-bottom:24px;font-family:Georgia,serif;">${copy.closingLine}</div>` : ''}
     </div>
     ${copy.ctaText ? `<div style="padding:16px 0 36px;text-align:center;">${btnImgUrl
-      ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img src="${btnImgUrl}" alt="${copy.ctaText}" width="600" style="width:100%;max-width:600px;display:block;border:0;outline:none;"/></a>`
+      ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img src="${btnImgUrl}" alt="${copy.ctaText}" width="350" style="width:350px;max-width:350px;display:block;margin:0 auto;border:0;outline:none;"/></a>`
       : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accent};border-radius:999px;"><a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`
     }</div>` : ''}
   </div>` : ''}
