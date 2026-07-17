@@ -506,8 +506,8 @@ function buildTemplateWeek2v2({ client, copy, images, footerData, isHeroGenerate
   body{margin:0;padding:0;color:#1a1a1a;}
   table{border-collapse:collapse;}
   @media only screen and (max-width:600px){
-    .w2-section    { padding-left:16px!important; padding-right:16px!important; }
-    .w2-b2         { padding-left:16px!important; padding-right:16px!important; }
+    .w2-section    { padding-left:20px!important; padding-right:20px!important; }
+    .w2-b2         { padding-left:20px!important; padding-right:20px!important; }
     .w2-b2-inner   { padding-left:0!important;   padding-right:0!important;   }
     .mobile-body    { font-size:16px!important; line-height:1.5!important; }
     .mobile-subhead { font-size:17px!important; line-height:1.4!important; }
