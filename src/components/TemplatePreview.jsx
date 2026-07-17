@@ -1689,7 +1689,7 @@ function buildTemplateWeek5v2({ client, copy, images, footerData, isHeroGenerate
     .mobile-closing { font-size:22px!important; line-height:1.5!important; }
     .mobile-cta     { font-size:22px!important; padding:14px 36px!important; }
     .mobile-footer  { font-size:15px!important; line-height:1.4!important; }
-    .w5-btn-img    { width:300px!important; max-width:300px!important; }
+    .w5-btn-img    { width:400px!important; max-width:400px!important; }
   }
 </style></head>
 <body class="body" style="margin:0;padding:32px 0 48px;">
