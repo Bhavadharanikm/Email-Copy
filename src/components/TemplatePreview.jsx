@@ -1922,7 +1922,7 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
     <!-- ── Body text ── -->
     ${copy.bodyText ? `
     <tr><td style="padding:20px 52px 8px;text-align:center;background-color:${pageBg};">
-      <p class="mobile-body" style="font-family:Arial,sans-serif;font-size:15px;line-height:1.9;color:${mutedTextCol};margin:0;">${body}</p>
+      <p class="mobile-body" style="font-family:Arial,sans-serif;font-size:17px;line-height:1.9;color:${mutedTextCol};margin:0;">${body}</p>
     </td></tr>` : ''}
 
     <!-- ── Divider ── -->
@@ -1969,13 +1969,13 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
     <!-- ── Body block 2 text ── -->
     ${copy.bodyBlock2 ? `
     <tr><td style="padding:32px 52px 0;text-align:center;background-color:${pageBg};">
-      <p class="w6-b2body" style="font-family:Arial,sans-serif;font-size:15px;line-height:1.85;color:${mutedTextCol};margin:0;">${b2body}</p>
+      <p class="w6-b2body" style="font-family:Arial,sans-serif;font-size:17px;line-height:1.85;color:${mutedTextCol};margin:0;">${b2body}</p>
     </td></tr>` : ''}
 
     <!-- ── Closing line ── -->
     ${copy.closingLine ? `
     <tr><td style="padding:20px 52px 0;text-align:center;background-color:${pageBg};">
-      <p class="w6-closing" style="font-family:'Lora',serif;font-size:15px;font-style:italic;color:${mutedTextCol};line-height:1.7;margin:0;">${copy.closingLine}</p>
+      <p class="w6-closing" style="font-family:'Lora',serif;font-size:17px;font-style:italic;color:${mutedTextCol};line-height:1.7;margin:0;">${copy.closingLine}</p>
     </td></tr>` : ''}
 
     <!-- ── Final CTA ── -->
@@ -2067,6 +2067,7 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
     .mobile-cta     { font-size:20px!important; padding:20px 80px!important; }
     .mobile-footer  { font-size:14px!important; line-height:1.4!important; }
     .w4-btn-img     { width:300px!important; max-width:300px!important; }
+    .w4-cta-wrap    { padding-left:20px!important; padding-right:20px!important; }
   }
 </style>
 </head><body class="body" style="background-color:#ffffff;margin:0;padding:0;">
@@ -2095,7 +2096,7 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
       <p class="mobile-subhead" style="font-family:Georgia,'Times New Roman',serif;font-size:20px;font-style:italic;line-height:1.7;color:${mutedTextCol};margin:0;">${copy.subhead}</p>
     </td></tr>` : ''}
     ${copy.ctaText ? `
-    <tr><td style="padding:24px 48px 8px;text-align:center;${BG};">
+    <tr><td class="w4-cta-wrap" style="padding:24px 48px 8px;text-align:center;${BG};">
       ${btnImgUrl
         ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w4-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:375px;display:block;margin:0 auto;border:0;outline:none;"/></a>`
         : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr>
@@ -2109,7 +2110,7 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
     <!-- Card 1: full width -->
     ${isHeroGenerated && card1PngUrl
       ? `<tr><td style="padding:0;line-height:0;font-size:0;"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${card1PngUrl}" alt="" width="600" style="display:block;width:600px;border:0;"/></a></td></tr>
-         ${cards[0].bodyText ? `<tr><td style="padding:24px 52px 32px;${BG};text-align:center;"><p style="font-family:Arial,sans-serif;font-size:17px;color:${mutedTextCol};line-height:1.85;margin:0;">${cards[0].bodyText.replace(/\n/g,'<br>')}</p></td></tr>` : ''}`
+         ${cards[0].bodyText ? `<tr><td style="padding:24px 52px 32px;${BG};text-align:center;"><p class="mobile-body" style="font-family:Arial,sans-serif;font-size:17px;color:${mutedTextCol};line-height:1.85;margin:0;">${cards[0].bodyText.replace(/\n/g,'<br>')}</p></td></tr>` : ''}`
       : w4Card({ ...cards[0], bg: BG, textCol: mutedTextCol })}
 
     <!-- Divider -->
@@ -2118,7 +2119,7 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
     <!-- Card 2: bodyBlock2Title + image + bodyBlock2 + closingLine + CTA -->
     ${copy.bodyBlock2Title ? `
     <tr><td style="padding:32px 52px 8px;${BG};text-align:center;">
-      <p style="font-family:Georgia,'Times New Roman',serif;font-size:25px;font-weight:700;color:${secondary};line-height:1.3;margin:0;">${copy.bodyBlock2Title}</p>
+      <p class="mobile-b2title" style="font-family:Georgia,'Times New Roman',serif;font-size:25px;font-weight:700;color:${secondary};line-height:1.3;margin:0;">${copy.bodyBlock2Title}</p>
     </td></tr>` : ''}
     ${isHeroGenerated && card2PngUrl
       ? `<tr><td style="padding:0;line-height:0;font-size:0;"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${card2PngUrl}" alt="" width="600" style="display:block;width:600px;border:0;"/></a></td></tr>`
@@ -2132,7 +2133,7 @@ function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerate
       <p class="mobile-closing" style="font-family:Georgia,'Times New Roman',serif;font-size:18px;font-style:italic;color:${mutedTextCol};line-height:1.7;margin:0;">${copy.closingLine}</p>
     </td></tr>` : ''}
     ${copy.ctaText ? `
-    <tr><td style="padding:24px 48px 44px;text-align:center;${BG};">
+    <tr><td class="w4-cta-wrap" style="padding:24px 48px 44px;text-align:center;${BG};">
       ${btnImgUrl
         ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w4-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:375px;display:block;margin:0 auto;border:0;outline:none;"/></a>`
         : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr>
@@ -2644,7 +2645,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </head><body>
 <div style="width:600px;text-align:center;">
   <div style="display:inline-block;background:${w4AccentColor};border-radius:999px;padding:20px 80px;">
-    <span style="font-family:Arial,sans-serif;font-size:28px;font-weight:700;letter-spacing:.04em;color:#ffffff;white-space:nowrap;display:inline-flex;align-items:center;gap:10px;">${w4CtaText}<span style="display:inline-flex;align-items:center;gap:0;"><span style="display:inline-block;width:12px;height:2px;background:#ffffff;vertical-align:middle;"></span><span style="display:inline-block;width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:7px solid #ffffff;vertical-align:middle;"></span></span></span>
+    <span style="font-family:Arial,sans-serif;font-size:28px;font-weight:700;letter-spacing:0;color:#ffffff;white-space:nowrap;display:inline-flex;align-items:center;gap:10px;">${w4CtaText}<span style="display:inline-flex;align-items:center;gap:0;"><span style="display:inline-block;width:12px;height:2px;background:#ffffff;vertical-align:middle;"></span><span style="display:inline-block;width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:7px solid #ffffff;vertical-align:middle;"></span></span></span>
   </div>
 </div>
 </body></html>` : null
@@ -2732,7 +2733,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </head><body>
 <div style="width:600px;text-align:center;">
   <div style="display:inline-block;background:${w3v2AccentColor};border-radius:999px;padding:20px 80px;">
-    <span style="font-family:Arial,sans-serif;font-size:28px;font-weight:700;letter-spacing:.04em;color:#ffffff;white-space:nowrap;display:inline-flex;align-items:center;gap:10px;">${w3v2CtaText}<span style="display:inline-flex;align-items:center;gap:0;"><span style="display:inline-block;width:12px;height:2px;background:#ffffff;vertical-align:middle;"></span><span style="display:inline-block;width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:7px solid #ffffff;vertical-align:middle;"></span></span></span>
+    <span style="font-family:Arial,sans-serif;font-size:28px;font-weight:700;letter-spacing:0;color:#ffffff;white-space:nowrap;display:inline-flex;align-items:center;gap:10px;">${w3v2CtaText}<span style="display:inline-flex;align-items:center;gap:0;"><span style="display:inline-block;width:12px;height:2px;background:#ffffff;vertical-align:middle;"></span><span style="display:inline-block;width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:7px solid #ffffff;vertical-align:middle;"></span></span></span>
   </div>
 </div>
 </body></html>` : null
@@ -2756,7 +2757,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </head><body>
 <div style="width:600px;text-align:center;">
   <div style="display:inline-block;background:${w6AccentColor};border-radius:999px;padding:20px 80px;">
-    <span style="font-family:Arial,sans-serif;font-size:28px;font-weight:700;letter-spacing:.04em;color:#ffffff;white-space:nowrap;display:inline-flex;align-items:center;gap:10px;">${w6CtaText}<span style="display:inline-flex;align-items:center;gap:0;"><span style="display:inline-block;width:12px;height:2px;background:#ffffff;vertical-align:middle;"></span><span style="display:inline-block;width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:7px solid #ffffff;vertical-align:middle;"></span></span></span>
+    <span style="font-family:Arial,sans-serif;font-size:28px;font-weight:700;letter-spacing:0;color:#ffffff;white-space:nowrap;display:inline-flex;align-items:center;gap:10px;">${w6CtaText}<span style="display:inline-flex;align-items:center;gap:0;"><span style="display:inline-block;width:12px;height:2px;background:#ffffff;vertical-align:middle;"></span><span style="display:inline-block;width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:7px solid #ffffff;vertical-align:middle;"></span></span></span>
   </div>
 </div>
 </body></html>` : null
