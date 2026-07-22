@@ -3023,11 +3023,14 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     const w6grid1Fp = selectedImages?.[1]?.focalX != null ? `${selectedImages[1].focalX}% ${selectedImages[1].focalY}%` : '50% 50%'
     const w6grid2Fp = selectedImages?.[2]?.focalX != null ? `${selectedImages[2].focalX}% ${selectedImages[2].focalY}%` : '50% 50%'
     const w6grid3Fp = selectedImages?.[3]?.focalX != null ? `${selectedImages[3].focalX}% ${selectedImages[3].focalY}%` : '50% 50%'
+    const w6HasTopRow = !!(img1Url || img2Url)
+    const w6HasBottom = !!(img3Url || img1Url)
+    const week6GridHeight = 32 + (w6HasTopRow ? 240 : 0) + (w6HasTopRow && w6HasBottom ? 12 : 0) + (w6HasBottom ? 300 : 0)
     const week6GridHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
 </head><body>
 <div style="padding:32px 20px 0;background:transparent;width:600px;">
-  <table width="560" cellpadding="0" cellspacing="0" border="0" style="width:560px;border-collapse:collapse;">
+  ${w6HasTopRow ? `<table width="560" cellpadding="0" cellspacing="0" border="0" style="width:560px;border-collapse:collapse;">
     <tr>
       <td width="277" style="width:277px;vertical-align:top;line-height:0;font-size:0;">
         ${img1Url ? `<div style="overflow:hidden;width:277px;height:240px;border-radius:12px;"><img src="${img1Url}" alt="" width="277" style="width:277px;height:240px;object-fit:cover;display:block;object-position:${w6grid1Fp};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/></div>` : `<div style="width:277px;height:240px;background:#e0e4ea;border-radius:12px;"></div>`}
@@ -3037,8 +3040,8 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
         ${img2Url ? `<div style="overflow:hidden;width:277px;height:240px;border-radius:12px;"><img src="${img2Url}" alt="" width="277" style="width:277px;height:240px;object-fit:cover;display:block;object-position:${w6grid2Fp};transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/></div>` : `<div style="width:277px;height:240px;background:#e0e4ea;border-radius:12px;"></div>`}
       </td>
     </tr>
-  </table>
-  ${(img3Url || img1Url) ? `<div style="padding-top:12px;line-height:0;font-size:0;"><div style="overflow:hidden;width:560px;height:300px;border-radius:12px;"><img src="${img3Url || img1Url}" alt="" width="560" style="width:560px;height:300px;object-fit:cover;display:block;object-position:${img3Url ? w6grid3Fp : w6grid1Fp};transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/></div></div>` : ''}
+  </table>` : ''}
+  ${w6HasBottom ? `<div style="padding-top:${w6HasTopRow ? 12 : 0}px;line-height:0;font-size:0;"><div style="overflow:hidden;width:560px;height:300px;border-radius:12px;"><img src="${img3Url || img1Url}" alt="" width="560" style="width:560px;height:300px;object-fit:cover;display:block;object-position:${img3Url ? w6grid3Fp : w6grid1Fp};transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/></div></div>` : ''}
 </div>
 </body></html>`
 
@@ -3076,7 +3079,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
         : isWeek5 && (img1Url || img2Url)
           ? renderImage({ html: week5GridHtml, width: 600, height: 530, transparent: true })
           : (isWeek6 || isWeek6v2) && (img1Url || img2Url || img3Url)
-            ? renderImage({ html: week6GridHtml, width: 600, height: 584, transparent: true })
+            ? renderImage({ html: week6GridHtml, width: 600, height: week6GridHeight, transparent: true })
             : (!isWeek2 && !isWeek2v2 && !isWeek3 && !isWeek5 && !isWeek6 && (img1Url || img2Url))
               ? renderImage({ html: polaroidHtml, width: 600, height: 340 })
               : Promise.resolve(null)
