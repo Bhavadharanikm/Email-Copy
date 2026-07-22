@@ -132,9 +132,8 @@ function buildFooter(client, footerData = null, options = {}) {
     ? `<div style="font-size:14px;color:${textCol};font-family:Arial,sans-serif;margin-bottom:${sectionGap || 16}px;line-height:1.25;text-align:center">${contactParts.join(`&nbsp;&nbsp;·&nbsp;&nbsp;`)}</div>`
     : ''
 
-  const bodyTextAlign  = options.bodyTextAlign || 'left'
   const footerTextHtml = footerText
-    ? `<div class="mobile-footer" style="font-size:${footerTextSize}px;color:${linkCol};font-family:Arial,sans-serif;margin-bottom:${sectionGap || 20}px;line-height:1.25;text-align:${bodyTextAlign}">${footerText}</div>`
+    ? `<div class="mobile-footer" style="font-size:${footerTextSize}px;color:#878787;font-family:Arial,sans-serif;margin-bottom:${sectionGap || 20}px;line-height:1.25;text-align:left">${footerText}</div>`
     : ''
 
   const divClass = options.gmailClass ? ` class="${options.gmailClass}"` : ''
@@ -702,8 +701,8 @@ function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated 
     ${stackedSection}
 
     <!-- ── BODY TEXT ── -->
-    <tr><td class="gmailfix" style="padding:36px 52px 24px;${WHITE_BG};text-align:center;">
-      ${copy.bodyText ? `<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.9;color:#878787!important;max-width:460px;margin-left:auto;margin-right:auto;">${body}</div>` : ''}
+    <tr><td class="gmailfix" style="padding:36px 52px 24px;${WHITE_BG};text-align:left;">
+      ${copy.bodyText ? `<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.9;color:#878787!important;">${body}</div>` : ''}
     </td></tr>
 
     <!-- ── DIVIDER 2 ── -->
@@ -727,8 +726,8 @@ function buildTemplateWeek3({ client, copy, images, footerData, isHeroGenerated 
     </td></tr>` : ''}
 
     ${(copy.bodyBlock2 || copy.closingLine) ? `
-    <tr><td class="gmailfix" style="padding:28px 52px 0;${WHITE_BG};text-align:center;">
-      ${copy.bodyBlock2 ? `<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.9;color:#878787!important;margin-bottom:18px;max-width:460px;margin-left:auto;margin-right:auto;">${b2body}</div>` : ''}
+    <tr><td class="gmailfix" style="padding:28px 52px 0;${WHITE_BG};text-align:left;">
+      ${copy.bodyBlock2 ? `<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.9;color:#878787!important;margin-bottom:18px;">${b2body}</div>` : ''}
       ${copy.closingLine ? `<div style="font-family:Georgia,serif;font-size:15px;font-style:italic;color:#878787!important;margin-bottom:28px;">${copy.closingLine}</div>` : ''}
     </td></tr>` : ''}
 
@@ -856,8 +855,8 @@ function buildTemplateWeek3v2({ client, copy, images, footerData, isHeroGenerate
     ${stackedSection}
 
     <!-- ── BODY TEXT ── -->
-    <tr><td style="padding:36px 52px 24px;background-color:${pageBg};text-align:center;">
-      ${copy.bodyText ? `<div class="mobile-body" style="font-family:Arial,sans-serif;font-size:15px;line-height:1.9;color:${mutedTextCol};max-width:460px;margin-left:auto;margin-right:auto;">${body}</div>` : ''}
+    <tr><td style="padding:36px 52px 24px;background-color:${pageBg};text-align:left;">
+      ${copy.bodyText ? `<div class="mobile-body" style="font-family:Arial,sans-serif;font-size:15px;line-height:1.9;color:${mutedTextCol};">${body}</div>` : ''}
     </td></tr>
 
     <!-- ── DIVIDER 2 ── -->
@@ -881,8 +880,8 @@ function buildTemplateWeek3v2({ client, copy, images, footerData, isHeroGenerate
     </td></tr>` : ''}
 
     ${(copy.bodyBlock2 || copy.closingLine) ? `
-    <tr><td style="padding:28px 52px 0;background-color:${pageBg};text-align:center;">
-      ${copy.bodyBlock2 ? `<div class="mobile-body" style="font-family:Arial,sans-serif;font-size:17px;line-height:1.9;color:${mutedTextCol};margin-bottom:18px;max-width:460px;margin-left:auto;margin-right:auto;">${b2body}</div>` : ''}
+    <tr><td style="padding:28px 52px 0;background-color:${pageBg};text-align:left;">
+      ${copy.bodyBlock2 ? `<div class="mobile-body" style="font-family:Arial,sans-serif;font-size:15px;line-height:1.9;color:${mutedTextCol};margin-bottom:18px;">${b2body}</div>` : ''}
       ${copy.closingLine ? `<div class="mobile-closing" style="font-family:Georgia,serif;font-size:17px;font-style:italic;color:${mutedTextCol};margin-bottom:28px;">${copy.closingLine}</div>` : ''}
     </td></tr>` : ''}
 
