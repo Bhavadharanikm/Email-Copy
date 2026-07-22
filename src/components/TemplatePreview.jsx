@@ -2094,7 +2094,7 @@ const TEMPLATES = [
   { id:16, label:'✅ Week 3',  build:buildTemplateWeek3v2 },
   { id:13, label:'✅ Week 5',  build:buildTemplateWeek5v2 },
   { id:15, label:'✅ Week 4',  build:buildTemplateWeek4v2 },
-  { id:18, label:'🔴 Week 6 v2', build:buildTemplateWeek6v2 },
+  { id:18, label:'✅ Week 6', build:buildTemplateWeek6v2 },
 ]
 
 /* ─────────────────────────── component ─────────────────────────────────── */
