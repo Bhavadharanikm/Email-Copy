@@ -725,6 +725,10 @@ function buildTemplateWeek6v2({ client, copy, images, footerData, isHeroGenerate
 </body></html>`
 }
 
+function buildTemplateWeek4v2b(args) {
+  return buildTemplateWeek6v2(args)
+}
+
 /* ══════════════════════════════════════════════════════════════════════════
    WEEK 3  ·  Full-bleed hero + white-fade + stacked cards
    Inspired by Wander / Endless Stays editorial style
@@ -2095,7 +2099,7 @@ const TEMPLATES = [
   { id:13, label:'✅ Week 5',  build:buildTemplateWeek5v2 },
   { id:15, label:'✅ Week 4',  build:buildTemplateWeek4v2 },
   { id:18, label:'✅ Week 6', build:buildTemplateWeek6v2 },
-  { id:19, label:'🔴 Week 4 v2', build:buildTemplateWeek6v2 },
+  { id:19, label:'🔴 Week 4 v2', build:buildTemplateWeek4v2b },
 ]
 
 /* ─────────────────────────── component ─────────────────────────────────── */
@@ -2464,7 +2468,8 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     const isWeek4   = tpl?.id === 12 || tpl?.id === 15
     const isWeek4v2 = tpl?.id === 15
     const isWeek5 = tpl?.id === 13
-    const isWeek6v2 = tpl?.id === 18 || tpl?.id === 19
+    const isWeek6v2  = tpl?.id === 18
+    const isWeek4v2b = tpl?.id === 19
     const renderLogoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
     const logoHtml = logoUrl
       ? `<img src="${logoUrl}" alt="" style="height:${logoSize}px;width:auto;max-width:${logoSize * 5}px;display:inline-block;filter:${renderLogoFilter};"/>`
@@ -2511,7 +2516,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 
     const heroHtml = isWeek2
       ? week2ArchHtml(midBg, false)
-      : (isWeek2v2 || isWeek6v2)
+      : (isWeek2v2 || isWeek6v2 || isWeek4v2b)
       ? week2v2HeroHtml
       : (isWeek3 || isWeek3v2)
       ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
@@ -2657,7 +2662,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     const w3v2CtaText     = generatedCopy?.ctaText || 'Book Now'
     const w2v2AccentColor = clientFooter?.buttonColor || '#d4006a'
     const w2v2CtaText     = generatedCopy?.ctaText || 'Book Now'
-    const w2v2ButtonHtml  = (isWeek2v2 || isWeek6v2) ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+    const w2v2ButtonHtml  = (isWeek2v2 || isWeek6v2 || isWeek4v2b) ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
 </head><body>
 <div style="width:600px;text-align:center;">
@@ -2834,6 +2839,11 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </div>
 </body></html>`
 
+    // ── Week 4 v2b Puppeteer HTML — identical to Week 6 v2 for now, edit independently ──
+    const week4v2bHeroHtml   = week6HeroHtml
+    const week4v2bGridHtml   = week6GridHtml
+    const week4v2bGridHeight = week6GridHeight
+
     // ── Week 2 v2: img1 (long) and img2/img3 (strip) as separate transparent PNGs ──
     const w2img1Fp = selectedImages?.[1]?.focalX != null ? `${selectedImages[1].focalX}% ${selectedImages[1].focalY}%` : '50% 50%'
     const w2img2Fp = selectedImages?.[2]?.focalX != null ? `${selectedImages[2].focalX}% ${selectedImages[2].focalY}%` : '50% 50%'
@@ -2856,7 +2866,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </table>
 </body></html>` : null
 
-    const heroHeight = isWeek2 ? 580 : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek4 ? 740 : isWeek5 ? 720 : isWeek6v2 ? 820 : 400
+    const heroHeight = isWeek2 ? 580 : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek4 ? 740 : isWeek5 ? 720 : (isWeek6v2 || isWeek4v2b) ? 820 : 400
     const secondaryPromise = isWeek2v2 && img1Url
       ? renderImage({ html: week2LongImgHtml, width: 600, height: 376, transparent: true })
       : isWeek3v2 && (img1Url || img2Url)
@@ -2869,6 +2879,8 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
           ? renderImage({ html: week5GridHtml, width: 600, height: 530, transparent: true })
           : isWeek6v2 && (img1Url || img2Url || img3Url)
             ? renderImage({ html: week6GridHtml, width: 600, height: week6GridHeight, transparent: true })
+            : isWeek4v2b && (img1Url || img2Url || img3Url)
+            ? renderImage({ html: week4v2bGridHtml, width: 600, height: week4v2bGridHeight, transparent: true })
             : (!isWeek2 && !isWeek2v2 && !isWeek3 && !isWeek5 && (img1Url || img2Url))
               ? renderImage({ html: polaroidHtml, width: 600, height: 340 })
               : Promise.resolve(null)
@@ -2883,7 +2895,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
         ? renderImage({ html: week4Card2Html, width: 600, height: 592, transparent: isWeek4v2 })
         : Promise.resolve(null)
 
-    const buttonPromise = (isWeek2v2 || isWeek6v2) && w2v2ButtonHtml
+    const buttonPromise = (isWeek2v2 || isWeek6v2 || isWeek4v2b) && w2v2ButtonHtml
       ? renderImage({ html: w2v2ButtonHtml, width: 600, height: 88, transparent: true })
       : isWeek4v2 && w4ButtonHtml
       ? renderImage({ html: w4ButtonHtml, width: 600, height: 88, transparent: true })
@@ -2893,10 +2905,10 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
       ? renderImage({ html: w5ButtonHtml, width: 600, height: 88, transparent: true })
       : Promise.resolve(null)
 
-    const heroHtmlToUse = isWeek4 ? week4HeroHtml : isWeek5 ? week5HeroHtml : isWeek6v2 ? week6HeroHtml : heroHtml
+    const heroHtmlToUse = isWeek4 ? week4HeroHtml : isWeek5 ? week5HeroHtml : isWeek6v2 ? week6HeroHtml : isWeek4v2b ? week4v2bHeroHtml : heroHtml
 
     Promise.all([
-      renderImage({ html: heroHtmlToUse, width: 600, height: heroHeight, transparent: isWeek4v2 || isWeek3v2 || isWeek5 || isWeek6v2 }),
+      renderImage({ html: heroHtmlToUse, width: 600, height: heroHeight, transparent: isWeek4v2 || isWeek3v2 || isWeek5 || isWeek6v2 || isWeek4v2b }),
       secondaryPromise,
       tertiaryPromise,
       buttonPromise,
