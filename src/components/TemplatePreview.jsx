@@ -1683,18 +1683,21 @@ function buildTemplateWeek5v2({ client, copy, images, footerData, isHeroGenerate
   body{margin:0;padding:0;color:#1a1a1a;}
   table{border-collapse:collapse;}
   @media only screen and (max-width:600px){
-    .mobile-body    { font-size:22px!important; line-height:1.5!important; }
-    .mobile-subhead { font-size:22px!important; line-height:1.4!important; }
+    .mobile-body    { font-size:17px!important; line-height:1.5!important; }
+    .mobile-subhead { font-size:17px!important; line-height:1.4!important; }
     .mobile-b2title { font-size:22px!important; line-height:1.25!important; }
-    .mobile-closing { font-size:22px!important; line-height:1.5!important; }
-    .mobile-cta     { font-size:22px!important; padding:14px 36px!important; }
-    .mobile-footer  { font-size:15px!important; line-height:1.4!important; }
+    .mobile-closing { font-size:17px!important; line-height:1.5!important; }
+    .mobile-cta     { font-size:20px!important; padding:20px 80px!important; }
+    .mobile-footer  { font-size:14px!important; line-height:1.4!important; }
     .w5-btn-img    { width:400px!important; max-width:400px!important; }
+    .w5-grid-col   { width:49%!important; }
+    .w5-grid-gap   { width:2%!important; }
+    .w5-outer      { width:100%!important; max-width:600px!important; }
   }
 </style></head>
 <body class="body" style="margin:0;padding:32px 0 48px;">
 
-<table width="600" cellpadding="0" cellspacing="0" border="0" bgcolor="${pageBg}" style="width:600px;max-width:600px;margin:0 auto;background-color:${pageBg};border-collapse:collapse;border-radius:20px;overflow:hidden;">
+<table width="600" cellpadding="0" cellspacing="0" border="0" bgcolor="${pageBg}" class="w5-outer" style="width:100%;max-width:600px;margin:0 auto;background-color:${pageBg};border-collapse:collapse;border-radius:20px;overflow:hidden;">
 
     <!-- ── HERO ── -->
     ${isHeroGenerated
@@ -1748,24 +1751,24 @@ function buildTemplateWeek5v2({ client, copy, images, footerData, isHeroGenerate
       ? isHeroGenerated && img4
         ? `<tr><td style="padding:28px 0 0;background-color:${pageBg};line-height:0;font-size:0;text-align:center;"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${img4}" alt="" width="600" style="display:block;width:600px;max-width:100%;border:0;"/></a></td></tr>`
         : `<tr><td style="padding:28px 0 0;background-color:${pageBg};">
-      <table width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;border-collapse:collapse;">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
         <tr>
-          <td width="297" style="width:297px;vertical-align:top;line-height:0;font-size:0;">
-            ${gridImgs[0].url ? `<div style="overflow:hidden;width:297px;height:262px;"><img src="${gridImgs[0].url}" alt="" width="297" style="width:297px;height:262px;object-fit:cover;display:block;object-position:${focalPos(gridImgs[0].obj)};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/></div>` : `<div style="width:297px;height:262px;background:#e8e4de;"></div>`}
+          <td class="w5-grid-col" width="49%" style="width:49%;vertical-align:top;line-height:0;font-size:0;">
+            ${gridImgs[0].url ? `<div style="overflow:hidden;height:262px;"><img src="${gridImgs[0].url}" alt="" width="100%" style="width:100%;height:262px;object-fit:cover;display:block;object-position:${focalPos(gridImgs[0].obj)};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/></div>` : `<div style="height:262px;background:#e8e4de;"></div>`}
           </td>
-          <td width="6" style="width:6px;line-height:0;font-size:0;"></td>
-          <td width="297" style="width:297px;vertical-align:top;line-height:0;font-size:0;">
-            ${gridImgs[1].url ? `<div style="overflow:hidden;width:297px;height:262px;"><img src="${gridImgs[1].url}" alt="" width="297" style="width:297px;height:262px;object-fit:cover;display:block;object-position:${focalPos(gridImgs[1].obj)};transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/></div>` : `<div style="width:297px;height:262px;background:#e8e4de;"></div>`}
+          <td class="w5-grid-gap" width="2%" style="width:2%;line-height:0;font-size:0;"></td>
+          <td class="w5-grid-col" width="49%" style="width:49%;vertical-align:top;line-height:0;font-size:0;">
+            ${gridImgs[1].url ? `<div style="overflow:hidden;height:262px;"><img src="${gridImgs[1].url}" alt="" width="100%" style="width:100%;height:262px;object-fit:cover;display:block;object-position:${focalPos(gridImgs[1].obj)};transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/></div>` : `<div style="height:262px;background:#e8e4de;"></div>`}
           </td>
         </tr>
         <tr><td colspan="3" height="6" style="height:6px;line-height:0;font-size:0;"></td></tr>
         <tr>
-          <td width="297" style="width:297px;vertical-align:top;line-height:0;font-size:0;">
-            ${gridImgs[3].url ? `<div style="overflow:hidden;width:297px;height:262px;"><img src="${gridImgs[3].url}" alt="" width="297" style="width:297px;height:262px;object-fit:cover;display:block;object-position:${focalPos(gridImgs[3].obj)};transform:translate(${img4X}px,${img4Y}px) scale(${img4Scale});transform-origin:center center;"/></div>` : `<div style="width:297px;height:262px;background:#e8e4de;"></div>`}
+          <td class="w5-grid-col" width="49%" style="width:49%;vertical-align:top;line-height:0;font-size:0;">
+            ${gridImgs[3].url ? `<div style="overflow:hidden;height:262px;"><img src="${gridImgs[3].url}" alt="" width="100%" style="width:100%;height:262px;object-fit:cover;display:block;object-position:${focalPos(gridImgs[3].obj)};transform:translate(${img4X}px,${img4Y}px) scale(${img4Scale});transform-origin:center center;"/></div>` : `<div style="height:262px;background:#e8e4de;"></div>`}
           </td>
-          <td width="6" style="width:6px;line-height:0;font-size:0;"></td>
-          <td width="297" style="width:297px;vertical-align:top;line-height:0;font-size:0;">
-            ${gridImgs[2].url ? `<div style="overflow:hidden;width:297px;height:262px;"><img src="${gridImgs[2].url}" alt="" width="297" style="width:297px;height:262px;object-fit:cover;display:block;object-position:${focalPos(gridImgs[2].obj)};transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/></div>` : `<div style="width:297px;height:262px;background:#e8e4de;"></div>`}
+          <td class="w5-grid-gap" width="2%" style="width:2%;line-height:0;font-size:0;"></td>
+          <td class="w5-grid-col" width="49%" style="width:49%;vertical-align:top;line-height:0;font-size:0;">
+            ${gridImgs[2].url ? `<div style="overflow:hidden;height:262px;"><img src="${gridImgs[2].url}" alt="" width="100%" style="width:100%;height:262px;object-fit:cover;display:block;object-position:${focalPos(gridImgs[2].obj)};transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/></div>` : `<div style="height:262px;background:#e8e4de;"></div>`}
           </td>
         </tr>
       </table>
@@ -1984,7 +1987,7 @@ function buildTemplateWeek6({ client, copy, images, footerData, isHeroGenerated 
         ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w6-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:375px;display:block;margin:0 auto;border:0;outline:none;"/></a>`
         : `<table cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto;"><tr>
         <td style="border:2px solid ${accent};border-radius:100px;">
-          <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:14px 44px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:${accent};text-decoration:none;letter-spacing:.03em;white-space:nowrap;">${copy.ctaText}</a>
+          <a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:14px 44px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:${accent};text-decoration:none;letter-spacing:.03em;white-space:nowrap;">${copy.ctaText}</a>
         </td>
       </tr></table>`}
     </td></tr>` : `<tr><td style="padding:20px 0;background-color:${pageBg};font-size:0;line-height:0;"></td></tr>`}
