@@ -2516,7 +2516,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 
     const heroHtml = isWeek2
       ? week2ArchHtml(midBg, false)
-      : (isWeek2v2 || isWeek6v2 || isWeek4v2b)
+      : (isWeek2v2 || isWeek6v2)
       ? week2v2HeroHtml
       : (isWeek3 || isWeek3v2)
       ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
@@ -2839,8 +2839,23 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </div>
 </body></html>`
 
-    // ── Week 4 v2b Puppeteer HTML — identical to Week 6 v2 for now, edit independently ──
-    const week4v2bHeroHtml   = week6HeroHtml
+    // ── Week 4 v2b Puppeteer HTML — Week 4 inset-card hero style, grid from Week 6 v2 ──
+    const week4v2bHeroHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@700&display=swap" rel="stylesheet"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
+</head><body>
+<div style="padding:20px 20px 0;background:transparent;line-height:0;font-size:0;">
+  <div style="position:relative;width:560px;height:720px;overflow:hidden;border-radius:16px;background:#1a1a1a;">
+    ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;top:${Math.min(0,Math.max(720*(1-heroScale),-(720*(heroScale-1)/2)+heroY))}px;left:${Math.min(0,Math.max(560*(1-heroScale),-(560*(heroScale-1)/2)+heroX))}px;width:${560*heroScale}px;height:${720*heroScale}px;object-fit:cover;display:block;"/>` : `<div style="width:560px;height:720px;background:#2a2a2a;"></div>`}
+    <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.78) 0%,rgba(0,0,0,0.38) 45%,rgba(0,0,0,0.05) 75%,rgba(0,0,0,0) 100%);line-height:normal;font-size:initial;">
+      <div style="text-align:center;padding-top:${logoTop}px;">${logoHtml}</div>
+      <div style="text-align:center;padding:${textTop}px ${textLeft}px 0;">
+        <div style="font-family:'Lora',Georgia,serif;font-size:${textSize}px;font-weight:700;line-height:1.12;color:#fff;">${headline}</div>
+      </div>
+    </div>
+  </div>
+</div>
+</body></html>`
     const week4v2bGridHtml   = week6GridHtml
     const week4v2bGridHeight = week6GridHeight
 
@@ -2866,7 +2881,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </table>
 </body></html>` : null
 
-    const heroHeight = isWeek2 ? 580 : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek4 ? 740 : isWeek5 ? 720 : (isWeek6v2 || isWeek4v2b) ? 820 : 400
+    const heroHeight = isWeek2 ? 580 : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek4 ? 740 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : 400
     const secondaryPromise = isWeek2v2 && img1Url
       ? renderImage({ html: week2LongImgHtml, width: 600, height: 376, transparent: true })
       : isWeek3v2 && (img1Url || img2Url)
