@@ -1723,180 +1723,6 @@ function buildTemplateWeek1({ client, copy, images, footerData, heroScale=1, her
 </html>`
 }
 
-/* ══════════════════════════════════════════════════════════════════════════
-   WEEK 4 · Three property cards (Wander-style)
-   White cards · stacked same-image effect · serif title · pill CTA
-   ══════════════════════════════════════════════════════════════════════════ */
-
-function w4StackedImage(imgUrl, imgObj, height = 460, imgX = 0, imgY = 0, imgScale = 1) {
-  if (!imgUrl) return ''
-  const fp = imgObj?.focalX != null ? `${imgObj.focalX}% ${imgObj.focalY}%` : '50% 50%'
-  const tf = `transform:translate(${imgX}px,${imgY}px) scale(${imgScale});transform-origin:center center;`
-  // Extra padding so rotated corners aren't clipped
-  return `
-  <div style="position:relative;height:${height + 48}px;padding:24px;">
-    <!-- Back card: offset + rotated so it peeks clearly on all 4 sides -->
-    <div style="position:absolute;top:24px;left:24px;right:24px;bottom:24px;border-radius:16px;overflow:hidden;transform:rotate(5deg);transform-origin:center;background:#d4d8dd;">
-      <img src="${imgUrl}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:${fp};opacity:0.45;display:block;${tf}"/>
-    </div>
-    <!-- Front card -->
-    <div style="position:absolute;top:24px;left:24px;right:24px;bottom:24px;border-radius:16px;overflow:hidden;z-index:1;">
-      <img src="${imgUrl}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:${fp};display:block;${tf}"/>
-    </div>
-  </div>`
-}
-
-function w4Card({ imgUrl, imgObj, bodyText, isLast, imgX = 0, imgY = 0, imgScale = 1, bg, textCol }) {
-  const body = (bodyText||'').replace(/\n/g,'<br>')
-  const W = bg || 'background-color:#ffffff;background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%)'
-  const tc = textCol || '#878787'
-  return `
-    <tr><td class="gmailfix" style="padding:28px 72px 8px;${W};line-height:0;font-size:0;">
-      ${w4StackedImage(imgUrl, imgObj, 460, imgX, imgY, imgScale)}
-    </td></tr>
-    ${body ? `
-    <tr><td class="gmailfix" style="padding:24px 52px ${isLast ? '40px' : '32px'};${W};text-align:center;">
-      <p class="mobile-body" style="font-family:Arial,sans-serif;font-size:17px;color:${tc};line-height:1.85;margin:0;">${body}</p>
-    </td></tr>` : ''}`
-}
-
-function buildTemplateWeek4({ client, copy, images, footerData, isHeroGenerated = false,
-  heroScale=1, heroX=0, heroY=0,
-  textSize=38, textTop=20, textLeft=48,
-  logoColor='white', logoTop=40, logoRight=36, logoSize=44,
-}) {
-  // images[0] = hero (or hero PNG when generated), images[1-3] = card photos
-  // images[4] = card1 stacked PNG (when generated), images[5] = card2 stacked PNG (when generated)
-  const heroObj = images?.[0]; const heroImg = heroObj?.url||''
-  const img1Obj = images?.[1]; const img1 = img1Obj?.url || heroImg
-  const img2Obj = images?.[2]; const img2 = img2Obj?.url || heroImg
-  const img3Obj = images?.[3]; const img3 = img3Obj?.url || heroImg
-  const eff1Obj = img1Obj?.url ? img1Obj : heroObj
-  const eff2Obj = img2Obj?.url ? img2Obj : heroObj
-  const eff3Obj = img3Obj?.url ? img3Obj : heroObj
-  const card1PngUrl = images?.[4]?.url || null
-  const card2PngUrl = images?.[5]?.url || null
-
-  const pageBg    = footerData?.bgColor || '#f5f4f2'
-  const logoUrl   = client?.logoUrl||''
-  const name      = client?.name||''
-  const location  = name
-  const accent    = footerData?.buttonColor || '#1a1a1a'
-  const secondary = footerData?.secondaryColor || accent
-  const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
-
-  const WHITE_BG = 'background-color:#ffffff;background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%)'
-  const PAGE_BG  = `background-color:${pageBg};background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)`
-
-  // Logo — white version for dark hero overlay, dark version for cards below
-  const logoHeroHtml = logoUrl
-    ? `<img src="${logoUrl}" alt="${name}" style="height:${logoSize}px;width:auto;max-width:${logoSize * 5}px;display:inline-block;filter:${logoFilter};"/>`
-    : `<span style="font-family:Arial,sans-serif;font-size:15px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff;">${name}</span>`
-
-  const cards = [
-    { imgUrl:img1, imgObj:eff1Obj, bodyText:copy.bodyText||'' },
-    { imgUrl:img2, imgObj:eff2Obj, bodyText:copy.bodyBlock2||'' },
-    { imgUrl:img3, imgObj:eff3Obj, bodyText:copy.closingLine||copy.bodyText||'', isLast:true },
-  ]
-
-  return `<!DOCTYPE html><html lang="en" style="color-scheme:light"><head><meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<meta name="color-scheme" content="light">
-<meta name="supported-color-schemes" content="light">
-<style>
-  :root{color-scheme:light;supported-color-schemes:light}
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{${PAGE_BG};color:#1a1a1a;}
-  table{border-collapse:collapse;}
-  u + .body .gmailfix { background-color:#ffffff!important; background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%)!important; }
-  u + .body .gmailfix-page { background-color:${pageBg}!important; background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)!important; }
-  u + .body .gmailtext-dark  { color:#1a1a1a!important; }
-  u + .body .gmailtext-muted { color:#555!important; }
-  @media (prefers-color-scheme:dark){
-    html,body{ ${PAGE_BG}; color:#1a1a1a!important; }
-    .gmailfix { background-color:#ffffff!important; background-image:linear-gradient(to top,#ffffff 0%,#ffffff 100%)!important; }
-    .gmailfix-page { background-color:${pageBg}!important; background-image:linear-gradient(to top,${pageBg} 0%,${pageBg} 100%)!important; }
-    .gmailtext-dark  { color:#1a1a1a!important; }
-    .gmailtext-muted { color:#555!important; }
-  }
-</style>
-</head><body class="body" style="${PAGE_BG};margin:0;padding:0;">
-<table width="100%" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="${PAGE_BG};">
-<tr><td align="center" class="gmailfix-page" style="padding:32px 0;${PAGE_BG};">
-  <table width="600" cellpadding="0" cellspacing="0" class="gmailfix" bgcolor="#ffffff" style="width:600px;max-width:600px;${WHITE_BG};border-radius:20px;overflow:hidden;">
-
-    <!-- ── HERO: padded inset image + dark gradient + logo + headline ── -->
-    ${isHeroGenerated
-      ? `<tr><td style="padding:0;line-height:0;font-size:0;"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${heroImg}" alt="" width="600" style="display:block;width:600px;border:0;"/></a></td></tr>`
-      : `<tr><td class="gmailfix" style="padding:20px 20px 0;${WHITE_BG};line-height:0;font-size:0;">
-      <div style="position:relative;width:560px;height:720px;overflow:hidden;border-radius:16px;background:#1a1a1a;">
-        ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:${Math.min(0,Math.max(720*(1-heroScale),-(720*(heroScale-1)/2)+heroY))}px;left:${Math.min(0,Math.max(560*(1-heroScale),-(560*(heroScale-1)/2)+heroX))}px;width:${560*heroScale}px;height:${720*heroScale}px;object-fit:cover;display:block;"/>` : ''}
-        <!-- dark gradient top-down -->
-        <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.78) 0%,rgba(0,0,0,0.38) 45%,rgba(0,0,0,0.05) 75%,rgba(0,0,0,0) 100%);">
-          <div style="text-align:center;padding-top:${logoTop}px;">${logoHeroHtml}</div>
-          <div style="text-align:center;padding:${textTop}px ${textLeft}px 0;">
-            <div style="font-family:Georgia,'Times New Roman',serif;font-size:${textSize}px;font-weight:700;line-height:1.12;color:#fff;">${copy.headlineText||''}</div>
-          </div>
-        </div>
-      </div>
-    </td></tr>`}
-
-    <!-- ── Subhead + CTA after hero ── -->
-    ${copy.subhead ? `
-    <tr><td class="gmailfix" style="padding:32px 64px 4px;text-align:center;${WHITE_BG};">
-      <p style="font-family:Georgia,'Times New Roman',serif;font-size:20px;font-style:italic;line-height:1.7;color:#878787;margin:0;">${copy.subhead}</p>
-    </td></tr>` : ''}
-    ${copy.ctaText ? `
-    <tr><td class="gmailfix" style="padding:24px 48px 8px;text-align:center;${WHITE_BG};">
-      <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr>
-        <td style="background:${accent};border-radius:999px;">
-          <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#fff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;">${copy.ctaText} &rarr;</a>
-        </td>
-      </tr></table>
-    </td></tr>` : ''}
-    <tr><td class="gmailfix" style="padding:32px 40px 0;${WHITE_BG};"><div style="height:1px;background:#e5e5e5;font-size:0;line-height:0;"></div></td></tr>
-
-    <!-- Card 1: full width -->
-    ${isHeroGenerated && card1PngUrl
-      ? `<tr><td style="padding:0;line-height:0;font-size:0;"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${card1PngUrl}" alt="" width="600" style="display:block;width:600px;border:0;"/></a></td></tr>
-         ${cards[0].bodyText ? `<tr><td class="gmailfix" style="padding:24px 52px 32px;${WHITE_BG};text-align:center;"><p style="font-family:Arial,sans-serif;font-size:17px;color:#878787;line-height:1.85;margin:0;">${cards[0].bodyText.replace(/\n/g,'<br>')}</p></td></tr>` : ''}`
-      : w4Card(cards[0])}
-
-    <!-- Divider -->
-    <tr><td class="gmailfix" style="padding:0 40px;${WHITE_BG};"><div style="height:1px;background:#ebebeb;font-size:0;line-height:0;"></div></td></tr>
-
-    <!-- Card 2: bodyBlock2Title + image + bodyBlock2 + closingLine + CTA -->
-    ${copy.bodyBlock2Title ? `
-    <tr><td class="gmailfix" style="padding:32px 52px 8px;${WHITE_BG};text-align:center;">
-      <p style="font-family:Georgia,'Times New Roman',serif;font-size:25px;font-weight:700;color:${secondary};line-height:1.3;margin:0;">${copy.bodyBlock2Title}</p>
-    </td></tr>` : ''}
-    ${isHeroGenerated && card2PngUrl
-      ? `<tr><td style="padding:0;line-height:0;font-size:0;"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${card2PngUrl}" alt="" width="600" style="display:block;width:600px;border:0;"/></a></td></tr>`
-      : `<tr><td class="gmailfix" style="padding:16px 72px 8px;${WHITE_BG};line-height:normal;">${w4StackedImage(cards[1].imgUrl, cards[1].imgObj, 520)}</td></tr>`}
-    ${copy.bodyBlock2 ? `
-    <tr><td class="gmailfix" style="padding:20px 52px 0;${WHITE_BG};text-align:center;">
-      <p style="font-family:Arial,sans-serif;font-size:17px;color:#878787;line-height:1.85;margin:0;">${(copy.bodyBlock2).replace(/\n/g,'<br>')}</p>
-    </td></tr>` : ''}
-    ${copy.closingLine ? `
-    <tr><td class="gmailfix" style="padding:20px 52px 0;${WHITE_BG};text-align:center;">
-      <p style="font-family:Georgia,'Times New Roman',serif;font-size:18px;font-style:italic;color:#878787;line-height:1.7;margin:0;">${copy.closingLine}</p>
-    </td></tr>` : ''}
-    ${copy.ctaText ? `
-    <tr><td class="gmailfix" style="padding:24px 48px 44px;text-align:center;${WHITE_BG};">
-      <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr>
-        <td style="background:${accent};border-radius:999px;">
-          <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#fff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;">${copy.ctaText} &rarr;</a>
-        </td>
-      </tr></table>
-    </td></tr>` : ''}
-
-    <tr><td style="padding:0;line-height:0;font-size:0;">${buildFooter(client, footerData, { defaultBg: '#1a1a1a', bodyTextAlign: 'justify' })}</td></tr>
-  </table>
-</td></tr>
-</table>
-</body></html>`
-}
-
 /* ─────────────────────────── Week 5 v2 (sizing corrections) ────────────── */
 function buildTemplateWeek5v2({ client, copy, images, footerData, isHeroGenerated = false,
   heroScale=1, heroX=0, heroY=0,
@@ -2075,166 +1901,11 @@ function buildTemplateWeek5v2({ client, copy, images, footerData, isHeroGenerate
 </body></html>`
 }
 
-/* ══════════════════════════════════════════════════════════════════════════
-   WEEK 4 v2 — same layout as Week 4, with gradient-illusion dark-mode fix
-   Uses background-image gradient on white areas so Gmail/iOS can't invert them
-   ══════════════════════════════════════════════════════════════════════════ */
-function buildTemplateWeek4v2({ client, copy, images, footerData, isHeroGenerated = false,
-  heroScale=1, heroX=0, heroY=0,
-  textSize=38, textTop=20, textLeft=48,
-  logoColor='white', logoTop=40, logoRight=36, logoSize=44,
-  btnImgUrl = null,
-}) {
-  // images[0] = hero (or hero PNG when generated), images[1-3] = card photos
-  // images[4] = card1 stacked PNG (when generated), images[5] = card2 stacked PNG (when generated)
-  const heroObj = images?.[0]; const heroImg = heroObj?.url||''
-  const img1Obj = images?.[1]; const img1 = img1Obj?.url || heroImg
-  const img2Obj = images?.[2]; const img2 = img2Obj?.url || heroImg
-  const img3Obj = images?.[3]; const img3 = img3Obj?.url || heroImg
-  const eff1Obj = img1Obj?.url ? img1Obj : heroObj
-  const eff2Obj = img2Obj?.url ? img2Obj : heroObj
-  const eff3Obj = img3Obj?.url ? img3Obj : heroObj
-  const card1PngUrl = images?.[4]?.url || null
-  const card2PngUrl = images?.[5]?.url || null
-
-  const pageBg    = footerData?.bgColor || '#f5f4f2'
-  const logoUrl   = client?.logoUrl||''
-  const name      = client?.name||''
-  const location  = name
-  const accent    = footerData?.buttonColor || '#1a1a1a'
-  const secondary = footerData?.secondaryColor || accent
-  const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
-
-  const _rgb = pageBg.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i)
-  const _lum = _rgb ? (0.299*parseInt(_rgb[1],16) + 0.587*parseInt(_rgb[2],16) + 0.114*parseInt(_rgb[3],16))/255 : 1
-  const lightBg      = _lum > 0.55
-  const mutedTextCol = lightBg ? 'rgba(0,0,0,0.65)'   : 'rgba(255,255,255,0.85)'
-  const dividerCol   = lightBg ? 'rgba(0,0,0,0.08)'   : 'rgba(255,255,255,0.15)'
-
-  // Logo — white version for dark hero overlay, dark version for cards below
-  const logoHeroHtml = logoUrl
-    ? `<img src="${logoUrl}" alt="${name}" style="height:${logoSize}px;width:auto;max-width:${logoSize * 5}px;display:inline-block;filter:${logoFilter};"/>`
-    : `<span style="font-family:Arial,sans-serif;font-size:15px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff;">${name}</span>`
-
-  const cards = [
-    { imgUrl:img1, imgObj:eff1Obj, bodyText:copy.bodyText||'' },
-    { imgUrl:img2, imgObj:eff2Obj, bodyText:copy.bodyBlock2||'' },
-    { imgUrl:img3, imgObj:eff3Obj, bodyText:copy.closingLine||copy.bodyText||'', isLast:true },
-  ]
-
-  const BG = `background-color:${pageBg}`
-
-  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<meta name="color-scheme" content="light dark"/>
-<meta name="supported-color-schemes" content="light dark"/>
-<link href="https://fonts.googleapis.com/css2?family=Lora:wght@700&display=swap" rel="stylesheet"/>
-<style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  :root{color-scheme:light dark}
-  body{background-color:#ffffff;color:#1a1a1a;}
-  table{border-collapse:collapse;}
-  @media (prefers-color-scheme:dark){
-    .btn-text { color:#ffffff!important; -webkit-text-fill-color:#ffffff!important; }
-  }
-  u + .body .btn-text { color:#ffffff!important; -webkit-text-fill-color:#ffffff!important; }
-  @media only screen and (max-width:600px){
-    .mobile-body    { font-size:17px!important; line-height:1.5!important; }
-    .mobile-subhead { font-size:17px!important; line-height:1.4!important; }
-    .mobile-b2title { font-size:22px!important; line-height:1.25!important; }
-    .mobile-closing { font-size:17px!important; line-height:1.5!important; }
-    .mobile-cta     { font-size:20px!important; padding:20px 80px!important; }
-    .mobile-footer  { font-size:14px!important; line-height:1.4!important; }
-    .w4-btn-img     { width:300px!important; max-width:300px!important; }
-    .w4-cta-wrap    { padding-left:20px!important; padding-right:20px!important; }
-  }
-</style>
-</head><body class="body" style="background-color:#ffffff;margin:0;padding:0;">
-<table width="100%" cellpadding="0" cellspacing="0" bgcolor="#ffffff" style="background-color:#ffffff;">
-<tr><td align="center" style="padding:32px 0;background-color:#ffffff;">
-  <table width="600" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="width:600px;max-width:600px;${BG};border-radius:20px;overflow:hidden;">
-
-    <!-- ── HERO: padded inset image + dark gradient + logo + headline ── -->
-    ${isHeroGenerated
-      ? `<tr><td style="padding:0;line-height:0;font-size:0;"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${heroImg}" alt="" width="600" style="display:block;width:600px;border:0;"/></a></td></tr>`
-      : `<tr><td style="padding:20px 20px 0;${BG};line-height:0;font-size:0;">
-      <div style="position:relative;width:560px;height:720px;overflow:hidden;border-radius:16px;background:#1a1a1a;">
-        ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:${Math.min(0,Math.max(720*(1-heroScale),-(720*(heroScale-1)/2)+heroY))}px;left:${Math.min(0,Math.max(560*(1-heroScale),-(560*(heroScale-1)/2)+heroX))}px;width:${560*heroScale}px;height:${720*heroScale}px;object-fit:cover;display:block;"/>` : ''}
-        <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.78) 0%,rgba(0,0,0,0.38) 45%,rgba(0,0,0,0.05) 75%,rgba(0,0,0,0) 100%);">
-          <div style="text-align:center;padding-top:${logoTop}px;">${logoHeroHtml}</div>
-          <div style="text-align:center;padding:${textTop}px ${textLeft}px 0;">
-            <div style="font-family:'Lora',Georgia,serif;font-size:${textSize}px;font-weight:700;line-height:1.12;color:#fff;">${copy.headlineText||''}</div>
-          </div>
-        </div>
-      </div>
-    </td></tr>`}
-
-    <!-- ── Subhead + CTA after hero ── -->
-    ${copy.subhead ? `
-    <tr><td style="padding:32px 64px 4px;text-align:center;${BG};">
-      <p class="mobile-subhead" style="font-family:Georgia,'Times New Roman',serif;font-size:20px;font-style:italic;line-height:1.7;color:${mutedTextCol};margin:0;">${copy.subhead}</p>
-    </td></tr>` : ''}
-    ${copy.ctaText ? `
-    <tr><td class="w4-cta-wrap" style="padding:24px 48px 8px;text-align:center;${BG};">
-      ${btnImgUrl
-        ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w4-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:375px;display:block;margin:0 auto;border:0;outline:none;"/></a>`
-        : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr>
-        <td style="background:${accent};border-radius:999px;">
-          <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;"><span class="btn-text" style="color:#ffffff!important;-webkit-text-fill-color:#ffffff;"><font color="#ffffff">${copy.ctaText} &rarr;</font></span></a>
-        </td>
-      </tr></table>`}
-    </td></tr>` : ''}
-    <tr><td style="padding:32px 40px 0;${BG};"><div style="height:1px;background:${dividerCol};font-size:0;line-height:0;"></div></td></tr>
-
-    <!-- Card 1: full width -->
-    ${isHeroGenerated && card1PngUrl
-      ? `<tr><td style="padding:0;line-height:0;font-size:0;"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${card1PngUrl}" alt="" width="600" style="display:block;width:600px;border:0;"/></a></td></tr>
-         ${cards[0].bodyText ? `<tr><td style="padding:24px 52px 32px;${BG};text-align:center;"><p class="mobile-body" style="font-family:Arial,sans-serif;font-size:17px;color:${mutedTextCol};line-height:1.85;margin:0;">${cards[0].bodyText.replace(/\n/g,'<br>')}</p></td></tr>` : ''}`
-      : w4Card({ ...cards[0], bg: BG, textCol: mutedTextCol })}
-
-    <!-- Divider -->
-    <tr><td style="padding:0 40px;${BG};"><div style="height:1px;background:${dividerCol};font-size:0;line-height:0;"></div></td></tr>
-
-    <!-- Card 2: bodyBlock2Title + image + bodyBlock2 + closingLine + CTA -->
-    ${copy.bodyBlock2Title ? `
-    <tr><td style="padding:32px 52px 8px;${BG};text-align:center;">
-      <p class="mobile-b2title" style="font-family:Georgia,'Times New Roman',serif;font-size:25px;font-weight:700;color:${secondary};line-height:1.3;margin:0;">${copy.bodyBlock2Title}</p>
-    </td></tr>` : ''}
-    ${isHeroGenerated && card2PngUrl
-      ? `<tr><td style="padding:0;line-height:0;font-size:0;"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${card2PngUrl}" alt="" width="600" style="display:block;width:600px;border:0;"/></a></td></tr>`
-      : `<tr><td style="padding:16px 72px 8px;${BG};line-height:normal;">${w4StackedImage(cards[1].imgUrl, cards[1].imgObj, 520)}</td></tr>`}
-    ${copy.bodyBlock2 ? `
-    <tr><td style="padding:20px 52px 0;${BG};text-align:center;">
-      <p class="mobile-body" style="font-family:Arial,sans-serif;font-size:17px;color:${mutedTextCol};line-height:1.85;margin:0;">${(copy.bodyBlock2).replace(/\n/g,'<br>')}</p>
-    </td></tr>` : ''}
-    ${copy.closingLine ? `
-    <tr><td style="padding:20px 52px 0;${BG};text-align:center;">
-      <p class="mobile-closing" style="font-family:Georgia,'Times New Roman',serif;font-size:18px;font-style:italic;color:${mutedTextCol};line-height:1.7;margin:0;">${copy.closingLine}</p>
-    </td></tr>` : ''}
-    ${copy.ctaText ? `
-    <tr><td class="w4-cta-wrap" style="padding:24px 48px 44px;text-align:center;${BG};">
-      ${btnImgUrl
-        ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w4-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:375px;display:block;margin:0 auto;border:0;outline:none;"/></a>`
-        : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr>
-        <td style="background:${accent};border-radius:999px;">
-          <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;"><span class="btn-text" style="color:#ffffff!important;-webkit-text-fill-color:#ffffff;">${copy.ctaText} &rarr;</span></a>
-        </td>
-      </tr></table>`}
-    </td></tr>` : ''}
-
-    <tr><td style="padding:0;line-height:0;font-size:0;">${buildFooter(client, footerData, { defaultBg: pageBg, gmailClass: 'gmailfix', textColor: mutedTextCol, dividerColor: dividerCol, bodyTextAlign: 'justify' })}</td></tr>
-  </table>
-</td></tr>
-</table>
-</body></html>`
-}
-
 /* ─────────────────────────── registry ──────────────────────────────────── */
 const TEMPLATES = [
   { id:17, label:'✅ Week 2', build:buildTemplateWeek2v2 },
   { id:16, label:'✅ Week 3',  build:buildTemplateWeek3v2 },
   { id:13, label:'✅ Week 5',  build:buildTemplateWeek5v2 },
-  { id:15, label:'✅ Week 4',  build:buildTemplateWeek4v2 },
   { id:18, label:'✅ Week 6', build:buildTemplateWeek6v2 },
   { id:19, label:'🔴 Week 4 v2', build:buildTemplateWeek4v2b },
 ]
@@ -2272,7 +1943,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
   }, [active])  // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Hero editor — all week templates ─────────────────────────────────────────
-  const isEditable = [10, 11, 12, 13, 15, 16, 17, 18, 19].includes(tpl?.id)
+  const isEditable = [10, 11, 13, 16, 17, 18, 19].includes(tpl?.id)
   const [heroScale,   setHeroScale]   = useState(1)
   const [heroX,       setHeroX]       = useState(0)
   const [heroY,       setHeroY]       = useState(0)
@@ -2310,15 +1981,13 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     setImg4Scale(1); setImg4X(0); setImg4Y(0)
     if (tpl?.id === 10 || tpl?.id === 17) { setTextSize(38); setTextTop(32);  setTextLeft(24);  setLogoColor('original'); setLogoTop(32); setLogoRight(200); setLogoSize(40) }
     if (tpl?.id === 11) { setTextSize(40); setTextTop(14);  setTextLeft(52);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
-    if (tpl?.id === 12) { setTextSize(38); setTextTop(20);  setTextLeft(48);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
     if (tpl?.id === 13) { setTextSize(52); setTextTop(32);  setTextLeft(36);  setLogoColor('white');    setLogoTop(28); setLogoRight(36);  setLogoSize(40) }
-    if (tpl?.id === 15) { setTextSize(38); setTextTop(20);  setTextLeft(48);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
     if (tpl?.id === 16) { setTextSize(40); setTextTop(14);  setTextLeft(52);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
     if (tpl?.id === 18 || tpl?.id === 19) { setTextSize(38); setTextTop(32);  setTextLeft(24);  setLogoColor('original'); setLogoTop(12); setLogoRight(24);  setLogoSize(40) }
   }, [tpl?.id])  // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Week template image generation ───────────────────────────────────────────
-  const isWeekTemplate = [9, 10, 11, 12, 13, 15, 16, 17, 18, 19, 5].includes(tpl?.id)
+  const isWeekTemplate = [9, 10, 11, 13, 16, 17, 18, 19, 5].includes(tpl?.id)
   const [weekGenUrls,     setWeekGenUrls]     = useState({})  // { [tplId]: { hero, sec, ter } }
   const [weekGenLoading,  setWeekGenLoading]  = useState(false)
   const [weekGenError,    setWeekGenError]    = useState(null)
@@ -2336,7 +2005,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
       if (tplUrls.ter)  effectiveImages[5] = { url: tplUrls.ter,  focalX: 50, focalY: 50 }
     }
     const editorProps = isEditable ? { heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y } : {}
-    const isHeroGenerated = [10, 11, 12, 13, 15, 16, 17, 18, 19].includes(tpl?.id) && !!tplUrls.hero
+    const isHeroGenerated = [10, 11, 13, 16, 17, 18, 19].includes(tpl?.id) && !!tplUrls.hero
     const effectiveFooterData = clientFooter
       ? { ...clientFooter, logoColor: footerLogoColor, footerLogoSize }
       : clientFooter
@@ -2602,8 +2271,6 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     const isWeek2v2 = tpl?.id === 17
     const isWeek3 = tpl?.id === 11
     const isWeek3v2 = tpl?.id === 16
-    const isWeek4   = tpl?.id === 12 || tpl?.id === 15
-    const isWeek4v2 = tpl?.id === 15
     const isWeek5 = tpl?.id === 13
     const isWeek6v2  = tpl?.id === 18
     const isWeek4v2b = tpl?.id === 19
@@ -2696,70 +2363,8 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </div>
 </body></html>`
 
-    // ── Week 4 hero: inset card with rounded border, dark gradient, logo + headline ──
-    const heroFp4   = selectedImages?.[0]?.focalX != null ? `${selectedImages[0].focalX}% ${selectedImages[0].focalY}%` : '50% 30%'
     const card1Fp4  = selectedImages?.[1]?.focalX != null ? `${selectedImages[1].focalX}% ${selectedImages[1].focalY}%` : '50% 50%'
     const card2Fp4  = selectedImages?.[2]?.focalX != null ? `${selectedImages[2].focalX}% ${selectedImages[2].focalY}%` : '50% 50%'
-    const card1ImgUrl = selectedImages?.[1]?.url || heroImgUrl
-    const card2ImgUrl = selectedImages?.[2]?.url || heroImgUrl
-
-    const w4heroBg = isWeek4v2 ? 'transparent' : '#fff'
-    const week4HeroHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
-<link href="https://fonts.googleapis.com/css2?family=Lora:wght@700&display=swap" rel="stylesheet"/>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:${w4heroBg};}</style>
-</head><body>
-<div style="padding:20px 20px 0;background:${w4heroBg};line-height:0;font-size:0;">
-  <div style="position:relative;width:560px;height:720px;overflow:hidden;border-radius:16px;background:#1a1a1a;">
-    ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;top:${Math.min(0,Math.max(720*(1-heroScale),-(720*(heroScale-1)/2)+heroY))}px;left:${Math.min(0,Math.max(560*(1-heroScale),-(560*(heroScale-1)/2)+heroX))}px;width:${560*heroScale}px;height:${720*heroScale}px;object-fit:cover;display:block;"/>` : `<div style="width:560px;height:720px;background:#2a2a2a;"></div>`}
-    <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.78) 0%,rgba(0,0,0,0.38) 45%,rgba(0,0,0,0.05) 75%,rgba(0,0,0,0) 100%);line-height:normal;font-size:initial;">
-      <div style="text-align:center;padding-top:${logoTop}px;">${logoHtml}</div>
-      <div style="text-align:center;padding:${textTop}px ${textLeft}px 0;">
-        <div style="font-family:'Lora',Georgia,serif;font-size:${textSize}px;font-weight:700;line-height:1.12;color:#fff;">${headline}</div>
-      </div>
-    </div>
-  </div>
-</div>
-</body></html>`
-
-    // ── Week 4 stacked card PNGs (background-image approach for Chromium reliability) ──
-    // Card 1: height=460 → total stacked area = 508px, outer padding 28/8 top/bottom, 72 sides
-    const w4c1Bg = isWeek4v2 ? 'transparent' : '#fff'
-    const week4Card1Html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:${w4c1Bg};}</style>
-</head><body>
-<div style="padding:28px 72px 8px;background:${w4c1Bg};">
-  <div style="position:relative;height:508px;">
-    <div style="position:absolute;top:24px;left:24px;right:24px;bottom:24px;border-radius:16px;transform:rotate(5deg);transform-origin:center;background:url('${card1ImgUrl}') ${card1Fp4}/cover no-repeat;opacity:0.45;"></div>
-    <div style="position:absolute;top:24px;left:24px;right:24px;bottom:24px;border-radius:16px;overflow:hidden;z-index:1;background:url('${card1ImgUrl}') ${card1Fp4}/cover no-repeat;"></div>
-  </div>
-</div>
-</body></html>`
-
-    // Button PNG for Week 4 v2 — transparent pill screenshot to survive dark mode
-    const w4AccentColor = clientFooter?.buttonColor || '#1a1a1a'
-    const w4CtaText     = generatedCopy?.ctaText || 'Book Now'
-    const w4ButtonHtml  = isWeek4v2 ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
-</head><body>
-<div style="width:600px;text-align:center;">
-  <div style="display:inline-block;background:${w4AccentColor};border-radius:999px;padding:20px 80px;">
-    <span style="font-family:Arial,sans-serif;font-size:28px;font-weight:700;letter-spacing:0;color:#ffffff;white-space:nowrap;display:inline-flex;align-items:center;gap:10px;">${w4CtaText}<span style="display:inline-flex;align-items:center;gap:0;"><span style="display:inline-block;width:12px;height:2px;background:#ffffff;vertical-align:middle;"></span><span style="display:inline-block;width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:7px solid #ffffff;vertical-align:middle;"></span></span></span>
-  </div>
-</div>
-</body></html>` : null
-
-    // Card 2: height=520 → total stacked area = 568px, outer padding 16/8 top/bottom, 72 sides
-    const w4c2Bg = isWeek4v2 ? 'transparent' : '#fff'
-    const week4Card2Html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:${w4c2Bg};}</style>
-</head><body>
-<div style="padding:16px 72px 8px;background:${w4c2Bg};">
-  <div style="position:relative;height:568px;">
-    <div style="position:absolute;top:24px;left:24px;right:24px;bottom:24px;border-radius:16px;transform:rotate(5deg);transform-origin:center;background:url('${card2ImgUrl}') ${card2Fp4}/cover no-repeat;opacity:0.45;"></div>
-    <div style="position:absolute;top:24px;left:24px;right:24px;bottom:24px;border-radius:16px;overflow:hidden;z-index:1;background:url('${card2ImgUrl}') ${card2Fp4}/cover no-repeat;"></div>
-  </div>
-</div>
-</body></html>`
 
     // Right card falls back to img1 if img2 isn't selected
     const card2Url = img2Url || img1Url
@@ -3059,16 +2664,14 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </table>
 </body></html>` : null
 
-    const heroHeight = isWeek2 ? 580 : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek4 ? 740 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : 400
+    const heroHeight = isWeek2 ? 580 : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : 400
     const secondaryPromise = isWeek2v2 && img1Url
       ? renderImage({ html: week2LongImgHtml, width: 600, height: 376, transparent: true })
       : isWeek3v2 && (img1Url || img2Url)
       ? renderImage({ html: w3v2StackedHtml, width: 600, height: 420, transparent: true })
       : isWeek3 && (img1Url || img2Url)
       ? renderImage({ html: stackedHtml, width: 600, height: 420 })
-      : isWeek4
-        ? renderImage({ html: week4Card1Html, width: 600, height: 544, transparent: isWeek4v2 })
-        : isWeek5 && (img1Url || img2Url)
+      : isWeek5 && (img1Url || img2Url)
           ? renderImage({ html: week5GridHtml, width: 600, height: 530, transparent: true })
           : isWeek6v2 && (img1Url || img2Url || img3Url)
             ? renderImage({ html: week6GridHtml, width: 600, height: week6GridHeight, transparent: true })
@@ -3084,26 +2687,22 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
       ? renderImage({ html: w3v2BodyHtml, width: 600, height: 340, transparent: true })
       : isWeek3 && (img3Url || img1Url)
       ? renderImage({ html: week3BodyHtml, width: 600, height: 340 })
-      : isWeek4
-        ? renderImage({ html: week4Card2Html, width: 600, height: 592, transparent: isWeek4v2 })
-        : isWeek4v2b && week4v2bStackedHtml
+      : isWeek4v2b && week4v2bStackedHtml
           ? renderImage({ html: week4v2bStackedHtml, width: 600, height: 548, transparent: true })
           : Promise.resolve(null)
 
     const buttonPromise = (isWeek2v2 || isWeek6v2 || isWeek4v2b) && w2v2ButtonHtml
       ? renderImage({ html: w2v2ButtonHtml, width: 600, height: 88, transparent: true })
-      : isWeek4v2 && w4ButtonHtml
-      ? renderImage({ html: w4ButtonHtml, width: 600, height: 88, transparent: true })
       : isWeek3v2 && w3v2ButtonHtml
       ? renderImage({ html: w3v2ButtonHtml, width: 600, height: 88, transparent: true })
       : isWeek5 && w5ButtonHtml
       ? renderImage({ html: w5ButtonHtml, width: 600, height: 88, transparent: true })
       : Promise.resolve(null)
 
-    const heroHtmlToUse = isWeek4 ? week4HeroHtml : isWeek5 ? week5HeroHtml : isWeek6v2 ? week6HeroHtml : isWeek4v2b ? week4v2bHeroHtml : heroHtml
+    const heroHtmlToUse = isWeek5 ? week5HeroHtml : isWeek6v2 ? week6HeroHtml : isWeek4v2b ? week4v2bHeroHtml : heroHtml
 
     Promise.all([
-      renderImage({ html: heroHtmlToUse, width: 600, height: heroHeight, transparent: isWeek4v2 || isWeek3v2 || isWeek5 || isWeek6v2 || isWeek4v2b }),
+      renderImage({ html: heroHtmlToUse, width: 600, height: heroHeight, transparent: isWeek3v2 || isWeek5 || isWeek6v2 || isWeek4v2b }),
       secondaryPromise,
       tertiaryPromise,
       buttonPromise,
@@ -3659,9 +3258,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
             setImg1Scale(1); setImg1X(0); setImg1Y(0); setImg2Scale(1); setImg2X(0); setImg2Y(0); setImg3Scale(1); setImg3X(0); setImg3Y(0); setImg4Scale(1); setImg4X(0); setImg4Y(0)
             if (tpl?.id === 10 || tpl?.id === 17) { setTextSize(38); setTextTop(32);  setTextLeft(24);  setLogoColor('original'); setLogoTop(32); setLogoRight(200); setLogoSize(40) }
             if (tpl?.id === 11) { setTextSize(40); setTextTop(14);  setTextLeft(52);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
-            if (tpl?.id === 12) { setTextSize(38); setTextTop(20);  setTextLeft(48);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
             if (tpl?.id === 13) { setTextSize(52); setTextTop(32);  setTextLeft(36);  setLogoColor('white');    setLogoTop(28); setLogoRight(36);  setLogoSize(40) }
-            if (tpl?.id === 15) { setTextSize(38); setTextTop(20);  setTextLeft(48);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
             if (tpl?.id === 16) { setTextSize(40); setTextTop(14);  setTextLeft(52);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
             if (tpl?.id === 18 || tpl?.id === 19) { setTextSize(38); setTextTop(32);  setTextLeft(24);  setLogoColor('original'); setLogoTop(12); setLogoRight(24);  setLogoSize(40) }
           }} style={{
