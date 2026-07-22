@@ -3025,11 +3025,12 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     const w6grid3Fp = selectedImages?.[3]?.focalX != null ? `${selectedImages[3].focalX}% ${selectedImages[3].focalY}%` : '50% 50%'
     const w6HasTopRow = !!(img1Url || img2Url)
     const w6HasBottom = !!(img3Url || img1Url)
-    const week6GridHeight = 32 + (w6HasTopRow ? 240 : 0) + (w6HasTopRow && w6HasBottom ? 12 : 0) + (w6HasBottom ? 300 : 0)
+    const w6TopPad = w6HasTopRow ? 32 : 12
+    const week6GridHeight = w6TopPad + (w6HasTopRow ? 240 : 0) + (w6HasTopRow && w6HasBottom ? 12 : 0) + (w6HasBottom ? 300 : 0)
     const week6GridHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
 </head><body>
-<div style="padding:32px 20px 0;background:transparent;width:600px;">
+<div style="padding:${w6TopPad}px 20px 0;background:transparent;width:600px;">
   ${w6HasTopRow ? `<table width="560" cellpadding="0" cellspacing="0" border="0" style="width:560px;border-collapse:collapse;">
     <tr>
       <td width="277" style="width:277px;vertical-align:top;line-height:0;font-size:0;">
