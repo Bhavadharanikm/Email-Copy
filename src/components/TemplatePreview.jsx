@@ -112,7 +112,7 @@ function buildFooter(client, footerData = null, options = {}) {
     <div style="margin:0 0 ${sectionGap || 20}px;text-align:center;font-size:0">
       ${socialIcons.map(s =>
         `<a href="${s.url}" target="_blank" rel="noopener" style="display:inline-block;line-height:0;margin:0 7px">
-           <img src="${s.icon}" alt="${s.label}" width="36" height="36" style="display:block;width:36px;height:36px;border-radius:50%"/>
+           <img class="w5-footer-icon" src="${s.icon}" alt="${s.label}" width="36" height="36" style="display:block;width:36px;height:36px;border-radius:50%"/>
          </a>`
       ).join('')}
     </div>` : ''
@@ -121,7 +121,7 @@ function buildFooter(client, footerData = null, options = {}) {
     : light ? 'brightness(0)'
     : 'brightness(0) invert(1)'
   const logoHtml = logoUrl
-    ? `<div style="margin:0 0 20px;text-align:center"><img src="${logoUrl}" alt="${name}" style="height:${fd.footerLogoSize || 40}px;width:auto;object-fit:contain;display:inline-block;filter:${footerLogoFilter};opacity:.8;background-color:${bgRaw};"/></div>`
+    ? `<div style="margin:0 0 20px;text-align:center"><img class="w5-footer-logo" src="${logoUrl}" alt="${name}" style="height:${fd.footerLogoSize || 40}px;width:auto;object-fit:contain;display:inline-block;filter:${footerLogoFilter};opacity:.8;background-color:${bgRaw};"/></div>`
     : `<div style="margin:0 0 20px;font-size:16px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:${textCol};font-family:Arial,sans-serif">${name}</div>`
 
   const contactParts = [
@@ -1683,16 +1683,18 @@ function buildTemplateWeek5v2({ client, copy, images, footerData, isHeroGenerate
   body{margin:0;padding:0;color:#1a1a1a;}
   table{border-collapse:collapse;}
   @media only screen and (max-width:600px){
-    .mobile-body    { font-size:17px!important; line-height:1.5!important; }
-    .mobile-subhead { font-size:17px!important; line-height:1.4!important; }
-    .mobile-b2title { font-size:22px!important; line-height:1.25!important; }
-    .mobile-closing { font-size:17px!important; line-height:1.5!important; }
-    .mobile-cta     { font-size:20px!important; padding:20px 80px!important; }
-    .mobile-footer  { font-size:14px!important; line-height:1.4!important; }
+    .mobile-body    { font-size:24px!important; line-height:1.5!important; }
+    .mobile-subhead { font-size:24px!important; line-height:1.4!important; }
+    .mobile-b2title { font-size:24px!important; line-height:1.25!important; }
+    .mobile-closing { font-size:24px!important; line-height:1.5!important; }
+    .mobile-cta     { font-size:24px!important; padding:20px 80px!important; }
+    .mobile-footer  { font-size:17px!important; line-height:1.4!important; }
     .w5-btn-img    { width:400px!important; max-width:400px!important; }
     .w5-grid-col   { width:49%!important; }
     .w5-grid-gap   { width:2%!important; }
     .w5-outer      { width:100%!important; max-width:600px!important; }
+    .w5-footer-logo { height:47px!important; }
+    .w5-footer-icon { width:43px!important; height:43px!important; }
   }
 </style></head>
 <body class="body" style="margin:0;padding:32px 0 48px;">
