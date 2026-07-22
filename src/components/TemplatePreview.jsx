@@ -1048,7 +1048,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
   }, [tpl?.id])  // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Week template image generation ───────────────────────────────────────────
-  const isWeekTemplate = [9, 10, 11, 13, 16, 17, 18, 19, 5].includes(tpl?.id)
+  const isWeekTemplate = [10, 11, 13, 16, 17, 18, 19].includes(tpl?.id)
   const [weekGenUrls,     setWeekGenUrls]     = useState({})  // { [tplId]: { hero, sec, ter } }
   const [weekGenLoading,  setWeekGenLoading]  = useState(false)
   const [weekGenError,    setWeekGenError]    = useState(null)
