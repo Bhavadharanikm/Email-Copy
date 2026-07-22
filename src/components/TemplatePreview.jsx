@@ -2744,7 +2744,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </head><body>
 <div style="width:600px;text-align:center;">
   <div style="display:inline-block;background:${w5AccentColor};border-radius:999px;padding:20px 80px;">
-    <span style="font-family:Arial,sans-serif;font-size:33px;font-weight:700;color:#ffffff;white-space:nowrap;display:inline-flex;align-items:center;">${w5CtaText}<span style="display:inline-flex;align-items:center;margin-left:10px;"><span style="display:inline-block;width:12px;height:2px;background:#ffffff;"></span><span style="display:inline-block;width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:7px solid #ffffff;"></span></span></span>
+    <span style="font-family:Arial,sans-serif;font-size:29px;font-weight:700;color:#ffffff;white-space:nowrap;display:inline-flex;align-items:center;">${w5CtaText}<span style="display:inline-flex;align-items:center;margin-left:10px;"><span style="display:inline-block;width:12px;height:2px;background:#ffffff;"></span><span style="display:inline-block;width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:7px solid #ffffff;"></span></span></span>
   </div>
 </div>
 </body></html>` : null
