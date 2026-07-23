@@ -619,40 +619,27 @@ function buildTemplateWeek8({ client, copy, images, footerData, isHeroGenerated 
 <table width="600" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="width:600px;max-width:600px;margin:0 auto;background-color:${pageBg};border-collapse:collapse;border-radius:20px;overflow:hidden;">
 <tr><td style="background-color:${pageBg};">
 
-  <!-- HEADER: logo + divider -->
-  <table width="600" cellpadding="0" cellspacing="0" border="0">
-    <tr><td style="padding:${logoTop}px 48px 18px;text-align:center;">${logoDisplay}</td></tr>
-    <tr><td style="padding:0 48px;"><div style="height:1px;background:${accent};opacity:0.22;font-size:0;line-height:0;"></div></td></tr>
-  </table>
-
-  <!-- HEADLINE -->
-  <table width="600" cellpadding="0" cellspacing="0" border="0">
-    <tr><td style="padding:34px 52px 30px;text-align:center;">
-      <div style="font-family:'Lora',Georgia,serif;font-size:${textSize}px;font-weight:700;line-height:1.18;color:${accent};word-break:break-word;">${copy.headlineText||''}</div>
-    </td></tr>
-  </table>
-
-  <!-- HERO IMAGE (rounded corners) -->
-  <table width="600" cellpadding="0" cellspacing="0" border="0">
-    <tr><td style="padding:0 22px 30px;line-height:0;font-size:0;">
+  <!-- FULL-BLEED HERO (Arc'teryx-style) -->
+  ${(() => {
+    const logoDisplayWhite = logoUrl
+      ? `<img src="${logoUrl}" alt="${client?.name||''}" style="height:${logoSize}px;width:auto;display:block;filter:brightness(0) invert(1);"/>`
+      : `<span style="font-family:Arial,sans-serif;font-size:${Math.round(logoSize*0.38)}px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#fff;">${client?.name||''}</span>`
+    return `<table width="600" cellpadding="0" cellspacing="0" border="0">
+    <tr><td style="padding:0;line-height:0;font-size:0;">
       ${isHeroGenerated && heroImg
-        ? `<img src="${heroImg}" alt="" width="556" style="width:556px;max-width:556px;display:block;border-radius:14px;border:0;"/>`
-        : heroImg
-          ? `<div style="border-radius:14px;overflow:hidden;height:370px;line-height:0;font-size:0;">
-              <img src="${heroImg}" alt="" width="556" style="width:556px;height:370px;object-fit:cover;display:block;object-position:${heroFp};transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>
-             </div>`
-          : `<div style="border-radius:14px;height:370px;background:${dividerCol};"></div>`}
+        ? `<img src="${heroImg}" alt="" width="600" style="width:600px;max-width:600px;display:block;border:0;"/>`
+        : `<div style="position:relative;width:600px;height:680px;overflow:hidden;background:#1a1a1a;">
+            ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:600px;height:680px;object-fit:cover;object-position:${heroFp};transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;display:block;"/>` : `<div style="position:absolute;inset:0;background:#2a2a2a;"></div>`}
+            <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.35) 0%,rgba(0,0,0,0) 35%,rgba(0,0,0,0) 55%,rgba(0,0,0,0.6) 100%);"></div>
+            <div style="position:absolute;top:14px;left:14px;right:14px;bottom:68px;border:1px solid rgba(255,255,255,0.55);"></div>
+            <div style="position:absolute;top:28px;left:28px;">${logoDisplayWhite}</div>
+            ${copy.subhead ? `<div style="position:absolute;right:18px;top:0;bottom:68px;display:flex;align-items:center;justify-content:center;"><span style="writing-mode:vertical-rl;font-family:Arial,sans-serif;font-size:9px;font-weight:600;letter-spacing:0.18em;color:rgba(255,255,255,0.7);text-transform:uppercase;">${copy.subhead.replace(/\s+/g,' ').trim().slice(0,55).toUpperCase()}</span></div>` : ''}
+            <div style="position:absolute;bottom:82px;left:28px;right:60px;"><div style="font-family:Arial,sans-serif;font-size:${textSize}px;font-weight:900;line-height:1.05;color:#fff;text-transform:uppercase;letter-spacing:-0.01em;">${copy.headlineText||''}</div></div>
+            <div style="position:absolute;bottom:0;left:0;right:0;height:68px;background:#fff;display:flex;align-items:center;justify-content:center;">${copy.ctaText ? `<a href="${copy.ctaUrl||'#'}" style="font-family:Arial,sans-serif;font-size:14px;font-weight:700;letter-spacing:0.14em;color:#1a1a1a;text-decoration:none;text-transform:uppercase;">${copy.ctaText.toUpperCase()}</a>` : `<span style="font-family:Arial,sans-serif;font-size:14px;font-weight:700;letter-spacing:0.14em;color:#1a1a1a;text-transform:uppercase;">SHOP NOW</span>`}</div>
+          </div>`}
     </td></tr>
-  </table>
-
-  <!-- SUBHEAD + TOP CTA -->
-  ${(copy.subhead || copy.ctaText) ? `<div style="padding:0 48px 32px;text-align:center;background-color:${pageBg};">
-    ${copy.subhead ? `<div class="mobile-subhead" style="font-family:Georgia,serif;font-size:19px;font-style:italic;line-height:1.7;color:${mutedTextCol};margin-bottom:28px;">${copy.subhead}</div>` : ''}
-    ${copy.ctaText ? btnImgUrl
-      ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w6v2-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:375px;display:block;margin:0 auto;border:0;outline:none;"/></a>`
-      : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accent};border-radius:999px;"><a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:18px 52px;font-family:Arial,sans-serif;font-size:18px;font-weight:700;letter-spacing:.02em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`
-    : ''}
-  </div>` : ''}
+  </table>`
+  })()}
 
   <!-- DIVIDER -->
   <div style="padding:0 48px;background-color:${pageBg};"><div style="height:1px;background:${dividerCol};font-size:0;line-height:0;"></div></div>
@@ -1737,6 +1724,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     const isWeek6v2  = tpl?.id === 18
     const isWeek4v2b = tpl?.id === 19
     const isWeek7    = tpl?.id === 21
+    const isWeek8    = tpl?.id === 22
     const isTest     = tpl?.id === 20
     const renderLogoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
     const logoHtml = logoUrl
@@ -2237,7 +2225,24 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </table>
 </body></html>` : null
 
-    const heroHeight = isWeek7 ? ((img1Url || img2Url || img3Url) ? 988 : 720) : isWeek2 ? 580 : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : isTest ? 520 : 400
+    const w8HeroFp  = selectedImages?.[0]?.focalX != null ? `${selectedImages[0].focalX}% ${selectedImages[0].focalY}%` : '50% 50%'
+    const w8CtaText = generatedCopy?.ctaText || 'Shop Now'
+    const w8Subhead = generatedCopy?.subhead || ''
+    const week8HeroHtml = isWeek8 ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:#1a1a1a;-webkit-font-smoothing:antialiased;}</style>
+</head><body>
+<div style="width:600px;height:680px;position:relative;overflow:hidden;background:#1a1a1a;">
+  ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:600px;height:680px;object-fit:cover;object-position:${w8HeroFp};display:block;"/>` : `<div style="position:absolute;inset:0;background:#2a2a2a;"></div>`}
+  <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.35) 0%,rgba(0,0,0,0) 35%,rgba(0,0,0,0) 55%,rgba(0,0,0,0.6) 100%);"></div>
+  <div style="position:absolute;top:14px;left:14px;right:14px;bottom:68px;border:1px solid rgba(255,255,255,0.55);"></div>
+  <div style="position:absolute;top:28px;left:28px;">${logoHtml}</div>
+  ${w8Subhead ? `<div style="position:absolute;right:18px;top:0;bottom:68px;display:flex;align-items:center;justify-content:center;"><span style="writing-mode:vertical-rl;font-family:Arial,sans-serif;font-size:9px;font-weight:600;letter-spacing:0.18em;color:rgba(255,255,255,0.7);text-transform:uppercase;">${w8Subhead.replace(/\s+/g,' ').trim().slice(0,55).toUpperCase()}</span></div>` : ''}
+  <div style="position:absolute;bottom:82px;left:28px;right:60px;"><div style="font-family:Arial,sans-serif;font-size:${textSize}px;font-weight:900;line-height:1.05;color:#fff;text-transform:uppercase;letter-spacing:-0.01em;">${headline}</div></div>
+  <div style="position:absolute;bottom:0;left:0;right:0;height:68px;background:#fff;display:flex;align-items:center;justify-content:center;"><span style="font-family:Arial,sans-serif;font-size:14px;font-weight:700;letter-spacing:0.14em;color:#1a1a1a;text-transform:uppercase;">${w8CtaText.toUpperCase()}</span></div>
+</div>
+</body></html>` : null
+
+    const heroHeight = isWeek8 ? 680 : isWeek7 ? ((img1Url || img2Url || img3Url) ? 988 : 720) : isWeek2 ? 580 : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : isTest ? 520 : 400
     const secondaryPromise = isWeek7
       ? (week7StampHtml ? renderImage({ html: week7StampHtml, width: 400, height: 500, transparent: true }) : Promise.resolve(null))
       : isWeek2v2 && img1Url
@@ -2276,7 +2281,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
       ? renderImage({ html: w5ButtonHtml, width: 600, height: 88, transparent: true })
       : Promise.resolve(null)
 
-    const heroHtmlToUse = isWeek7 ? week7HeroHtml : isTest ? testHeroHtml : isWeek5 ? week5HeroHtml : isWeek6v2 ? week6HeroHtml : isWeek4v2b ? week4v2bHeroHtml : heroHtml
+    const heroHtmlToUse = isWeek8 ? week8HeroHtml : isWeek7 ? week7HeroHtml : isTest ? testHeroHtml : isWeek5 ? week5HeroHtml : isWeek6v2 ? week6HeroHtml : isWeek4v2b ? week4v2bHeroHtml : heroHtml
 
     Promise.all([
       renderImage({ html: heroHtmlToUse, width: 600, height: heroHeight, transparent: isWeek7 || isWeek3v2 || isWeek5 || isWeek6v2 || isWeek4v2b }),
