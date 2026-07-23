@@ -1118,7 +1118,7 @@ function buildTemplateTest({ client, copy, images, footerData, isHeroGenerated =
             <div style="position:relative;width:600px;height:500px;overflow:hidden;">
               <svg style="position:absolute;width:0;height:0;overflow:hidden;"><defs>
                 <clipPath id="testPinClip" clipPathUnits="userSpaceOnUse">
-                  <path d="M265,455 C245,445 269,337 206,307 A140,140 0 1,1 324,307 C261,337 285,445 265,455 Z"/>
+                  <path d="M265,455 C240,435 236,338 175,287 A140,140 0 1,1 355,287 C294,338 290,435 265,455 Z"/>
                 </clipPath>
               </defs></svg>
               <div style="position:absolute;top:0;left:0;width:600px;height:500px;clip-path:url(#testPinClip);">
@@ -2110,9 +2110,11 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </body></html>` : null
 
     // ── Test template: map-pin hero PNG + stamp card PNG ──
-    // Pin geometry: circle center (265,180) radius 140. Tail connects at ±25° from
-    // the bottom (angles 65° and 115°), giving ~310° of visible circle arc.
-    // Right-connect: (324,307)  Left-connect: (206,307)  Tip: (265,455)
+    // Pin geometry: circle center (265,180) radius 140.
+    // Tail connects at ±40° from the bottom (angles 50° and 130°):
+    //   Right (50°): (355,287)  Left (130°): (175,287)  Tip: (265,455)
+    // Bezier c2/c1 align with the circle's clockwise tangent at each connect
+    // point so the tail meets the circle smoothly with no kink.
     const testPinBg     = clientFooter?.bgColor    || '#cde8cd'
     const testPinAccent = clientFooter?.buttonColor || '#1a4a3a'
     const testHeroFp    = selectedImages?.[0]?.focalX != null ? `${selectedImages[0].focalX}% ${selectedImages[0].focalY}%` : '50% 50%'
@@ -2124,7 +2126,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 <div style="width:600px;height:500px;background:${testPinBg};position:relative;overflow:hidden;">
   <svg style="position:absolute;width:0;height:0;overflow:hidden;"><defs>
     <clipPath id="pinClip" clipPathUnits="userSpaceOnUse">
-      <path d="M265,455 C245,445 269,337 206,307 A140,140 0 1,1 324,307 C261,337 285,445 265,455 Z"/>
+      <path d="M265,455 C240,435 236,338 175,287 A140,140 0 1,1 355,287 C294,338 290,435 265,455 Z"/>
     </clipPath>
   </defs></svg>
   <div style="position:absolute;top:0;left:0;width:600px;height:500px;clip-path:url(#pinClip);">
