@@ -123,7 +123,7 @@ export const handler = async (event) => {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ html, width, height, locationId, ghlApiKey: apiKey }),
-          signal: AbortSignal.timeout(30_000),
+          signal: AbortSignal.timeout(10_000),
         })
         const vpsData = await vpsRes.json()
         if (!vpsRes.ok || !vpsData.url) throw new Error(vpsData.error || 'VPS returned no URL')

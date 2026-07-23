@@ -5,6 +5,7 @@ import { handler as deleteClient }       from '../netlify/functions/delete-clien
 import { handler as clients }            from '../netlify/functions/clients.js'
 import { handler as copyCallback }       from '../netlify/functions/copy-callback.js'
 import { handler as fetchBrandBoard }    from '../netlify/functions/fetch-brand-board.js'
+import { handler as fetchEmailStats }    from '../netlify/functions/fetch-email-stats.js'
 import { handler as fetchFooterData }    from '../netlify/functions/fetch-footer-data.js'
 import { handler as fetchGhlImages }     from '../netlify/functions/fetch-ghl-images.js'
 import { handler as fetchTemplateName }  from '../netlify/functions/fetch-template-name.js'
@@ -36,6 +37,7 @@ const HANDLERS = {
   'clients':             clients,
   'copy-callback':       copyCallback,
   'fetch-brand-board':   fetchBrandBoard,
+  'fetch-email-stats':   fetchEmailStats,
   'fetch-footer-data':   fetchFooterData,
   'fetch-ghl-images':    fetchGhlImages,
   'fetch-template-name': fetchTemplateName,
