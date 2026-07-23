@@ -1118,16 +1118,16 @@ function buildTemplateTest({ client, copy, images, footerData, isHeroGenerated =
             <div style="position:relative;width:600px;height:500px;overflow:hidden;">
               <svg style="position:absolute;width:0;height:0;overflow:hidden;"><defs>
                 <clipPath id="testPinClip" clipPathUnits="userSpaceOnUse">
-                  <path d="M265,455 C240,435 236,338 175,287 A140,140 0 1,1 355,287 C294,338 290,435 265,455 Z"/>
+                  <path d="M265,460 C200,450 115,310 115,185 A150,150 0 0,1 415,185 C415,310 330,450 265,460 Z"/>
                 </clipPath>
               </defs></svg>
               <div style="position:absolute;top:0;left:0;width:600px;height:500px;clip-path:url(#testPinClip);">
                 ${heroImg
-                  ? `<img src="${heroImg}" alt="" style="position:absolute;left:125px;top:40px;width:280px;height:415px;object-fit:cover;object-position:${heroFp};display:block;"/>`
-                  : `<div style="position:absolute;left:125px;top:40px;width:280px;height:415px;background:#8a9e8a;"></div>`}
+                  ? `<img src="${heroImg}" alt="" style="position:absolute;left:115px;top:35px;width:300px;height:425px;object-fit:cover;object-position:${heroFp};display:block;"/>`
+                  : `<div style="position:absolute;left:115px;top:35px;width:300px;height:425px;background:#8a9e8a;"></div>`}
               </div>
-              <div style="position:absolute;left:203px;top:118px;width:124px;height:124px;border-radius:50%;background:${pageBg};"></div>
-              <div style="position:absolute;top:145px;left:350px;width:225px;background:${accent};border-radius:16px;padding:22px 24px;">
+              <div style="position:absolute;left:200px;top:120px;width:130px;height:130px;border-radius:50%;background:${pageBg};"></div>
+              <div style="position:absolute;top:130px;left:375px;width:200px;background:${accent};border-radius:16px;padding:22px 22px;">
                 <div style="font-family:'Lora',Georgia,serif;font-size:24px;font-weight:700;font-style:italic;line-height:1.28;color:${pageBg};">${copy.headlineText||''}</div>
               </div>
             </div>
@@ -2110,11 +2110,10 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </body></html>` : null
 
     // ── Test template: map-pin hero PNG + stamp card PNG ──
-    // Pin geometry: circle center (265,180) radius 140.
-    // Tail connects at ±40° from the bottom (angles 50° and 130°):
-    //   Right (50°): (355,287)  Left (130°): (175,287)  Tip: (265,455)
-    // Bezier c2/c1 align with the circle's clockwise tangent at each connect
-    // point so the tail meets the circle smoothly with no kink.
+    // Pin geometry: circle center (265,185) radius 150. Tail connects at the
+    // equator — left (115,185) and right (415,185). c2/c1 sit directly below
+    // each equator point so the arc's vertical tangent transfers smoothly into
+    // the wide, heart-like teardrop tail. Tip at (265,460).
     const testPinBg     = clientFooter?.bgColor    || '#cde8cd'
     const testPinAccent = clientFooter?.buttonColor || '#1a4a3a'
     const testHeroFp    = selectedImages?.[0]?.focalX != null ? `${selectedImages[0].focalX}% ${selectedImages[0].focalY}%` : '50% 50%'
@@ -2126,14 +2125,14 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 <div style="width:600px;height:500px;background:${testPinBg};position:relative;overflow:hidden;">
   <svg style="position:absolute;width:0;height:0;overflow:hidden;"><defs>
     <clipPath id="pinClip" clipPathUnits="userSpaceOnUse">
-      <path d="M265,455 C240,435 236,338 175,287 A140,140 0 1,1 355,287 C294,338 290,435 265,455 Z"/>
+      <path d="M265,460 C200,450 115,310 115,185 A150,150 0 0,1 415,185 C415,310 330,450 265,460 Z"/>
     </clipPath>
   </defs></svg>
   <div style="position:absolute;top:0;left:0;width:600px;height:500px;clip-path:url(#pinClip);">
-    ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;left:125px;top:40px;width:280px;height:415px;object-fit:cover;object-position:${testHeroFp};display:block;"/>` : `<div style="position:absolute;left:125px;top:40px;width:280px;height:415px;background:#8a9e8a;"></div>`}
+    ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;left:115px;top:35px;width:300px;height:425px;object-fit:cover;object-position:${testHeroFp};display:block;"/>` : `<div style="position:absolute;left:115px;top:35px;width:300px;height:425px;background:#8a9e8a;"></div>`}
   </div>
-  <div style="position:absolute;left:203px;top:118px;width:124px;height:124px;border-radius:50%;background:${testPinBg};"></div>
-  <div style="position:absolute;top:145px;left:350px;width:225px;background:${testPinAccent};border-radius:16px;padding:22px 24px;">
+  <div style="position:absolute;left:200px;top:120px;width:130px;height:130px;border-radius:50%;background:${testPinBg};"></div>
+  <div style="position:absolute;top:130px;left:375px;width:200px;background:${testPinAccent};border-radius:16px;padding:22px 22px;">
     <div style="font-family:'Lora',Georgia,serif;font-size:${testPinHl.length > 40 ? 20 : testPinHl.length > 25 ? 22 : 26}px;font-weight:700;font-style:italic;line-height:1.28;color:${testPinBg};">${testPinHl}</div>
   </div>
 </div>
