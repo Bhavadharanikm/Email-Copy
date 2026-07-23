@@ -559,9 +559,158 @@ function buildTemplateWeek4v2b({ client, copy, images, footerData, isHeroGenerat
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
-   WEEK 8 — duplicate of Week 4
+   WEEK 8 — IrishClub-style header + Week 4 body
    ══════════════════════════════════════════════════════════════════════════ */
-function buildTemplateWeek8(args) { return buildTemplateWeek4v2b(args) }
+function buildTemplateWeek8({ client, copy, images, footerData, isHeroGenerated = false,
+  heroScale=1, heroX=0, heroY=0,
+  textSize=38, textTop=32, textLeft=24,
+  logoColor='original', logoTop=24, logoRight=200, logoSize=40,
+  img1Scale=1, img1X=0, img1Y=0,
+  img2Scale=1, img2X=0, img2Y=0,
+  img3Scale=1, img3X=0, img3Y=0,
+  btnImgUrl = null,
+}) {
+  const heroObj  = images?.[0]; const heroImg = heroObj?.url||''
+  const heroFp   = heroObj?.focalX != null ? `${heroObj.focalX}% ${heroObj.focalY}%` : '50% 50%'
+  const img1Obj  = images?.[1]; const img1    = img1Obj?.url||''
+  const img2Obj  = images?.[2]; const img2    = img2Obj?.url||''
+  const img4     = images?.[4]?.url || ''
+  const img5     = images?.[5]?.url || ''
+  const body     = (copy.bodyText||'').replace(/\n/g,'<br>')
+  const b2body   = (copy.bodyBlock2||'').replace(/\n/g,'<br>')
+  const logoUrl  = client?.logoUrl||''
+  const pageBg   = footerData?.bgColor || '#f5f4f2'
+  const accent   = footerData?.buttonColor || '#1a1a1a'
+  const secondary = footerData?.secondaryColor || accent
+  const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
+
+  const _rgb = pageBg.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i)
+  const _r = _rgb ? parseInt(_rgb[1],16) : 245
+  const _g = _rgb ? parseInt(_rgb[2],16) : 244
+  const _b = _rgb ? parseInt(_rgb[3],16) : 242
+  const _lum = (0.299*_r + 0.587*_g + 0.114*_b)/255
+  const lightBg      = _lum > 0.55
+  const mutedTextCol = lightBg ? '#595959' : '#d4d4d4'
+  const dividerCol   = lightBg ? '#e0e0e0' : '#444444'
+
+  const logoDisplay = logoUrl
+    ? `<img src="${logoUrl}" alt="${client?.name||''}" style="height:${logoSize}px;width:auto;display:inline-block;filter:${logoFilter};"/>`
+    : `<span style="font-family:Arial,sans-serif;font-size:${Math.round(logoSize*0.38)}px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:${accent};">${client?.name||''}</span>`
+
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{margin:0;padding:0;color:#1a1a1a;}
+  table{border-collapse:collapse;}
+  @media only screen and (max-width:600px){
+    .w6v2-section  { padding-left:35px!important; padding-right:35px!important; }
+    .w6v2-btn-img  { width:300px!important; max-width:300px!important; }
+    .mobile-body    { font-size:17px!important; line-height:1.5!important; }
+    .mobile-subhead { font-size:17px!important; line-height:1.4!important; }
+    .mobile-b2title { font-size:22px!important; line-height:1.25!important; }
+    .mobile-closing { font-size:17px!important; line-height:1.5!important; }
+    .mobile-cta     { font-size:20px!important; padding:20px 80px!important; }
+  }
+</style></head>
+<body style="margin:0;padding:32px 0 48px;background-color:#ffffff;">
+
+<table width="600" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="width:600px;max-width:600px;margin:0 auto;background-color:${pageBg};border-collapse:collapse;border-radius:20px;overflow:hidden;">
+<tr><td style="background-color:${pageBg};">
+
+  <!-- HEADER: logo + divider -->
+  <table width="600" cellpadding="0" cellspacing="0" border="0">
+    <tr><td style="padding:${logoTop}px 48px 18px;text-align:center;">${logoDisplay}</td></tr>
+    <tr><td style="padding:0 48px;"><div style="height:1px;background:${accent};opacity:0.22;font-size:0;line-height:0;"></div></td></tr>
+  </table>
+
+  <!-- HEADLINE -->
+  <table width="600" cellpadding="0" cellspacing="0" border="0">
+    <tr><td style="padding:34px 52px 30px;text-align:center;">
+      <div style="font-family:'Lora',Georgia,serif;font-size:${textSize}px;font-weight:700;line-height:1.18;color:${accent};word-break:break-word;">${copy.headlineText||''}</div>
+    </td></tr>
+  </table>
+
+  <!-- HERO IMAGE (rounded corners) -->
+  <table width="600" cellpadding="0" cellspacing="0" border="0">
+    <tr><td style="padding:0 22px 30px;line-height:0;font-size:0;">
+      ${isHeroGenerated && heroImg
+        ? `<img src="${heroImg}" alt="" width="556" style="width:556px;max-width:556px;display:block;border-radius:14px;border:0;"/>`
+        : heroImg
+          ? `<div style="border-radius:14px;overflow:hidden;height:370px;line-height:0;font-size:0;">
+              <img src="${heroImg}" alt="" width="556" style="width:556px;height:370px;object-fit:cover;display:block;object-position:${heroFp};transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>
+             </div>`
+          : `<div style="border-radius:14px;height:370px;background:${dividerCol};"></div>`}
+    </td></tr>
+  </table>
+
+  <!-- SUBHEAD + TOP CTA -->
+  ${(copy.subhead || copy.ctaText) ? `<div style="padding:0 48px 32px;text-align:center;background-color:${pageBg};">
+    ${copy.subhead ? `<div class="mobile-subhead" style="font-family:Georgia,serif;font-size:19px;font-style:italic;line-height:1.7;color:${mutedTextCol};margin-bottom:28px;">${copy.subhead}</div>` : ''}
+    ${copy.ctaText ? btnImgUrl
+      ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w6v2-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:375px;display:block;margin:0 auto;border:0;outline:none;"/></a>`
+      : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accent};border-radius:999px;"><a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:18px 52px;font-family:Arial,sans-serif;font-size:18px;font-weight:700;letter-spacing:.02em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`
+    : ''}
+  </div>` : ''}
+
+  <!-- DIVIDER -->
+  <div style="padding:0 48px;background-color:${pageBg};"><div style="height:1px;background:${dividerCol};font-size:0;line-height:0;"></div></div>
+
+  <!-- STACKED PHOTO CARD 1 -->
+  ${img1
+    ? isHeroGenerated && img5
+      ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><img src="${img5}" alt="" width="600" style="width:100%;display:block;max-width:600px;border:0;"/></div>`
+      : `<div style="padding:0 72px 0;background-color:${pageBg};">
+          <div style="position:relative;height:508px;">
+            <div style="position:absolute;top:24px;left:24px;right:24px;bottom:24px;border-radius:16px;transform:rotate(5deg);transform-origin:center;overflow:hidden;background:#e0dbd3;">
+              <img src="${img1}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:${focalPos(img1Obj)};opacity:0.45;display:block;"/>
+            </div>
+            <div style="position:absolute;top:24px;left:24px;right:24px;bottom:24px;border-radius:16px;overflow:hidden;z-index:1;">
+              <img src="${img1}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:${focalPos(img1Obj)};display:block;transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/>
+            </div>
+          </div>
+        </div>`
+    : ''}
+
+  <!-- BODY BLOCK -->
+  ${copy.bodyText ? `<div class="w6v2-section" style="padding:24px 48px 16px;background-color:${pageBg};"><div class="mobile-body" style="font-size:17px;line-height:1.8;color:${mutedTextCol};font-family:Arial,sans-serif;">${body}</div></div>` : ''}
+
+  <!-- DIVIDER + BODY BLOCK 2 TITLE -->
+  ${copy.bodyBlock2Title ? `<div style="padding:8px 48px 0;background-color:${pageBg};"><div style="height:1px;background:${dividerCol};font-size:0;line-height:0;"></div></div><div class="w6v2-section" style="padding:20px 48px 12px;background-color:${pageBg};"><div class="mobile-b2title" style="font-size:22px;font-weight:700;font-family:'Lora',Georgia,serif;letter-spacing:0;color:${secondary};text-align:center;">${copy.bodyBlock2Title}</div></div>` : ''}
+
+  <!-- STACKED PHOTO CARD 2 -->
+  ${img2
+    ? isHeroGenerated && img4
+      ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><img src="${img4}" alt="" width="600" style="width:100%;display:block;max-width:600px;border:0;"/></div>`
+      : `<div style="padding:20px 72px 0;background-color:${pageBg};">
+          <div style="position:relative;height:508px;">
+            <div style="position:absolute;top:24px;left:24px;right:24px;bottom:24px;border-radius:16px;transform:rotate(5deg);transform-origin:center;overflow:hidden;background:#e0dbd3;">
+              <img src="${img2}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:${focalPos(img2Obj)};opacity:0.45;display:block;"/>
+            </div>
+            <div style="position:absolute;top:24px;left:24px;right:24px;bottom:24px;border-radius:16px;overflow:hidden;z-index:1;">
+              <img src="${img2}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:${focalPos(img2Obj)};display:block;transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/>
+            </div>
+          </div>
+        </div>`
+    : ''}
+
+  <!-- BODY BLOCK 2 TEXT -->
+  ${copy.bodyBlock2 ? `<div class="w6v2-section" style="padding:16px 48px 0;background-color:${pageBg};"><div class="mobile-body" style="font-size:17px;line-height:1.8;color:${mutedTextCol};font-family:Arial,sans-serif;">${b2body}</div></div>` : ''}
+
+  <!-- CLOSING LINE -->
+  ${copy.closingLine ? `<div class="w6v2-section" style="padding:28px 48px 0;text-align:center;background-color:${pageBg};"><div class="mobile-closing" style="font-size:17px;line-height:1.7;color:${mutedTextCol};font-style:italic;font-family:Georgia,serif;">${copy.closingLine}</div></div>` : ''}
+
+  <!-- BOTTOM CTA -->
+  ${copy.ctaText ? `<div style="padding:28px 0 36px;text-align:center;background-color:${pageBg};">${btnImgUrl
+    ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w6v2-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:375px;display:block;margin:0 auto;border:0;outline:none;"/></a>`
+    : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accent};border-radius:999px;"><a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`
+  }</div>` : ''}
+
+  <div style="background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: dividerCol, bodyTextAlign: 'justify' })}</div>
+</td></tr></table>
+</body></html>`
+}
 
 /* ══════════════════════════════════════════════════════════════════════════
    WEEK 3 v2 — duplicate of Week 3
