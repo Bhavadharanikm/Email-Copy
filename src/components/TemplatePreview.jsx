@@ -891,6 +891,113 @@ function buildTemplateWeek5v2({ client, copy, images, footerData, isHeroGenerate
 </body></html>`
 }
 
+/* ══════════════════════════════════════════════════════════════════════════
+   TESTING TEMPLATE — sandbox for new design experiments
+   ══════════════════════════════════════════════════════════════════════════ */
+function buildTemplateTest({ client, copy, images, footerData, isHeroGenerated = false,
+  heroScale=1, heroX=0, heroY=0,
+  textSize=38, textTop=32, textLeft=24,
+  logoColor='original', logoTop=24, logoRight=200, logoSize=40,
+}) {
+  const heroObj   = images?.[0]; const heroImg = heroObj?.url || ''
+  const heroFp    = heroObj?.focalX != null ? `${heroObj.focalX}% ${heroObj.focalY}%` : '50% 50%'
+
+  const pageBg      = footerData?.bgColor || '#f5f4f2'
+  const accent      = footerData?.buttonColor || '#1a1a1a'
+  const secondary   = footerData?.secondaryColor || accent
+  const mutedTextCol = '#6b6b6b'
+  const dividerCol  = '#e0dbd3'
+
+  const logoUrl   = client?.logoUrl || ''
+  const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
+  const logoOverlay = logoUrl
+    ? `<img src="${logoUrl}" alt="" style="height:${logoSize}px;width:auto;display:inline-block;filter:${logoFilter};"/>`
+    : `<span style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#fff;">${client?.name||''}</span>`
+
+  const body    = (copy.bodyText||'').replace(/\n/g,'<br>')
+  const b2body  = (copy.bodyBlock2||'').replace(/\n/g,'<br>')
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>${copy.headlineText||''}</title>
+<style>
+  body,table,td,a{-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;}
+  body{margin:0;padding:0;background-color:${pageBg};}
+  img{border:0;display:block;}
+  @media only screen and (max-width:620px){
+    .mobile-body { font-size:15px!important; }
+    .mobile-subhead { font-size:17px!important; line-height:1.4!important; }
+    .mobile-cta { font-size:16px!important; padding:14px 32px!important; }
+  }
+</style>
+</head>
+<body style="margin:0;padding:0;background-color:${pageBg};">
+<table width="600" cellpadding="0" cellspacing="0" border="0" align="center" style="width:600px;max-width:600px;margin:0 auto;background-color:${pageBg};">
+
+  <!-- HERO -->
+  <tr><td style="padding:0;line-height:0;font-size:0;position:relative;">
+    ${heroImg
+      ? `<div style="width:600px;height:480px;overflow:hidden;position:relative;">
+          <img src="${heroImg}" alt="" width="600" style="width:600px;height:480px;object-fit:cover;object-position:${heroFp};display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>
+          <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0) 50%,rgba(0,0,0,0.45) 100%);"></div>
+          <div style="position:absolute;top:${logoTop}px;right:${logoRight}px;">${logoOverlay}</div>
+        </div>`
+      : `<div style="width:600px;height:480px;background:#d4d0c8;display:flex;align-items:center;justify-content:center;">
+          <div style="position:absolute;top:${logoTop}px;right:${logoRight}px;">${logoOverlay}</div>
+        </div>`}
+  </td></tr>
+
+  <!-- HEADLINE + SUBHEAD -->
+  ${copy.headlineText ? `<tr><td style="padding:40px 48px 8px;text-align:center;background-color:${pageBg};">
+    <div style="font-family:'Lora',Georgia,serif;font-size:${textSize}px;font-weight:700;line-height:1.2;color:${secondary};">${copy.headlineText}</div>
+  </td></tr>` : ''}
+  ${copy.subhead ? `<tr><td style="padding:12px 48px 28px;text-align:center;background-color:${pageBg};">
+    <div class="mobile-subhead" style="font-family:Georgia,serif;font-size:19px;font-style:italic;line-height:1.7;color:${mutedTextCol};">${copy.subhead}</div>
+  </td></tr>` : ''}
+
+  <!-- CTA -->
+  ${copy.ctaText ? `<tr><td style="padding:0 48px 40px;text-align:center;background-color:${pageBg};">
+    <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accent};border-radius:999px;">
+      <a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:16px 48px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;color:#ffffff!important;text-decoration:none!important;white-space:nowrap;">${copy.ctaText} &rarr;</a>
+    </td></tr></table>
+  </td></tr>` : ''}
+
+  <!-- DIVIDER -->
+  <tr><td style="padding:0 48px;background-color:${pageBg};"><div style="height:1px;background:${dividerCol};font-size:0;line-height:0;"></div></td></tr>
+
+  <!-- BODY -->
+  ${copy.bodyText ? `<tr><td style="padding:32px 48px 24px;background-color:${pageBg};">
+    <div class="mobile-body" style="font-size:17px;line-height:1.8;color:${mutedTextCol};font-family:Arial,sans-serif;">${body}</div>
+  </td></tr>` : ''}
+
+  <!-- BODY BLOCK 2 -->
+  ${copy.bodyBlock2Title ? `<tr><td style="padding:8px 48px 0;background-color:${pageBg};"><div style="height:1px;background:${dividerCol};font-size:0;line-height:0;"></div></td></tr>
+  <tr><td style="padding:24px 48px 8px;text-align:center;background-color:${pageBg};">
+    <div style="font-family:'Lora',Georgia,serif;font-size:22px;font-weight:700;color:${secondary};">${copy.bodyBlock2Title}</div>
+  </td></tr>` : ''}
+  ${copy.bodyBlock2 ? `<tr><td style="padding:8px 48px 0;background-color:${pageBg};">
+    <div class="mobile-body" style="font-size:17px;line-height:1.8;color:${mutedTextCol};font-family:Arial,sans-serif;">${b2body}</div>
+  </td></tr>` : ''}
+
+  <!-- CLOSING LINE + BOTTOM CTA -->
+  ${copy.closingLine ? `<tr><td style="padding:32px 48px 0;text-align:center;background-color:${pageBg};">
+    <div style="font-family:Georgia,serif;font-size:17px;font-style:italic;color:${mutedTextCol};">${copy.closingLine}</div>
+  </td></tr>` : ''}
+  ${copy.ctaText ? `<tr><td style="padding:24px 0 36px;text-align:center;background-color:${pageBg};">
+    <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accent};border-radius:999px;">
+      <a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:16px 48px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;color:#ffffff!important;text-decoration:none!important;white-space:nowrap;">${copy.ctaText} &rarr;</a>
+    </td></tr></table>
+  </td></tr>` : ''}
+
+  <!-- FOOTER -->
+  <tr><td style="padding:0;line-height:0;font-size:0;background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: dividerCol, bodyTextAlign: 'justify' })}</td></tr>
+</table>
+</body></html>`
+}
+
 /* ─────────────────────────── registry ──────────────────────────────────── */
 const TEMPLATES = [
   { id:17, label:'✅ Week 2', build:buildTemplateWeek2v2 },
@@ -898,6 +1005,7 @@ const TEMPLATES = [
   { id:13, label:'✅ Week 5',  build:buildTemplateWeek5v2 },
   { id:18, label:'✅ Week 6', build:buildTemplateWeek6v2 },
   { id:19, label:'✅ Week 4', build:buildTemplateWeek4v2b },
+  { id:20, label:'🧪 Test',   build:buildTemplateTest },
 ]
 
 /* ─────────────────────────── component ─────────────────────────────────── */
