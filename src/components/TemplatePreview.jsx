@@ -8,6 +8,7 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from 'react'
 import { useCampaignStore }  from '../store/campaignStore'
 import { useTheme } from '../context/ThemeContext'
+import { useAuth } from '../context/AuthContext'
 import { recommendTemplate, analyzeImageFocal, htmlToImage, fetchFooterData } from '../lib/api'
 
 /* ─────────────────────── shared email-client header ─────────────────────── */
@@ -1201,9 +1202,11 @@ const TEMPLATES = [
   { id:13, label:'✅ Week 5',  build:buildTemplateWeek5v2 },
   { id:18, label:'✅ Week 6', build:buildTemplateWeek6v2 },
   { id:19, label:'✅ Week 4', build:buildTemplateWeek4v2b },
-  { id:21, label:'✅ Week 7', build:buildTemplateWeek7 },
-  { id:20, label:'🧪 Test',   build:buildTemplateTest },
+  { id:21, label:'✅ Week 7', build:buildTemplateWeek7, adminOnly:true },
+  { id:20, label:'🧪 Test',   build:buildTemplateTest,  adminOnly:true },
 ]
+
+const POOJA_NAME = 'Pooja'
 
 /* ─────────────────────────── component ─────────────────────────────────── */
 export default function TemplatePreview({ pulseGenBtn = false }) {
@@ -1212,6 +1215,8 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
   const [mobileView, setMobileView] = useState(false)
   const { theme } = useTheme()
   const dark = theme === 'dark'
+  const { user } = useAuth()
+  const visibleTemplates = TEMPLATES.filter(t => !t.adminOnly || user?.name === POOJA_NAME)
 
   const { selectedClient, generatedCopy, selectedImages, setRenderedHtml, imageGenHtml, setImageGenHtml, headerStyle, imageStyle, aiReasoning, aiRecommendDone, clientFooter, setClientFooter, setTemplateLabel, locationId } = useCampaignStore(s => ({
     selectedClient:   s.selectedClient,
@@ -1230,7 +1235,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     locationId:       s.locationId,
   }))
 
-  const tpl = TEMPLATES[active]
+  const tpl = visibleTemplates[active]
 
   // Sync selected template label to store so ApprovalPanel can use it for naming
   useEffect(() => {
@@ -2168,7 +2173,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     return <p style={{ fontSize: 13, color: dark ? 'rgba(255,255,255,0.3)' : '#9ca3af', padding: '16px 0' }}>No copy generated yet — go back and generate copy first.</p>
   }
 
-  const isHeroHeader = TEMPLATES[active]?.label === 'Hero Header'
+  const isHeroHeader = visibleTemplates[active]?.label === 'Hero Header'
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 14, maxWidth: 860, margin: '0 auto' }}>
@@ -2178,7 +2183,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
         <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: dark ? 'rgba(255,255,255,0.28)' : '#a0a6b1', marginRight: 4 }}>
           Layout:
         </span>
-        {TEMPLATES.map((t, i) => {
+        {visibleTemplates.map((t, i) => {
           const sel = active === i
           return (
             <button
