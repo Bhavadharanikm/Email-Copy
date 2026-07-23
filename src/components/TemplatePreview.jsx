@@ -559,6 +559,11 @@ function buildTemplateWeek4v2b({ client, copy, images, footerData, isHeroGenerat
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
+   WEEK 8 — duplicate of Week 4
+   ══════════════════════════════════════════════════════════════════════════ */
+function buildTemplateWeek8(args) { return buildTemplateWeek4v2b(args) }
+
+/* ══════════════════════════════════════════════════════════════════════════
    WEEK 3 v2 — duplicate of Week 3
    ══════════════════════════════════════════════════════════════════════════ */
 function buildTemplateWeek3v2({ client, copy, images, footerData, isHeroGenerated = false,
@@ -1202,6 +1207,7 @@ const TEMPLATES = [
   { id:13, label:'✅ Week 5',  build:buildTemplateWeek5v2 },
   { id:18, label:'✅ Week 6', build:buildTemplateWeek6v2 },
   { id:19, label:'✅ Week 4', build:buildTemplateWeek4v2b },
+  { id:22, label:'✅ Week 8', build:buildTemplateWeek8 },
   { id:21, label:'✅ Week 7', build:buildTemplateWeek7, adminOnly:true },
   { id:20, label:'🧪 Test',   build:buildTemplateTest,  adminOnly:true },
 ]
