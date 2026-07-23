@@ -1115,21 +1115,18 @@ function buildTemplateTest({ client, copy, images, footerData, isHeroGenerated =
         </table>`
       : `<table width="600" cellpadding="0" cellspacing="0" border="0">
           <tr><td style="padding:0;line-height:0;font-size:0;background-color:${pageBg};">
-            <div style="position:relative;width:600px;height:500px;overflow:hidden;">
+            <div style="position:relative;width:600px;height:520px;overflow:hidden;">
               <svg style="position:absolute;width:0;height:0;overflow:hidden;"><defs>
                 <clipPath id="testPinClip" clipPathUnits="userSpaceOnUse">
-                  <path d="M265,460 C200,450 115,310 115,185 A150,150 0 0,1 415,185 C415,310 330,450 265,460 Z"/>
+                  <path d="M265,510 C235,460 171,378 133,273 A140,140 0 1,1 397,273 C359,378 295,460 265,510 Z"/>
                 </clipPath>
               </defs></svg>
-              <div style="position:absolute;top:0;left:0;width:600px;height:500px;clip-path:url(#testPinClip);">
+              <div style="position:absolute;top:0;left:0;width:600px;height:520px;clip-path:url(#testPinClip);">
                 ${heroImg
-                  ? `<img src="${heroImg}" alt="" style="position:absolute;left:115px;top:35px;width:300px;height:425px;object-fit:cover;object-position:${heroFp};display:block;"/>`
-                  : `<div style="position:absolute;left:115px;top:35px;width:300px;height:425px;background:#8a9e8a;"></div>`}
+                  ? `<img src="${heroImg}" alt="" style="position:absolute;left:125px;top:85px;width:280px;height:425px;object-fit:cover;object-position:${heroFp};display:block;"/>`
+                  : `<div style="position:absolute;left:125px;top:85px;width:280px;height:425px;background:#8a9e8a;"></div>`}
               </div>
-              <div style="position:absolute;left:200px;top:120px;width:130px;height:130px;border-radius:50%;background:${pageBg};"></div>
-              <div style="position:absolute;top:130px;left:375px;width:200px;background:${accent};border-radius:16px;padding:22px 22px;">
-                <div style="font-family:'Lora',Georgia,serif;font-size:24px;font-weight:700;font-style:italic;line-height:1.28;color:${pageBg};">${copy.headlineText||''}</div>
-              </div>
+              <div style="position:absolute;left:225px;top:185px;width:80px;height:80px;border-radius:50%;background:${pageBg};"></div>
             </div>
           </td></tr>
         </table>`}
@@ -2110,10 +2107,6 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </body></html>` : null
 
     // ── Test template: map-pin hero PNG + stamp card PNG ──
-    // Pin geometry: circle center (265,185) radius 150. Tail connects at the
-    // equator — left (115,185) and right (415,185). c2/c1 sit directly below
-    // each equator point so the arc's vertical tangent transfers smoothly into
-    // the wide, heart-like teardrop tail. Tip at (265,460).
     const testPinBg     = clientFooter?.bgColor    || '#cde8cd'
     const testPinAccent = clientFooter?.buttonColor || '#1a4a3a'
     const testHeroFp    = selectedImages?.[0]?.focalX != null ? `${selectedImages[0].focalX}% ${selectedImages[0].focalY}%` : '50% 50%'
@@ -2122,19 +2115,16 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,700&display=swap" rel="stylesheet"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;-webkit-font-smoothing:antialiased;}</style>
 </head><body>
-<div style="width:600px;height:500px;background:${testPinBg};position:relative;overflow:hidden;">
+<div style="width:600px;height:520px;background:${testPinBg};position:relative;overflow:hidden;">
   <svg style="position:absolute;width:0;height:0;overflow:hidden;"><defs>
     <clipPath id="pinClip" clipPathUnits="userSpaceOnUse">
-      <path d="M265,460 C200,450 115,310 115,185 A150,150 0 0,1 415,185 C415,310 330,450 265,460 Z"/>
+      <path d="M265,510 C235,460 171,378 133,273 A140,140 0 1,1 397,273 C359,378 295,460 265,510 Z"/>
     </clipPath>
   </defs></svg>
-  <div style="position:absolute;top:0;left:0;width:600px;height:500px;clip-path:url(#pinClip);">
-    ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;left:115px;top:35px;width:300px;height:425px;object-fit:cover;object-position:${testHeroFp};display:block;"/>` : `<div style="position:absolute;left:115px;top:35px;width:300px;height:425px;background:#8a9e8a;"></div>`}
+  <div style="position:absolute;top:0;left:0;width:600px;height:520px;clip-path:url(#pinClip);">
+    ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;left:125px;top:85px;width:280px;height:425px;object-fit:cover;object-position:${testHeroFp};display:block;"/>` : `<div style="position:absolute;left:125px;top:85px;width:280px;height:425px;background:#8a9e8a;"></div>`}
   </div>
-  <div style="position:absolute;left:200px;top:120px;width:130px;height:130px;border-radius:50%;background:${testPinBg};"></div>
-  <div style="position:absolute;top:130px;left:375px;width:200px;background:${testPinAccent};border-radius:16px;padding:22px 22px;">
-    <div style="font-family:'Lora',Georgia,serif;font-size:${testPinHl.length > 40 ? 20 : testPinHl.length > 25 ? 22 : 26}px;font-weight:700;font-style:italic;line-height:1.28;color:${testPinBg};">${testPinHl}</div>
-  </div>
+  <div style="position:absolute;left:225px;top:185px;width:80px;height:80px;border-radius:50%;background:${testPinBg};"></div>
 </div>
 </body></html>`
 
@@ -2247,7 +2237,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </table>
 </body></html>` : null
 
-    const heroHeight = isWeek7 ? ((img1Url || img2Url || img3Url) ? 988 : 720) : isWeek2 ? 580 : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : isTest ? 500 : 400
+    const heroHeight = isWeek7 ? ((img1Url || img2Url || img3Url) ? 988 : 720) : isWeek2 ? 580 : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : isTest ? 520 : 400
     const secondaryPromise = isWeek7
       ? (week7StampHtml ? renderImage({ html: week7StampHtml, width: 400, height: 500, transparent: true }) : Promise.resolve(null))
       : isWeek2v2 && img1Url
