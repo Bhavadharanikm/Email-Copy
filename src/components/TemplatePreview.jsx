@@ -635,7 +635,7 @@ function buildTemplateWeek8({ client, copy, images, footerData, isHeroGenerated 
             <div style="position:absolute;top:28px;left:28px;">${logoDisplayWhite}</div>
             ${copy.subhead ? `<div style="position:absolute;right:18px;top:0;bottom:68px;display:flex;align-items:center;justify-content:center;"><span style="writing-mode:vertical-rl;font-family:Arial,sans-serif;font-size:9px;font-weight:600;letter-spacing:0.18em;color:rgba(255,255,255,0.7);text-transform:uppercase;">${copy.subhead.replace(/\s+/g,' ').trim().slice(0,55).toUpperCase()}</span></div>` : ''}
             <div style="position:absolute;bottom:82px;left:28px;right:60px;"><div style="font-family:Arial,sans-serif;font-size:${textSize}px;font-weight:900;line-height:1.05;color:#fff;text-transform:uppercase;letter-spacing:-0.01em;">${copy.headlineText||''}</div></div>
-            <div style="position:absolute;bottom:0;left:0;right:0;height:68px;background:#fff;display:flex;align-items:center;justify-content:center;">${copy.ctaText ? `<a href="${copy.ctaUrl||'#'}" style="font-family:Arial,sans-serif;font-size:14px;font-weight:700;letter-spacing:0.14em;color:#1a1a1a;text-decoration:none;text-transform:uppercase;">${copy.ctaText.toUpperCase()}</a>` : `<span style="font-family:Arial,sans-serif;font-size:14px;font-weight:700;letter-spacing:0.14em;color:#1a1a1a;text-transform:uppercase;">SHOP NOW</span>`}</div>
+            <div style="position:absolute;bottom:24px;left:50%;transform:translateX(-50%);width:240px;height:48px;background:#fff;display:flex;align-items:center;justify-content:center;">${copy.ctaText ? `<a href="${copy.ctaUrl||'#'}" style="font-family:Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.16em;color:#1a1a1a;text-decoration:none;text-transform:uppercase;">${copy.ctaText.toUpperCase()}</a>` : `<span style="font-family:Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.16em;color:#1a1a1a;text-transform:uppercase;">SHOP NOW</span>`}</div>
           </div>`}
     </td></tr>
   </table>`
@@ -2238,7 +2238,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
   <div style="position:absolute;top:28px;left:28px;">${logoHtml}</div>
   ${w8Subhead ? `<div style="position:absolute;right:18px;top:0;bottom:68px;display:flex;align-items:center;justify-content:center;"><span style="writing-mode:vertical-rl;font-family:Arial,sans-serif;font-size:9px;font-weight:600;letter-spacing:0.18em;color:rgba(255,255,255,0.7);text-transform:uppercase;">${w8Subhead.replace(/\s+/g,' ').trim().slice(0,55).toUpperCase()}</span></div>` : ''}
   <div style="position:absolute;bottom:82px;left:28px;right:60px;"><div style="font-family:Arial,sans-serif;font-size:${textSize}px;font-weight:900;line-height:1.05;color:#fff;text-transform:uppercase;letter-spacing:-0.01em;">${headline}</div></div>
-  <div style="position:absolute;bottom:0;left:0;right:0;height:68px;background:#fff;display:flex;align-items:center;justify-content:center;"><span style="font-family:Arial,sans-serif;font-size:14px;font-weight:700;letter-spacing:0.14em;color:#1a1a1a;text-transform:uppercase;">${w8CtaText.toUpperCase()}</span></div>
+  <div style="position:absolute;bottom:24px;left:180px;width:240px;height:48px;background:#fff;display:flex;align-items:center;justify-content:center;"><span style="font-family:Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.16em;color:#1a1a1a;text-transform:uppercase;">${w8CtaText.toUpperCase()}</span></div>
 </div>
 </body></html>` : null
 
