@@ -650,43 +650,8 @@ function buildTemplateWeek8({ client, copy, images, footerData, isHeroGenerated 
   <!-- DIVIDER -->
   <div style="padding:0 48px;background-color:${pageBg};"><div style="height:1px;background:${dividerCol};font-size:0;line-height:0;"></div></div>
 
-  <!-- STACKED PHOTO CARD 1 -->
-  ${img1
-    ? isHeroGenerated && img5
-      ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><img src="${img5}" alt="" width="600" style="width:100%;display:block;max-width:600px;border:0;"/></div>`
-      : `<div style="padding:0 72px 0;background-color:${pageBg};">
-          <div style="position:relative;height:508px;">
-            <div style="position:absolute;top:24px;left:24px;right:24px;bottom:24px;border-radius:16px;transform:rotate(5deg);transform-origin:center;overflow:hidden;background:#e0dbd3;">
-              <img src="${img1}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:${focalPos(img1Obj)};opacity:0.45;display:block;"/>
-            </div>
-            <div style="position:absolute;top:24px;left:24px;right:24px;bottom:24px;border-radius:16px;overflow:hidden;z-index:1;">
-              <img src="${img1}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:${focalPos(img1Obj)};display:block;transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/>
-            </div>
-          </div>
-        </div>`
-    : ''}
-
   <!-- BODY BLOCK -->
   ${copy.bodyText ? `<div class="w6v2-section" style="padding:24px 48px 16px;background-color:${pageBg};"><div class="mobile-body" style="font-size:17px;line-height:1.8;color:${mutedTextCol};font-family:Arial,sans-serif;">${body}</div></div>` : ''}
-
-  <!-- DIVIDER + BODY BLOCK 2 TITLE -->
-  ${copy.bodyBlock2Title ? `<div style="padding:8px 48px 0;background-color:${pageBg};"><div style="height:1px;background:${dividerCol};font-size:0;line-height:0;"></div></div><div class="w6v2-section" style="padding:20px 48px 12px;background-color:${pageBg};"><div class="mobile-b2title" style="font-size:22px;font-weight:700;font-family:'Lora',Georgia,serif;letter-spacing:0;color:${secondary};text-align:center;">${copy.bodyBlock2Title}</div></div>` : ''}
-
-  <!-- STACKED PHOTO CARD 2 -->
-  ${img2
-    ? isHeroGenerated && img4
-      ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><img src="${img4}" alt="" width="600" style="width:100%;display:block;max-width:600px;border:0;"/></div>`
-      : `<div style="padding:20px 72px 0;background-color:${pageBg};">
-          <div style="position:relative;height:508px;">
-            <div style="position:absolute;top:24px;left:24px;right:24px;bottom:24px;border-radius:16px;transform:rotate(5deg);transform-origin:center;overflow:hidden;background:#e0dbd3;">
-              <img src="${img2}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:${focalPos(img2Obj)};opacity:0.45;display:block;"/>
-            </div>
-            <div style="position:absolute;top:24px;left:24px;right:24px;bottom:24px;border-radius:16px;overflow:hidden;z-index:1;">
-              <img src="${img2}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:${focalPos(img2Obj)};display:block;transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/>
-            </div>
-          </div>
-        </div>`
-    : ''}
 
   <!-- BODY BLOCK 2 TEXT -->
   ${copy.bodyBlock2 ? `<div class="w6v2-section" style="padding:16px 48px 0;background-color:${pageBg};"><div class="mobile-body" style="font-size:17px;line-height:1.8;color:${mutedTextCol};font-family:Arial,sans-serif;">${b2body}</div></div>` : ''}
