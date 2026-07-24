@@ -676,7 +676,7 @@ function buildTemplateWeek8({ client, copy, images, footerData, isHeroGenerated 
 
   <!-- LOCATION TITLE + 3-PHOTO GRID -->
   ${(copy.bodyBlock2Title || img1 || img2 || img3) ? `<div style="padding:16px 0 36px;background-color:${pageBg};">
-    ${copy.bodyBlock2Title ? `<div style="text-align:center;padding:0 0 18px;font-family:Arial,sans-serif;font-size:12px;font-weight:400;letter-spacing:0.22em;color:${mutedTextCol};text-transform:uppercase;">${copy.bodyBlock2Title.toUpperCase()}</div>` : ''}
+    ${copy.bodyBlock2Title ? `<div style="text-align:center;padding:0 0 20px;font-family:'Lora',Georgia,serif;font-size:26px;font-weight:700;letter-spacing:0;color:${secondary};text-transform:uppercase;">${copy.bodyBlock2Title.toUpperCase()}</div>` : ''}
     <table width="568" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;">
       <tr>
         ${img1 ? `<td style="padding:0 4px 0 0;vertical-align:top;"><div style="width:184px;height:290px;border-radius:24px;overflow:hidden;line-height:0;font-size:0;"><img src="${img1}" alt="" style="width:184px;height:290px;object-fit:cover;display:block;object-position:${focalPos(img1Obj)};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/></div></td>` : ''}
