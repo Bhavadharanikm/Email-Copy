@@ -656,6 +656,23 @@ function buildTemplateWeek8({ client, copy, images, footerData, isHeroGenerated 
   <!-- BODY BLOCK 2 TEXT -->
   ${copy.bodyBlock2 ? `<div class="w6v2-section" style="padding:16px 48px 0;background-color:${pageBg};"><div class="mobile-body" style="font-size:17px;line-height:1.8;color:${mutedTextCol};font-family:Arial,sans-serif;">${b2body}</div></div>` : ''}
 
+  <!-- MAP PIN ELEMENT -->
+  <div style="padding:36px 0 8px;background-color:${pageBg};">
+    <div style="position:relative;width:600px;height:520px;margin:0 auto;">
+      <svg style="position:absolute;width:0;height:0;overflow:hidden;"><defs>
+        <clipPath id="w8PinClip" clipPathUnits="userSpaceOnUse">
+          <path d="M265,510 C235,460 171,378 133,273 A140,140 0 1,1 397,273 C359,378 295,460 265,510 Z"/>
+        </clipPath>
+      </defs></svg>
+      <div style="position:absolute;top:0;left:0;width:600px;height:520px;clip-path:url(#w8PinClip);">
+        ${heroImg
+          ? `<img src="${heroImg}" alt="" style="position:absolute;left:125px;top:85px;width:280px;height:425px;object-fit:cover;object-position:${heroFp};display:block;"/>`
+          : `<div style="position:absolute;left:125px;top:85px;width:280px;height:425px;background:#8a9e8a;"></div>`}
+      </div>
+      <div style="position:absolute;left:225px;top:185px;width:80px;height:80px;border-radius:50%;background:${pageBg};"></div>
+    </div>
+  </div>
+
   <!-- CLOSING LINE -->
   ${copy.closingLine ? `<div class="w6v2-section" style="padding:28px 48px 0;text-align:center;background-color:${pageBg};"><div class="mobile-closing" style="font-size:17px;line-height:1.7;color:${mutedTextCol};font-style:italic;font-family:Georgia,serif;">${copy.closingLine}</div></div>` : ''}
 
