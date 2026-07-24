@@ -568,14 +568,15 @@ function buildTemplateWeek8({ client, copy, images, footerData, isHeroGenerated 
   img1Scale=1, img1X=0, img1Y=0,
   img2Scale=1, img2X=0, img2Y=0,
   img3Scale=1, img3X=0, img3Y=0,
+  img4Scale=1, img4X=0, img4Y=0,
   btnImgUrl = null,
 }) {
   const heroObj  = images?.[0]; const heroImg = heroObj?.url||''
   const heroFp   = heroObj?.focalX != null ? `${heroObj.focalX}% ${heroObj.focalY}%` : '50% 50%'
-  const img1Obj  = images?.[1]; const img1    = img1Obj?.url||''
-  const img2Obj  = images?.[2]; const img2    = img2Obj?.url||''
-  const img3Obj  = images?.[3]; const img3    = img3Obj?.url||''
-  const img4     = images?.[4]?.url || ''
+  const img1Obj  = images?.[1]; const img1    = img1Obj?.url||''  // pin image
+  const img2Obj  = images?.[2]; const img2    = img2Obj?.url||''  // grid photo 1
+  const img3Obj  = images?.[3]; const img3    = img3Obj?.url||''  // grid photo 2
+  const img4Obj  = images?.[4]; const img4    = img4Obj?.url||''  // grid photo 3
   const img5     = images?.[5]?.url || ''
   const body     = (copy.bodyText||'').replace(/\n/g,'<br>')
   const b2body   = (copy.bodyBlock2||'').replace(/\n/g,'<br>')
@@ -617,26 +618,25 @@ function buildTemplateWeek8({ client, copy, images, footerData, isHeroGenerated 
 </style></head>
 <body style="margin:0;padding:32px 0 48px;background-color:#ffffff;">
 
-<table width="600" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="width:600px;max-width:600px;margin:0 auto;background-color:${pageBg};border-collapse:collapse;border-radius:20px;overflow:hidden;">
+<table width="600" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="width:600px;max-width:600px;margin:0 auto;background-color:${pageBg};border-collapse:collapse;border-radius:0 20px 20px 20px;overflow:hidden;">
 <tr><td style="background-color:${pageBg};">
 
   <!-- FULL-BLEED HERO (Arc'teryx-style) -->
   ${(() => {
     const logoDisplayWhite = logoUrl
-      ? `<img src="${logoUrl}" alt="${client?.name||''}" style="height:${logoSize}px;width:auto;display:block;filter:brightness(0) invert(1);"/>`
-      : `<span style="font-family:Arial,sans-serif;font-size:${Math.round(logoSize*0.38)}px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#fff;">${client?.name||''}</span>`
+      ? `<img src="${logoUrl}" alt="${client?.name||''}" style="height:${logoSize}px;width:auto;display:block;filter:${logoFilter};"/>`
+      : `<span style="font-family:Arial,sans-serif;font-size:${Math.round(logoSize*0.38)}px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:${logoColor==='black'?'#000':'#fff'};">${client?.name||''}</span>`
     return `<table width="600" cellpadding="0" cellspacing="0" border="0">
     <tr><td style="padding:0;line-height:0;font-size:0;">
       ${isHeroGenerated && heroImg
         ? `<img src="${heroImg}" alt="" width="600" style="width:600px;max-width:600px;display:block;border:0;"/>`
         : `<div style="position:relative;width:600px;height:680px;overflow:hidden;background:#1a1a1a;">
             ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:600px;height:680px;object-fit:cover;object-position:${heroFp};transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;display:block;"/>` : `<div style="position:absolute;inset:0;background:#2a2a2a;"></div>`}
-            <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.35) 0%,rgba(0,0,0,0) 35%,rgba(0,0,0,0) 55%,rgba(0,0,0,0.6) 100%);"></div>
-            <div style="position:absolute;top:14px;left:14px;right:14px;bottom:68px;border:1px solid rgba(255,255,255,0.55);"></div>
-            <div style="position:absolute;top:28px;left:28px;">${logoDisplayWhite}</div>
-            ${copy.subhead ? `<div style="position:absolute;right:18px;top:0;bottom:68px;display:flex;align-items:center;justify-content:center;"><span style="writing-mode:vertical-rl;font-family:Arial,sans-serif;font-size:9px;font-weight:600;letter-spacing:0.18em;color:rgba(255,255,255,0.7);text-transform:uppercase;">${copy.subhead.replace(/\s+/g,' ').trim().slice(0,55).toUpperCase()}</span></div>` : ''}
-            <div style="position:absolute;bottom:82px;left:28px;right:60px;"><div style="font-family:Arial,sans-serif;font-size:${textSize}px;font-weight:900;line-height:1.05;color:#fff;text-transform:uppercase;letter-spacing:-0.01em;">${copy.headlineText||''}</div></div>
-            <div style="position:absolute;bottom:24px;left:50%;transform:translateX(-50%);width:240px;height:48px;background:#fff;display:flex;align-items:center;justify-content:center;">${copy.ctaText ? `<a href="${copy.ctaUrl||'#'}" style="font-family:Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.16em;color:#1a1a1a;text-decoration:none;text-transform:uppercase;">${copy.ctaText.toUpperCase()}</a>` : `<span style="font-family:Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.16em;color:#1a1a1a;text-transform:uppercase;">SHOP NOW</span>`}</div>
+            <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.35) 0%,rgba(0,0,0,0) 35%,rgba(0,0,0,0) 48%,rgba(0,0,0,0.55) 75%,rgba(0,0,0,0.72) 100%);"></div>
+            <div style="position:absolute;top:64px;left:14px;right:44px;bottom:14px;border-left:1px solid rgba(255,255,255,0.55);border-right:1px solid rgba(255,255,255,0.55);border-bottom:1px solid rgba(255,255,255,0.55);"></div>
+            <div style="position:absolute;top:28px;left:28px;right:52px;display:flex;align-items:center;gap:16px;">${logoDisplayWhite}<div style="flex:1;height:1px;background:rgba(255,255,255,0.55);"></div></div>
+            <div style="position:absolute;bottom:${textTop}px;left:${textLeft}px;right:60px;"><div style="font-family:Arial,sans-serif;font-size:${textSize}px;font-weight:900;line-height:1.05;color:#fff;text-transform:uppercase;letter-spacing:-0.01em;">${copy.headlineText||''}</div></div>
+            <div style="position:absolute;bottom:${Math.max(14, textTop - 76)}px;left:${textLeft}px;width:280px;height:48px;background:#fff;display:flex;align-items:center;justify-content:center;padding:0 16px;">${copy.ctaText ? `<a href="${copy.ctaUrl||'#'}" style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.1em;color:#1a1a1a;text-decoration:none;text-transform:uppercase;white-space:nowrap;">${copy.ctaText.toUpperCase()}</a>` : `<span style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.1em;color:#1a1a1a;text-transform:uppercase;white-space:nowrap;">SHOP NOW</span>`}</div>
           </div>`}
     </td></tr>
   </table>`
@@ -663,8 +663,8 @@ function buildTemplateWeek8({ client, copy, images, footerData, isHeroGenerated 
         </clipPath>
       </defs></svg>
       <div style="position:absolute;top:0;left:0;width:600px;height:520px;clip-path:url(#w8PinClip);">
-        ${heroImg
-          ? `<img src="${heroImg}" alt="" style="position:absolute;left:125px;top:85px;width:280px;height:425px;object-fit:cover;object-position:${heroFp};display:block;"/>`
+        ${img1
+          ? `<img src="${img1}" alt="" style="position:absolute;left:125px;top:85px;width:280px;height:425px;object-fit:cover;object-position:${focalPos(img1Obj)};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;display:block;"/>`
           : `<div style="position:absolute;left:125px;top:85px;width:280px;height:425px;background:#8a9e8a;"></div>`}
       </div>
       <div style="position:absolute;left:225px;top:185px;width:80px;height:80px;border-radius:50%;background:${pageBg};"></div>
@@ -672,13 +672,13 @@ function buildTemplateWeek8({ client, copy, images, footerData, isHeroGenerated 
   </div>
 
   <!-- LOCATION TITLE + 3-PHOTO GRID -->
-  ${(copy.bodyBlock2Title || img1 || img2 || img3) ? `<div style="padding:16px 0 36px;background-color:${pageBg};">
+  ${(copy.bodyBlock2Title || img2 || img3 || img4) ? `<div style="padding:16px 0 36px;background-color:${pageBg};">
     ${copy.bodyBlock2Title ? `<div style="text-align:center;padding:0 0 20px;font-family:'Lora',Georgia,serif;font-size:26px;font-weight:700;letter-spacing:0;color:${secondary};text-transform:uppercase;">${copy.bodyBlock2Title.toUpperCase()}</div>` : ''}
     <table width="568" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;">
       <tr>
-        ${img1 ? `<td style="padding:0 4px 0 0;vertical-align:top;"><div style="width:184px;height:290px;border-radius:24px;overflow:hidden;line-height:0;font-size:0;"><img src="${img1}" alt="" style="width:184px;height:290px;object-fit:cover;display:block;object-position:${focalPos(img1Obj)};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/></div></td>` : ''}
-        ${img2 ? `<td style="padding:0 4px;vertical-align:top;"><div style="width:184px;height:290px;border-radius:24px;overflow:hidden;line-height:0;font-size:0;"><img src="${img2}" alt="" style="width:184px;height:290px;object-fit:cover;display:block;object-position:${focalPos(img2Obj)};transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/></div></td>` : ''}
-        ${img3 ? `<td style="padding:0 0 0 4px;vertical-align:top;"><div style="width:184px;height:290px;border-radius:24px;overflow:hidden;line-height:0;font-size:0;"><img src="${img3}" alt="" style="width:184px;height:290px;object-fit:cover;display:block;object-position:${focalPos(img3Obj)};transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/></div></td>` : ''}
+        ${img2 ? `<td style="padding:0 4px 0 0;vertical-align:top;"><div style="width:184px;height:290px;border-radius:24px;overflow:hidden;line-height:0;font-size:0;"><img src="${img2}" alt="" style="width:184px;height:290px;object-fit:cover;display:block;object-position:${focalPos(img2Obj)};transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/></div></td>` : ''}
+        ${img3 ? `<td style="padding:0 4px;vertical-align:top;"><div style="width:184px;height:290px;border-radius:24px;overflow:hidden;line-height:0;font-size:0;"><img src="${img3}" alt="" style="width:184px;height:290px;object-fit:cover;display:block;object-position:${focalPos(img3Obj)};transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/></div></td>` : ''}
+        ${img4 ? `<td style="padding:0 0 0 4px;vertical-align:top;"><div style="width:184px;height:290px;border-radius:24px;overflow:hidden;line-height:0;font-size:0;"><img src="${img4}" alt="" style="width:184px;height:290px;object-fit:cover;display:block;object-position:${focalPos(img4Obj)};transform:translate(${img4X}px,${img4Y}px) scale(${img4Scale});transform-origin:center center;"/></div></td>` : ''}
       </tr>
     </table>
   </div>` : ''}
@@ -1268,12 +1268,12 @@ function buildTemplateWeek7({ client, copy, images, footerData, isHeroGenerated 
     : `<div style="line-height:0;font-size:0;background-color:${pageBg};">
     <div style="position:relative;width:600px;height:720px;overflow:hidden;background:#1a1a1a;">
       ${heroImg ? `<img src="${heroImg}" style="position:absolute;top:${Math.min(0,Math.max(720*(1-heroScale),-(720*(heroScale-1)/2)+heroY))}px;left:${Math.min(0,Math.max(600*(1-heroScale),-(600*(heroScale-1)/2)+heroX))}px;width:${600*heroScale}px;height:${720*heroScale}px;object-fit:cover;display:block;"/>` : `<div style="width:600px;height:720px;background:#2a2a2a;"></div>`}
-      <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.2) 40%,rgba(0,0,0,0.1) 65%,rgba(0,0,0,0.55) 100%);line-height:normal;font-size:initial;display:flex;flex-direction:column;justify-content:space-between;">
+      <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.25) 0%,rgba(0,0,0,0) 35%,rgba(0,0,0,0) 45%,rgba(0,0,0,0.55) 75%,rgba(0,0,0,0.75) 100%);line-height:normal;font-size:initial;display:flex;flex-direction:column;justify-content:space-between;">
         <div style="text-align:center;padding-top:${logoTop}px;">${logoOverlay}</div>
         <div style="padding:0 ${textLeft}px ${textTop}px;">
           <div style="font-family:Arial,Helvetica,sans-serif;font-size:${textSize}px;font-weight:700;line-height:1.12;color:#fff;text-align:left;">${copy.headlineText||''}</div>
-          ${copy.subhead ? `<div style="font-family:Georgia,serif;font-size:24px;font-style:italic;line-height:1.55;color:rgba(255,255,255,0.9);margin-top:14px;text-align:left;max-width:520px;">${copy.subhead}</div>` : ''}
-          ${copy.ctaText ? `<div style="margin-top:20px;"><table cellpadding="0" cellspacing="0" border="0"><tr><td style="background:rgba(0,0,0,0.4);border:2px solid rgba(255,255,255,0.85);border-radius:100px;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:14px 44px;font-family:Arial,sans-serif;font-size:16px;font-weight:700;letter-spacing:.04em;color:#fff!important;text-decoration:none!important;white-space:nowrap;">${copy.ctaText}</a></td></tr></table></div>` : ''}
+          ${copy.subhead ? `<div style="font-family:Georgia,serif;font-size:24px;font-style:italic;line-height:1.55;color:#fff;margin-top:8px;text-align:left;max-width:520px;">${copy.subhead}</div>` : ''}
+          ${copy.ctaText ? `<div style="margin-top:12px;"><table cellpadding="0" cellspacing="0" border="0"><tr><td style="background:rgba(0,0,0,0.4);border:2px solid rgba(255,255,255,0.85);border-radius:100px;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:14px 44px;font-family:Arial,sans-serif;font-size:16px;font-weight:700;letter-spacing:.04em;color:#fff!important;text-decoration:none!important;white-space:nowrap;">${copy.ctaText}</a></td></tr></table></div>` : ''}
         </div>
       </div>
     </div>
@@ -1391,7 +1391,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
   }, [active])  // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Hero editor — all week templates ─────────────────────────────────────────
-  const isEditable = [10, 11, 13, 16, 17, 18, 19, 20, 21].includes(tpl?.id)
+  const isEditable = [10, 11, 13, 16, 17, 18, 19, 20, 21, 22].includes(tpl?.id)
   const [heroScale,   setHeroScale]   = useState(1)
   const [heroX,       setHeroX]       = useState(0)
   const [heroY,       setHeroY]       = useState(0)
@@ -1434,10 +1434,11 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     if (tpl?.id === 18 || tpl?.id === 19) { setTextSize(38); setTextTop(32);  setTextLeft(24);  setLogoColor('original'); setLogoTop(12); setLogoRight(24);  setLogoSize(40) }
     if (tpl?.id === 21) { setTextSize(54); setTextTop(60);  setTextLeft(24);  setLogoColor('original'); setLogoTop(48); setLogoRight(200); setLogoSize(40) }
     if (tpl?.id === 20) { setTextSize(38); setTextTop(32); setTextLeft(24); setLogoColor('original'); setLogoTop(24); setLogoRight(200); setLogoSize(40) }
+    if (tpl?.id === 22) { setTextSize(48); setTextTop(108); setTextLeft(28); setLogoColor('white');    setLogoTop(28); setLogoRight(28);  setLogoSize(40) }
   }, [tpl?.id])  // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Week template image generation ───────────────────────────────────────────
-  const isWeekTemplate = [10, 11, 13, 16, 17, 18, 19, 20, 21].includes(tpl?.id)
+  const isWeekTemplate = [10, 11, 13, 16, 17, 18, 19, 20, 21, 22].includes(tpl?.id)
   const [weekGenUrls,     setWeekGenUrls]     = useState({})  // { [tplId]: { hero, sec, ter } }
   const [weekGenLoading,  setWeekGenLoading]  = useState(false)
   const [weekGenError,    setWeekGenError]    = useState(null)
@@ -1455,7 +1456,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
       if (tplUrls.ter)  effectiveImages[5] = { url: tplUrls.ter,  focalX: 50, focalY: 50 }
     }
     const editorProps = isEditable ? { heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y } : {}
-    const isHeroGenerated = [10, 11, 13, 16, 17, 18, 19, 20, 21].includes(tpl?.id) && !!tplUrls.hero
+    const isHeroGenerated = [10, 11, 13, 16, 17, 18, 19, 20, 21, 22].includes(tpl?.id) && !!tplUrls.hero
     const effectiveFooterData = clientFooter
       ? { ...clientFooter, logoColor: footerLogoColor, footerLogoSize }
       : clientFooter
@@ -2762,7 +2763,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
           </div>
 
           {/* Sub-image adjusters — shown for templates that have sub-images */}
-          {[10, 11, 13, 16, 17, 18].includes(tpl?.id) && [
+          {[10, 11, 13, 16, 17, 18, 22].includes(tpl?.id) && [
             { key: 'sub1', label: 'Sub Image 1', color: '#7c3aed', bg: dark ? 'rgba(124,58,237,0.15)' : '#f5f3ff',
               controls: [
                 { name: 'Left', min: -200, max: 200, step: 4, val: img1X,     set: setImg1X,     unit: 'px' },
@@ -2784,7 +2785,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
                 { name: 'Zoom',  min: 1,    max: 2.5, step: 0.05, val: img3Scale, set: setImg3Scale, unit: 'x', toDisplay: v => v.toFixed(2) },
               ]
             }] : []),
-            ...((tpl?.id === 13) ? [{ key: 'sub4', label: 'Sub Image 4', color: '#0891b2', bg: dark ? 'rgba(8,145,178,0.15)' : '#ecfeff',
+            ...([13, 22].includes(tpl?.id) ? [{ key: 'sub4', label: 'Sub Image 4', color: '#0891b2', bg: dark ? 'rgba(8,145,178,0.15)' : '#ecfeff',
               controls: [
                 { name: 'Left', min: -200, max: 200, step: 4, val: img4X,     set: setImg4X,     unit: 'px' },
                 { name: 'Top', min: -200, max: 200, step: 4, val: img4Y,     set: setImg4Y,     unit: 'px' },
