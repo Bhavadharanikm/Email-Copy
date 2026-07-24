@@ -344,7 +344,7 @@ export default function Layout() {
       }}>
         {/* Logo */}
         <NavLink to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-          <img src="/logo.png" alt="HiddenGem Media" style={{ height: 32, width: 'auto', display: 'block' }} />
+          <img src="/logo.png" alt="" style={{ height: 48, width: 'auto', display: 'block' }} />
         </NavLink>
 
         {/* Right side */}
