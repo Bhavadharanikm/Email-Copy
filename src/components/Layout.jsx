@@ -345,9 +345,6 @@ export default function Layout() {
         {/* Logo */}
         <NavLink to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
           <img src="/logo.png" alt="HiddenGem Media" style={{ height: 32, width: 'auto', display: 'block' }} />
-          <span style={{ fontSize: 15, fontWeight: 700, color: dark ? '#fff' : '#111827', letterSpacing: '-0.02em' }}>
-            HiddenGem <span style={{ fontWeight: 400, color: dark ? 'rgba(255,255,255,0.3)' : '#9ca3af' }}>Media</span>
-          </span>
         </NavLink>
 
         {/* Right side */}
