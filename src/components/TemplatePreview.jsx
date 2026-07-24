@@ -654,9 +654,6 @@ function buildTemplateWeek8({ client, copy, images, footerData, isHeroGenerated 
   <!-- BODY BLOCK -->
   ${copy.bodyText ? `<div class="w6v2-section" style="padding:24px 48px 16px;background-color:${pageBg};"><div class="mobile-body" style="font-size:17px;line-height:1.8;color:${mutedTextCol};font-family:Arial,sans-serif;">${body}</div></div>` : ''}
 
-  <!-- BODY BLOCK 2 TEXT -->
-  ${copy.bodyBlock2 ? `<div class="w6v2-section" style="padding:16px 48px 0;background-color:${pageBg};"><div class="mobile-body" style="font-size:17px;line-height:1.8;color:${mutedTextCol};font-family:Arial,sans-serif;">${b2body}</div></div>` : ''}
-
   <!-- MAP PIN ELEMENT -->
   <div style="padding:36px 0 8px;background-color:${pageBg};">
     <div style="position:relative;width:600px;height:520px;margin:0 auto;">
@@ -685,6 +682,9 @@ function buildTemplateWeek8({ client, copy, images, footerData, isHeroGenerated 
       </tr>
     </table>
   </div>` : ''}
+
+  <!-- BODY BLOCK 2 TEXT -->
+  ${copy.bodyBlock2 ? `<div class="w6v2-section" style="padding:16px 48px 0;background-color:${pageBg};"><div class="mobile-body" style="font-size:17px;line-height:1.8;color:${mutedTextCol};font-family:Arial,sans-serif;">${b2body}</div></div>` : ''}
 
   <!-- CLOSING LINE -->
   ${copy.closingLine ? `<div class="w6v2-section" style="padding:28px 48px 0;text-align:center;background-color:${pageBg};"><div class="mobile-closing" style="font-size:17px;line-height:1.7;color:${mutedTextCol};font-style:italic;font-family:Georgia,serif;">${copy.closingLine}</div></div>` : ''}
