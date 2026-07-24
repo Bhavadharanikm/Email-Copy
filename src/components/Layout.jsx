@@ -344,15 +344,7 @@ export default function Layout() {
       }}>
         {/* Logo */}
         <NavLink to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-          <div style={{
-            width: 32, height: 32,
-            background: dark ? '#1a1a1a' : '#111827',
-            border: dark ? '1px solid rgba(255,255,255,0.1)' : 'none',
-            borderRadius: 8,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <IconDiamond size={15} color={dark ? '#f59e0b' : '#3b82f6'} stroke={1.8} />
-          </div>
+          <img src="/logo.png" alt="HiddenGem Media" style={{ height: 32, width: 'auto', display: 'block' }} />
           <span style={{ fontSize: 15, fontWeight: 700, color: dark ? '#fff' : '#111827', letterSpacing: '-0.02em' }}>
             HiddenGem <span style={{ fontWeight: 400, color: dark ? 'rgba(255,255,255,0.3)' : '#9ca3af' }}>Media</span>
           </span>
