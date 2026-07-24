@@ -656,7 +656,7 @@ function buildTemplateWeek8({ client, copy, images, footerData, isHeroGenerated 
 
   <!-- MAP PIN ELEMENT -->
   <div style="overflow:hidden;height:435px;background-color:${pageBg};">
-    <div style="position:relative;width:600px;height:520px;margin-left:35px;top:-82px;">
+    <div style="position:relative;width:600px;height:520px;margin-left:55px;top:-82px;">
       <svg style="position:absolute;width:0;height:0;overflow:hidden;"><defs>
         <clipPath id="w8PinClip" clipPathUnits="userSpaceOnUse">
           <path d="M265,510 C235,460 171,378 133,273 A140,140 0 1,1 397,273 C359,378 295,460 265,510 Z"/>
