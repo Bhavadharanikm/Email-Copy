@@ -655,8 +655,8 @@ function buildTemplateWeek8({ client, copy, images, footerData, isHeroGenerated 
   ${copy.bodyText ? `<div class="w6v2-section" style="padding:24px 48px 16px;background-color:${pageBg};"><div class="mobile-body" style="font-size:17px;line-height:1.8;color:${mutedTextCol};font-family:Arial,sans-serif;">${body}</div></div>` : ''}
 
   <!-- MAP PIN ELEMENT -->
-  <div style="padding:8px 0 8px;background-color:${pageBg};">
-    <div style="position:relative;width:600px;height:520px;margin:0 auto;">
+  <div style="overflow:hidden;height:435px;background-color:${pageBg};">
+    <div style="position:relative;width:600px;height:520px;margin-left:35px;top:-82px;">
       <svg style="position:absolute;width:0;height:0;overflow:hidden;"><defs>
         <clipPath id="w8PinClip" clipPathUnits="userSpaceOnUse">
           <path d="M265,510 C235,460 171,378 133,273 A140,140 0 1,1 397,273 C359,378 295,460 265,510 Z"/>
