@@ -15,7 +15,7 @@ import { createClient } from '@supabase/supabase-js'
 const GHL_BASE         = 'https://services.leadconnectorhq.com'
 const STATS_VERSION    = 'v3'
 const SCHEDULE_VERSION = '2021-07-28'
-const PAGE_LIMIT       = 20
+const PAGE_LIMIT       = 100
 
 function scheduleHeaders(apiKey) {
   return { Authorization: `Bearer ${apiKey}`, Version: SCHEDULE_VERSION, 'Content-Type': 'application/json' }
@@ -63,26 +63,20 @@ async function fetchStats(apiKey, locationId, bulkRequestId) {
 }
 
 async function fetchAllSchedules(apiKey, locationId) {
-  const firstRes = await fetch(
-    `${GHL_BASE}/emails/schedule?locationId=${locationId}&limit=${PAGE_LIMIT}&skip=0`,
-    { headers: scheduleHeaders(apiKey) }
-  )
-  if (!firstRes.ok) return []
-  const firstData = await firstRes.json()
+  const schedules = []
+  let skip = 0
 
-  const total = firstData.count || 0
-  const schedules = [...(firstData.schedules || [])]
-
-  if (total > PAGE_LIMIT) {
-    const pages = Math.ceil(total / PAGE_LIMIT) - 1
-    const pagePromises = Array.from({ length: pages }, (_, i) =>
-      fetch(
-        `${GHL_BASE}/emails/schedule?locationId=${locationId}&limit=${PAGE_LIMIT}&skip=${(i + 1) * PAGE_LIMIT}`,
-        { headers: scheduleHeaders(apiKey) }
-      ).then(r => r.json()).then(d => d.schedules || []).catch(() => [])
+  while (true) {
+    const res = await fetch(
+      `${GHL_BASE}/emails/schedule?locationId=${locationId}&limit=${PAGE_LIMIT}&skip=${skip}`,
+      { headers: scheduleHeaders(apiKey) }
     )
-    const pagesData = await Promise.all(pagePromises)
-    pagesData.forEach(page => schedules.push(...page))
+    if (!res.ok) break
+    const data = await res.json()
+    const page = data.schedules || []
+    schedules.push(...page)
+    if (page.length < PAGE_LIMIT) break
+    skip += PAGE_LIMIT
   }
 
   return schedules
@@ -98,8 +92,6 @@ async function fetchClientCampaigns(client) {
     const seen = new Set()
     const sent = schedules.filter(s => {
       if (!s.bulkRequestId) return false
-      if (!(s.emailStatus === 'complete' || s.emailStatus === 'scheduled')) return false
-      if (!s.dateScheduled) return false
       if (seen.has(s.bulkRequestId)) return false
       seen.add(s.bulkRequestId)
       return true
