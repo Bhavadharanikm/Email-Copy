@@ -616,6 +616,7 @@ function buildTemplateWeek8({ client, copy, images, footerData, isHeroGenerated 
     .mobile-b2title { font-size:22px!important; line-height:1.25!important; }
     .mobile-closing { font-size:17px!important; line-height:1.5!important; }
     .mobile-cta     { font-size:20px!important; padding:20px 80px!important; }
+    .mobile-footer  { font-size:14px!important; line-height:1.4!important; }
   }
 </style></head>
 <body style="margin:0;padding:32px 0 48px;background-color:#ffffff;">
