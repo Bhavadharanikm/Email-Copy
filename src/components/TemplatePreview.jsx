@@ -1241,7 +1241,7 @@ function buildTemplateWeek7({ client, copy, images, footerData, isHeroGenerated 
 
   return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@700;900&family=Lora:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   body{margin:0;padding:0;color:#1a1a1a;}
@@ -1271,8 +1271,8 @@ function buildTemplateWeek7({ client, copy, images, footerData, isHeroGenerated 
       <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.25) 0%,rgba(0,0,0,0) 35%,rgba(0,0,0,0) 45%,rgba(0,0,0,0.55) 75%,rgba(0,0,0,0.75) 100%);line-height:normal;font-size:initial;display:flex;flex-direction:column;justify-content:space-between;">
         <div style="text-align:center;padding-top:${logoTop}px;">${logoOverlay}</div>
         <div style="padding:0 ${textLeft}px ${textTop}px;">
-          <div style="font-family:Arial,Helvetica,sans-serif;font-size:${textSize}px;font-weight:700;line-height:1.12;color:#fff;text-align:left;">${copy.headlineText||''}</div>
-          ${copy.subhead ? `<div style="font-family:Georgia,serif;font-size:24px;font-style:italic;line-height:1.55;color:#fff;margin-top:8px;text-align:left;max-width:520px;">${copy.subhead}</div>` : ''}
+          <div style="font-family:'Lato',Arial,sans-serif;font-size:${textSize}px;font-weight:900;line-height:1.12;color:#fff;text-align:left;">${copy.headlineText||''}</div>
+          ${copy.subhead ? `<div style="font-family:'Lora',Georgia,serif;font-size:24px;font-style:italic;line-height:1.55;color:#fff;margin-top:8px;text-align:left;max-width:520px;">${copy.subhead}</div>` : ''}
           ${copy.ctaText ? `<div style="margin-top:12px;"><table cellpadding="0" cellspacing="0" border="0"><tr><td style="background:rgba(0,0,0,0.4);border:2px solid rgba(255,255,255,0.85);border-radius:100px;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:14px 44px;font-family:Arial,sans-serif;font-size:16px;font-weight:700;letter-spacing:.04em;color:#fff!important;text-decoration:none!important;white-space:nowrap;">${copy.ctaText}</a></td></tr></table></div>` : ''}
         </div>
       </div>
@@ -2183,6 +2183,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     const w7CtaText = generatedCopy?.ctaText || ''
     const w7CtaUrl  = generatedCopy?.ctaUrl  || '#'
     const week7HeroHtml = isWeek7 ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@700;900&family=Lora:ital@1&display=swap" rel="stylesheet"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
 </head><body>
 <div style="width:600px;background:transparent;">
@@ -2191,8 +2192,8 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.2) 40%,rgba(0,0,0,0.1) 65%,rgba(0,0,0,0.55) 100%);display:flex;flex-direction:column;justify-content:space-between;">
       <div style="text-align:center;padding-top:${logoTop}px;">${logoHtml}</div>
       <div style="padding:0 ${textLeft}px ${textTop}px;">
-        <div style="font-family:Arial,Helvetica,sans-serif;font-size:${textSize}px;font-weight:700;line-height:1.12;color:#fff;text-align:left;">${headline}</div>
-        ${w7Subhead ? `<div style="font-family:Georgia,serif;font-size:24px;font-style:italic;line-height:1.55;color:rgba(255,255,255,0.9);margin-top:14px;text-align:left;max-width:520px;">${w7Subhead}</div>` : ''}
+        <div style="font-family:'Lato',Arial,sans-serif;font-size:${textSize}px;font-weight:900;line-height:1.12;color:#fff;text-align:left;">${headline}</div>
+        ${w7Subhead ? `<div style="font-family:'Lora',Georgia,serif;font-size:24px;font-style:italic;line-height:1.55;color:rgba(255,255,255,0.9);margin-top:14px;text-align:left;max-width:520px;">${w7Subhead}</div>` : ''}
         ${w7CtaText ? `<div style="margin-top:20px;"><table cellpadding="0" cellspacing="0" border="0"><tr><td style="background:rgba(0,0,0,0.4);border:2px solid rgba(255,255,255,0.85);border-radius:100px;"><a href="${w7CtaUrl}" style="display:inline-block;padding:14px 44px;font-family:Arial,sans-serif;font-size:16px;font-weight:700;letter-spacing:.04em;color:#fff;text-decoration:none;white-space:nowrap;">${w7CtaText}</a></td></tr></table></div>` : ''}
       </div>
     </div>
