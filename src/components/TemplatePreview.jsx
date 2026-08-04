@@ -618,28 +618,25 @@ function buildTemplateWeek8({ client, copy, images, footerData, isHeroGenerated 
 </style></head>
 <body style="margin:0;padding:0;background-color:${pageBg};">
 
-<!-- FULL-BLEED HERO -->
+<table width="600" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="width:600px;max-width:600px;margin:0 auto;background-color:${pageBg};border-collapse:collapse;">
+<!-- HERO -->
 ${(() => {
   const logoDisplayWhite = logoUrl
     ? `<img src="${logoUrl}" alt="${client?.name||''}" style="height:${logoSize}px;width:auto;display:block;filter:${logoFilter};"/>`
     : `<span style="font-family:Arial,sans-serif;font-size:${Math.round(logoSize*0.38)}px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:${logoColor==='black'?'#000':'#fff'};">${client?.name||''}</span>`
-  return `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
-  <tr><td style="padding:0;line-height:0;font-size:0;">
+  return `<tr><td style="padding:0;line-height:0;font-size:0;">
     ${isHeroGenerated && heroImg
-      ? `<img src="${heroImg}" alt="" style="width:100%;max-width:100%;display:block;border:0;"/>`
-      : `<div style="position:relative;width:100%;height:680px;overflow:hidden;background:#1a1a1a;">
-          ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:${heroFp};transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;display:block;"/>` : `<div style="position:absolute;inset:0;background:#2a2a2a;"></div>`}
+      ? `<img src="${heroImg}" alt="" style="width:600px;max-width:100%;display:block;border:0;"/>`
+      : `<div style="position:relative;width:600px;height:680px;overflow:hidden;background:#1a1a1a;">
+          ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:600px;height:680px;object-fit:cover;object-position:${heroFp};transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;display:block;"/>` : `<div style="position:absolute;inset:0;background:#2a2a2a;"></div>`}
           <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.35) 0%,rgba(0,0,0,0) 35%,rgba(0,0,0,0) 48%,rgba(0,0,0,0.55) 75%,rgba(0,0,0,0.72) 100%);"></div>
           <div style="position:absolute;top:64px;left:14px;right:44px;bottom:14px;border-left:1px solid rgba(255,255,255,0.55);border-right:1px solid rgba(255,255,255,0.55);border-bottom:1px solid rgba(255,255,255,0.55);"></div>
           <div style="position:absolute;top:28px;left:28px;right:52px;display:flex;align-items:center;gap:16px;">${logoDisplayWhite}<div style="flex:1;height:1px;background:rgba(255,255,255,0.55);"></div></div>
           <div style="position:absolute;bottom:${textTop}px;left:${textLeft}px;right:60px;"><div style="font-family:Arial,sans-serif;font-size:${textSize}px;font-weight:900;line-height:1.05;color:#fff;text-transform:uppercase;letter-spacing:-0.01em;">${copy.headlineText||''}</div></div>
           <div style="position:absolute;bottom:${Math.max(14, textTop - 76)}px;left:${textLeft}px;width:280px;height:48px;background:#fff;display:flex;align-items:center;justify-content:center;padding:0 16px;">${copy.ctaText ? `<a href="${copy.ctaUrl||'#'}" style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.1em;color:#1a1a1a;text-decoration:none;text-transform:uppercase;white-space:nowrap;">${copy.ctaText.toUpperCase()}</a>` : `<span style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.1em;color:#1a1a1a;text-transform:uppercase;white-space:nowrap;">SHOP NOW</span>`}</div>
         </div>`}
-  </td></tr>
-</table>`
+  </td></tr>`
 })()}
-
-<table width="600" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="width:600px;max-width:600px;margin:0 auto;background-color:${pageBg};border-collapse:collapse;">
 <tr><td style="background-color:${pageBg};">
 
   <!-- SUBHEAD + TOP CTA -->
