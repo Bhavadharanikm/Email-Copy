@@ -626,8 +626,8 @@ function buildTemplateWeek8({ client, copy, images, footerData, isHeroGenerated 
     const logoDisplayWhite = logoUrl
       ? `<img src="${logoUrl}" alt="${client?.name||''}" style="height:${logoSize}px;width:auto;display:block;filter:${logoFilter};"/>`
       : `<span style="font-family:Arial,sans-serif;font-size:${Math.round(logoSize*0.38)}px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:${logoColor==='black'?'#000':'#fff'};">${client?.name||''}</span>`
-    return `<table width="600" cellpadding="0" cellspacing="0" border="0">
-    <tr><td style="padding:0;line-height:0;font-size:0;">
+    return `<table width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;">
+    <tr><td style="padding:0;line-height:0;font-size:0;width:600px;">
       ${isHeroGenerated && heroImg
         ? `<img src="${heroImg}" alt="" width="600" style="width:600px;max-width:600px;display:block;border:0;"/>`
         : `<div style="position:relative;width:100%;height:680px;overflow:hidden;background:#1a1a1a;">
