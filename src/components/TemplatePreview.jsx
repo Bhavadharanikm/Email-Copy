@@ -627,13 +627,15 @@ ${(() => {
   return `<tr><td style="padding:0;line-height:0;font-size:0;">
     ${isHeroGenerated && heroImg
       ? `<img src="${heroImg}" alt="" style="width:600px;max-width:100%;display:block;border:0;"/>`
-      : `<div style="position:relative;width:600px;height:680px;overflow:hidden;background:#1a1a1a;">
-          ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:600px;height:680px;object-fit:cover;object-position:${heroFp};transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;display:block;"/>` : `<div style="position:absolute;inset:0;background:#2a2a2a;"></div>`}
+      : `<div style="position:relative;width:100%;height:680px;overflow:hidden;background:#1a1a1a;">
+          ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:${heroFp};transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;display:block;"/>` : `<div style="position:absolute;inset:0;background:#2a2a2a;"></div>`}
           <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.35) 0%,rgba(0,0,0,0) 35%,rgba(0,0,0,0) 48%,rgba(0,0,0,0.55) 75%,rgba(0,0,0,0.72) 100%);"></div>
           <div style="position:absolute;top:64px;left:14px;right:44px;bottom:14px;border-left:1px solid rgba(255,255,255,0.55);border-right:1px solid rgba(255,255,255,0.55);border-bottom:1px solid rgba(255,255,255,0.55);"></div>
-          <div style="position:absolute;top:28px;left:28px;right:52px;display:flex;align-items:center;gap:16px;">${logoDisplayWhite}<div style="flex:1;height:1px;background:rgba(255,255,255,0.55);"></div></div>
-          <div style="position:absolute;bottom:${textTop}px;left:${textLeft}px;right:60px;"><div style="font-family:Arial,sans-serif;font-size:${textSize}px;font-weight:900;line-height:1.05;color:#fff;text-transform:uppercase;letter-spacing:-0.01em;">${copy.headlineText||''}</div></div>
-          <div style="position:absolute;bottom:${Math.max(14, textTop - 76)}px;left:${textLeft}px;width:280px;height:48px;background:#fff;display:flex;align-items:center;justify-content:center;padding:0 16px;">${copy.ctaText ? `<a href="${copy.ctaUrl||'#'}" style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.1em;color:#1a1a1a;text-decoration:none;text-transform:uppercase;white-space:nowrap;">${copy.ctaText.toUpperCase()}</a>` : `<span style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.1em;color:#1a1a1a;text-transform:uppercase;white-space:nowrap;">SHOP NOW</span>`}</div>
+          <table cellpadding="0" cellspacing="0" border="0" style="position:absolute;top:28px;left:28px;right:52px;width:calc(100% - 80px);border-collapse:collapse;"><tr><td style="white-space:nowrap;padding-right:16px;vertical-align:middle;line-height:0;font-size:0;">${logoDisplayWhite}</td><td style="width:100%;vertical-align:middle;"><div style="height:1px;background:rgba(255,255,255,0.55);font-size:0;line-height:0;"></div></td></tr></table>
+          <div style="position:absolute;bottom:24px;left:${textLeft}px;right:60px;">
+            <div style="font-family:Arial,sans-serif;font-size:${textSize}px;font-weight:900;line-height:1.05;color:#fff;text-transform:uppercase;letter-spacing:-0.01em;margin-bottom:12px;">${copy.headlineText||''}</div>
+            <div style="width:280px;height:48px;background:#fff;display:flex;align-items:center;justify-content:center;padding:0 16px;">${copy.ctaText ? `<a href="${copy.ctaUrl||'#'}" style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.1em;color:#1a1a1a;text-decoration:none;text-transform:uppercase;white-space:nowrap;">${copy.ctaText.toUpperCase()}</a>` : `<span style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.1em;color:#1a1a1a;text-transform:uppercase;white-space:nowrap;">SHOP NOW</span>`}</div>
+          </div>
         </div>`}
   </td></tr>`
 })()}
@@ -652,7 +654,7 @@ ${(() => {
   ${copy.bodyText ? `<div class="w6v2-section" style="padding:24px 48px 16px;background-color:${pageBg};"><div class="mobile-body" style="font-size:17px;line-height:1.8;color:${mutedTextCol};font-family:Arial,sans-serif;">${body}</div></div>` : ''}
 
   <!-- MAP PIN ELEMENT -->
-  <div style="overflow:hidden;height:435px;background-color:${pageBg};">
+  <div style="width:600px;overflow:hidden;height:435px;background-color:${pageBg};">
     <div style="position:relative;width:600px;height:520px;margin-left:55px;top:-82px;">
       <svg style="position:absolute;width:0;height:0;overflow:hidden;"><defs>
         <clipPath id="w8PinClip" clipPathUnits="userSpaceOnUse">
@@ -671,11 +673,11 @@ ${(() => {
   <!-- LOCATION TITLE + 3-PHOTO GRID -->
   ${(copy.bodyBlock2Title || img2 || img3 || img4) ? `<div style="padding:16px 0 36px;background-color:${pageBg};">
     ${copy.bodyBlock2Title ? `<div style="text-align:center;padding:0 0 20px;font-family:'Lora',Georgia,serif;font-size:26px;font-weight:700;letter-spacing:0;color:${secondary};text-transform:uppercase;">${copy.bodyBlock2Title.toUpperCase()}</div>` : ''}
-    <table width="568" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;">
+    <table width="578" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;">
       <tr>
-        ${img2 ? `<td style="padding:0 4px 0 0;vertical-align:top;"><div style="width:184px;height:290px;border-radius:24px;overflow:hidden;line-height:0;font-size:0;"><img src="${img2}" alt="" style="width:184px;height:290px;object-fit:cover;display:block;object-position:${focalPos(img2Obj)};transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/></div></td>` : ''}
-        ${img3 ? `<td style="padding:0 4px;vertical-align:top;"><div style="width:184px;height:290px;border-radius:24px;overflow:hidden;line-height:0;font-size:0;"><img src="${img3}" alt="" style="width:184px;height:290px;object-fit:cover;display:block;object-position:${focalPos(img3Obj)};transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/></div></td>` : ''}
-        ${img4 ? `<td style="padding:0 0 0 4px;vertical-align:top;"><div style="width:184px;height:290px;border-radius:24px;overflow:hidden;line-height:0;font-size:0;"><img src="${img4}" alt="" style="width:184px;height:290px;object-fit:cover;display:block;object-position:${focalPos(img4Obj)};transform:translate(${img4X}px,${img4Y}px) scale(${img4Scale});transform-origin:center center;"/></div></td>` : ''}
+        <td style="padding:0 4px 0 0;vertical-align:top;"><div style="position:relative;width:190px;height:290px;border-radius:24px;overflow:hidden;line-height:0;font-size:0;">${img2 ? `<img src="${img2}" alt="" style="position:absolute;top:0;left:0;width:190px;height:290px;object-fit:cover;display:block;object-position:${focalPos(img2Obj)};transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/>` : `<div style="width:190px;height:290px;background:#d0d0d0;border-radius:24px;"></div>`}</div></td>
+        <td style="padding:0 4px;vertical-align:top;"><div style="position:relative;width:190px;height:290px;border-radius:24px;overflow:hidden;line-height:0;font-size:0;">${img3 ? `<img src="${img3}" alt="" style="position:absolute;top:0;left:0;width:190px;height:290px;object-fit:cover;display:block;object-position:${focalPos(img3Obj)};transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/>` : `<div style="width:190px;height:290px;background:#d0d0d0;border-radius:24px;"></div>`}</div></td>
+        <td style="padding:0 0 0 4px;vertical-align:top;"><div style="position:relative;width:190px;height:290px;border-radius:24px;overflow:hidden;line-height:0;font-size:0;">${img4 ? `<img src="${img4}" alt="" style="position:absolute;top:0;left:0;width:190px;height:290px;object-fit:cover;display:block;object-position:${focalPos(img4Obj)};transform:translate(${img4X}px,${img4Y}px) scale(${img4Scale});transform-origin:center center;"/>` : `<div style="width:190px;height:290px;background:#d0d0d0;border-radius:24px;"></div>`}</div></td>
       </tr>
     </table>
   </div>` : ''}
@@ -2257,9 +2259,11 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
   ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:600px;height:680px;object-fit:cover;object-position:${w8HeroFp};display:block;"/>` : `<div style="position:absolute;inset:0;background:#2a2a2a;"></div>`}
   <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.35) 0%,rgba(0,0,0,0) 35%,rgba(0,0,0,0) 48%,rgba(0,0,0,0.55) 75%,rgba(0,0,0,0.72) 100%);"></div>
   <div style="position:absolute;top:64px;left:14px;right:44px;bottom:14px;border-left:1px solid rgba(255,255,255,0.55);border-right:1px solid rgba(255,255,255,0.55);border-bottom:1px solid rgba(255,255,255,0.55);"></div>
-  <div style="position:absolute;top:28px;left:28px;right:52px;display:flex;align-items:center;gap:16px;">${logoHtml}<div style="flex:1;height:1px;background:rgba(255,255,255,0.55);"></div></div>
-  <div style="position:absolute;bottom:32px;left:24px;right:60px;"><div style="font-family:Arial,sans-serif;font-size:${textSize}px;font-weight:900;line-height:1.05;color:#fff;text-transform:uppercase;letter-spacing:-0.01em;">${headline}</div></div>
-  <div style="position:absolute;bottom:14px;left:24px;width:280px;height:48px;background:#fff;display:flex;align-items:center;justify-content:center;padding:0 16px;"><span style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.1em;color:#1a1a1a;text-transform:uppercase;">${w8CtaText.toUpperCase()}</span></div>
+  <table cellpadding="0" cellspacing="0" border="0" style="position:absolute;top:28px;left:28px;right:52px;width:calc(100% - 80px);border-collapse:collapse;"><tr><td style="white-space:nowrap;padding-right:16px;vertical-align:middle;line-height:0;font-size:0;">${logoHtml}</td><td style="width:100%;vertical-align:middle;"><div style="height:1px;background:rgba(255,255,255,0.55);font-size:0;line-height:0;"></div></td></tr></table>
+  <div style="position:absolute;bottom:24px;left:24px;right:60px;">
+    <div style="font-family:Arial,sans-serif;font-size:${textSize}px;font-weight:900;line-height:1.05;color:#fff;text-transform:uppercase;letter-spacing:-0.01em;margin-bottom:12px;">${headline}</div>
+    <div style="width:280px;height:48px;background:#fff;display:flex;align-items:center;justify-content:center;padding:0 16px;"><span style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.1em;color:#1a1a1a;text-transform:uppercase;">${w8CtaText.toUpperCase()}</span></div>
+  </div>
 </div>
 </body></html>` : null
 
