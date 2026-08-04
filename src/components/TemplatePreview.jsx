@@ -630,8 +630,8 @@ function buildTemplateWeek8({ client, copy, images, footerData, isHeroGenerated 
     <tr><td style="padding:0;line-height:0;font-size:0;">
       ${isHeroGenerated && heroImg
         ? `<img src="${heroImg}" alt="" width="600" style="width:600px;max-width:600px;display:block;border:0;"/>`
-        : `<div style="position:relative;width:600px;height:680px;overflow:hidden;background:#1a1a1a;">
-            ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:600px;height:680px;object-fit:cover;object-position:${heroFp};transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;display:block;"/>` : `<div style="position:absolute;inset:0;background:#2a2a2a;"></div>`}
+        : `<div style="position:relative;width:100%;height:680px;overflow:hidden;background:#1a1a1a;">
+            ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:100%;height:680px;object-fit:cover;object-position:${heroFp};transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;display:block;"/>` : `<div style="position:absolute;inset:0;background:#2a2a2a;"></div>`}
             <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.35) 0%,rgba(0,0,0,0) 35%,rgba(0,0,0,0) 48%,rgba(0,0,0,0.55) 75%,rgba(0,0,0,0.72) 100%);"></div>
             <div style="position:absolute;top:64px;left:14px;right:44px;bottom:14px;border-left:1px solid rgba(255,255,255,0.55);border-right:1px solid rgba(255,255,255,0.55);border-bottom:1px solid rgba(255,255,255,0.55);"></div>
             <div style="position:absolute;top:28px;left:28px;right:52px;display:flex;align-items:center;gap:16px;">${logoDisplayWhite}<div style="flex:1;height:1px;background:rgba(255,255,255,0.55);"></div></div>
