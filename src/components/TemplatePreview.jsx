@@ -618,9 +618,9 @@ function buildTemplateWeek8({ client, copy, images, footerData, isHeroGenerated 
     .mobile-cta     { font-size:20px!important; padding:20px 80px!important; }
   }
 </style></head>
-<body style="margin:0;padding:0;background-color:${pageBg};">
+<body style="margin:0;padding:32px 0 48px;background-color:#ffffff;">
 
-<table width="600" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="width:600px;max-width:600px;margin:0 auto;background-color:${pageBg};border-collapse:collapse;">
+<table width="600" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="width:600px;max-width:600px;margin:0 auto;background-color:${pageBg};border-collapse:collapse;border-radius:20px;overflow:hidden;">
 <!-- HERO -->
 ${(() => {
   const logoDisplayWhite = logoUrl
