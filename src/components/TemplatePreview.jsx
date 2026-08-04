@@ -571,6 +571,7 @@ function buildTemplateWeek8({ client, copy, images, footerData, isHeroGenerated 
   img4Scale=1, img4X=0, img4Y=0,
   btnImgUrl = null,
   stampImgUrl = null,
+  pinImgUrl = null,
 }) {
   const heroObj  = images?.[0]; const heroImg = heroObj?.url||''
   const heroFp   = heroObj?.focalX != null ? `${heroObj.focalX}% ${heroObj.focalY}%` : '50% 50%'
@@ -655,7 +656,9 @@ ${(() => {
   ${copy.bodyText ? `<div class="w6v2-section" style="padding:24px 48px 16px;background-color:${pageBg};"><div class="mobile-body" style="font-size:17px;line-height:1.8;color:${mutedTextCol};font-family:Arial,sans-serif;">${body}</div></div>` : ''}
 
   <!-- MAP PIN ELEMENT -->
-  <div style="width:600px;overflow:hidden;height:435px;background-color:${pageBg};">
+  ${pinImgUrl
+    ? `<div style="line-height:0;font-size:0;"><img src="${pinImgUrl}" alt="" width="600" style="width:600px;max-width:600px;display:block;border:0;"/></div>`
+    : `<div style="width:600px;overflow:hidden;height:435px;background-color:${pageBg};">
     <div style="position:relative;width:600px;height:520px;margin-left:55px;top:-82px;">
       <svg style="position:absolute;width:0;height:0;overflow:hidden;"><defs>
         <clipPath id="w8PinClip" clipPathUnits="userSpaceOnUse">
@@ -669,7 +672,7 @@ ${(() => {
       </div>
       <div style="position:absolute;left:225px;top:185px;width:80px;height:80px;border-radius:50%;background:${pageBg};"></div>
     </div>
-  </div>
+  </div>`}
 
   <!-- LOCATION TITLE + 3-PHOTO GRID -->
   ${(copy.bodyBlock2Title || img2 || img3 || img4 || stampImgUrl) ? `<div style="padding:16px 0 36px;background-color:${pageBg};">
@@ -1464,7 +1467,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
       : clientFooter
     console.log('[baseHtml] tplId:', tpl?.id, 'isHeroGenerated:', isHeroGenerated, 'tplUrls:', tplUrls, 'effectiveImages[4]:', effectiveImages?.[4], 'effectiveImages[5]:', effectiveImages?.[5])
     const effectiveCopy = generatedCopy ? { ...generatedCopy, headlineText: (generatedCopy.headlineText || '').replace(/\.$/, '') } : generatedCopy
-    return tpl.build({ client:selectedClient, copy:effectiveCopy, images:effectiveImages, headerStyle, imageStyle, footerData: effectiveFooterData, isHeroGenerated, btnImgUrl: tplUrls.btn || null, stampImgUrl: tplUrls.sec || null, ...editorProps })
+    return tpl.build({ client:selectedClient, copy:effectiveCopy, images:effectiveImages, headerStyle, imageStyle, footerData: effectiveFooterData, isHeroGenerated, btnImgUrl: tplUrls.btn || null, stampImgUrl: tplUrls.sec || null, pinImgUrl: tplUrls.ter || null, ...editorProps })
   }, [active, selectedClient, generatedCopy, selectedImages, headerStyle, imageStyle, clientFooter, footerLogoColor, footerLogoSize, weekGenUrls, heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y])
 
   // Keep store in sync so ApprovalPanel always has the latest HTML
@@ -2285,6 +2288,26 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </table>
 </body></html>` : null
 
+    const w8img1Fp = selectedImages?.[1]?.focalX != null ? `${selectedImages[1].focalX}% ${selectedImages[1].focalY}%` : '50% 50%'
+    const week8PinHtml = isWeek8 && img1Url ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;height:435px;background:transparent;overflow:hidden;-webkit-font-smoothing:antialiased;}</style>
+</head><body>
+<div style="width:600px;overflow:hidden;height:435px;background:transparent;">
+  <div style="position:relative;width:600px;height:520px;margin-left:55px;top:-82px;">
+    <svg style="position:absolute;width:0;height:0;overflow:hidden;">
+      <defs>
+        <clipPath id="w8PinBaked" clipPathUnits="userSpaceOnUse">
+          <path clip-rule="evenodd" d="M265,510 C235,460 171,378 133,273 A140,140 0 1,1 397,273 C359,378 295,460 265,510 Z M225,225 a40,40 0 1,0 80,0 a40,40 0 1,0 -80,0 Z"/>
+        </clipPath>
+      </defs>
+    </svg>
+    <div style="position:absolute;top:0;left:0;width:600px;height:520px;clip-path:url(#w8PinBaked);">
+      <img src="${img1Url}" alt="" style="position:absolute;left:125px;top:85px;width:280px;height:425px;object-fit:cover;object-position:${w8img1Fp};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;display:block;"/>
+    </div>
+  </div>
+</div>
+</body></html>` : null
+
     const heroHeight = isWeek8 ? 680 : isWeek7 ? ((img1Url || img2Url || img3Url) ? 988 : 720) : isWeek2 ? 580 : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : isTest ? 520 : 400
     const secondaryPromise = isWeek7
       ? (week7StampHtml ? renderImage({ html: week7StampHtml, width: 400, height: 500, transparent: true }) : Promise.resolve(null))
@@ -2308,7 +2331,9 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
               ? renderImage({ html: polaroidHtml, width: 600, height: 340 })
               : Promise.resolve(null)
 
-    const tertiaryPromise = isWeek2v2 && img2Url
+    const tertiaryPromise = isWeek8 && week8PinHtml
+      ? renderImage({ html: week8PinHtml, width: 600, height: 435, transparent: true })
+      : isWeek2v2 && img2Url
       ? renderImage({ html: week2StripHtml, width: 600, height: 244, transparent: true })
       : isWeek3v2 && (img3Url || img1Url)
       ? renderImage({ html: w3v2BodyHtml, width: 600, height: 340, transparent: true })
