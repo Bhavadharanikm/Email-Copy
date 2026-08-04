@@ -646,7 +646,9 @@ ${(() => {
   <!-- SUBHEAD + TOP CTA -->
   ${(copy.subhead || copy.ctaText) ? `<div style="padding:32px 48px;text-align:center;background-color:${pageBg};">
     ${copy.subhead ? `<div class="mobile-subhead" style="font-family:Georgia,serif;font-size:19px;font-style:italic;line-height:1.7;color:${mutedTextCol};margin-bottom:28px;">${copy.subhead}</div>` : ''}
-    ${copy.ctaText ? `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accent};border-radius:999px;"><a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:18px 52px;font-family:Arial,sans-serif;font-size:18px;font-weight:700;letter-spacing:.02em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>` : ''}
+    ${copy.ctaText ? (btnImgUrl
+      ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w6v2-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:375px;display:block;margin:0 auto;border:0;outline:none;"/></a>`
+      : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accent};border-radius:999px;"><a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:18px 52px;font-family:Arial,sans-serif;font-size:18px;font-weight:700;letter-spacing:.02em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`) : ''}
   </div>` : ''}
 
   <!-- DIVIDER -->
