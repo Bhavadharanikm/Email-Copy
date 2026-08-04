@@ -2258,12 +2258,11 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </head><body>
 <div style="width:600px;height:680px;position:relative;overflow:hidden;background:#1a1a1a;">
   ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:600px;height:680px;object-fit:cover;object-position:${w8HeroFp};display:block;"/>` : `<div style="position:absolute;inset:0;background:#2a2a2a;"></div>`}
-  <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.35) 0%,rgba(0,0,0,0) 35%,rgba(0,0,0,0) 55%,rgba(0,0,0,0.6) 100%);"></div>
-  <div style="position:absolute;top:14px;left:14px;right:14px;bottom:68px;border:1px solid rgba(255,255,255,0.55);"></div>
-  <div style="position:absolute;top:28px;left:28px;">${logoHtml}</div>
-  ${w8Subhead ? `<div style="position:absolute;right:18px;top:0;bottom:68px;display:flex;align-items:center;justify-content:center;"><span style="writing-mode:vertical-rl;font-family:Arial,sans-serif;font-size:9px;font-weight:600;letter-spacing:0.18em;color:rgba(255,255,255,0.7);text-transform:uppercase;">${w8Subhead.replace(/\s+/g,' ').trim().slice(0,55).toUpperCase()}</span></div>` : ''}
-  <div style="position:absolute;bottom:82px;left:28px;right:60px;"><div style="font-family:Arial,sans-serif;font-size:${textSize}px;font-weight:900;line-height:1.05;color:#fff;text-transform:uppercase;letter-spacing:-0.01em;">${headline}</div></div>
-  <div style="position:absolute;bottom:24px;left:180px;width:240px;height:48px;background:#fff;display:flex;align-items:center;justify-content:center;"><span style="font-family:Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.16em;color:#1a1a1a;text-transform:uppercase;">${w8CtaText.toUpperCase()}</span></div>
+  <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.35) 0%,rgba(0,0,0,0) 35%,rgba(0,0,0,0) 48%,rgba(0,0,0,0.55) 75%,rgba(0,0,0,0.72) 100%);"></div>
+  <div style="position:absolute;top:64px;left:14px;right:44px;bottom:14px;border-left:1px solid rgba(255,255,255,0.55);border-right:1px solid rgba(255,255,255,0.55);border-bottom:1px solid rgba(255,255,255,0.55);"></div>
+  <div style="position:absolute;top:28px;left:28px;right:52px;display:flex;align-items:center;gap:16px;">${logoHtml}<div style="flex:1;height:1px;background:rgba(255,255,255,0.55);"></div></div>
+  <div style="position:absolute;bottom:32px;left:24px;right:60px;"><div style="font-family:Arial,sans-serif;font-size:${textSize}px;font-weight:900;line-height:1.05;color:#fff;text-transform:uppercase;letter-spacing:-0.01em;">${headline}</div></div>
+  <div style="position:absolute;bottom:14px;left:24px;width:280px;height:48px;background:#fff;display:flex;align-items:center;justify-content:center;padding:0 16px;"><span style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.1em;color:#1a1a1a;text-transform:uppercase;">${w8CtaText.toUpperCase()}</span></div>
 </div>
 </body></html>` : null
 
