@@ -644,7 +644,7 @@ function buildTemplateWeek8({ client, copy, images, footerData, isHeroGenerated 
 
   <!-- SUBHEAD + TOP CTA -->
   ${(copy.subhead || copy.ctaText) ? `<div style="padding:32px 48px;text-align:center;background-color:${pageBg};">
-    ${copy.subhead ? `<div class="mobile-subhead" style="font-family:Georgia,serif;font-size:19px;font-style:italic;font-weight:700;line-height:1.7;color:${mutedTextCol};margin-bottom:28px;">${copy.subhead}</div>` : ''}
+    ${copy.subhead ? `<div class="mobile-subhead" style="font-family:Georgia,serif;font-size:19px;font-style:italic;line-height:1.7;color:${mutedTextCol};margin-bottom:28px;">${copy.subhead}</div>` : ''}
     ${copy.ctaText ? `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accent};border-radius:999px;"><a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:18px 52px;font-family:Arial,sans-serif;font-size:18px;font-weight:700;letter-spacing:.02em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>` : ''}
   </div>` : ''}
 
@@ -1272,7 +1272,7 @@ function buildTemplateWeek7({ client, copy, images, footerData, isHeroGenerated 
         <div style="text-align:center;padding-top:${logoTop}px;">${logoOverlay}</div>
         <div style="padding:0 ${textLeft}px ${textTop}px;">
           <div style="font-family:'Lato',Arial,sans-serif;font-size:${textSize}px;font-weight:900;line-height:1.12;color:#fff;text-align:left;">${copy.headlineText||''}</div>
-          ${copy.subhead ? `<div style="font-family:'Lora',Georgia,serif;font-size:24px;font-style:italic;line-height:1.55;color:#fff;margin-top:8px;text-align:left;max-width:520px;">${copy.subhead}</div>` : ''}
+          ${copy.subhead ? `<div style="font-family:'Lora',Georgia,serif;font-size:24px;font-style:italic;font-weight:700;line-height:1.55;color:#fff;margin-top:8px;text-align:left;max-width:520px;">${copy.subhead}</div>` : ''}
           ${copy.ctaText ? `<div style="margin-top:12px;"><table cellpadding="0" cellspacing="0" border="0"><tr><td style="background:rgba(0,0,0,0.4);border:2px solid rgba(255,255,255,0.85);border-radius:100px;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:14px 44px;font-family:Arial,sans-serif;font-size:16px;font-weight:700;letter-spacing:.04em;color:#fff!important;text-decoration:none!important;white-space:nowrap;">${copy.ctaText}</a></td></tr></table></div>` : ''}
         </div>
       </div>
