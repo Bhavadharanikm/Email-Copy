@@ -1371,6 +1371,125 @@ function buildTemplateWeek7({ client, copy, images, footerData, isHeroGenerated 
 </body></html>`
 }
 
+/* ══════════════════════════════════════════════════════════════════════════
+   WEEK 9 — Full-bleed hero with decorative frame overlay
+   Spec: TEMPLATE_SPEC.md · Mobile CSS: SHARED_MOBILE_CSS
+   Hero: 600×720 full-bleed image, white bordered frame, split italic headline
+   Body: identical to Week 2 (long img, strip, b2 inner box)
+   ══════════════════════════════════════════════════════════════════════════ */
+function buildTemplateWeek9({ client, copy, images, footerData, isHeroGenerated = false,
+  heroScale=1, heroX=0, heroY=0,
+  textSize=68, textTop=80, textLeft=64,
+  logoColor='white', logoTop=28, logoRight=28, logoSize=44,
+  img1Scale=1, img1X=0, img1Y=0,
+  img2Scale=1, img2X=0, img2Y=0,
+  img3Scale=1, img3X=0, img3Y=0,
+  btnImgUrl = null,
+}) {
+  const heroObj  = images?.[0]; const heroImg = heroObj?.url||''
+  const img1Obj  = images?.[1]; const img1    = img1Obj?.url||''
+  const img2Obj  = images?.[2]; const img2    = img2Obj?.url||''
+  const img3Obj  = images?.[3]; const img3    = img3Obj?.url||''
+  const body     = (copy.bodyText||'').replace(/\n/g,'<br>')
+  const b2body   = (copy.bodyBlock2||'').replace(/\n/g,'<br>')
+  const logoUrl  = client?.logoUrl||''
+  const pageBg   = footerData?.bgColor || '#1e2a4a'
+  const accent   = footerData?.buttonColor || '#d4006a'
+  const secondary = footerData?.secondaryColor || accent
+  const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
+
+  const _rgb = pageBg.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i)
+  const _r = _rgb ? parseInt(_rgb[1],16) : 30
+  const _g = _rgb ? parseInt(_rgb[2],16) : 42
+  const _b = _rgb ? parseInt(_rgb[3],16) : 74
+  const _lum = (0.299*_r + 0.587*_g + 0.114*_b)/255
+  const lightBg      = _lum > 0.55
+  const mutedTextCol = lightBg ? '#595959' : '#d4d4d4'
+  const dividerCol   = lightBg ? '#e0e0e0' : '#444444'
+
+  // Split headline at \n for two-line treatment (e.g. "Family\nEscape")
+  const hLines = (copy.headlineText||'').split('\n')
+  const hLine1 = hLines[0] || ''
+  const hLine2 = hLines[1] || ''
+  const taglineSize = Math.max(14, Math.round(textSize * 0.26))
+  const indent      = Math.round(textSize * 0.55)
+
+  const logoOverlay = logoUrl
+    ? `<img src="${logoUrl}" alt="${client?.name||''}" style="display:block;height:${logoSize}px;width:auto;max-width:${logoSize*6}px;filter:${logoFilter};"/>`
+    : `<div style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:#ffffff;">${client?.name||''}</div>`
+
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@1,700&display=swap" rel="stylesheet"/>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{margin:0;padding:0;color:#1a1a1a;}
+  table{border-collapse:collapse;}
+  ${SHARED_MOBILE_CSS}
+</style></head>
+<body style="margin:0;padding:32px 0 48px;background-color:#ffffff;">
+
+<table width="600" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="width:600px;max-width:600px;margin:0 auto;background-color:${pageBg};border-collapse:collapse;border-radius:20px;overflow:hidden;">
+<tr><td style="background-color:${pageBg};">
+
+  <!-- HERO: Puppeteer PNG or CSS preview -->
+  ${isHeroGenerated
+    ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><img src="${heroImg}" alt="" width="600" style="width:100%;display:block;max-width:600px;border:0;"/></div>`
+    : `<div style="position:relative;width:600px;height:720px;overflow:hidden;background:#1a3050;line-height:0;font-size:0;">
+    ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:${Math.min(0,Math.max(720*(1-heroScale),-(720*(heroScale-1)/2)+heroY))}px;left:${Math.min(0,Math.max(600*(1-heroScale),-(600*(heroScale-1)/2)+heroX))}px;width:${600*heroScale}px;height:${720*heroScale}px;object-fit:cover;display:block;"/>` : `<div style="width:600px;height:720px;background:linear-gradient(135deg,#3d5a80,#1a3050);"></div>`}
+    <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.06) 0%,rgba(0,0,0,0) 35%,rgba(0,0,0,0.15) 65%,rgba(0,0,0,0.52) 100%);line-height:normal;font-size:initial;">
+      <div style="position:absolute;top:${logoTop}px;right:${logoRight}px;">${logoOverlay}</div>
+      <div style="position:absolute;top:168px;left:56px;width:392px;height:512px;border:2.5px solid rgba(255,255,255,0.82);border-radius:0 48px 0 0;"></div>
+      <div style="position:absolute;bottom:${textTop}px;left:${textLeft}px;">
+        ${copy.subhead ? `<div style="font-family:Arial,sans-serif;font-size:${taglineSize}px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,0.92);margin-bottom:8px;text-shadow:0 1px 6px rgba(0,0,0,.3);">${copy.subhead}</div>` : ''}
+        <div style="font-family:'Lora',Georgia,serif;font-size:${textSize}px;font-weight:700;font-style:italic;line-height:1.0;color:#fff;text-shadow:0 2px 14px rgba(0,0,0,.38);">${hLine1}${hLine2 ? `<br/><span style="padding-left:${indent}px;">${hLine2}</span>` : ''}</div>
+      </div>
+    </div>
+  </div>`}
+
+  <!-- TOP CTA -->
+  ${copy.ctaText ? `<div class="w2-section" style="padding:24px 48px 28px;text-align:center;background-color:${pageBg};">${btnImgUrl
+    ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w2-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:375px;display:block;margin:0 auto;border:0;outline:none;"/></a>`
+    : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accent};border-radius:999px;"><a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`
+  }</div>` : ''}
+
+  <!-- LONG IMAGE (img1) -->
+  ${img1 ? `<div style="line-height:0;font-size:0;padding:0 36px 16px;background-color:${pageBg};"><div style="overflow:hidden;border-radius:8px;height:360px;"><img src="${img1}" alt="" style="width:100%;height:360px;object-fit:cover;display:block;object-position:${focalPos(img1Obj)};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/></div></div>` : ''}
+
+  <!-- BODY BLOCK 1 -->
+  ${copy.bodyText ? `<div class="w2-section" style="padding:24px 48px 32px;background-color:${pageBg};"><div class="mobile-body" style="font-size:17px;line-height:1.8;color:${mutedTextCol};margin-bottom:18px;font-family:Arial,sans-serif;">${body}</div></div>` : ''}
+
+  <!-- STRIP IMAGES (img2 + img3) -->
+  ${img2 ? `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;background-color:${pageBg};">
+    <tr><td style="padding:0 36px 24px;">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;line-height:0;font-size:0;">
+        <tr>
+          <td width="49%" style="padding-right:4px;vertical-align:top;"><div style="overflow:hidden;border-radius:6px;height:220px;"><img src="${img2}" alt="" width="100%" style="width:100%;height:220px;object-fit:cover;display:block;object-position:${focalPos(img2Obj)};transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/></div></td>
+          ${img3 ? `<td width="49%" style="padding-left:4px;vertical-align:top;"><div style="overflow:hidden;border-radius:6px;height:220px;"><img src="${img3}" alt="" width="100%" style="width:100%;height:220px;object-fit:cover;display:block;object-position:${focalPos(img3Obj)};transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/></div></td>` : ''}
+        </tr>
+      </table>
+    </td></tr>
+  </table>` : ''}
+
+  <!-- BODY BLOCK 2 (inner box, same as Week 2) -->
+  ${(copy.bodyBlock2Title || copy.bodyBlock2 || copy.closingLine) ? `
+  <div class="w2-b2" style="background-color:${pageBg};padding:8px 36px 0;">
+    <div class="w2-b2-inner" style="background-color:${pageBg};border-radius:10px;padding:16px 20px;">
+      ${copy.bodyBlock2Title ? `<div class="mobile-b2title" style="font-size:22px;font-weight:700;font-family:Arial,sans-serif;letter-spacing:0;text-transform:uppercase;color:${secondary};margin-bottom:6px;text-align:left;">${copy.bodyBlock2Title}</div>` : ''}
+      ${copy.bodyBlock2 ? `<div class="mobile-body" style="font-size:17px;line-height:1.8;color:${mutedTextCol};margin-bottom:18px;font-family:Arial,sans-serif;">${b2body}</div>` : ''}
+      ${copy.closingLine ? `<div class="mobile-closing" style="font-size:17px;line-height:1.7;color:${mutedTextCol};font-style:italic;margin-bottom:24px;font-family:Georgia,serif;">${copy.closingLine}</div>` : ''}
+    </div>
+    ${copy.ctaText ? `<div style="padding:16px 0 36px;text-align:center;">${btnImgUrl
+      ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w2-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:375px;display:block;margin:0 auto;border:0;outline:none;"/></a>`
+      : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accent};border-radius:999px;"><a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`
+    }</div>` : ''}
+  </div>` : ''}
+
+  <div style="background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: dividerCol, bodyTextAlign: 'justify' })}</div>
+</td></tr></table>
+</body></html>`
+}
+
 /* ─────────────────────────── registry ──────────────────────────────────── */
 const TEMPLATES = [
   { id:17, label:'✅ Week 2', build:buildTemplateWeek2v2 },
@@ -1380,6 +1499,7 @@ const TEMPLATES = [
   { id:19, label:'✅ Week 4', build:buildTemplateWeek4v2b },
   { id:22, label:'✅ Week 8', build:buildTemplateWeek8 },
   { id:21, label:'✅ Week 7', build:buildTemplateWeek7, adminOnly:true },
+  { id:23, label:'✅ Week 9', build:buildTemplateWeek9, adminOnly:true },
   { id:20, label:'🧪 Test',   build:buildTemplateTest,  adminOnly:true },
 ]
 
@@ -1420,7 +1540,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
   }, [active])  // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Hero editor — all week templates ─────────────────────────────────────────
-  const isEditable = [10, 11, 13, 16, 17, 18, 19, 20, 21, 22].includes(tpl?.id)
+  const isEditable = [10, 11, 13, 16, 17, 18, 19, 20, 21, 22, 23].includes(tpl?.id)
   const [heroScale,   setHeroScale]   = useState(1)
   const [heroX,       setHeroX]       = useState(0)
   const [heroY,       setHeroY]       = useState(0)
@@ -1464,10 +1584,11 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     if (tpl?.id === 21) { setTextSize(54); setTextTop(60);  setTextLeft(24);  setLogoColor('original'); setLogoTop(48); setLogoRight(200); setLogoSize(40) }
     if (tpl?.id === 20) { setTextSize(38); setTextTop(32); setTextLeft(24); setLogoColor('original'); setLogoTop(24); setLogoRight(200); setLogoSize(40) }
     if (tpl?.id === 22) { setTextSize(48); setTextTop(108); setTextLeft(28); setLogoColor('white');    setLogoTop(28); setLogoRight(28);  setLogoSize(40) }
+    if (tpl?.id === 23) { setTextSize(68); setTextTop(80);  setTextLeft(64); setLogoColor('white');    setLogoTop(28); setLogoRight(28);  setLogoSize(44) }
   }, [tpl?.id])  // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Week template image generation ───────────────────────────────────────────
-  const isWeekTemplate = [10, 11, 13, 16, 17, 18, 19, 20, 21, 22].includes(tpl?.id)
+  const isWeekTemplate = [10, 11, 13, 16, 17, 18, 19, 20, 21, 22, 23].includes(tpl?.id)
   const [weekGenUrls,     setWeekGenUrls]     = useState({})  // { [tplId]: { hero, sec, ter } }
   const [weekGenLoading,  setWeekGenLoading]  = useState(false)
   const [weekGenError,    setWeekGenError]    = useState(null)
@@ -1756,6 +1877,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     const isWeek4v2b = tpl?.id === 19
     const isWeek7    = tpl?.id === 21
     const isWeek8    = tpl?.id === 22
+    const isWeek9    = tpl?.id === 23
     const isTest     = tpl?.id === 20
     const renderLogoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
     const logoHtml = logoUrl
@@ -2333,10 +2455,35 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </div>
 </body></html>` : null
 
-    const heroHeight = isWeek8 ? 680 : isWeek7 ? ((img1Url || img2Url || img3Url) ? 988 : 720) : isWeek2 ? 580 : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : isTest ? 520 : 400
+    // ── Week 9: full-bleed hero with decorative frame ──
+    const w9HeroFp = selectedImages?.[0]?.focalX != null ? `${selectedImages[0].focalX}% ${selectedImages[0].focalY}%` : '50% 50%'
+    const w9Subhead = generatedCopy?.subhead || ''
+    const w9hLines  = (generatedCopy?.headlineText||'').replace(/\.$/, '').split('\n')
+    const w9hLine1  = w9hLines[0] || ''
+    const w9hLine2  = w9hLines[1] || ''
+    const w9TaglineSize = Math.max(14, Math.round(textSize * 0.26))
+    const w9Indent      = Math.round(textSize * 0.55)
+    const week9HeroHtml = isWeek9 ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@1,700&display=swap" rel="stylesheet"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;height:720px;overflow:hidden;background:#1a3050;}</style>
+</head><body>
+<div style="position:relative;width:600px;height:720px;overflow:hidden;">
+  ${heroImgUrl ? `<img src="${heroImgUrl}" alt="" style="position:absolute;top:${Math.min(0,Math.max(720*(1-heroScale),-(720*(heroScale-1)/2)+heroY))}px;left:${Math.min(0,Math.max(600*(1-heroScale),-(600*(heroScale-1)/2)+heroX))}px;width:${600*heroScale}px;height:${720*heroScale}px;object-fit:cover;display:block;"/>` : `<div style="width:600px;height:720px;background:linear-gradient(135deg,#3d5a80,#1a3050);"></div>`}
+  <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.06) 0%,rgba(0,0,0,0) 35%,rgba(0,0,0,0.15) 65%,rgba(0,0,0,0.52) 100%);">
+    ${logoUrl ? `<div style="position:absolute;top:${logoTop}px;right:${logoRight}px;"><img src="${logoUrl}" alt="" style="height:${logoSize}px;width:auto;max-width:${logoSize*6}px;display:block;filter:brightness(0) invert(1);"/></div>` : `<div style="position:absolute;top:${logoTop}px;right:${logoRight}px;font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:#fff;">${clientName}</div>`}
+    <div style="position:absolute;top:168px;left:56px;width:392px;height:512px;border:2.5px solid rgba(255,255,255,0.82);border-radius:0 48px 0 0;"></div>
+    <div style="position:absolute;bottom:${textTop}px;left:${textLeft}px;">
+      ${w9Subhead ? `<div style="font-family:Arial,sans-serif;font-size:${w9TaglineSize}px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,0.92);margin-bottom:8px;text-shadow:0 1px 6px rgba(0,0,0,.3);">${w9Subhead}</div>` : ''}
+      <div style="font-family:'Lora',Georgia,serif;font-size:${textSize}px;font-weight:700;font-style:italic;line-height:1.0;color:#fff;text-shadow:0 2px 14px rgba(0,0,0,.38);">${w9hLine1}${w9hLine2 ? `<br/><span style="padding-left:${w9Indent}px;">${w9hLine2}</span>` : ''}</div>
+    </div>
+  </div>
+</div>
+</body></html>` : null
+
+    const heroHeight = isWeek9 ? 720 : isWeek8 ? 680 : isWeek7 ? ((img1Url || img2Url || img3Url) ? 988 : 720) : isWeek2 ? 580 : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : isTest ? 520 : 400
     const secondaryPromise = isWeek7
       ? (week7StampHtml ? renderImage({ html: week7StampHtml, width: 400, height: 500, transparent: true }) : Promise.resolve(null))
-      : isWeek2v2 && img1Url
+      : (isWeek2v2 || isWeek9) && img1Url
       ? renderImage({ html: week2LongImgHtml, width: 600, height: 376, transparent: true })
       : isWeek3v2 && (img1Url || img2Url)
       ? renderImage({ html: w3v2StackedHtml, width: 600, height: 420, transparent: true })
@@ -2358,7 +2505,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 
     const tertiaryPromise = isWeek8 && week8PinHtml
       ? renderImage({ html: week8PinHtml, width: 600, height: 435, transparent: true })
-      : isWeek2v2 && img2Url
+      : (isWeek2v2 || isWeek9) && img2Url
       ? renderImage({ html: week2StripHtml, width: 600, height: 244, transparent: true })
       : isWeek3v2 && (img3Url || img1Url)
       ? renderImage({ html: w3v2BodyHtml, width: 600, height: 340, transparent: true })
@@ -2368,7 +2515,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
           ? renderImage({ html: week4v2bStackedHtml, width: 600, height: 548, transparent: true })
           : Promise.resolve(null)
 
-    const buttonPromise = (isWeek2v2 || isWeek6v2 || isWeek4v2b) && w2v2ButtonHtml
+    const buttonPromise = (isWeek2v2 || isWeek6v2 || isWeek4v2b || isWeek9) && w2v2ButtonHtml
       ? renderImage({ html: w2v2ButtonHtml, width: 600, height: 88, transparent: true })
       : isWeek3v2 && w3v2ButtonHtml
       ? renderImage({ html: w3v2ButtonHtml, width: 600, height: 88, transparent: true })
@@ -2380,7 +2527,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
       ? renderImage({ html: w8ButtonHtml, width: 600, height: 88, transparent: true })
       : Promise.resolve(null)
 
-    const heroHtmlToUse = isWeek8 ? week8HeroHtml : isWeek7 ? week7HeroHtml : isTest ? testHeroHtml : isWeek5 ? week5HeroHtml : isWeek6v2 ? week6HeroHtml : isWeek4v2b ? week4v2bHeroHtml : heroHtml
+    const heroHtmlToUse = isWeek9 ? week9HeroHtml : isWeek8 ? week8HeroHtml : isWeek7 ? week7HeroHtml : isTest ? testHeroHtml : isWeek5 ? week5HeroHtml : isWeek6v2 ? week6HeroHtml : isWeek4v2b ? week4v2bHeroHtml : heroHtml
 
     Promise.all([
       renderImage({ html: heroHtmlToUse, width: 600, height: heroHeight, transparent: isWeek7 || isWeek3v2 || isWeek5 || isWeek6v2 || isWeek4v2b }),
@@ -2943,6 +3090,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
             if (tpl?.id === 16) { setTextSize(40); setTextTop(14);  setTextLeft(52);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
             if (tpl?.id === 18 || tpl?.id === 19) { setTextSize(38); setTextTop(32);  setTextLeft(24);  setLogoColor('original'); setLogoTop(12); setLogoRight(24);  setLogoSize(40) }
             if (tpl?.id === 21) { setTextSize(54); setTextTop(60);  setTextLeft(24);  setLogoColor('original'); setLogoTop(48); setLogoRight(200); setLogoSize(40) }
+            if (tpl?.id === 23) { setTextSize(68); setTextTop(80);  setTextLeft(64);  setLogoColor('white');    setLogoTop(28); setLogoRight(28);  setLogoSize(44) }
           }} style={{
             width: '100%', padding: '7px 0', borderRadius: 8, fontSize: 11, fontWeight: 600,
             cursor: 'pointer',
