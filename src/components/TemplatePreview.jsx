@@ -1497,7 +1497,7 @@ const TEMPLATES = [
   { id:13, label:'✅ Week 5',  build:buildTemplateWeek5v2 },
   { id:18, label:'✅ Week 6', build:buildTemplateWeek6v2 },
   { id:19, label:'✅ Week 4', build:buildTemplateWeek4v2b },
-  { id:22, label:'✅ Week 8', build:buildTemplateWeek8 },
+  { id:22, label:'✅ Week 8', build:buildTemplateWeek8, adminOnly:true },
   { id:21, label:'✅ Week 7', build:buildTemplateWeek7, adminOnly:true },
   { id:23, label:'✅ Week 9', build:buildTemplateWeek9, adminOnly:true },
   { id:20, label:'🧪 Test',   build:buildTemplateTest,  adminOnly:true },
