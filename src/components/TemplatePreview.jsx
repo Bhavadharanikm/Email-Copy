@@ -603,7 +603,7 @@ function buildTemplateWeek8({ client, copy, images, footerData, isHeroGenerated 
 
   return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@700;900&family=Lora:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   body{margin:0;padding:0;color:#1a1a1a;}
@@ -636,7 +636,7 @@ ${(() => {
           <div style="position:absolute;top:64px;left:14px;right:44px;bottom:14px;border-left:1px solid rgba(255,255,255,0.55);border-right:1px solid rgba(255,255,255,0.55);border-bottom:1px solid rgba(255,255,255,0.55);"></div>
           <table cellpadding="0" cellspacing="0" border="0" style="position:absolute;top:28px;left:28px;right:52px;width:calc(100% - 80px);border-collapse:collapse;"><tr><td style="white-space:nowrap;padding-right:16px;vertical-align:middle;line-height:0;font-size:0;">${logoDisplayWhite}</td><td style="width:100%;vertical-align:middle;"><div style="height:1px;background:rgba(255,255,255,0.55);font-size:0;line-height:0;"></div></td></tr></table>
           <div style="position:absolute;bottom:24px;left:${textLeft}px;right:60px;">
-            <div style="font-family:Arial,sans-serif;font-size:${textSize}px;font-weight:900;line-height:1.05;color:#fff;text-transform:uppercase;letter-spacing:-0.01em;margin-bottom:12px;">${copy.headlineText||''}</div>
+            <div style="font-family:'Lato',Arial,sans-serif;font-size:${textSize}px;font-weight:900;line-height:1.12;color:#fff;margin-bottom:12px;">${copy.headlineText||''}</div>
             <div style="width:280px;height:48px;background:#fff;display:flex;align-items:center;justify-content:center;padding:0 16px;">${copy.ctaText ? `<a href="${copy.ctaUrl||'#'}" style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.1em;color:#1a1a1a;text-decoration:none;text-transform:uppercase;white-space:nowrap;">${copy.ctaText.toUpperCase()}</a>` : `<span style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.1em;color:#1a1a1a;text-transform:uppercase;white-space:nowrap;">SHOP NOW</span>`}</div>
           </div>
         </div>`}
@@ -2262,6 +2262,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     const w8CtaText = generatedCopy?.ctaText || 'Shop Now'
     const w8Subhead = generatedCopy?.subhead || ''
     const week8HeroHtml = isWeek8 ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@700;900&display=swap" rel="stylesheet"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:#1a1a1a;-webkit-font-smoothing:antialiased;}</style>
 </head><body>
 <div style="width:600px;height:680px;position:relative;overflow:hidden;background:#1a1a1a;">
@@ -2270,7 +2271,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
   <div style="position:absolute;top:64px;left:14px;right:44px;bottom:14px;border-left:1px solid rgba(255,255,255,0.55);border-right:1px solid rgba(255,255,255,0.55);border-bottom:1px solid rgba(255,255,255,0.55);"></div>
   <table cellpadding="0" cellspacing="0" border="0" style="position:absolute;top:28px;left:28px;right:52px;width:calc(100% - 80px);border-collapse:collapse;"><tr><td style="white-space:nowrap;padding-right:16px;vertical-align:middle;line-height:0;font-size:0;">${logoHtml}</td><td style="width:100%;vertical-align:middle;"><div style="height:1px;background:rgba(255,255,255,0.55);font-size:0;line-height:0;"></div></td></tr></table>
   <div style="position:absolute;bottom:24px;left:24px;right:60px;">
-    <div style="font-family:Arial,sans-serif;font-size:${textSize}px;font-weight:900;line-height:1.05;color:#fff;text-transform:uppercase;letter-spacing:-0.01em;margin-bottom:12px;">${headline}</div>
+    <div style="font-family:'Lato',Arial,sans-serif;font-size:${textSize}px;font-weight:900;line-height:1.12;color:#fff;margin-bottom:12px;">${headline}</div>
     <div style="width:280px;height:48px;background:#fff;display:flex;align-items:center;justify-content:center;padding:0 16px;"><span style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.1em;color:#1a1a1a;text-transform:uppercase;">${w8CtaText.toUpperCase()}</span></div>
   </div>
 </div>
