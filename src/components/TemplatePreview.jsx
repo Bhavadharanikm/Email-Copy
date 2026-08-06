@@ -670,14 +670,14 @@ ${(() => {
     ${copy.subhead ? `<div class="mobile-subhead" style="font-family:Georgia,serif;font-size:20px;font-style:italic;line-height:1.5;color:${mutedTextCol};margin-bottom:28px;">${copy.subhead}</div>` : ''}
     ${copy.ctaText ? (btnImgUrl
       ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w6v2-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:375px;display:block;margin:0 auto;border:0;outline:none;"/></a>`
-      : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accent};border-radius:999px;"><a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:24px 100px;font-family:Arial,sans-serif;font-size:24px;font-weight:700;letter-spacing:.02em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`) : ''}
+      : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accent};border-radius:999px;"><a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.02em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`) : ''}
   </div>` : ''}
 
   <!-- DIVIDER -->
   <div style="padding:0 48px;background-color:${pageBg};"><div style="height:1px;background:${dividerCol};font-size:0;line-height:0;"></div></div>
 
   <!-- BODY BLOCK -->
-  ${copy.bodyText ? `<div class="w6v2-section" style="padding:24px 48px 16px;background-color:${pageBg};"><div class="mobile-body" style="font-size:20px;line-height:1.6;color:${mutedTextCol};font-family:Arial,sans-serif;">${body}</div></div>` : ''}
+  ${copy.bodyText ? `<div class="w6v2-section" style="padding:24px 48px 16px;background-color:${pageBg};"><div class="mobile-body" style="font-size:17px;line-height:1.8;color:${mutedTextCol};font-family:Arial,sans-serif;">${body}</div></div>` : ''}
 
   <!-- MAP PIN ELEMENT -->
   ${pinImgUrl
@@ -713,7 +713,7 @@ ${(() => {
   </div>` : ''}
 
   <!-- BODY BLOCK 2 TEXT -->
-  ${copy.bodyBlock2 ? `<div class="w6v2-section" style="padding:16px 48px 0;background-color:${pageBg};"><div class="mobile-body" style="font-size:20px;line-height:1.6;color:${mutedTextCol};font-family:Arial,sans-serif;">${b2body}</div></div>` : ''}
+  ${copy.bodyBlock2 ? `<div class="w6v2-section" style="padding:16px 48px 0;background-color:${pageBg};"><div class="mobile-body" style="font-size:17px;line-height:1.8;color:${mutedTextCol};font-family:Arial,sans-serif;">${b2body}</div></div>` : ''}
 
   <!-- CLOSING LINE -->
   ${copy.closingLine ? `<div class="w6v2-section" style="padding:28px 48px 0;text-align:center;background-color:${pageBg};"><div class="mobile-closing" style="font-size:20px;line-height:1.5;color:${mutedTextCol};font-style:italic;font-family:Georgia,serif;">${copy.closingLine}</div></div>` : ''}
@@ -721,7 +721,7 @@ ${(() => {
   <!-- BOTTOM CTA -->
   ${copy.ctaText ? `<div style="padding:28px 0 36px;text-align:center;background-color:${pageBg};">${btnImgUrl
     ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w6v2-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:375px;display:block;margin:0 auto;border:0;outline:none;"/></a>`
-    : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accent};border-radius:999px;"><a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:24px 100px;font-family:Arial,sans-serif;font-size:24px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`
+    : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accent};border-radius:999px;"><a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`
   }</div>` : ''}
 
   <div style="background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: dividerCol, bodyTextAlign: 'justify' })}</div>
@@ -1328,7 +1328,7 @@ function buildTemplateWeek7({ client, copy, images, footerData, isHeroGenerated 
   </div>` : ''}
 
   <!-- BODY BLOCK -->
-  ${copy.bodyText ? `<div class="w6v2-section" style="padding:24px 48px 16px;background-color:${pageBg};"><div class="mobile-body" style="font-size:20px;line-height:1.6;color:${mutedTextCol};font-family:Arial,sans-serif;">${body}</div></div>` : ''}
+  ${copy.bodyText ? `<div class="w6v2-section" style="padding:24px 48px 16px;background-color:${pageBg};"><div class="mobile-body" style="font-size:17px;line-height:1.8;color:${mutedTextCol};font-family:Arial,sans-serif;">${body}</div></div>` : ''}
 
   <!-- DIVIDER + BODY BLOCK 2 TITLE -->
   ${copy.bodyBlock2Title ? `<div style="padding:8px 48px 0;background-color:${pageBg};"><div style="height:1px;background:${dividerCol};font-size:0;line-height:0;"></div></div><div class="w6v2-section" style="padding:20px 48px 12px;background-color:${pageBg};"><div class="mobile-b2title" style="font-size:20px;font-weight:700;font-family:'Lora',Georgia,serif;letter-spacing:0;color:${secondary};text-align:center;">${copy.bodyBlock2Title}</div></div>` : ''}
@@ -1355,7 +1355,7 @@ function buildTemplateWeek7({ client, copy, images, footerData, isHeroGenerated 
     : ''}
 
   <!-- BODY BLOCK 2 TEXT -->
-  ${copy.bodyBlock2 ? `<div class="w6v2-section" style="padding:16px 48px 0;background-color:${pageBg};"><div class="mobile-body" style="font-size:20px;line-height:1.6;color:${mutedTextCol};font-family:Arial,sans-serif;">${b2body}</div></div>` : ''}
+  ${copy.bodyBlock2 ? `<div class="w6v2-section" style="padding:16px 48px 0;background-color:${pageBg};"><div class="mobile-body" style="font-size:17px;line-height:1.8;color:${mutedTextCol};font-family:Arial,sans-serif;">${b2body}</div></div>` : ''}
 
   <!-- CLOSING LINE (above bottom CTA) -->
   ${copy.closingLine ? `<div class="w6v2-section" style="padding:28px 48px 0;text-align:center;background-color:${pageBg};"><div class="mobile-closing" style="font-size:19px;line-height:1.6;color:${mutedTextCol};font-style:italic;font-family:Georgia,serif;">${copy.closingLine}</div></div>` : ''}
@@ -1363,7 +1363,7 @@ function buildTemplateWeek7({ client, copy, images, footerData, isHeroGenerated 
   <!-- BOTTOM CTA (button PNG or inline) -->
   ${copy.ctaText ? `<div style="padding:28px 0 36px;text-align:center;background-color:${pageBg};">${btnImgUrl
     ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w6v2-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:375px;display:block;margin:0 auto;border:0;outline:none;"/></a>`
-    : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accent};border-radius:999px;"><a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:22px 88px;font-family:Arial,sans-serif;font-size:22px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`
+    : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accent};border-radius:999px;"><a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`
   }</div>` : ''}
 
   <div style="background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: dividerCol, bodyTextAlign: 'justify' })}</div>
