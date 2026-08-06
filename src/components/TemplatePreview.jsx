@@ -631,13 +631,13 @@ function buildTemplateWeek8({ client, copy, images, footerData, isHeroGenerated 
   table{border-collapse:collapse;}
   @media only screen and (max-width:600px){
     .w6v2-section  { padding-left:35px!important; padding-right:35px!important; }
-    .w6v2-btn-img  { width:375px!important; max-width:375px!important; }
-    .mobile-body    { font-size:20px!important; line-height:1.6!important; }
-    .mobile-subhead { font-size:20px!important; line-height:1.5!important; }
-    .mobile-b2title { font-size:20px!important; line-height:1.3!important; }
-    .mobile-closing { font-size:20px!important; line-height:1.5!important; }
-    .mobile-cta     { font-size:24px!important; padding:24px 100px!important; }
-    .mobile-footer  { font-size:16px!important; line-height:1.4!important; }
+    .w6v2-btn-img  { width:300px!important; max-width:300px!important; }
+    .mobile-body    { font-size:17px!important; line-height:1.5!important; }
+    .mobile-subhead { font-size:17px!important; line-height:1.4!important; }
+    .mobile-b2title { font-size:22px!important; line-height:1.25!important; }
+    .mobile-closing { font-size:17px!important; line-height:1.5!important; }
+    .mobile-cta     { font-size:20px!important; padding:20px 80px!important; }
+    .mobile-footer  { font-size:14px!important; line-height:1.4!important; }
   }
 </style></head>
 <body style="margin:0;padding:32px 0 48px;background-color:#ffffff;">
@@ -700,7 +700,7 @@ ${(() => {
 
   <!-- LOCATION TITLE + 3-PHOTO GRID -->
   ${(copy.bodyBlock2Title || img2 || img3 || img4 || stampImgUrl) ? `<div style="padding:16px 0 36px;background-color:${pageBg};">
-    ${copy.bodyBlock2Title ? `<div style="text-align:center;padding:0 0 20px;font-family:'Lora',Georgia,serif;font-size:20px;font-weight:700;letter-spacing:0;color:${secondary};text-transform:uppercase;">${copy.bodyBlock2Title.toUpperCase()}</div>` : ''}
+    ${copy.bodyBlock2Title ? `<div class="mobile-b2title" style="text-align:center;padding:0 0 20px;font-family:'Lora',Georgia,serif;font-size:22px;font-weight:700;letter-spacing:0;color:${secondary};text-transform:uppercase;">${copy.bodyBlock2Title.toUpperCase()}</div>` : ''}
     ${stampImgUrl
       ? `<img src="${stampImgUrl}" alt="" width="578" style="width:578px;max-width:578px;display:block;margin:0 auto;border:0;"/>`
       : `<table width="578" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;">
@@ -716,7 +716,7 @@ ${(() => {
   ${copy.bodyBlock2 ? `<div class="w6v2-section" style="padding:16px 48px 0;background-color:${pageBg};"><div class="mobile-body" style="font-size:17px;line-height:1.8;color:${mutedTextCol};font-family:Arial,sans-serif;">${b2body}</div></div>` : ''}
 
   <!-- CLOSING LINE -->
-  ${copy.closingLine ? `<div class="w6v2-section" style="padding:28px 48px 0;text-align:center;background-color:${pageBg};"><div class="mobile-closing" style="font-size:20px;line-height:1.5;color:${mutedTextCol};font-style:italic;font-family:Georgia,serif;">${copy.closingLine}</div></div>` : ''}
+  ${copy.closingLine ? `<div class="w6v2-section" style="padding:28px 48px 0;text-align:center;background-color:${pageBg};"><div class="mobile-closing" style="font-size:17px;line-height:1.7;color:${mutedTextCol};font-style:italic;font-family:Georgia,serif;">${copy.closingLine}</div></div>` : ''}
 
   <!-- BOTTOM CTA -->
   ${copy.ctaText ? `<div style="padding:28px 0 36px;text-align:center;background-color:${pageBg};">${btnImgUrl
@@ -1277,13 +1277,13 @@ function buildTemplateWeek7({ client, copy, images, footerData, isHeroGenerated 
   table{border-collapse:collapse;}
   @media only screen and (max-width:600px){
     .w6v2-section  { padding-left:35px!important; padding-right:35px!important; }
-    .w6v2-btn-img  { width:375px!important; max-width:375px!important; }
-    .mobile-body    { font-size:20px!important; line-height:1.6!important; }
+    .w6v2-btn-img  { width:300px!important; max-width:300px!important; }
+    .mobile-body    { font-size:17px!important; line-height:1.5!important; }
     .mobile-subhead { font-size:17px!important; line-height:1.4!important; }
-    .mobile-b2title { font-size:20px!important; line-height:1.3!important; }
+    .mobile-b2title { font-size:22px!important; line-height:1.25!important; }
     .mobile-closing { font-size:17px!important; line-height:1.5!important; }
-    .mobile-cta     { font-size:22px!important; padding:22px 88px!important; }
-    .mobile-footer  { font-size:16px!important; line-height:1.4!important; }
+    .mobile-cta     { font-size:20px!important; padding:20px 80px!important; }
+    .mobile-footer  { font-size:14px!important; line-height:1.4!important; }
   }
 </style></head>
 <body style="margin:0;padding:32px 0 48px;background-color:#ffffff;">
@@ -1331,7 +1331,7 @@ function buildTemplateWeek7({ client, copy, images, footerData, isHeroGenerated 
   ${copy.bodyText ? `<div class="w6v2-section" style="padding:24px 48px 16px;background-color:${pageBg};"><div class="mobile-body" style="font-size:17px;line-height:1.8;color:${mutedTextCol};font-family:Arial,sans-serif;">${body}</div></div>` : ''}
 
   <!-- DIVIDER + BODY BLOCK 2 TITLE -->
-  ${copy.bodyBlock2Title ? `<div style="padding:8px 48px 0;background-color:${pageBg};"><div style="height:1px;background:${dividerCol};font-size:0;line-height:0;"></div></div><div class="w6v2-section" style="padding:20px 48px 12px;background-color:${pageBg};"><div class="mobile-b2title" style="font-size:20px;font-weight:700;font-family:'Lora',Georgia,serif;letter-spacing:0;color:${secondary};text-align:center;">${copy.bodyBlock2Title}</div></div>` : ''}
+  ${copy.bodyBlock2Title ? `<div style="padding:8px 48px 0;background-color:${pageBg};"><div style="height:1px;background:${dividerCol};font-size:0;line-height:0;"></div></div><div class="w6v2-section" style="padding:20px 48px 12px;background-color:${pageBg};"><div class="mobile-b2title" style="font-size:22px;font-weight:700;font-family:'Lora',Georgia,serif;letter-spacing:0;color:${secondary};text-align:center;">${copy.bodyBlock2Title}</div></div>` : ''}
 
   <!-- STAMP DESIGN (sub image 4) -->
   ${stampImgUrl
@@ -1358,7 +1358,7 @@ function buildTemplateWeek7({ client, copy, images, footerData, isHeroGenerated 
   ${copy.bodyBlock2 ? `<div class="w6v2-section" style="padding:16px 48px 0;background-color:${pageBg};"><div class="mobile-body" style="font-size:17px;line-height:1.8;color:${mutedTextCol};font-family:Arial,sans-serif;">${b2body}</div></div>` : ''}
 
   <!-- CLOSING LINE (above bottom CTA) -->
-  ${copy.closingLine ? `<div class="w6v2-section" style="padding:28px 48px 0;text-align:center;background-color:${pageBg};"><div class="mobile-closing" style="font-size:19px;line-height:1.6;color:${mutedTextCol};font-style:italic;font-family:Georgia,serif;">${copy.closingLine}</div></div>` : ''}
+  ${copy.closingLine ? `<div class="w6v2-section" style="padding:28px 48px 0;text-align:center;background-color:${pageBg};"><div class="mobile-closing" style="font-size:17px;line-height:1.7;color:${mutedTextCol};font-style:italic;font-family:Georgia,serif;">${copy.closingLine}</div></div>` : ''}
 
   <!-- BOTTOM CTA (button PNG or inline) -->
   ${copy.ctaText ? `<div style="padding:28px 0 36px;text-align:center;background-color:${pageBg};">${btnImgUrl
