@@ -1541,6 +1541,7 @@ function buildTemplateWeek8v2({ client, copy, images, footerData, isHeroGenerate
   btnImgUrl = null,
 }) {
   const heroObj  = images?.[0]; const heroImg = heroObj?.url||''
+  const heroFp   = heroObj?.focalX != null ? `${heroObj.focalX}% ${heroObj.focalY}%` : '50% 50%'
   const img1Obj  = images?.[1]; const img1    = img1Obj?.url||''
   const img2Obj  = images?.[2]; const img2    = img2Obj?.url||''
   const img3Obj  = images?.[3]; const img3    = img3Obj?.url||''
@@ -1569,7 +1570,7 @@ function buildTemplateWeek8v2({ client, copy, images, footerData, isHeroGenerate
 
   return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<link href="https://fonts.googleapis.com/css2?family=Lora:wght@700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@700;900&family=Lora:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   body{margin:0;padding:0;color:#1a1a1a;}
@@ -1592,26 +1593,26 @@ function buildTemplateWeek8v2({ client, copy, images, footerData, isHeroGenerate
 <table width="600" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="width:600px;max-width:600px;margin:0 auto;background-color:${pageBg};border-collapse:collapse;border-radius:20px;overflow:hidden;">
 <tr><td style="background-color:${pageBg};">
 
-  <!-- LOGO HEADER: only in CSS preview; generated PNG already includes the logo -->
-  ${!isHeroGenerated ? `<div style="padding:${logoTop}px 32px 18px;text-align:center;background-color:${pageBg};">${logoOverlay}</div>` : ''}
-
-  <!-- HERO: transparent PNG or CSS preview -->
-  ${isHeroGenerated
-    ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${heroImg}" alt="" width="600" style="width:100%;display:block;max-width:600px;border:0;"/></a></div>`
-    : `<div style="line-height:0;font-size:0;padding:0 36px;background-color:${pageBg};">
-    <div style="position:relative;width:528px;height:680px;border-radius:999px 999px 0 0;overflow:hidden;">
-      ${heroImg
-        ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:528px;height:680px;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
-        : `<div style="width:528px;height:680px;background:#f0c8b8;text-align:center;color:${accent};font-size:12px;font-family:Arial,sans-serif;line-height:680px;">Hero image</div>`}
-      <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0) 0%,rgba(0,0,0,0) 50%,rgba(0,0,0,0.45) 100%);">
-        <table width="100%" height="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;height:100%;border-collapse:collapse;">
-          <tr><td valign="bottom" align="center" style="vertical-align:bottom;text-align:center;padding:0 ${textLeft}px ${textTop}px;">
-            <div style="font-family:'Lora',Georgia,serif;font-size:${textSize}px;font-weight:700;color:#fff;line-height:1.12;text-shadow:0 2px 10px rgba(0,0,0,.3);display:inline-block;max-width:360px;">${copy.headlineText||''}</div>
-          </td></tr>
-        </table>
-      </div>
-    </div>
-  </div>`}
+  <!-- HERO (duplicate of Week 8) -->
+${(() => {
+  const logoDisplayWhite = logoUrl
+    ? `<img src="${logoUrl}" alt="${client?.name||''}" style="height:${logoSize}px;width:auto;display:block;filter:${logoFilter};"/>`
+    : `<span style="font-family:Arial,sans-serif;font-size:${Math.round(logoSize*0.38)}px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:${logoColor==='black'?'#000':'#fff'};">${client?.name||''}</span>`
+  return `<div style="line-height:0;font-size:0;background-color:${pageBg};">
+    ${isHeroGenerated && heroImg
+      ? `<img src="${heroImg}" alt="" style="width:600px;max-width:100%;display:block;border:0;"/>`
+      : `<div style="position:relative;width:100%;height:680px;overflow:hidden;background:#1a1a1a;">
+          ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:${heroFp};transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;display:block;"/>` : `<div style="position:absolute;inset:0;background:#2a2a2a;"></div>`}
+          <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.35) 0%,rgba(0,0,0,0) 35%,rgba(0,0,0,0) 48%,rgba(0,0,0,0.55) 75%,rgba(0,0,0,0.72) 100%);"></div>
+          <div style="position:absolute;top:64px;left:14px;right:44px;bottom:14px;border-left:1px solid rgba(255,255,255,0.55);border-right:1px solid rgba(255,255,255,0.55);border-bottom:1px solid rgba(255,255,255,0.55);"></div>
+          <table cellpadding="0" cellspacing="0" border="0" style="position:absolute;top:28px;left:28px;right:52px;width:calc(100% - 80px);border-collapse:collapse;"><tr><td style="white-space:nowrap;padding-right:16px;vertical-align:middle;line-height:0;font-size:0;">${logoDisplayWhite}</td><td style="width:100%;vertical-align:middle;"><div style="height:1px;background:rgba(255,255,255,0.55);font-size:0;line-height:0;"></div></td></tr></table>
+          <div style="position:absolute;bottom:24px;left:${textLeft}px;right:60px;">
+            <div style="font-family:'Lato',Arial,sans-serif;font-size:${textSize}px;font-weight:900;line-height:1.12;color:#fff;margin-bottom:12px;">${copy.headlineText||''}</div>
+            <div style="width:280px;height:48px;background:#fff;display:flex;align-items:center;justify-content:center;padding:0 16px;">${copy.ctaText ? `<a href="${copy.ctaUrl||'#'}" style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.1em;color:#1a1a1a;text-decoration:none;text-transform:uppercase;white-space:nowrap;">${copy.ctaText.toUpperCase()}</a>` : `<span style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.1em;color:#1a1a1a;text-transform:uppercase;white-space:nowrap;">SHOP NOW</span>`}</div>
+          </div>
+        </div>`}
+  </div>`
+})()}
 
   <!-- SUBHEAD -->
   ${copy.subhead ? `<div class="w8v2-section" style="padding:28px 48px 4px;text-align:center;background-color:${pageBg};"><div class="mobile-subhead" style="font-family:Georgia,serif;font-size:20px;font-weight:400;font-style:italic;color:${mutedTextCol};line-height:1.5;">${copy.subhead}</div></div>` : ''}
@@ -2121,35 +2122,10 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </div>
 </body></html>`
 
-    // ── Week 8v2 — own copy of the Week 2 arch hero generator ──
-    const week8v2LogoHtml = logoUrl
-      ? `<img src="${logoUrl}" alt="" style="height:${logoSize}px;width:auto;max-width:${logoSize * 5}px;display:inline-block;filter:${renderLogoFilter};"/>`
-      : `<span style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#1a1a1a;">${clientName}</span>`
-
-    const week8v2HeroHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
-<link href="https://fonts.googleapis.com/css2?family=Lora:wght@700&display=swap" rel="stylesheet"/>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:${midBg};}</style>
-</head><body>
-<div style="background:${midBg};width:600px;padding:${logoTop}px 32px 18px;box-sizing:border-box;line-height:normal;font-size:initial;text-align:center;">
-  ${week8v2LogoHtml}
-</div>
-<div style="width:600px;padding:0 36px;background:${midBg};box-sizing:border-box;line-height:0;font-size:0;">
-  <div style="position:relative;width:528px;height:680px;border-radius:999px 999px 0 0;overflow:hidden;">
-    ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:528px;height:680px;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>` : `<div style="width:528px;height:680px;background:#c8c0b5;"></div>`}
-    <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0) 0%,rgba(0,0,0,0) 50%,rgba(0,0,0,0.45) 100%);">
-      <div style="position:absolute;bottom:${textTop}px;left:0;right:0;text-align:center;padding:0 ${textLeft}px;line-height:normal;">
-        <div style="font-family:'Lora',Georgia,serif;font-size:${textSize}px;font-weight:700;color:#fff;line-height:1.12;text-shadow:0 2px 10px rgba(0,0,0,.3);display:inline-block;max-width:360px;">${headline}</div>
-      </div>
-    </div>
-  </div>
-</div>
-</body></html>`
 
 
     const heroHtml = isWeek2
       ? week2ArchHtml(midBg, false)
-      : isWeek8v2
-      ? week8v2HeroHtml
       : (isWeek2v2 || isWeek6v2)
       ? week2v2HeroHtml
       : isWeek4v2b
@@ -2679,6 +2655,23 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </div>
 </body></html>` : null
 
+    // ── Week 8v2 — own copy of Week 8's framed hero ──
+    const week8v2HeroHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@700;900&display=swap" rel="stylesheet"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:#1a1a1a;-webkit-font-smoothing:antialiased;}</style>
+</head><body>
+<div style="width:600px;height:680px;position:relative;overflow:hidden;background:#1a1a1a;">
+  ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:600px;height:680px;object-fit:cover;object-position:${w8HeroFp};display:block;"/>` : `<div style="position:absolute;inset:0;background:#2a2a2a;"></div>`}
+  <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.35) 0%,rgba(0,0,0,0) 35%,rgba(0,0,0,0) 48%,rgba(0,0,0,0.55) 75%,rgba(0,0,0,0.72) 100%);"></div>
+  <div style="position:absolute;top:64px;left:14px;right:44px;bottom:14px;border-left:1px solid rgba(255,255,255,0.55);border-right:1px solid rgba(255,255,255,0.55);border-bottom:1px solid rgba(255,255,255,0.55);"></div>
+  <table cellpadding="0" cellspacing="0" border="0" style="position:absolute;top:28px;left:28px;right:52px;width:calc(100% - 80px);border-collapse:collapse;"><tr><td style="white-space:nowrap;padding-right:16px;vertical-align:middle;line-height:0;font-size:0;">${logoHtml}</td><td style="width:100%;vertical-align:middle;"><div style="height:1px;background:rgba(255,255,255,0.55);font-size:0;line-height:0;"></div></td></tr></table>
+  <div style="position:absolute;bottom:24px;left:24px;right:60px;">
+    <div style="font-family:'Lato',Arial,sans-serif;font-size:${textSize}px;font-weight:900;line-height:1.12;color:#fff;margin-bottom:12px;">${headline}</div>
+    <div style="width:280px;height:48px;background:#fff;display:flex;align-items:center;justify-content:center;padding:0 16px;"><span style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.1em;color:#1a1a1a;text-transform:uppercase;">${w8CtaText.toUpperCase()}</span></div>
+  </div>
+</div>
+</body></html>`
+
     const w8img2Fp = selectedImages?.[2]?.focalX != null ? `${selectedImages[2].focalX}% ${selectedImages[2].focalY}%` : '50% 50%'
     const w8img3Fp = selectedImages?.[3]?.focalX != null ? `${selectedImages[3].focalX}% ${selectedImages[3].focalY}%` : '50% 50%'
     const w8img4Fp = selectedImages?.[4]?.focalX != null ? `${selectedImages[4].focalX}% ${selectedImages[4].focalY}%` : '50% 50%'
@@ -2781,7 +2774,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </div>
 </body></html>` : null
 
-    const heroHeight = isWeek9 ? 720 : isWeek8 ? 680 : isWeek2 ? 580 : isWeek8v2 ? (logoTop + logoSize + 18 + 680) : isWeek7v2 ? ((img1Url || img2Url || img3Url) ? 988 : 720) : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : isTest ? 520 : 400
+    const heroHeight = isWeek9 ? 720 : isWeek8 ? 680 : isWeek2 ? 580 : isWeek8v2 ? 680 : isWeek7v2 ? ((img1Url || img2Url || img3Url) ? 988 : 720) : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : isTest ? 520 : 400
     const secondaryPromise = isWeek9 && week9GridHtml
       ? renderImage({ html: week9GridHtml, width: 600, height: 564, transparent: true })
       : isWeek8v2 && img1Url
@@ -2836,7 +2829,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
       ? renderImage({ html: w8ButtonHtml, width: 600, height: 110, transparent: true })
       : Promise.resolve(null)
 
-    const heroHtmlToUse = isWeek9 ? week9HeroHtml : isWeek8 ? week8HeroHtml : isWeek7v2 ? week7v2HeroHtml : isTest ? testHeroHtml : isWeek5 ? week5HeroHtml : isWeek6v2 ? week6HeroHtml : isWeek4v2b ? week4v2bHeroHtml : heroHtml
+    const heroHtmlToUse = isWeek9 ? week9HeroHtml : isWeek8 ? week8HeroHtml : isWeek8v2 ? week8v2HeroHtml : isWeek7v2 ? week7v2HeroHtml : isTest ? testHeroHtml : isWeek5 ? week5HeroHtml : isWeek6v2 ? week6HeroHtml : isWeek4v2b ? week4v2bHeroHtml : heroHtml
 
     Promise.all([
       renderImage({ html: heroHtmlToUse, width: 600, height: heroHeight, transparent: isWeek7v2 || isWeek3v2 || isWeek5 || isWeek6v2 || isWeek4v2b }),
