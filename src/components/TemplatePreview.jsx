@@ -1628,6 +1628,9 @@ ${(() => {
   }</div>` : ''}
 
 
+  <!-- DIVIDER (from Week 8) -->
+  <div class="w8v2-section" style="padding:0 48px;background-color:${pageBg};"><div style="height:1px;background:${dividerCol};font-size:0;line-height:0;"></div></div>
+
   <!-- BODY BLOCK -->
   ${copy.bodyText ? `<div class="w8v2-section" style="padding:24px 48px 32px;background-color:${pageBg};"><div class="mobile-body" style="font-size:17px;line-height:1.8;color:${mutedTextCol};margin-bottom:18px;font-family:Arial,sans-serif;">${body}</div></div>` : ''}
 
@@ -1653,7 +1656,7 @@ ${(() => {
   </div>`}
 
   <!-- LOCATION TITLE + 3-PHOTO GRID -->
-  ${(copy.bodyBlock2Title || img2 || img3 || img4 || stampImgUrl) ? `<div style="padding:16px 0 36px;background-color:${pageBg};">
+  ${(copy.bodyBlock2Title || img2 || img3 || img4 || stampImgUrl) ? `<div style="padding:16px 0 12px;background-color:${pageBg};">
     ${copy.bodyBlock2Title ? `<div class="mobile-b2title" style="text-align:center;padding:0 0 20px;font-family:'Lora',Georgia,serif;font-size:22px;font-weight:700;letter-spacing:0;color:${secondary};text-transform:uppercase;">${copy.bodyBlock2Title.toUpperCase()}</div>` : ''}
     ${stampImgUrl
       ? `<img src="${stampImgUrl}" alt="" width="578" style="width:578px;max-width:100%;display:block;margin:0 auto;border:0;"/>`
