@@ -2847,7 +2847,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     const heroHtmlToUse = isWeek9 ? week9HeroHtml : isWeek8 ? week8HeroHtml : isWeek7 ? week7HeroHtml : isTest ? testHeroHtml : isWeek5 ? week5HeroHtml : isWeek6v2 ? week6HeroHtml : isWeek4v2b ? week4v2bHeroHtml : heroHtml
 
     Promise.all([
-      renderImage({ html: heroHtmlToUse, width: 600, height: heroHeight, transparent: isWeek7 || isWeek3v2 || isWeek5 || isWeek6v2 || isWeek4v2b }),
+      renderImage({ html: heroHtmlToUse, width: 600, height: heroHeight, transparent: isWeek7 || isWeek7v2 || isWeek3v2 || isWeek5 || isWeek6v2 || isWeek4v2b }),
       secondaryPromise,
       tertiaryPromise,
       buttonPromise,
