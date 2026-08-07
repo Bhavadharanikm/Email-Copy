@@ -1610,9 +1610,9 @@ ${(() => {
           <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.35) 0%,rgba(0,0,0,0) 35%,rgba(0,0,0,0) 48%,rgba(0,0,0,0.55) 75%,rgba(0,0,0,0.72) 100%);"></div>
           <div style="position:absolute;top:64px;left:14px;right:44px;bottom:14px;border-left:1px solid rgba(255,255,255,0.55);border-right:1px solid rgba(255,255,255,0.55);border-bottom:1px solid rgba(255,255,255,0.55);"></div>
           <table cellpadding="0" cellspacing="0" border="0" style="position:absolute;top:28px;left:28px;right:52px;width:calc(100% - 80px);border-collapse:collapse;"><tr><td style="white-space:nowrap;padding-right:16px;vertical-align:middle;line-height:0;font-size:0;">${logoDisplayWhite}</td><td style="width:100%;vertical-align:middle;"><div style="height:1px;background:rgba(255,255,255,0.55);font-size:0;line-height:0;"></div></td></tr></table>
-          <div style="position:absolute;bottom:24px;left:${textLeft}px;right:60px;">
+          <div style="position:absolute;bottom:34px;left:${textLeft}px;right:60px;">
             <div style="font-family:'Lato',Arial,sans-serif;font-size:${textSize}px;font-weight:900;line-height:1.12;color:#fff;margin-bottom:12px;">${copy.headlineText||''}</div>
-            <div style="width:280px;max-width:100%;height:48px;background:#fff;display:flex;align-items:center;justify-content:center;padding:0 16px;">${copy.ctaText ? `<a href="${copy.ctaUrl||'#'}" style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.1em;color:#1a1a1a;text-decoration:none;text-transform:uppercase;white-space:nowrap;">${copy.ctaText.toUpperCase()}</a>` : `<span style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.1em;color:#1a1a1a;text-transform:uppercase;white-space:nowrap;">SHOP NOW</span>`}</div>
+            <div style="width:320px;max-width:100%;height:56px;background:#fff;display:flex;align-items:center;justify-content:center;padding:0 16px;">${copy.ctaText ? `<a href="${copy.ctaUrl||'#'}" style="font-family:Arial,sans-serif;font-size:18px;font-weight:700;letter-spacing:0.1em;color:#1a1a1a;text-decoration:none;text-transform:uppercase;white-space:nowrap;">${copy.ctaText.toUpperCase()}</a>` : `<span style="font-family:Arial,sans-serif;font-size:18px;font-weight:700;letter-spacing:0.1em;color:#1a1a1a;text-transform:uppercase;white-space:nowrap;">SHOP NOW</span>`}</div>
           </div>
         </div>`}
   </div>`
@@ -2667,9 +2667,9 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
   <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.35) 0%,rgba(0,0,0,0) 35%,rgba(0,0,0,0) 48%,rgba(0,0,0,0.55) 75%,rgba(0,0,0,0.72) 100%);"></div>
   <div style="position:absolute;top:64px;left:14px;right:44px;bottom:14px;border-left:1px solid rgba(255,255,255,0.55);border-right:1px solid rgba(255,255,255,0.55);border-bottom:1px solid rgba(255,255,255,0.55);"></div>
   <table cellpadding="0" cellspacing="0" border="0" style="position:absolute;top:28px;left:28px;right:52px;width:calc(100% - 80px);border-collapse:collapse;"><tr><td style="white-space:nowrap;padding-right:16px;vertical-align:middle;line-height:0;font-size:0;">${logoHtml}</td><td style="width:100%;vertical-align:middle;"><div style="height:1px;background:rgba(255,255,255,0.55);font-size:0;line-height:0;"></div></td></tr></table>
-  <div style="position:absolute;bottom:24px;left:24px;right:60px;">
+  <div style="position:absolute;bottom:34px;left:24px;right:60px;">
     <div style="font-family:'Lato',Arial,sans-serif;font-size:${textSize}px;font-weight:900;line-height:1.12;color:#fff;margin-bottom:12px;">${headline}</div>
-    <div style="width:280px;height:48px;background:#fff;display:flex;align-items:center;justify-content:center;padding:0 16px;"><span style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.1em;color:#1a1a1a;text-transform:uppercase;">${w8CtaText.toUpperCase()}</span></div>
+    <div style="width:320px;height:56px;background:#fff;display:flex;align-items:center;justify-content:center;padding:0 16px;"><span style="font-family:Arial,sans-serif;font-size:18px;font-weight:700;letter-spacing:0.1em;color:#1a1a1a;text-transform:uppercase;">${w8CtaText.toUpperCase()}</span></div>
   </div>
 </div>
 </body></html>`
