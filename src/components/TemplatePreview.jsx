@@ -1521,18 +1521,19 @@ function buildTemplateWeek9({ client, copy, images, footerData, isHeroGenerated 
    ══════════════════════════════════════════════════════════════════════════ */
 function buildTemplateWeek7v2({ client, copy, images, footerData, isHeroGenerated = false,
   heroScale=1, heroX=0, heroY=0,
-  textSize=38, textTop=32, textLeft=24,
-  logoColor='original', logoTop=24, logoRight=200, logoSize=40,
+  textSize=54, textTop=60, textLeft=24,
+  logoColor='original', logoTop=48, logoRight=200, logoSize=40,
   img1Scale=1, img1X=0, img1Y=0,
   img2Scale=1, img2X=0, img2Y=0,
   img3Scale=1, img3X=0, img3Y=0,
+  img4Scale=1, img4X=0, img4Y=0,
   btnImgUrl = null,
 }) {
   const heroObj  = images?.[0]; const heroImg = heroObj?.url||''
   const img1Obj  = images?.[1]; const img1    = img1Obj?.url||''
   const img2Obj  = images?.[2]; const img2    = img2Obj?.url||''
   const img3Obj  = images?.[3]; const img3    = img3Obj?.url||''
-  const img4     = images?.[4]?.url || ''
+  const img4Obj  = images?.[4]; const img4    = img4Obj?.url||''
   const img5     = images?.[5]?.url || ''
   const body     = (copy.bodyText||'').replace(/\n/g,'<br>')
   const b2body   = (copy.bodyBlock2||'').replace(/\n/g,'<br>')
@@ -1557,7 +1558,7 @@ function buildTemplateWeek7v2({ client, copy, images, footerData, isHeroGenerate
 
   return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<link href="https://fonts.googleapis.com/css2?family=Lora:wght@700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@700;900&family=Lora:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   body{margin:0;padding:0;color:#1a1a1a;}
@@ -1580,26 +1581,41 @@ function buildTemplateWeek7v2({ client, copy, images, footerData, isHeroGenerate
 <table width="600" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="width:600px;max-width:600px;margin:0 auto;background-color:${pageBg};border-collapse:collapse;border-radius:20px;overflow:hidden;">
 <tr><td style="background-color:${pageBg};">
 
-  <!-- LOGO HEADER: only in CSS preview; generated PNG already includes the logo -->
-  ${!isHeroGenerated ? `<div style="padding:${logoTop}px 32px 18px;text-align:center;background-color:${pageBg};">${logoOverlay}</div>` : ''}
-
-  <!-- HERO: transparent PNG or CSS preview -->
+  <!-- HERO: transparent PNG or CSS inset-card preview -->
   ${isHeroGenerated
-    ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${heroImg}" alt="" width="600" style="width:100%;display:block;max-width:600px;border:0;"/></a></div>`
-    : `<div style="line-height:0;font-size:0;padding:0 36px;background-color:${pageBg};">
-    <div style="position:relative;width:528px;height:680px;border-radius:999px 999px 0 0;overflow:hidden;">
-      ${heroImg
-        ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:528px;height:680px;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
-        : `<div style="width:528px;height:680px;background:#f0c8b8;text-align:center;color:${accent};font-size:12px;font-family:Arial,sans-serif;line-height:680px;">Hero image</div>`}
-      <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0) 0%,rgba(0,0,0,0) 50%,rgba(0,0,0,0.45) 100%);">
-        <table width="100%" height="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;height:100%;border-collapse:collapse;">
-          <tr><td valign="bottom" align="center" style="vertical-align:bottom;text-align:center;padding:0 ${textLeft}px ${textTop}px;">
-            <div style="font-family:'Lora',Georgia,serif;font-size:${textSize}px;font-weight:700;color:#fff;line-height:1.12;text-shadow:0 2px 10px rgba(0,0,0,.3);display:inline-block;max-width:360px;">${copy.headlineText||''}</div>
-          </td></tr>
-        </table>
+    ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><img src="${heroImg}" alt="" width="600" style="width:100%;display:block;max-width:600px;border:0;"/></div>`
+    : `<div style="line-height:0;font-size:0;background-color:${pageBg};">
+    <div style="position:relative;width:600px;height:720px;overflow:hidden;background:#1a1a1a;">
+      ${heroImg ? `<img src="${heroImg}" style="position:absolute;top:${Math.min(0,Math.max(720*(1-heroScale),-(720*(heroScale-1)/2)+heroY))}px;left:${Math.min(0,Math.max(600*(1-heroScale),-(600*(heroScale-1)/2)+heroX))}px;width:${600*heroScale}px;height:${720*heroScale}px;object-fit:cover;display:block;"/>` : `<div style="width:600px;height:720px;background:#2a2a2a;"></div>`}
+      <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.25) 0%,rgba(0,0,0,0) 35%,rgba(0,0,0,0) 45%,rgba(0,0,0,0.55) 75%,rgba(0,0,0,0.75) 100%);line-height:normal;font-size:initial;display:flex;flex-direction:column;justify-content:space-between;">
+        <div style="text-align:center;padding-top:${logoTop}px;">${logoOverlay}</div>
+        <div style="padding:0 ${textLeft}px ${textTop}px;">
+          <div style="font-family:'Lato',Arial,sans-serif;font-size:${textSize}px;font-weight:900;line-height:1.12;color:#fff;text-align:left;">${copy.headlineText||''}</div>
+          ${copy.subhead ? `<div style="font-family:'Lora',Georgia,serif;font-size:24px;font-style:italic;font-weight:700;line-height:1.55;color:#fff;margin-top:8px;text-align:left;max-width:520px;">${copy.subhead}</div>` : ''}
+          ${copy.ctaText ? `<div style="margin-top:12px;"><table cellpadding="0" cellspacing="0" border="0"><tr><td style="background:rgba(0,0,0,0.4);border:2px solid rgba(255,255,255,0.85);border-radius:100px;"><a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:14px 44px;font-family:Arial,sans-serif;font-size:16px;font-weight:700;letter-spacing:.04em;color:#fff!important;text-decoration:none!important;white-space:nowrap;">${copy.ctaText}</a></td></tr></table></div>` : ''}
+        </div>
       </div>
     </div>
   </div>`}
+
+  <!-- THREE-IMAGE STRIP (img1 / img2 / img3) — skipped when hero PNG already includes it -->
+  ${!isHeroGenerated && (img1 || img2 || img3) ? `<div style="padding:8px 0 0;background-color:${pageBg};line-height:0;font-size:0;">
+    <table width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;border-collapse:collapse;line-height:0;font-size:0;">
+      <tr>
+        <td width="196" style="width:196px;padding:0;line-height:0;font-size:0;">
+          ${img1 ? `<img src="${img1}" alt="" width="196" style="width:196px;height:260px;object-fit:cover;object-position:${focalPos(img1Obj)};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/>` : `<div style="width:196px;height:260px;background:#2a2a2a;"></div>`}
+        </td>
+        <td width="6" style="width:6px;padding:0;background-color:${pageBg};line-height:0;font-size:0;"> </td>
+        <td width="196" style="width:196px;padding:0;line-height:0;font-size:0;">
+          ${img2 ? `<img src="${img2}" alt="" width="196" style="width:196px;height:260px;object-fit:cover;object-position:${focalPos(img2Obj)};transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/>` : `<div style="width:196px;height:260px;background:#2a2a2a;"></div>`}
+        </td>
+        <td width="6" style="width:6px;padding:0;background-color:${pageBg};line-height:0;font-size:0;"> </td>
+        <td width="196" style="width:196px;padding:0;line-height:0;font-size:0;">
+          ${(img3 || img1) ? `<img src="${img3 || img1}" alt="" width="196" style="width:196px;height:260px;object-fit:cover;object-position:${focalPos(img3 ? img3Obj : img1Obj)};transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/>` : `<div style="width:196px;height:260px;background:#2a2a2a;"></div>`}
+        </td>
+      </tr>
+    </table>
+  </div>` : ''}
 
   <!-- SUBHEAD -->
   ${copy.subhead ? `<div class="w7v2-section" style="padding:28px 48px 4px;text-align:center;background-color:${pageBg};"><div class="mobile-subhead" style="font-family:Georgia,serif;font-size:20px;font-weight:400;font-style:italic;color:${mutedTextCol};line-height:1.5;">${copy.subhead}</div></div>` : ''}
@@ -1617,20 +1633,20 @@ function buildTemplateWeek7v2({ client, copy, images, footerData, isHeroGenerate
   <!-- DIVIDER + BODY BLOCK 2 TITLE (Week 7 style) — sits above the stamp -->
   ${copy.bodyBlock2Title ? `<div class="w7v2-section" style="padding:8px 48px 0;background-color:${pageBg};"><div style="height:1px;background:${dividerCol};font-size:0;line-height:0;"></div></div><div class="w7v2-section" style="padding:20px 48px 12px;background-color:${pageBg};"><div class="mobile-b2title" style="font-size:22px;font-weight:700;font-family:'Lora',Georgia,serif;letter-spacing:0;color:${secondary};text-align:center;">${copy.bodyBlock2Title}</div></div>` : ''}
 
-  <!-- STAMP DESIGN (from Week 7) — replaces the 2-up strip. Source: Sub Image 2 -->
+  <!-- STAMP DESIGN (from Week 7) — grid uses img1/2/3, stamp uses Sub Image 4 -->
   ${isHeroGenerated && img5
     ? `<div style="padding:20px 0 0;background-color:${pageBg};text-align:center;line-height:0;font-size:0;">
           <img src="${img5}" alt="" width="400" style="width:400px;max-width:100%;display:block;margin:0 auto;border:0;"/>
         </div>`
-    : img2
+    : img4
     ? `<div style="padding:20px 0 0;background-color:${pageBg};text-align:center;line-height:0;font-size:0;">
           <div style="display:inline-block;position:relative;width:400px;height:500px;overflow:hidden;background:#c8c0b5;border-radius:0;">
-            <img src="${img2}" alt="" style="position:absolute;top:0;left:0;width:400px;height:500px;object-fit:cover;object-position:${focalPos(img2Obj)};display:block;transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/>
+            <img src="${img4}" alt="" style="position:absolute;top:0;left:0;width:400px;height:500px;object-fit:cover;object-position:${focalPos(img4Obj)};display:block;transform:translate(${img4X}px,${img4Y}px) scale(${img4Scale});transform-origin:center center;"/>
             <div style="position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;">
               <div style="position:relative;width:365px;height:478px;">
                 <img src="/stamp-frame.png" alt="" style="position:absolute;top:0;left:0;width:365px;height:478px;object-fit:contain;display:block;"/>
                 <div style="position:absolute;top:116px;left:94px;width:178px;height:245px;overflow:hidden;">
-                  <img src="${img2}" alt="" style="width:100%;height:100%;object-fit:cover;object-position:${focalPos(img2Obj)};display:block;"/>
+                  <img src="${img4}" alt="" style="width:100%;height:100%;object-fit:cover;object-position:${focalPos(img4Obj)};display:block;"/>
                 </div>
               </div>
             </div>
@@ -2114,29 +2130,6 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </div>
 </body></html>`
 
-    // ── Week 7v2 — own copy of the Week 2 hero generator (independent of Week 2) ──
-    const week7v2LogoHtml = logoUrl
-      ? `<img src="${logoUrl}" alt="" style="height:${logoSize}px;width:auto;max-width:${logoSize * 5}px;display:inline-block;filter:${renderLogoFilter};"/>`
-      : `<span style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#1a1a1a;">${clientName}</span>`
-
-    const week7v2HeroHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
-<link href="https://fonts.googleapis.com/css2?family=Lora:wght@700&display=swap" rel="stylesheet"/>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:${midBg};}</style>
-</head><body>
-<div style="background:${midBg};width:600px;padding:${logoTop}px 32px 18px;box-sizing:border-box;line-height:normal;font-size:initial;text-align:center;">
-  ${week7v2LogoHtml}
-</div>
-<div style="width:600px;padding:0 36px;background:${midBg};box-sizing:border-box;line-height:0;font-size:0;">
-  <div style="position:relative;width:528px;height:680px;border-radius:999px 999px 0 0;overflow:hidden;">
-    ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:528px;height:680px;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>` : `<div style="width:528px;height:680px;background:#c8c0b5;"></div>`}
-    <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0) 0%,rgba(0,0,0,0) 50%,rgba(0,0,0,0.45) 100%);">
-      <div style="position:absolute;bottom:${textTop}px;left:0;right:0;text-align:center;padding:0 ${textLeft}px;line-height:normal;">
-        <div style="font-family:'Lora',Georgia,serif;font-size:${textSize}px;font-weight:700;color:#fff;line-height:1.12;text-shadow:0 2px 10px rgba(0,0,0,.3);display:inline-block;max-width:360px;">${headline}</div>
-      </div>
-    </div>
-  </div>
-</div>
-</body></html>`
 
     const heroHtml = isWeek2
       ? week2ArchHtml(midBg, false)
@@ -2590,6 +2583,37 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </div>
 </body></html>` : null
 
+    // ── Week 7v2 — own copy of Week 7's full-bleed hero + 3-up strip ──
+    const week7v2HeroHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@700;900&family=Lora:ital@1&display=swap" rel="stylesheet"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
+</head><body>
+<div style="width:600px;background:transparent;">
+  <div style="position:relative;width:600px;height:720px;overflow:hidden;background:#1a1a1a;">
+    ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;top:${Math.min(0,Math.max(720*(1-heroScale),-(720*(heroScale-1)/2)+heroY))}px;left:${Math.min(0,Math.max(600*(1-heroScale),-(600*(heroScale-1)/2)+heroX))}px;width:${600*heroScale}px;height:${720*heroScale}px;object-fit:cover;display:block;"/>` : `<div style="width:600px;height:720px;background:#2a2a2a;"></div>`}
+    <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.2) 40%,rgba(0,0,0,0.1) 65%,rgba(0,0,0,0.55) 100%);display:flex;flex-direction:column;justify-content:space-between;">
+      <div style="text-align:center;padding-top:${logoTop}px;">${logoHtml}</div>
+      <div style="padding:0 ${textLeft}px ${textTop}px;">
+        <div style="font-family:'Lato',Arial,sans-serif;font-size:${textSize}px;font-weight:900;line-height:1.12;color:#fff;text-align:left;">${headline}</div>
+        ${w7Subhead ? `<div style="font-family:'Lora',Georgia,serif;font-size:24px;font-style:italic;font-weight:700;line-height:1.55;color:rgba(255,255,255,0.9);margin-top:14px;text-align:left;max-width:520px;">${w7Subhead}</div>` : ''}
+        ${w7CtaText ? `<div style="margin-top:20px;"><table cellpadding="0" cellspacing="0" border="0"><tr><td style="background:rgba(0,0,0,0.4);border:2px solid rgba(255,255,255,0.85);border-radius:100px;"><a href="${w7CtaUrl}" style="display:inline-block;padding:14px 44px;font-family:Arial,sans-serif;font-size:22px;font-weight:700;letter-spacing:.04em;color:#fff;text-decoration:none;white-space:nowrap;">${w7CtaText}</a></td></tr></table></div>` : ''}
+      </div>
+    </div>
+  </div>
+  ${(img1Url || img2Url || img3Url) ? `<div style="padding:8px 0 0;background-color:${w7PageBg};line-height:0;font-size:0;">
+    <table width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;border-collapse:collapse;line-height:0;font-size:0;">
+      <tr>
+        <td width="196" style="width:196px;padding:0;line-height:0;font-size:0;">${img1Url ? `<img src="${img1Url}" alt="" width="196" style="width:196px;height:260px;object-fit:cover;object-position:${w7img1Fp};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/>` : `<div style="width:196px;height:260px;background:#2a2a2a;"></div>`}</td>
+        <td width="6" style="width:6px;padding:0;background-color:${w7PageBg};line-height:0;font-size:0;"> </td>
+        <td width="196" style="width:196px;padding:0;line-height:0;font-size:0;">${img2Url ? `<img src="${img2Url}" alt="" width="196" style="width:196px;height:260px;object-fit:cover;object-position:${w7img2Fp};transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/>` : `<div style="width:196px;height:260px;background:#2a2a2a;"></div>`}</td>
+        <td width="6" style="width:6px;padding:0;background-color:${w7PageBg};line-height:0;font-size:0;"> </td>
+        <td width="196" style="width:196px;padding:0;line-height:0;font-size:0;">${(img3Url || img1Url) ? `<img src="${img3Url || img1Url}" alt="" width="196" style="width:196px;height:260px;object-fit:cover;object-position:${img3Url ? w7img3Fp : w7img1Fp};transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/>` : `<div style="width:196px;height:260px;background:#2a2a2a;"></div>`}</td>
+      </tr>
+    </table>
+  </div>` : ''}
+</div>
+</body></html>`
+
     const week7StampHtml = isWeek7 && img4Url ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:400px;background:transparent;}</style>
 </head><body>
@@ -2611,17 +2635,17 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     const w2img2Fp = selectedImages?.[2]?.focalX != null ? `${selectedImages[2].focalX}% ${selectedImages[2].focalY}%` : '50% 50%'
     const w2img3Fp = selectedImages?.[3]?.focalX != null ? `${selectedImages[3].focalX}% ${selectedImages[3].focalY}%` : '50% 50%'
     // ── Week 7v2 — own stamp generator ──
-    // Week 7v2 stamp — same construction as Week 7's, sourced from Sub Image 2
-    const week7v2StampHtml = img2Url ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+    // Week 7v2 stamp — same construction as Week 7's, sourced from Sub Image 4
+    const week7v2StampHtml = img4Url ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:400px;background:transparent;}</style>
 </head><body>
 <div style="position:relative;width:400px;height:500px;overflow:hidden;background:#c8c0b5;">
-  <img src="${img2Url}" alt="" style="position:absolute;top:0;left:0;width:400px;height:500px;object-fit:cover;display:block;object-position:${w2img2Fp};transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/>
+  <img src="${img4Url}" alt="" style="position:absolute;top:0;left:0;width:400px;height:500px;object-fit:cover;display:block;object-position:${w7img4Fp};transform:translate(${img4X}px,${img4Y}px) scale(${img4Scale});transform-origin:center center;"/>
   <div style="position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;">
     <div style="position:relative;width:365px;height:478px;">
       <img src="${stampFrameUrl}" alt="" style="position:absolute;top:0;left:0;width:365px;height:478px;object-fit:contain;display:block;"/>
       <div style="position:absolute;top:116px;left:94px;width:178px;height:245px;overflow:hidden;">
-        <img src="${img2Url}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;object-position:${w2img2Fp};"/>
+        <img src="${img4Url}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;object-position:${w7img4Fp};"/>
       </div>
     </div>
   </div>
@@ -2767,7 +2791,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </div>
 </body></html>` : null
 
-    const heroHeight = isWeek9 ? 720 : isWeek8 ? 680 : isWeek7 ? ((img1Url || img2Url || img3Url) ? 988 : 720) : isWeek2 ? 580 : (isWeek2v2 || isWeek7v2) ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : isTest ? 520 : 400
+    const heroHeight = isWeek9 ? 720 : isWeek8 ? 680 : isWeek7 ? ((img1Url || img2Url || img3Url) ? 988 : 720) : isWeek2 ? 580 : isWeek7v2 ? ((img1Url || img2Url || img3Url) ? 988 : 720) : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : isTest ? 520 : 400
     const secondaryPromise = isWeek7
       ? (week7StampHtml ? renderImage({ html: week7StampHtml, width: 400, height: 500, transparent: true }) : Promise.resolve(null))
       : isWeek9 && week9GridHtml
@@ -2794,7 +2818,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 
     const tertiaryPromise = isWeek8 && week8PinHtml
       ? renderImage({ html: week8PinHtml, width: 600, height: 435, transparent: true })
-      : isWeek7v2 && img2Url
+      : isWeek7v2 && img4Url
       ? renderImage({ html: week7v2StampHtml, width: 400, height: 500, transparent: true })
       : isWeek2v2 && img2Url
       ? renderImage({ html: week2StripHtml, width: 600, height: 244, transparent: true })
@@ -3322,7 +3346,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
                 { name: 'Zoom',  min: 1,    max: 2.5, step: 0.05, val: img3Scale, set: setImg3Scale, unit: 'x', toDisplay: v => v.toFixed(2) },
               ]
             }] : []),
-            ...([13, 22, 23].includes(tpl?.id) ? [{ key: 'sub4', label: 'Sub Image 4', color: '#0891b2', bg: dark ? 'rgba(8,145,178,0.15)' : '#ecfeff',
+            ...([13, 22, 23, 24].includes(tpl?.id) ? [{ key: 'sub4', label: 'Sub Image 4', color: '#0891b2', bg: dark ? 'rgba(8,145,178,0.15)' : '#ecfeff',
               controls: [
                 { name: 'Left', min: -200, max: 200, step: 4, val: img4X,     set: setImg4X,     unit: 'px' },
                 { name: 'Top', min: -200, max: 200, step: 4, val: img4Y,     set: setImg4Y,     unit: 'px' },
