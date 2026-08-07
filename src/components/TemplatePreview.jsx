@@ -1538,14 +1538,16 @@ function buildTemplateWeek8v2({ client, copy, images, footerData, isHeroGenerate
   img1Scale=1, img1X=0, img1Y=0,
   img2Scale=1, img2X=0, img2Y=0,
   img3Scale=1, img3X=0, img3Y=0,
+  img4Scale=1, img4X=0, img4Y=0,
   btnImgUrl = null,
+  stampImgUrl = null,
 }) {
   const heroObj  = images?.[0]; const heroImg = heroObj?.url||''
   const heroFp   = heroObj?.focalX != null ? `${heroObj.focalX}% ${heroObj.focalY}%` : '50% 50%'
   const img1Obj  = images?.[1]; const img1    = img1Obj?.url||''
   const img2Obj  = images?.[2]; const img2    = img2Obj?.url||''
   const img3Obj  = images?.[3]; const img3    = img3Obj?.url||''
-  const img4     = images?.[4]?.url || ''
+  const img4Obj  = images?.[4]; const img4    = img4Obj?.url||''
   const img5     = images?.[5]?.url || ''
   const body     = (copy.bodyText||'').replace(/\n/g,'<br>')
   const b2body   = (copy.bodyBlock2||'').replace(/\n/g,'<br>')
@@ -1627,25 +1629,24 @@ ${(() => {
   <!-- BODY BLOCK -->
   ${copy.bodyText ? `<div class="w8v2-section" style="padding:24px 48px 32px;background-color:${pageBg};"><div class="mobile-body" style="font-size:17px;line-height:1.8;color:${mutedTextCol};margin-bottom:18px;font-family:Arial,sans-serif;">${body}</div></div>` : ''}
 
-  <!-- STRIP IMAGES (img2+img3): transparent PNG after body text -->
-  ${isHeroGenerated && img5
-    ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${img5}" alt="" width="600" style="width:100%;display:block;max-width:600px;border:0;"/></a></div>`
-    : img2 ? `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;background-color:${pageBg};">
-      <tr><td style="padding:0 36px 24px;">
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;line-height:0;font-size:0;">
-          <tr>
-            <td width="49%" style="padding-right:4px;vertical-align:top;"><div style="overflow:hidden;border-radius:6px;height:220px;"><img src="${img2}" alt="" width="100%" style="width:100%;height:220px;object-fit:cover;display:block;object-position:${focalPos(img2Obj)};transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/></div></td>
-            ${img3 ? `<td width="49%" style="padding-left:4px;vertical-align:top;"><div style="overflow:hidden;border-radius:6px;height:220px;"><img src="${img3}" alt="" width="100%" style="width:100%;height:220px;object-fit:cover;display:block;object-position:${focalPos(img3Obj)};transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/></div></td>` : ''}
-          </tr>
-        </table>
-      </td></tr>
-    </table>` : ''}
+  <!-- LOCATION TITLE + 3-PHOTO GRID -->
+  ${(copy.bodyBlock2Title || img2 || img3 || img4 || stampImgUrl) ? `<div style="padding:16px 0 36px;background-color:${pageBg};">
+    ${copy.bodyBlock2Title ? `<div class="mobile-b2title" style="text-align:center;padding:0 0 20px;font-family:'Lora',Georgia,serif;font-size:22px;font-weight:700;letter-spacing:0;color:${secondary};text-transform:uppercase;">${copy.bodyBlock2Title.toUpperCase()}</div>` : ''}
+    ${stampImgUrl
+      ? `<img src="${stampImgUrl}" alt="" width="578" style="width:578px;max-width:578px;display:block;margin:0 auto;border:0;"/>`
+      : `<table width="578" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;">
+      <tr>
+        <td style="padding:0 4px 0 0;vertical-align:top;"><div style="position:relative;width:190px;height:290px;border-radius:24px;overflow:hidden;line-height:0;font-size:0;">${img2 ? `<img src="${img2}" alt="" style="position:absolute;top:0;left:0;width:190px;height:290px;object-fit:cover;display:block;object-position:${focalPos(img2Obj)};transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/>` : `<div style="width:190px;height:290px;background:#d0d0d0;border-radius:24px;"></div>`}</div></td>
+        <td style="padding:0 4px;vertical-align:top;"><div style="position:relative;width:190px;height:290px;border-radius:24px;overflow:hidden;line-height:0;font-size:0;">${img3 ? `<img src="${img3}" alt="" style="position:absolute;top:0;left:0;width:190px;height:290px;object-fit:cover;display:block;object-position:${focalPos(img3Obj)};transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/>` : `<div style="width:190px;height:290px;background:#d0d0d0;border-radius:24px;"></div>`}</div></td>
+        <td style="padding:0 0 0 4px;vertical-align:top;"><div style="position:relative;width:190px;height:290px;border-radius:24px;overflow:hidden;line-height:0;font-size:0;">${img4 ? `<img src="${img4}" alt="" style="position:absolute;top:0;left:0;width:190px;height:290px;object-fit:cover;display:block;object-position:${focalPos(img4Obj)};transform:translate(${img4X}px,${img4Y}px) scale(${img4Scale});transform-origin:center center;"/>` : `<div style="width:190px;height:290px;background:#d0d0d0;border-radius:24px;"></div>`}</div></td>
+      </tr>
+    </table>`}
+  </div>` : ''}
 
   <!-- BODY BLOCK 2: title + body2 + closing + CTA -->
   ${(copy.bodyBlock2Title || copy.bodyBlock2 || copy.closingLine) ? `
   <div class="w8v2-b2" style="background-color:${pageBg};padding:8px 36px 0;">
     <div class="w8v2-b2-inner" style="background-color:${pageBg};border-radius:10px;padding:16px 20px;">
-      ${copy.bodyBlock2Title ? `<div class="mobile-b2title" style="font-size:22px;font-weight:700;font-family:Arial,sans-serif;letter-spacing:0;text-transform:uppercase;color:${secondary};margin-bottom:6px;text-align:left;">${copy.bodyBlock2Title}</div>` : ''}
       ${copy.bodyBlock2 ? `<div class="mobile-body" style="font-size:17px;line-height:1.8;color:${mutedTextCol};margin-bottom:18px;font-family:Arial,sans-serif;">${b2body}</div>` : ''}
       ${copy.closingLine ? `<div class="mobile-closing" style="font-size:17px;line-height:1.7;color:${mutedTextCol};font-style:italic;margin-bottom:24px;font-family:Georgia,serif;">${copy.closingLine}</div>` : ''}
     </div>
@@ -2613,17 +2614,6 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </table>
 </body></html>` : null
 
-    // ── Week 8v2 — own copy of the Week 2 strip generator ──
-    const week8v2StripHtml = img2Url ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
-</head><body>
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;background:transparent;">
-  <tr>
-    <td style="padding:0 4px 24px 36px;vertical-align:top;"><div style="overflow:hidden;border-radius:6px;height:220px;"><img src="${img2Url}" alt="" style="width:100%;height:220px;object-fit:cover;display:block;object-position:${w2img2Fp};transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/></div></td>
-    ${img3Url ? `<td style="padding:0 36px 24px 4px;vertical-align:top;"><div style="overflow:hidden;border-radius:6px;height:220px;"><img src="${img3Url}" alt="" style="width:100%;height:220px;object-fit:cover;display:block;object-position:${w2img3Fp};transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/></div></td>` : ''}
-  </tr>
-</table>
-</body></html>` : null
 
     const w8HeroFp  = selectedImages?.[0]?.focalX != null ? `${selectedImages[0].focalX}% ${selectedImages[0].focalY}%` : '50% 50%'
     const w8CtaText = generatedCopy?.ctaText || 'Shop Now'
@@ -2665,6 +2655,19 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     const w8img3Fp = selectedImages?.[3]?.focalX != null ? `${selectedImages[3].focalX}% ${selectedImages[3].focalY}%` : '50% 50%'
     const w8img4Fp = selectedImages?.[4]?.focalX != null ? `${selectedImages[4].focalX}% ${selectedImages[4].focalY}%` : '50% 50%'
     const week8GridHtml = isWeek8 && (img2Url || img3Url || img4Url) ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:578px;background:transparent;-webkit-font-smoothing:antialiased;}</style>
+</head><body>
+<table width="578" cellpadding="0" cellspacing="0" border="0" style="width:578px;border-collapse:collapse;background:transparent;">
+  <tr>
+    <td style="padding:0 4px 0 0;vertical-align:top;line-height:0;font-size:0;"><div style="position:relative;width:190px;height:290px;border-radius:24px;overflow:hidden;">${img2Url ? `<img src="${img2Url}" alt="" style="position:absolute;top:0;left:0;width:190px;height:290px;object-fit:cover;display:block;object-position:${w8img2Fp};transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/>` : `<div style="width:190px;height:290px;background:#d0d0d0;border-radius:24px;"></div>`}</div></td>
+    <td style="padding:0 4px;vertical-align:top;line-height:0;font-size:0;"><div style="position:relative;width:190px;height:290px;border-radius:24px;overflow:hidden;">${img3Url ? `<img src="${img3Url}" alt="" style="position:absolute;top:0;left:0;width:190px;height:290px;object-fit:cover;display:block;object-position:${w8img3Fp};transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/>` : `<div style="width:190px;height:290px;background:#d0d0d0;border-radius:24px;"></div>`}</div></td>
+    <td style="padding:0 0 0 4px;vertical-align:top;line-height:0;font-size:0;"><div style="position:relative;width:190px;height:290px;border-radius:24px;overflow:hidden;">${img4Url ? `<img src="${img4Url}" alt="" style="position:absolute;top:0;left:0;width:190px;height:290px;object-fit:cover;display:block;object-position:${w8img4Fp};transform:translate(${img4X}px,${img4Y}px) scale(${img4Scale});transform-origin:center center;"/>` : `<div style="width:190px;height:290px;background:#d0d0d0;border-radius:24px;"></div>`}</div></td>
+  </tr>
+</table>
+</body></html>` : null
+
+    // ── Week 8v2 — own copy of Week 8's 3-photo grid generator ──
+    const week8v2GridHtml = (img2Url || img3Url || img4Url) ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:578px;background:transparent;-webkit-font-smoothing:antialiased;}</style>
 </head><body>
 <table width="578" cellpadding="0" cellspacing="0" border="0" style="width:578px;border-collapse:collapse;background:transparent;">
@@ -2768,6 +2771,8 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
       ? renderImage({ html: week9GridHtml, width: 600, height: 564, transparent: true })
       : isWeek2v2 && img1Url
       ? renderImage({ html: week2LongImgHtml, width: 600, height: 376, transparent: true })
+      : isWeek8v2 && week8v2GridHtml
+      ? renderImage({ html: week8v2GridHtml, width: 578, height: 290, transparent: true })
       : isWeek3v2 && (img1Url || img2Url)
       ? renderImage({ html: w3v2StackedHtml, width: 600, height: 420, transparent: true })
       : isWeek3 && (img1Url || img2Url)
@@ -2790,8 +2795,6 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
       ? renderImage({ html: week8PinHtml, width: 600, height: 435, transparent: true })
       : isWeek7v2 && img4Url
       ? renderImage({ html: week7v2StampHtml, width: 400, height: 500, transparent: true })
-      : isWeek8v2 && img2Url
-      ? renderImage({ html: week8v2StripHtml, width: 600, height: 244, transparent: true })
       : isWeek2v2 && img2Url
       ? renderImage({ html: week2StripHtml, width: 600, height: 244, transparent: true })
       : isWeek3v2 && (img3Url || img1Url)
