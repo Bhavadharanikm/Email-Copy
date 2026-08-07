@@ -1541,6 +1541,7 @@ function buildTemplateWeek8v2({ client, copy, images, footerData, isHeroGenerate
   img4Scale=1, img4X=0, img4Y=0,
   btnImgUrl = null,
   stampImgUrl = null,
+  pinImgUrl = null,
 }) {
   const heroObj  = images?.[0]; const heroImg = heroObj?.url||''
   const heroFp   = heroObj?.focalX != null ? `${heroObj.focalX}% ${heroObj.focalY}%` : '50% 50%'
@@ -1629,6 +1630,27 @@ ${(() => {
 
   <!-- BODY BLOCK -->
   ${copy.bodyText ? `<div class="w8v2-section" style="padding:24px 48px 32px;background-color:${pageBg};"><div class="mobile-body" style="font-size:17px;line-height:1.8;color:${mutedTextCol};margin-bottom:18px;font-family:Arial,sans-serif;">${body}</div></div>` : ''}
+
+  <!-- MAP PIN ELEMENT (from Week 8) — Source: Sub Image 1 -->
+  ${pinImgUrl
+    ? `<div style="line-height:0;font-size:0;"><img src="${pinImgUrl}" alt="" width="600" style="width:600px;max-width:100%;display:block;border:0;"/></div>`
+    : `<div style="position:relative;width:100%;max-width:600px;height:435px;overflow:hidden;background-color:${pageBg};">
+    <div style="position:absolute;top:0;left:50%;margin-left:-300px;width:600px;height:435px;overflow:hidden;">
+    <div style="position:relative;width:600px;height:520px;margin-left:55px;top:-82px;">
+      <svg style="position:absolute;width:0;height:0;overflow:hidden;"><defs>
+        <clipPath id="w8v2PinClip" clipPathUnits="userSpaceOnUse">
+          <path d="M265,510 C235,460 171,378 133,273 A140,140 0 1,1 397,273 C359,378 295,460 265,510 Z"/>
+        </clipPath>
+      </defs></svg>
+      <div style="position:absolute;top:0;left:0;width:600px;height:520px;clip-path:url(#w8v2PinClip);">
+        ${img1
+          ? `<img src="${img1}" alt="" style="position:absolute;left:125px;top:85px;width:280px;height:425px;object-fit:cover;object-position:${focalPos(img1Obj)};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;display:block;"/>`
+          : `<div style="position:absolute;left:125px;top:85px;width:280px;height:425px;background:#8a9e8a;"></div>`}
+      </div>
+      <div style="position:absolute;left:225px;top:185px;width:80px;height:80px;border-radius:50%;background:${pageBg};"></div>
+    </div>
+    </div>
+  </div>`}
 
   <!-- LOCATION TITLE + 3-PHOTO GRID -->
   ${(copy.bodyBlock2Title || img2 || img3 || img4 || stampImgUrl) ? `<div style="padding:16px 0 36px;background-color:${pageBg};">
@@ -2700,6 +2722,26 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </div>
 </body></html>` : null
 
+    // ── Week 8v2 — own copy of Week 8's map-pin generator ──
+    const week8v2PinHtml = img1Url ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;height:435px;background:transparent;overflow:hidden;-webkit-font-smoothing:antialiased;}</style>
+</head><body>
+<div style="width:600px;overflow:hidden;height:435px;background:transparent;">
+  <div style="position:relative;width:600px;height:520px;margin-left:55px;top:-82px;">
+    <svg style="position:absolute;width:0;height:0;overflow:hidden;">
+      <defs>
+        <clipPath id="w8v2PinBaked" clipPathUnits="userSpaceOnUse">
+          <path clip-rule="evenodd" d="M265,510 C235,460 171,378 133,273 A140,140 0 1,1 397,273 C359,378 295,460 265,510 Z M225,225 a40,40 0 1,0 80,0 a40,40 0 1,0 -80,0 Z"/>
+        </clipPath>
+      </defs>
+    </svg>
+    <div style="position:absolute;top:0;left:0;width:600px;height:520px;clip-path:url(#w8v2PinBaked);">
+      <img src="${img1Url}" alt="" style="position:absolute;left:125px;top:85px;width:280px;height:425px;object-fit:cover;object-position:${w8img1Fp};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;display:block;"/>
+    </div>
+  </div>
+</div>
+</body></html>` : null
+
     // ── Week 9: full-bleed hero with decorative frame ──
     const w9HeroFp = selectedImages?.[0]?.focalX != null ? `${selectedImages[0].focalX}% ${selectedImages[0].focalY}%` : '50% 50%'
     const w9Subhead = generatedCopy?.subhead || ''
@@ -2792,7 +2834,9 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
               ? renderImage({ html: polaroidHtml, width: 600, height: 340 })
               : Promise.resolve(null)
 
-    const tertiaryPromise = isWeek8 && week8PinHtml
+    const tertiaryPromise = isWeek8v2 && week8v2PinHtml
+      ? renderImage({ html: week8v2PinHtml, width: 600, height: 435, transparent: true })
+      : isWeek8 && week8PinHtml
       ? renderImage({ html: week8PinHtml, width: 600, height: 435, transparent: true })
       : isWeek7v2 && img4Url
       ? renderImage({ html: week7v2StampHtml, width: 400, height: 500, transparent: true })
