@@ -1514,6 +1514,143 @@ function buildTemplateWeek9({ client, copy, images, footerData, isHeroGenerated 
 </body></html>`
 }
 
+/* ══════════════════════════════════════════════════════════════════════════
+   WEEK 7 v2 — duplicate of Week 2 (id 24)
+   Independent copy: own w7v2-* classes and own Puppeteer generators,
+   so it can be edited without touching Week 2.
+   ══════════════════════════════════════════════════════════════════════════ */
+function buildTemplateWeek7v2({ client, copy, images, footerData, isHeroGenerated = false,
+  heroScale=1, heroX=0, heroY=0,
+  textSize=38, textTop=32, textLeft=24,
+  logoColor='original', logoTop=24, logoRight=200, logoSize=40,
+  img1Scale=1, img1X=0, img1Y=0,
+  img2Scale=1, img2X=0, img2Y=0,
+  img3Scale=1, img3X=0, img3Y=0,
+  btnImgUrl = null,
+}) {
+  const heroObj  = images?.[0]; const heroImg = heroObj?.url||''
+  const img1Obj  = images?.[1]; const img1    = img1Obj?.url||''
+  const img2Obj  = images?.[2]; const img2    = img2Obj?.url||''
+  const img3Obj  = images?.[3]; const img3    = img3Obj?.url||''
+  const img4     = images?.[4]?.url || ''
+  const img5     = images?.[5]?.url || ''
+  const body     = (copy.bodyText||'').replace(/\n/g,'<br>')
+  const b2body   = (copy.bodyBlock2||'').replace(/\n/g,'<br>')
+  const logoUrl  = client?.logoUrl||''
+  const pageBg   = footerData?.bgColor || '#1e2a4a'
+  const accent   = footerData?.buttonColor || '#d4006a'
+  const secondary = footerData?.secondaryColor || accent
+  const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
+
+  const _rgb = pageBg.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i)
+  const _r = _rgb ? parseInt(_rgb[1],16) : 30
+  const _g = _rgb ? parseInt(_rgb[2],16) : 42
+  const _b = _rgb ? parseInt(_rgb[3],16) : 74
+  const _lum = (0.299*_r + 0.587*_g + 0.114*_b)/255
+  const lightBg      = _lum > 0.55
+  const mutedTextCol = lightBg ? '#595959' : '#d4d4d4'
+  const dividerCol   = lightBg ? '#e0e0e0' : '#444444'
+
+  const logoOverlay = logoUrl
+    ? `<img src="${logoUrl}" alt="${client?.name||''}" style="display:inline-block;height:${logoSize}px;width:auto;max-width:${logoSize * 6}px;filter:${logoFilter};"/>`
+    : `<div style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:${mutedTextCol};margin-bottom:10px;">${client?.name||''}</div>`
+
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@700&display=swap" rel="stylesheet"/>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{margin:0;padding:0;color:#1a1a1a;}
+  table{border-collapse:collapse;}
+  @media only screen and (max-width:600px){
+    .w7v2-section    { padding-left:35px!important; padding-right:35px!important; }
+    .w7v2-btn-img    { width:300px!important; max-width:300px!important; }
+    .w7v2-b2         { padding-left:35px!important; padding-right:35px!important; }
+    .w7v2-b2-inner   { padding-left:0!important;   padding-right:0!important;   }
+    .mobile-body    { font-size:17px!important; line-height:1.5!important; }
+    .mobile-subhead { font-size:17px!important; line-height:1.4!important; }
+    .mobile-b2title { font-size:22px!important; line-height:1.25!important; }
+    .mobile-closing { font-size:17px!important; line-height:1.5!important; }
+    .mobile-cta     { font-size:20px!important; padding:20px 80px!important; }
+    .mobile-footer  { font-size:14px!important; line-height:1.4!important; }
+  }
+</style></head>
+<body style="margin:0;padding:32px 0 48px;background-color:#ffffff;">
+
+<table width="600" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="width:600px;max-width:600px;margin:0 auto;background-color:${pageBg};border-collapse:collapse;border-radius:20px;overflow:hidden;">
+<tr><td style="background-color:${pageBg};">
+
+  <!-- LOGO HEADER: only in CSS preview; generated PNG already includes the logo -->
+  ${!isHeroGenerated ? `<div style="padding:${logoTop}px 32px 18px;text-align:center;background-color:${pageBg};">${logoOverlay}</div>` : ''}
+
+  <!-- HERO: transparent PNG or CSS preview -->
+  ${isHeroGenerated
+    ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${heroImg}" alt="" width="600" style="width:100%;display:block;max-width:600px;border:0;"/></a></div>`
+    : `<div style="line-height:0;font-size:0;padding:0 36px;background-color:${pageBg};">
+    <div style="position:relative;width:528px;height:680px;border-radius:999px 999px 0 0;overflow:hidden;">
+      ${heroImg
+        ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:528px;height:680px;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
+        : `<div style="width:528px;height:680px;background:#f0c8b8;text-align:center;color:${accent};font-size:12px;font-family:Arial,sans-serif;line-height:680px;">Hero image</div>`}
+      <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0) 0%,rgba(0,0,0,0) 50%,rgba(0,0,0,0.45) 100%);">
+        <table width="100%" height="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;height:100%;border-collapse:collapse;">
+          <tr><td valign="bottom" align="center" style="vertical-align:bottom;text-align:center;padding:0 ${textLeft}px ${textTop}px;">
+            <div style="font-family:'Lora',Georgia,serif;font-size:${textSize}px;font-weight:700;color:#fff;line-height:1.12;text-shadow:0 2px 10px rgba(0,0,0,.3);display:inline-block;max-width:360px;">${copy.headlineText||''}</div>
+          </td></tr>
+        </table>
+      </div>
+    </div>
+  </div>`}
+
+  <!-- SUBHEAD -->
+  ${copy.subhead ? `<div class="w7v2-section" style="padding:28px 48px 4px;text-align:center;background-color:${pageBg};"><div class="mobile-subhead" style="font-family:Georgia,serif;font-size:20px;font-weight:400;font-style:italic;color:${mutedTextCol};line-height:1.5;">${copy.subhead}</div></div>` : ''}
+
+  <!-- CTA -->
+  ${copy.ctaText ? `<div class="w7v2-section" style="padding:24px 48px 28px;text-align:center;background-color:${pageBg};">${btnImgUrl
+    ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w7v2-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:375px;display:block;margin:0 auto;border:0;outline:none;"/></a>`
+    : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accent};border-radius:999px;"><a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`
+  }</div>` : ''}
+
+  <!-- LONG IMAGE (img1): transparent PNG above body text -->
+  ${isHeroGenerated && img4
+    ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${img4}" alt="" width="600" style="width:100%;display:block;max-width:600px;border:0;"/></a></div>`
+    : img1 ? `<div style="line-height:0;font-size:0;padding:0 36px 16px;background-color:${pageBg};"><div style="overflow:hidden;border-radius:8px;height:360px;"><img src="${img1}" alt="" style="width:100%;height:360px;object-fit:cover;display:block;object-position:${focalPos(img1Obj)};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/></div></div>` : ''}
+
+  <!-- BODY BLOCK -->
+  ${copy.bodyText ? `<div class="w7v2-section" style="padding:24px 48px 32px;background-color:${pageBg};"><div class="mobile-body" style="font-size:17px;line-height:1.8;color:${mutedTextCol};margin-bottom:18px;font-family:Arial,sans-serif;">${body}</div></div>` : ''}
+
+  <!-- STRIP IMAGES (img2+img3): transparent PNG after body text -->
+  ${isHeroGenerated && img5
+    ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${img5}" alt="" width="600" style="width:100%;display:block;max-width:600px;border:0;"/></a></div>`
+    : img2 ? `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;background-color:${pageBg};">
+      <tr><td style="padding:0 36px 24px;">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;line-height:0;font-size:0;">
+          <tr>
+            <td width="49%" style="padding-right:4px;vertical-align:top;"><div style="overflow:hidden;border-radius:6px;height:220px;"><img src="${img2}" alt="" width="100%" style="width:100%;height:220px;object-fit:cover;display:block;object-position:${focalPos(img2Obj)};transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/></div></td>
+            ${img3 ? `<td width="49%" style="padding-left:4px;vertical-align:top;"><div style="overflow:hidden;border-radius:6px;height:220px;"><img src="${img3}" alt="" width="100%" style="width:100%;height:220px;object-fit:cover;display:block;object-position:${focalPos(img3Obj)};transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/></div></td>` : ''}
+          </tr>
+        </table>
+      </td></tr>
+    </table>` : ''}
+
+  <!-- BODY BLOCK 2: title + body2 + closing + CTA -->
+  ${(copy.bodyBlock2Title || copy.bodyBlock2 || copy.closingLine) ? `
+  <div class="w7v2-b2" style="background-color:${pageBg};padding:8px 36px 0;">
+    <div class="w7v2-b2-inner" style="background-color:${pageBg};border-radius:10px;padding:16px 20px;">
+      ${copy.bodyBlock2Title ? `<div class="mobile-b2title" style="font-size:22px;font-weight:700;font-family:Arial,sans-serif;letter-spacing:0;text-transform:uppercase;color:${secondary};margin-bottom:6px;text-align:left;">${copy.bodyBlock2Title}</div>` : ''}
+      ${copy.bodyBlock2 ? `<div class="mobile-body" style="font-size:17px;line-height:1.8;color:${mutedTextCol};margin-bottom:18px;font-family:Arial,sans-serif;">${b2body}</div>` : ''}
+      ${copy.closingLine ? `<div class="mobile-closing" style="font-size:17px;line-height:1.7;color:${mutedTextCol};font-style:italic;margin-bottom:24px;font-family:Georgia,serif;">${copy.closingLine}</div>` : ''}
+    </div>
+    ${copy.ctaText ? `<div style="padding:16px 0 36px;text-align:center;">${btnImgUrl
+      ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w7v2-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:375px;display:block;margin:0 auto;border:0;outline:none;"/></a>`
+      : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accent};border-radius:999px;"><a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`
+    }</div>` : ''}
+  </div>` : ''}
+
+  <div style="background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: dividerCol, bodyTextAlign: 'justify' })}</div>
+</td></tr></table>
+</body></html>`
+}
+
 /* ─────────────────────────── registry ──────────────────────────────────── */
 const TEMPLATES = [
   { id:17, label:'✅ Week 2', build:buildTemplateWeek2v2 },
@@ -1524,6 +1661,7 @@ const TEMPLATES = [
   { id:22, label:'✅ Week 8', build:buildTemplateWeek8, adminOnly:true },
   { id:21, label:'✅ Week 7', build:buildTemplateWeek7, adminOnly:true },
   { id:23, label:'✅ Week 9', build:buildTemplateWeek9, adminOnly:true },
+  { id:24, label:'✅ Week 7v2', build:buildTemplateWeek7v2, adminOnly:true },
   { id:20, label:'🧪 Test',   build:buildTemplateTest,  adminOnly:true },
 ]
 
@@ -1569,7 +1707,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
   }, [active])  // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Hero editor — all week templates ─────────────────────────────────────────
-  const isEditable = [10, 11, 13, 16, 17, 18, 19, 20, 21, 22, 23].includes(tpl?.id)
+  const isEditable = [10, 11, 13, 16, 17, 18, 19, 20, 21, 22, 23, 24].includes(tpl?.id)
   const [heroScale,   setHeroScale]   = useState(1)
   const [heroX,       setHeroX]       = useState(0)
   const [heroY,       setHeroY]       = useState(0)
@@ -1617,7 +1755,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
   }, [tpl?.id])  // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Week template image generation ───────────────────────────────────────────
-  const isWeekTemplate = [10, 11, 13, 16, 17, 18, 19, 20, 21, 22, 23].includes(tpl?.id)
+  const isWeekTemplate = [10, 11, 13, 16, 17, 18, 19, 20, 21, 22, 23, 24].includes(tpl?.id)
   const [weekGenUrls,     setWeekGenUrls]     = useState({})  // { [tplId]: { hero, sec, ter } }
   const [weekGenLoading,  setWeekGenLoading]  = useState(false)
   const [weekGenError,    setWeekGenError]    = useState(null)
@@ -1635,7 +1773,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
       if (tplUrls.ter)  effectiveImages[5] = { url: tplUrls.ter,  focalX: 50, focalY: 50 }
     }
     const editorProps = isEditable ? { heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y } : {}
-    const isHeroGenerated = [10, 11, 13, 16, 17, 18, 19, 20, 21, 22, 23].includes(tpl?.id) && !!tplUrls.hero
+    const isHeroGenerated = [10, 11, 13, 16, 17, 18, 19, 20, 21, 22, 23, 24].includes(tpl?.id) && !!tplUrls.hero
     const effectiveFooterData = clientFooter
       ? { ...clientFooter, logoColor: footerLogoColor, footerLogoSize }
       : clientFooter
@@ -1925,6 +2063,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     const isWeek7    = tpl?.id === 21
     const isWeek8    = tpl?.id === 22
     const isWeek9    = tpl?.id === 23
+    const isWeek7v2  = tpl?.id === 24
     const isTest     = tpl?.id === 20
     const renderLogoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
     const logoHtml = logoUrl
@@ -1970,8 +2109,34 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </div>
 </body></html>`
 
+    // ── Week 7v2 — own copy of the Week 2 hero generator (independent of Week 2) ──
+    const week7v2LogoHtml = logoUrl
+      ? `<img src="${logoUrl}" alt="" style="height:${logoSize}px;width:auto;max-width:${logoSize * 5}px;display:inline-block;filter:${renderLogoFilter};"/>`
+      : `<span style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#1a1a1a;">${clientName}</span>`
+
+    const week7v2HeroHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@700&display=swap" rel="stylesheet"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:${midBg};}</style>
+</head><body>
+<div style="background:${midBg};width:600px;padding:${logoTop}px 32px 18px;box-sizing:border-box;line-height:normal;font-size:initial;text-align:center;">
+  ${week7v2LogoHtml}
+</div>
+<div style="width:600px;padding:0 36px;background:${midBg};box-sizing:border-box;line-height:0;font-size:0;">
+  <div style="position:relative;width:528px;height:680px;border-radius:999px 999px 0 0;overflow:hidden;">
+    ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:528px;height:680px;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>` : `<div style="width:528px;height:680px;background:#c8c0b5;"></div>`}
+    <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0) 0%,rgba(0,0,0,0) 50%,rgba(0,0,0,0.45) 100%);">
+      <div style="position:absolute;bottom:${textTop}px;left:0;right:0;text-align:center;padding:0 ${textLeft}px;line-height:normal;">
+        <div style="font-family:'Lora',Georgia,serif;font-size:${textSize}px;font-weight:700;color:#fff;line-height:1.12;text-shadow:0 2px 10px rgba(0,0,0,.3);display:inline-block;max-width:360px;">${headline}</div>
+      </div>
+    </div>
+  </div>
+</div>
+</body></html>`
+
     const heroHtml = isWeek2
       ? week2ArchHtml(midBg, false)
+      : isWeek7v2
+      ? week7v2HeroHtml
       : (isWeek2v2 || isWeek6v2)
       ? week2v2HeroHtml
       : isWeek4v2b
@@ -2096,6 +2261,16 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </div>
 </body></html>` : null
     const w2v2ButtonHtml  = (isWeek2v2 || isWeek6v2 || isWeek4v2b) ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
+</head><body>
+<div style="width:600px;text-align:center;">
+  <div style="display:inline-block;background:${w2v2AccentColor};border-radius:999px;padding:20px 80px;">
+    <span style="font-family:Arial,sans-serif;font-size:28px;font-weight:700;color:#ffffff;white-space:nowrap;display:inline-flex;align-items:center;">${w2v2CtaText}<span style="display:inline-flex;align-items:center;margin-left:10px;"><span style="display:inline-block;width:12px;height:2px;background:#ffffff;"></span><span style="display:inline-block;width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:7px solid #ffffff;"></span></span></span>
+  </div>
+</div>
+</body></html>` : null
+
+    const w7v2ButtonHtml  = isWeek7v2 ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
 </head><body>
 <div style="width:600px;text-align:center;">
@@ -2430,6 +2605,25 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     const w2img1Fp = selectedImages?.[1]?.focalX != null ? `${selectedImages[1].focalX}% ${selectedImages[1].focalY}%` : '50% 50%'
     const w2img2Fp = selectedImages?.[2]?.focalX != null ? `${selectedImages[2].focalX}% ${selectedImages[2].focalY}%` : '50% 50%'
     const w2img3Fp = selectedImages?.[3]?.focalX != null ? `${selectedImages[3].focalX}% ${selectedImages[3].focalY}%` : '50% 50%'
+    // ── Week 7v2 — own copies of the Week 2 long-image + strip generators ──
+    const week7v2LongImgHtml = img1Url ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
+</head><body>
+<div style="padding:0 36px 16px;line-height:0;font-size:0;background:transparent;">
+  <div style="overflow:hidden;border-radius:8px;height:360px;"><img src="${img1Url}" alt="" style="width:100%;height:360px;object-fit:cover;display:block;object-position:${w2img1Fp};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/></div>
+</div>
+</body></html>` : null
+    const week7v2StripHtml = img2Url ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
+</head><body>
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;background:transparent;">
+  <tr>
+    <td style="padding:0 4px 24px 36px;vertical-align:top;"><div style="overflow:hidden;border-radius:6px;height:220px;"><img src="${img2Url}" alt="" style="width:100%;height:220px;object-fit:cover;display:block;object-position:${w2img2Fp};transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/></div></td>
+    ${img3Url ? `<td style="padding:0 36px 24px 4px;vertical-align:top;"><div style="overflow:hidden;border-radius:6px;height:220px;"><img src="${img3Url}" alt="" style="width:100%;height:220px;object-fit:cover;display:block;object-position:${w2img3Fp};transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/></div></td>` : ''}
+  </tr>
+</table>
+</body></html>` : null
+
     const week2LongImgHtml = img1Url ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
 </head><body>
@@ -2569,11 +2763,13 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </div>
 </body></html>` : null
 
-    const heroHeight = isWeek9 ? 720 : isWeek8 ? 680 : isWeek7 ? ((img1Url || img2Url || img3Url) ? 988 : 720) : isWeek2 ? 580 : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : isTest ? 520 : 400
+    const heroHeight = isWeek9 ? 720 : isWeek8 ? 680 : isWeek7 ? ((img1Url || img2Url || img3Url) ? 988 : 720) : isWeek2 ? 580 : (isWeek2v2 || isWeek7v2) ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : isTest ? 520 : 400
     const secondaryPromise = isWeek7
       ? (week7StampHtml ? renderImage({ html: week7StampHtml, width: 400, height: 500, transparent: true }) : Promise.resolve(null))
       : isWeek9 && week9GridHtml
       ? renderImage({ html: week9GridHtml, width: 600, height: 564, transparent: true })
+      : isWeek7v2 && img1Url
+      ? renderImage({ html: week7v2LongImgHtml, width: 600, height: 376, transparent: true })
       : isWeek2v2 && img1Url
       ? renderImage({ html: week2LongImgHtml, width: 600, height: 376, transparent: true })
       : isWeek3v2 && (img1Url || img2Url)
@@ -2590,12 +2786,14 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
             ? renderImage({ html: week8GridHtml, width: 578, height: 290, transparent: true })
             : isTest && testStampHtml
             ? renderImage({ html: testStampHtml, width: 600, height: 500, transparent: true })
-            : (!isWeek2 && !isWeek2v2 && !isWeek3 && !isWeek5 && !isTest && !isWeek8 && (img1Url || img2Url))
+            : (!isWeek2 && !isWeek2v2 && !isWeek7v2 && !isWeek3 && !isWeek5 && !isTest && !isWeek8 && (img1Url || img2Url))
               ? renderImage({ html: polaroidHtml, width: 600, height: 340 })
               : Promise.resolve(null)
 
     const tertiaryPromise = isWeek8 && week8PinHtml
       ? renderImage({ html: week8PinHtml, width: 600, height: 435, transparent: true })
+      : isWeek7v2 && img2Url
+      ? renderImage({ html: week7v2StripHtml, width: 600, height: 244, transparent: true })
       : isWeek2v2 && img2Url
       ? renderImage({ html: week2StripHtml, width: 600, height: 244, transparent: true })
       : isWeek3v2 && (img3Url || img1Url)
@@ -2606,7 +2804,9 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
           ? renderImage({ html: week4v2bStackedHtml, width: 600, height: 548, transparent: true })
           : Promise.resolve(null)
 
-    const buttonPromise = (isWeek2v2 || isWeek6v2 || isWeek4v2b || isWeek9) && w2v2ButtonHtml
+    const buttonPromise = isWeek7v2 && w7v2ButtonHtml
+      ? renderImage({ html: w7v2ButtonHtml, width: 600, height: 88, transparent: true })
+      : (isWeek2v2 || isWeek6v2 || isWeek4v2b || isWeek9) && w2v2ButtonHtml
       ? renderImage({ html: w2v2ButtonHtml, width: 600, height: 88, transparent: true })
       : isWeek3v2 && w3v2ButtonHtml
       ? renderImage({ html: w3v2ButtonHtml, width: 600, height: 88, transparent: true })
@@ -3098,7 +3298,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
           </div>
 
           {/* Sub-image adjusters — shown for templates that have sub-images */}
-          {[10, 11, 13, 16, 17, 18, 22].includes(tpl?.id) && [
+          {[10, 11, 13, 16, 17, 18, 22, 24].includes(tpl?.id) && [
             { key: 'sub1', label: 'Sub Image 1', color: '#7c3aed', bg: dark ? 'rgba(124,58,237,0.15)' : '#f5f3ff',
               controls: [
                 { name: 'Left', min: -200, max: 200, step: 4, val: img1X,     set: setImg1X,     unit: 'px' },
