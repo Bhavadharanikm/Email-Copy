@@ -2133,8 +2133,6 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 
     const heroHtml = isWeek2
       ? week2ArchHtml(midBg, false)
-      : isWeek7v2
-      ? week7v2HeroHtml
       : (isWeek2v2 || isWeek6v2)
       ? week2v2HeroHtml
       : isWeek4v2b
@@ -2844,7 +2842,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
       ? renderImage({ html: w8ButtonHtml, width: 600, height: 110, transparent: true })
       : Promise.resolve(null)
 
-    const heroHtmlToUse = isWeek9 ? week9HeroHtml : isWeek8 ? week8HeroHtml : isWeek7 ? week7HeroHtml : isTest ? testHeroHtml : isWeek5 ? week5HeroHtml : isWeek6v2 ? week6HeroHtml : isWeek4v2b ? week4v2bHeroHtml : heroHtml
+    const heroHtmlToUse = isWeek9 ? week9HeroHtml : isWeek8 ? week8HeroHtml : isWeek7 ? week7HeroHtml : isWeek7v2 ? week7v2HeroHtml : isTest ? testHeroHtml : isWeek5 ? week5HeroHtml : isWeek6v2 ? week6HeroHtml : isWeek4v2b ? week4v2bHeroHtml : heroHtml
 
     Promise.all([
       renderImage({ html: heroHtmlToUse, width: 600, height: heroHeight, transparent: isWeek7 || isWeek7v2 || isWeek3v2 || isWeek5 || isWeek6v2 || isWeek4v2b }),
