@@ -9,7 +9,7 @@ import { useMemo, useState, useEffect, useCallback, useRef } from 'react'
 import { useCampaignStore }  from '../store/campaignStore'
 import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
-import { recommendTemplate, analyzeImageFocal, htmlToImage, fetchFooterData } from '../lib/api'
+import { recommendTemplate, analyzeImageFocal, htmlToImage, fetchFooterData, sendTestEmail } from '../lib/api'
 
 /* ─────────────────────── shared email-client header ─────────────────────── */
 function emailClientHeader({ client, copy }) {
@@ -631,7 +631,7 @@ function buildTemplateWeek8({ client, copy, images, footerData, isHeroGenerated 
   table{border-collapse:collapse;}
   @media only screen and (max-width:600px){
     .w6v2-section  { padding-left:35px!important; padding-right:35px!important; }
-    .w6v2-btn-img  { width:300px!important; max-width:300px!important; }
+    .w6v2-btn-img  { width:340px!important; max-width:340px!important; }
     .mobile-body    { font-size:17px!important; line-height:1.5!important; }
     .mobile-subhead { font-size:17px!important; line-height:1.4!important; }
     .mobile-b2title { font-size:22px!important; line-height:1.25!important; }
@@ -666,7 +666,7 @@ ${(() => {
 <tr><td style="background-color:${pageBg};">
 
   <!-- SUBHEAD + TOP CTA -->
-  ${(copy.subhead || copy.ctaText) ? `<div style="padding:32px 48px;text-align:center;background-color:${pageBg};">
+  ${(copy.subhead || copy.ctaText) ? `<div class="w6v2-section" style="padding:32px 48px;text-align:center;background-color:${pageBg};">
     ${copy.subhead ? `<div class="mobile-subhead" style="font-family:Georgia,serif;font-size:20px;font-style:italic;line-height:1.5;color:${mutedTextCol};margin-bottom:28px;">${copy.subhead}</div>` : ''}
     ${copy.ctaText ? (btnImgUrl
       ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w6v2-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:375px;display:block;margin:0 auto;border:0;outline:none;"/></a>`
@@ -674,7 +674,7 @@ ${(() => {
   </div>` : ''}
 
   <!-- DIVIDER -->
-  <div style="padding:0 48px;background-color:${pageBg};"><div style="height:1px;background:${dividerCol};font-size:0;line-height:0;"></div></div>
+  <div class="w6v2-section" style="padding:0 48px;background-color:${pageBg};"><div style="height:1px;background:${dividerCol};font-size:0;line-height:0;"></div></div>
 
   <!-- BODY BLOCK -->
   ${copy.bodyText ? `<div class="w6v2-section" style="padding:24px 48px 16px;background-color:${pageBg};"><div class="mobile-body" style="font-size:17px;line-height:1.8;color:${mutedTextCol};font-family:Arial,sans-serif;">${body}</div></div>` : ''}
@@ -1277,7 +1277,7 @@ function buildTemplateWeek7({ client, copy, images, footerData, isHeroGenerated 
   table{border-collapse:collapse;}
   @media only screen and (max-width:600px){
     .w6v2-section  { padding-left:35px!important; padding-right:35px!important; }
-    .w6v2-btn-img  { width:300px!important; max-width:300px!important; }
+    .w6v2-btn-img  { width:340px!important; max-width:340px!important; }
     .mobile-body    { font-size:17px!important; line-height:1.5!important; }
     .mobile-subhead { font-size:17px!important; line-height:1.4!important; }
     .mobile-b2title { font-size:22px!important; line-height:1.25!important; }
@@ -1331,7 +1331,7 @@ function buildTemplateWeek7({ client, copy, images, footerData, isHeroGenerated 
   ${copy.bodyText ? `<div class="w6v2-section" style="padding:24px 48px 16px;background-color:${pageBg};"><div class="mobile-body" style="font-size:17px;line-height:1.8;color:${mutedTextCol};font-family:Arial,sans-serif;">${body}</div></div>` : ''}
 
   <!-- DIVIDER + BODY BLOCK 2 TITLE -->
-  ${copy.bodyBlock2Title ? `<div style="padding:8px 48px 0;background-color:${pageBg};"><div style="height:1px;background:${dividerCol};font-size:0;line-height:0;"></div></div><div class="w6v2-section" style="padding:20px 48px 12px;background-color:${pageBg};"><div class="mobile-b2title" style="font-size:22px;font-weight:700;font-family:'Lora',Georgia,serif;letter-spacing:0;color:${secondary};text-align:center;">${copy.bodyBlock2Title}</div></div>` : ''}
+  ${copy.bodyBlock2Title ? `<div class="w6v2-section" style="padding:8px 48px 0;background-color:${pageBg};"><div style="height:1px;background:${dividerCol};font-size:0;line-height:0;"></div></div><div class="w6v2-section" style="padding:20px 48px 12px;background-color:${pageBg};"><div class="mobile-b2title" style="font-size:22px;font-weight:700;font-family:'Lora',Georgia,serif;letter-spacing:0;color:${secondary};text-align:center;">${copy.bodyBlock2Title}</div></div>` : ''}
 
   <!-- STAMP DESIGN (sub image 4) -->
   ${stampImgUrl
@@ -1537,7 +1537,12 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
   const { theme } = useTheme()
   const dark = theme === 'dark'
   const { user } = useAuth()
-  const visibleTemplates = TEMPLATES.filter(t => !t.adminOnly || user?.name === POOJA_NAME)
+  const isAdmin = user?.name === POOJA_NAME
+  const visibleTemplates = TEMPLATES.filter(t => !t.adminOnly || isAdmin)
+
+  // Send-test-email state (admin only)
+  const [sendingTest, setSendingTest] = useState(false)
+  const [testResult,  setTestResult]  = useState(null)   // { ok: bool, msg: string }
 
   const { selectedClient, generatedCopy, selectedImages, setRenderedHtml, imageGenHtml, setImageGenHtml, headerStyle, imageStyle, aiReasoning, aiRecommendDone, clientFooter, setClientFooter, setTemplateLabel, locationId } = useCampaignStore(s => ({
     selectedClient:   s.selectedClient,
@@ -1693,6 +1698,24 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     if (!baseHtml) return null
     return baseHtml.replace('<body', `<body style="zoom:${zoom}"`)
   }, [baseHtml, zoom])
+
+  // Send the rendered email to the fixed test inbox (admin only).
+  // Uses baseHtml, not previewHtml — previewHtml carries the zoom wrapper.
+  const handleSendTest = useCallback(async () => {
+    if (!baseHtml) return
+    setSendingTest(true)
+    setTestResult(null)
+    try {
+      const subject = `[TEST] ${selectedClient?.name || 'Template'} — ${tpl?.label?.replace(/^[^\w]+/, '') || 'preview'}`
+      const res = await sendTestEmail({ html: baseHtml, subject })
+      setTestResult({ ok: true, msg: `Sent to ${res.to}` })
+    } catch (e) {
+      setTestResult({ ok: false, msg: e.message })
+    } finally {
+      setSendingTest(false)
+      setTimeout(() => setTestResult(null), 8000)
+    }
+  }, [baseHtml, selectedClient?.name, tpl?.label])
 
   // Write preview HTML into the iframe without reloading the document so scroll position is preserved
   const iframeRef = useRef(null)
@@ -2058,8 +2081,8 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
 </head><body>
 <div style="width:600px;text-align:center;">
-  <div style="display:inline-block;background:${w7BtnAccentColor};border-radius:999px;padding:20px 80px;">
-    <span style="font-family:Arial,sans-serif;font-size:28px;font-weight:700;color:#ffffff;white-space:nowrap;display:inline-flex;align-items:center;">${w7BtnCtaLabel}<span style="display:inline-flex;align-items:center;margin-left:10px;"><span style="display:inline-block;width:12px;height:2px;background:#ffffff;"></span><span style="display:inline-block;width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:7px solid #ffffff;"></span></span></span>
+  <div style="display:inline-block;background:${w7BtnAccentColor};border-radius:999px;padding:26px 92px;">
+    <span style="font-family:Arial,sans-serif;font-size:36px;font-weight:700;color:#ffffff;white-space:nowrap;display:inline-flex;align-items:center;">${w7BtnCtaLabel}<span style="display:inline-flex;align-items:center;margin-left:13px;"><span style="display:inline-block;width:16px;height:3px;background:#ffffff;"></span><span style="display:inline-block;width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;border-left:9px solid #ffffff;"></span></span></span>
   </div>
 </div>
 </body></html>` : null
@@ -2067,8 +2090,8 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
 </head><body>
 <div style="width:600px;text-align:center;">
-  <div style="display:inline-block;background:${w8BtnAccentColor};border-radius:999px;padding:20px 80px;">
-    <span style="font-family:Arial,sans-serif;font-size:28px;font-weight:700;color:#ffffff;white-space:nowrap;display:inline-flex;align-items:center;">${w8BtnCtaLabel}<span style="display:inline-flex;align-items:center;margin-left:10px;"><span style="display:inline-block;width:12px;height:2px;background:#ffffff;"></span><span style="display:inline-block;width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:7px solid #ffffff;"></span></span></span>
+  <div style="display:inline-block;background:${w8BtnAccentColor};border-radius:999px;padding:26px 92px;">
+    <span style="font-family:Arial,sans-serif;font-size:36px;font-weight:700;color:#ffffff;white-space:nowrap;display:inline-flex;align-items:center;">${w8BtnCtaLabel}<span style="display:inline-flex;align-items:center;margin-left:13px;"><span style="display:inline-block;width:16px;height:3px;background:#ffffff;"></span><span style="display:inline-block;width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;border-left:9px solid #ffffff;"></span></span></span>
   </div>
 </div>
 </body></html>` : null
@@ -2590,9 +2613,9 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
       : isWeek5 && w5ButtonHtml
       ? renderImage({ html: w5ButtonHtml, width: 600, height: 88, transparent: true })
       : isWeek7 && w7ButtonHtml
-      ? renderImage({ html: w7ButtonHtml, width: 600, height: 88, transparent: true })
+      ? renderImage({ html: w7ButtonHtml, width: 600, height: 110, transparent: true })
       : isWeek8 && w8ButtonHtml
-      ? renderImage({ html: w8ButtonHtml, width: 600, height: 88, transparent: true })
+      ? renderImage({ html: w8ButtonHtml, width: 600, height: 110, transparent: true })
       : Promise.resolve(null)
 
     const heroHtmlToUse = isWeek9 ? week9HeroHtml : isWeek8 ? week8HeroHtml : isWeek7 ? week7HeroHtml : isTest ? testHeroHtml : isWeek5 ? week5HeroHtml : isWeek6v2 ? week6HeroHtml : isWeek4v2b ? week4v2bHeroHtml : heroHtml
@@ -3206,6 +3229,40 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 
           {/* Zoom + view controls */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            {/* Send test email — admin only */}
+            {isAdmin && (
+              <>
+                {testResult && (
+                  <span style={{
+                    fontSize: 11, fontFamily: 'Inter, sans-serif', maxWidth: 260,
+                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                    color: testResult.ok ? '#16a34a' : '#dc2626',
+                  }} title={testResult.msg}>
+                    {testResult.ok ? '✓ ' : '✕ '}{testResult.msg}
+                  </span>
+                )}
+                <button
+                  onClick={handleSendTest}
+                  disabled={sendingTest || !baseHtml}
+                  title={baseHtml ? 'Send this email to the test inbox' : 'Generate a template first'}
+                  style={{
+                    height: 26, padding: '0 10px', borderRadius: 6, border: 'none',
+                    cursor: (sendingTest || !baseHtml) ? 'not-allowed' : 'pointer',
+                    display: 'flex', alignItems: 'center', gap: 5,
+                    background: dark ? 'rgba(59,130,246,0.35)' : '#dbeafe',
+                    color: '#3b82f6', opacity: (sendingTest || !baseHtml) ? 0.5 : 1,
+                    fontSize: 11, fontWeight: 600, fontFamily: 'Inter, sans-serif',
+                    marginRight: 4,
+                  }}
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"/>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                  </svg>
+                  {sendingTest ? 'Sending…' : 'Send test'}
+                </button>
+              </>
+            )}
             {/* Mobile view toggle */}
             <button
               onClick={() => setMobileView(v => !v)}
