@@ -579,155 +579,6 @@ function buildTemplateWeek4v2b({ client, copy, images, footerData, isHeroGenerat
 </body></html>`
 }
 
-/* ══════════════════════════════════════════════════════════════════════════
-   WEEK 8 — IrishClub-style header + Week 4 body
-   ══════════════════════════════════════════════════════════════════════════ */
-function buildTemplateWeek8({ client, copy, images, footerData, isHeroGenerated = false,
-  heroScale=1, heroX=0, heroY=0,
-  textSize=38, textTop=32, textLeft=24,
-  logoColor='original', logoTop=24, logoRight=200, logoSize=40,
-  img1Scale=1, img1X=0, img1Y=0,
-  img2Scale=1, img2X=0, img2Y=0,
-  img3Scale=1, img3X=0, img3Y=0,
-  img4Scale=1, img4X=0, img4Y=0,
-  btnImgUrl = null,
-  stampImgUrl = null,
-  pinImgUrl = null,
-}) {
-  const heroObj  = images?.[0]; const heroImg = heroObj?.url||''
-  const heroFp   = heroObj?.focalX != null ? `${heroObj.focalX}% ${heroObj.focalY}%` : '50% 50%'
-  const img1Obj  = images?.[1]; const img1    = img1Obj?.url||''  // pin image
-  const img2Obj  = images?.[2]; const img2    = img2Obj?.url||''  // grid photo 1
-  const img3Obj  = images?.[3]; const img3    = img3Obj?.url||''  // grid photo 2
-  const img4Obj  = images?.[4]; const img4    = img4Obj?.url||''  // grid photo 3
-  const img5     = images?.[5]?.url || ''
-  const body     = (copy.bodyText||'').replace(/\n/g,'<br>')
-  const b2body   = (copy.bodyBlock2||'').replace(/\n/g,'<br>')
-  const logoUrl  = client?.logoUrl||''
-  const pageBg   = footerData?.bgColor || '#f5f4f2'
-  const accent   = footerData?.buttonColor || '#1a1a1a'
-  const secondary = footerData?.secondaryColor || accent
-  const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
-
-  const _rgb = pageBg.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i)
-  const _r = _rgb ? parseInt(_rgb[1],16) : 245
-  const _g = _rgb ? parseInt(_rgb[2],16) : 244
-  const _b = _rgb ? parseInt(_rgb[3],16) : 242
-  const _lum = (0.299*_r + 0.587*_g + 0.114*_b)/255
-  const lightBg      = _lum > 0.55
-  const mutedTextCol = lightBg ? '#595959' : '#d4d4d4'
-  const dividerCol   = lightBg ? '#e0e0e0' : '#444444'
-
-  const logoDisplay = logoUrl
-    ? `<img src="${logoUrl}" alt="${client?.name||''}" style="height:${logoSize}px;width:auto;display:inline-block;filter:${logoFilter};"/>`
-    : `<span style="font-family:Arial,sans-serif;font-size:${Math.round(logoSize*0.38)}px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:${accent};">${client?.name||''}</span>`
-
-  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<link href="https://fonts.googleapis.com/css2?family=Lato:wght@700;900&family=Lora:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
-<style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{margin:0;padding:0;color:#1a1a1a;}
-  table{border-collapse:collapse;}
-  @media only screen and (max-width:600px){
-    .w6v2-section  { padding-left:35px!important; padding-right:35px!important; }
-    .w6v2-btn-img  { width:340px!important; max-width:340px!important; }
-    .mobile-body    { font-size:17px!important; line-height:1.5!important; }
-    .mobile-subhead { font-size:17px!important; line-height:1.4!important; }
-    .mobile-b2title { font-size:22px!important; line-height:1.25!important; }
-    .mobile-closing { font-size:17px!important; line-height:1.5!important; }
-    .mobile-cta     { font-size:20px!important; padding:20px 80px!important; }
-    .mobile-footer  { font-size:14px!important; line-height:1.4!important; }
-  }
-</style></head>
-<body style="margin:0;padding:32px 0 48px;background-color:#ffffff;">
-
-<table width="600" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="width:600px;max-width:600px;margin:0 auto;background-color:${pageBg};border-collapse:collapse;border-radius:0 0 20px 20px;overflow:hidden;">
-<!-- HERO -->
-${(() => {
-  const logoDisplayWhite = logoUrl
-    ? `<img src="${logoUrl}" alt="${client?.name||''}" style="height:${logoSize}px;width:auto;display:block;filter:${logoFilter};"/>`
-    : `<span style="font-family:Arial,sans-serif;font-size:${Math.round(logoSize*0.38)}px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:${logoColor==='black'?'#000':'#fff'};">${client?.name||''}</span>`
-  return `<tr><td style="padding:0;line-height:0;font-size:0;">
-    ${isHeroGenerated && heroImg
-      ? `<img src="${heroImg}" alt="" style="width:600px;max-width:100%;display:block;border:0;"/>`
-      : `<div style="position:relative;width:100%;height:680px;overflow:hidden;background:#1a1a1a;">
-          ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:${heroFp};transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;display:block;"/>` : `<div style="position:absolute;inset:0;background:#2a2a2a;"></div>`}
-          <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.35) 0%,rgba(0,0,0,0) 35%,rgba(0,0,0,0) 48%,rgba(0,0,0,0.55) 75%,rgba(0,0,0,0.72) 100%);"></div>
-          <div style="position:absolute;top:64px;left:14px;right:44px;bottom:14px;border-left:1px solid rgba(255,255,255,0.55);border-right:1px solid rgba(255,255,255,0.55);border-bottom:1px solid rgba(255,255,255,0.55);"></div>
-          <table cellpadding="0" cellspacing="0" border="0" style="position:absolute;top:28px;left:28px;right:52px;width:calc(100% - 80px);border-collapse:collapse;"><tr><td style="white-space:nowrap;padding-right:16px;vertical-align:middle;line-height:0;font-size:0;">${logoDisplayWhite}</td><td style="width:100%;vertical-align:middle;"><div style="height:1px;background:rgba(255,255,255,0.55);font-size:0;line-height:0;"></div></td></tr></table>
-          <div style="position:absolute;bottom:24px;left:${textLeft}px;right:60px;">
-            <div style="font-family:'Lato',Arial,sans-serif;font-size:${textSize}px;font-weight:900;line-height:1.12;color:#fff;margin-bottom:12px;">${copy.headlineText||''}</div>
-            <div style="width:280px;height:48px;background:#fff;display:flex;align-items:center;justify-content:center;padding:0 16px;">${copy.ctaText ? `<a href="${copy.ctaUrl||'#'}" style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.1em;color:#1a1a1a;text-decoration:none;text-transform:uppercase;white-space:nowrap;">${copy.ctaText.toUpperCase()}</a>` : `<span style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.1em;color:#1a1a1a;text-transform:uppercase;white-space:nowrap;">SHOP NOW</span>`}</div>
-          </div>
-        </div>`}
-  </td></tr>`
-})()}
-<tr><td style="background-color:${pageBg};">
-
-  <!-- SUBHEAD + TOP CTA -->
-  ${(copy.subhead || copy.ctaText) ? `<div class="w6v2-section" style="padding:32px 48px;text-align:center;background-color:${pageBg};">
-    ${copy.subhead ? `<div class="mobile-subhead" style="font-family:Georgia,serif;font-size:20px;font-style:italic;line-height:1.5;color:${mutedTextCol};margin-bottom:28px;">${copy.subhead}</div>` : ''}
-    ${copy.ctaText ? (btnImgUrl
-      ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w6v2-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:375px;display:block;margin:0 auto;border:0;outline:none;"/></a>`
-      : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accent};border-radius:999px;"><a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.02em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`) : ''}
-  </div>` : ''}
-
-  <!-- DIVIDER -->
-  <div class="w6v2-section" style="padding:0 48px;background-color:${pageBg};"><div style="height:1px;background:${dividerCol};font-size:0;line-height:0;"></div></div>
-
-  <!-- BODY BLOCK -->
-  ${copy.bodyText ? `<div class="w6v2-section" style="padding:24px 48px 16px;background-color:${pageBg};"><div class="mobile-body" style="font-size:17px;line-height:1.8;color:${mutedTextCol};font-family:Arial,sans-serif;">${body}</div></div>` : ''}
-
-  <!-- MAP PIN ELEMENT -->
-  ${pinImgUrl
-    ? `<div style="line-height:0;font-size:0;"><img src="${pinImgUrl}" alt="" width="600" style="width:600px;max-width:600px;display:block;border:0;"/></div>`
-    : `<div style="width:600px;overflow:hidden;height:435px;background-color:${pageBg};">
-    <div style="position:relative;width:600px;height:520px;margin-left:55px;top:-82px;">
-      <svg style="position:absolute;width:0;height:0;overflow:hidden;"><defs>
-        <clipPath id="w8PinClip" clipPathUnits="userSpaceOnUse">
-          <path d="M265,510 C235,460 171,378 133,273 A140,140 0 1,1 397,273 C359,378 295,460 265,510 Z"/>
-        </clipPath>
-      </defs></svg>
-      <div style="position:absolute;top:0;left:0;width:600px;height:520px;clip-path:url(#w8PinClip);">
-        ${img1
-          ? `<img src="${img1}" alt="" style="position:absolute;left:125px;top:85px;width:280px;height:425px;object-fit:cover;object-position:${focalPos(img1Obj)};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;display:block;"/>`
-          : `<div style="position:absolute;left:125px;top:85px;width:280px;height:425px;background:#8a9e8a;"></div>`}
-      </div>
-      <div style="position:absolute;left:225px;top:185px;width:80px;height:80px;border-radius:50%;background:${pageBg};"></div>
-    </div>
-  </div>`}
-
-  <!-- LOCATION TITLE + 3-PHOTO GRID -->
-  ${(copy.bodyBlock2Title || img2 || img3 || img4 || stampImgUrl) ? `<div style="padding:16px 0 36px;background-color:${pageBg};">
-    ${copy.bodyBlock2Title ? `<div class="mobile-b2title" style="text-align:center;padding:0 0 20px;font-family:'Lora',Georgia,serif;font-size:22px;font-weight:700;letter-spacing:0;color:${secondary};text-transform:uppercase;">${copy.bodyBlock2Title.toUpperCase()}</div>` : ''}
-    ${stampImgUrl
-      ? `<img src="${stampImgUrl}" alt="" width="578" style="width:578px;max-width:578px;display:block;margin:0 auto;border:0;"/>`
-      : `<table width="578" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;">
-      <tr>
-        <td style="padding:0 4px 0 0;vertical-align:top;"><div style="position:relative;width:190px;height:290px;border-radius:24px;overflow:hidden;line-height:0;font-size:0;">${img2 ? `<img src="${img2}" alt="" style="position:absolute;top:0;left:0;width:190px;height:290px;object-fit:cover;display:block;object-position:${focalPos(img2Obj)};transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/>` : `<div style="width:190px;height:290px;background:#d0d0d0;border-radius:24px;"></div>`}</div></td>
-        <td style="padding:0 4px;vertical-align:top;"><div style="position:relative;width:190px;height:290px;border-radius:24px;overflow:hidden;line-height:0;font-size:0;">${img3 ? `<img src="${img3}" alt="" style="position:absolute;top:0;left:0;width:190px;height:290px;object-fit:cover;display:block;object-position:${focalPos(img3Obj)};transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/>` : `<div style="width:190px;height:290px;background:#d0d0d0;border-radius:24px;"></div>`}</div></td>
-        <td style="padding:0 0 0 4px;vertical-align:top;"><div style="position:relative;width:190px;height:290px;border-radius:24px;overflow:hidden;line-height:0;font-size:0;">${img4 ? `<img src="${img4}" alt="" style="position:absolute;top:0;left:0;width:190px;height:290px;object-fit:cover;display:block;object-position:${focalPos(img4Obj)};transform:translate(${img4X}px,${img4Y}px) scale(${img4Scale});transform-origin:center center;"/>` : `<div style="width:190px;height:290px;background:#d0d0d0;border-radius:24px;"></div>`}</div></td>
-      </tr>
-    </table>`}
-  </div>` : ''}
-
-  <!-- BODY BLOCK 2 TEXT -->
-  ${copy.bodyBlock2 ? `<div class="w6v2-section" style="padding:16px 48px 0;background-color:${pageBg};"><div class="mobile-body" style="font-size:17px;line-height:1.8;color:${mutedTextCol};font-family:Arial,sans-serif;">${b2body}</div></div>` : ''}
-
-  <!-- CLOSING LINE -->
-  ${copy.closingLine ? `<div class="w6v2-section" style="padding:28px 48px 0;text-align:center;background-color:${pageBg};"><div class="mobile-closing" style="font-size:17px;line-height:1.7;color:${mutedTextCol};font-style:italic;font-family:Georgia,serif;">${copy.closingLine}</div></div>` : ''}
-
-  <!-- BOTTOM CTA -->
-  ${copy.ctaText ? `<div style="padding:28px 0 36px;text-align:center;background-color:${pageBg};">${btnImgUrl
-    ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w6v2-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:375px;display:block;margin:0 auto;border:0;outline:none;"/></a>`
-    : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accent};border-radius:999px;"><a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`
-  }</div>` : ''}
-
-  <div style="background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: dividerCol, bodyTextAlign: 'justify' })}</div>
-</td></tr></table>
-</body></html>`
-}
 
 /* ══════════════════════════════════════════════════════════════════════════
    WEEK 3 v2 — duplicate of Week 3
@@ -1694,10 +1545,9 @@ const TEMPLATES = [
   { id:13, label:'✅ Week 5',  build:buildTemplateWeek5v2 },
   { id:18, label:'✅ Week 6', build:buildTemplateWeek6v2 },
   { id:19, label:'✅ Week 4', build:buildTemplateWeek4v2b },
-  { id:22, label:'✅ Week 8', build:buildTemplateWeek8, adminOnly:true },
   { id:23, label:'✅ Week 9', build:buildTemplateWeek9, adminOnly:true },
   { id:24, label:'✅ Week 7',   build:buildTemplateWeek7v2 },
-  { id:25, label:'✅ Week 8v2', build:buildTemplateWeek8v2, adminOnly:true },
+  { id:25, label:'✅ Week 8',   build:buildTemplateWeek8v2, adminOnly:true },
   { id:20, label:'🧪 Test',   build:buildTemplateTest,  adminOnly:true },
 ]
 
@@ -1743,7 +1593,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
   }, [active])  // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Hero editor — all week templates ─────────────────────────────────────────
-  const isEditable = [10, 11, 13, 16, 17, 18, 19, 20, 22, 23, 24, 25].includes(tpl?.id)
+  const isEditable = [10, 11, 13, 16, 17, 18, 19, 20, 23, 24, 25].includes(tpl?.id)
   const [heroScale,   setHeroScale]   = useState(1)
   const [heroX,       setHeroX]       = useState(0)
   const [heroY,       setHeroY]       = useState(0)
@@ -1786,12 +1636,12 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     if (tpl?.id === 18 || tpl?.id === 19) { setTextSize(38); setTextTop(32);  setTextLeft(24);  setLogoColor('original'); setLogoTop(12); setLogoRight(24);  setLogoSize(40) }
     if (tpl?.id === 24) { setTextSize(54); setTextTop(60);  setTextLeft(24);  setLogoColor('original'); setLogoTop(48); setLogoRight(200); setLogoSize(40) }
     if (tpl?.id === 20) { setTextSize(38); setTextTop(32); setTextLeft(24); setLogoColor('original'); setLogoTop(24); setLogoRight(200); setLogoSize(40) }
-    if (tpl?.id === 22) { setTextSize(48); setTextTop(108); setTextLeft(28); setLogoColor('white');    setLogoTop(28); setLogoRight(28);  setLogoSize(40) }
+    if (tpl?.id === 25) { setTextSize(48); setTextTop(108); setTextLeft(28); setLogoColor('white');    setLogoTop(28); setLogoRight(28);  setLogoSize(40) }
     if (tpl?.id === 23) { setTextSize(68); setTextTop(80);  setTextLeft(64); setLogoColor('white');    setLogoTop(28); setLogoRight(28);  setLogoSize(44) }
   }, [tpl?.id])  // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Week template image generation ───────────────────────────────────────────
-  const isWeekTemplate = [10, 11, 13, 16, 17, 18, 19, 20, 22, 23, 24, 25].includes(tpl?.id)
+  const isWeekTemplate = [10, 11, 13, 16, 17, 18, 19, 20, 23, 24, 25].includes(tpl?.id)
   const [weekGenUrls,     setWeekGenUrls]     = useState({})  // { [tplId]: { hero, sec, ter } }
   const [weekGenLoading,  setWeekGenLoading]  = useState(false)
   const [weekGenError,    setWeekGenError]    = useState(null)
@@ -1809,7 +1659,7 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
       if (tplUrls.ter)  effectiveImages[5] = { url: tplUrls.ter,  focalX: 50, focalY: 50 }
     }
     const editorProps = isEditable ? { heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y } : {}
-    const isHeroGenerated = [10, 11, 13, 16, 17, 18, 19, 20, 22, 23, 24, 25].includes(tpl?.id) && !!tplUrls.hero
+    const isHeroGenerated = [10, 11, 13, 16, 17, 18, 19, 20, 23, 24, 25].includes(tpl?.id) && !!tplUrls.hero
     const effectiveFooterData = clientFooter
       ? { ...clientFooter, logoColor: footerLogoColor, footerLogoSize }
       : clientFooter
@@ -2096,7 +1946,6 @@ export default function TemplatePreview({ pulseGenBtn = false }) {
     const isWeek5 = tpl?.id === 13
     const isWeek6v2  = tpl?.id === 18
     const isWeek4v2b = tpl?.id === 19
-    const isWeek8    = tpl?.id === 22
     const isWeek9    = tpl?.id === 23
     const isWeek7v2  = tpl?.id === 24
     const isWeek8v2  = tpl?.id === 25
@@ -2250,17 +2099,6 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     const w3v2CtaText     = generatedCopy?.ctaText || 'Book Now'
     const w2v2AccentColor = clientFooter?.buttonColor || '#d4006a'
     const w2v2CtaText     = generatedCopy?.ctaText || 'Book Now'
-    const w8BtnAccentColor = clientFooter?.buttonColor || '#1a1a1a'
-    const w8BtnCtaLabel    = generatedCopy?.ctaText || 'Shop Now'
-    const w8ButtonHtml    = isWeek8 ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
-</head><body>
-<div style="width:600px;text-align:center;">
-  <div style="display:inline-block;background:${w8BtnAccentColor};border-radius:999px;padding:26px 92px;">
-    <span style="font-family:Arial,sans-serif;font-size:36px;font-weight:700;color:#ffffff;white-space:nowrap;display:inline-flex;align-items:center;">${w8BtnCtaLabel}<span style="display:inline-flex;align-items:center;margin-left:13px;"><span style="display:inline-block;width:16px;height:3px;background:#ffffff;"></span><span style="display:inline-block;width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;border-left:9px solid #ffffff;"></span></span></span>
-  </div>
-</div>
-</body></html>` : null
     const w2v2ButtonHtml  = (isWeek2v2 || isWeek6v2 || isWeek4v2b) ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
 </head><body>
@@ -2641,24 +2479,9 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </body></html>` : null
 
 
+    // NOTE: these w8* consts are consumed by week8v2HeroHtml / PinHtml / GridHtml
     const w8HeroFp  = selectedImages?.[0]?.focalX != null ? `${selectedImages[0].focalX}% ${selectedImages[0].focalY}%` : '50% 50%'
     const w8CtaText = generatedCopy?.ctaText || 'Shop Now'
-    const w8Subhead = generatedCopy?.subhead || ''
-    const week8HeroHtml = isWeek8 ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
-<link href="https://fonts.googleapis.com/css2?family=Lato:wght@700;900&display=swap" rel="stylesheet"/>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:#1a1a1a;-webkit-font-smoothing:antialiased;}</style>
-</head><body>
-<div style="width:600px;height:680px;position:relative;overflow:hidden;background:#1a1a1a;">
-  ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:600px;height:680px;object-fit:cover;object-position:${w8HeroFp};display:block;"/>` : `<div style="position:absolute;inset:0;background:#2a2a2a;"></div>`}
-  <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.35) 0%,rgba(0,0,0,0) 35%,rgba(0,0,0,0) 48%,rgba(0,0,0,0.55) 75%,rgba(0,0,0,0.72) 100%);"></div>
-  <div style="position:absolute;top:64px;left:14px;right:44px;bottom:14px;border-left:1px solid rgba(255,255,255,0.55);border-right:1px solid rgba(255,255,255,0.55);border-bottom:1px solid rgba(255,255,255,0.55);"></div>
-  <table cellpadding="0" cellspacing="0" border="0" style="position:absolute;top:28px;left:28px;right:52px;width:calc(100% - 80px);border-collapse:collapse;"><tr><td style="white-space:nowrap;padding-right:16px;vertical-align:middle;line-height:0;font-size:0;">${logoHtml}</td><td style="width:100%;vertical-align:middle;"><div style="height:1px;background:rgba(255,255,255,0.55);font-size:0;line-height:0;"></div></td></tr></table>
-  <div style="position:absolute;bottom:24px;left:24px;right:60px;">
-    <div style="font-family:'Lato',Arial,sans-serif;font-size:${textSize}px;font-weight:900;line-height:1.12;color:#fff;margin-bottom:12px;">${headline}</div>
-    <div style="width:280px;height:48px;background:#fff;display:flex;align-items:center;justify-content:center;padding:0 16px;"><span style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:0.1em;color:#1a1a1a;text-transform:uppercase;">${w8CtaText.toUpperCase()}</span></div>
-  </div>
-</div>
-</body></html>` : null
 
     // ── Week 8v2 — own copy of Week 8's framed hero ──
     const week8v2HeroHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
@@ -2680,17 +2503,6 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     const w8img2Fp = selectedImages?.[2]?.focalX != null ? `${selectedImages[2].focalX}% ${selectedImages[2].focalY}%` : '50% 50%'
     const w8img3Fp = selectedImages?.[3]?.focalX != null ? `${selectedImages[3].focalX}% ${selectedImages[3].focalY}%` : '50% 50%'
     const w8img4Fp = selectedImages?.[4]?.focalX != null ? `${selectedImages[4].focalX}% ${selectedImages[4].focalY}%` : '50% 50%'
-    const week8GridHtml = isWeek8 && (img2Url || img3Url || img4Url) ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{width:578px;background:transparent;-webkit-font-smoothing:antialiased;}</style>
-</head><body>
-<table width="578" cellpadding="0" cellspacing="0" border="0" style="width:578px;border-collapse:collapse;background:transparent;">
-  <tr>
-    <td style="padding:0 4px 0 0;vertical-align:top;line-height:0;font-size:0;"><div style="position:relative;width:190px;height:290px;border-radius:24px;overflow:hidden;">${img2Url ? `<img src="${img2Url}" alt="" style="position:absolute;top:0;left:0;width:190px;height:290px;object-fit:cover;display:block;object-position:${w8img2Fp};transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/>` : `<div style="width:190px;height:290px;background:#d0d0d0;border-radius:24px;"></div>`}</div></td>
-    <td style="padding:0 4px;vertical-align:top;line-height:0;font-size:0;"><div style="position:relative;width:190px;height:290px;border-radius:24px;overflow:hidden;">${img3Url ? `<img src="${img3Url}" alt="" style="position:absolute;top:0;left:0;width:190px;height:290px;object-fit:cover;display:block;object-position:${w8img3Fp};transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/>` : `<div style="width:190px;height:290px;background:#d0d0d0;border-radius:24px;"></div>`}</div></td>
-    <td style="padding:0 0 0 4px;vertical-align:top;line-height:0;font-size:0;"><div style="position:relative;width:190px;height:290px;border-radius:24px;overflow:hidden;">${img4Url ? `<img src="${img4Url}" alt="" style="position:absolute;top:0;left:0;width:190px;height:290px;object-fit:cover;display:block;object-position:${w8img4Fp};transform:translate(${img4X}px,${img4Y}px) scale(${img4Scale});transform-origin:center center;"/>` : `<div style="width:190px;height:290px;background:#d0d0d0;border-radius:24px;"></div>`}</div></td>
-  </tr>
-</table>
-</body></html>` : null
 
     // ── Week 8v2 — own copy of Week 8's 3-photo grid generator ──
     const week8v2GridHtml = (img2Url || img3Url || img4Url) ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
@@ -2706,24 +2518,6 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </body></html>` : null
 
     const w8img1Fp = selectedImages?.[1]?.focalX != null ? `${selectedImages[1].focalX}% ${selectedImages[1].focalY}%` : '50% 50%'
-    const week8PinHtml = isWeek8 && img1Url ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;height:435px;background:transparent;overflow:hidden;-webkit-font-smoothing:antialiased;}</style>
-</head><body>
-<div style="width:600px;overflow:hidden;height:435px;background:transparent;">
-  <div style="position:relative;width:600px;height:520px;margin-left:55px;top:-82px;">
-    <svg style="position:absolute;width:0;height:0;overflow:hidden;">
-      <defs>
-        <clipPath id="w8PinBaked" clipPathUnits="userSpaceOnUse">
-          <path clip-rule="evenodd" d="M265,510 C235,460 171,378 133,273 A140,140 0 1,1 397,273 C359,378 295,460 265,510 Z M225,225 a40,40 0 1,0 80,0 a40,40 0 1,0 -80,0 Z"/>
-        </clipPath>
-      </defs>
-    </svg>
-    <div style="position:absolute;top:0;left:0;width:600px;height:520px;clip-path:url(#w8PinBaked);">
-      <img src="${img1Url}" alt="" style="position:absolute;left:125px;top:85px;width:280px;height:425px;object-fit:cover;object-position:${w8img1Fp};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;display:block;"/>
-    </div>
-  </div>
-</div>
-</body></html>` : null
 
     // ── Week 8v2 — own copy of Week 8's map-pin generator ──
     const week8v2PinHtml = img1Url ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
@@ -2812,7 +2606,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </div>
 </body></html>` : null
 
-    const heroHeight = isWeek9 ? 720 : isWeek8 ? 680 : isWeek2 ? 580 : isWeek8v2 ? 680 : isWeek7v2 ? ((img1Url || img2Url || img3Url) ? 988 : 720) : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : isTest ? 520 : 400
+    const heroHeight = isWeek9 ? 720 : isWeek2 ? 580 : isWeek8v2 ? 680 : isWeek7v2 ? ((img1Url || img2Url || img3Url) ? 988 : 720) : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : isTest ? 520 : 400
     const secondaryPromise = isWeek9 && week9GridHtml
       ? renderImage({ html: week9GridHtml, width: 600, height: 564, transparent: true })
       : isWeek2v2 && img1Url
@@ -2829,18 +2623,14 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
             ? renderImage({ html: week6GridHtml, width: 600, height: week6GridHeight, transparent: true })
             : isWeek4v2b && week4v2bGridHtml
             ? renderImage({ html: week4v2bGridHtml, width: 600, height: week4v2bGridHeight, transparent: true })
-            : isWeek8 && week8GridHtml
-            ? renderImage({ html: week8GridHtml, width: 578, height: 290, transparent: true })
             : isTest && testStampHtml
             ? renderImage({ html: testStampHtml, width: 600, height: 500, transparent: true })
-            : (!isWeek2 && !isWeek2v2 && !isWeek7v2 && !isWeek8v2 && !isWeek3 && !isWeek5 && !isTest && !isWeek8 && (img1Url || img2Url))
+            : (!isWeek2 && !isWeek2v2 && !isWeek7v2 && !isWeek8v2 && !isWeek3 && !isWeek5 && !isTest && (img1Url || img2Url))
               ? renderImage({ html: polaroidHtml, width: 600, height: 340 })
               : Promise.resolve(null)
 
     const tertiaryPromise = isWeek8v2 && week8v2PinHtml
       ? renderImage({ html: week8v2PinHtml, width: 600, height: 435, transparent: true })
-      : isWeek8 && week8PinHtml
-      ? renderImage({ html: week8PinHtml, width: 600, height: 435, transparent: true })
       : isWeek7v2 && img4Url
       ? renderImage({ html: week7v2StampHtml, width: 400, height: 500, transparent: true })
       : isWeek2v2 && img2Url
@@ -2863,11 +2653,9 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
       ? renderImage({ html: w3v2ButtonHtml, width: 600, height: 88, transparent: true })
       : isWeek5 && w5ButtonHtml
       ? renderImage({ html: w5ButtonHtml, width: 600, height: 88, transparent: true })
-      : isWeek8 && w8ButtonHtml
-      ? renderImage({ html: w8ButtonHtml, width: 600, height: 110, transparent: true })
       : Promise.resolve(null)
 
-    const heroHtmlToUse = isWeek9 ? week9HeroHtml : isWeek8 ? week8HeroHtml : isWeek8v2 ? week8v2HeroHtml : isWeek7v2 ? week7v2HeroHtml : isTest ? testHeroHtml : isWeek5 ? week5HeroHtml : isWeek6v2 ? week6HeroHtml : isWeek4v2b ? week4v2bHeroHtml : heroHtml
+    const heroHtmlToUse = isWeek9 ? week9HeroHtml : isWeek8v2 ? week8v2HeroHtml : isWeek7v2 ? week7v2HeroHtml : isTest ? testHeroHtml : isWeek5 ? week5HeroHtml : isWeek6v2 ? week6HeroHtml : isWeek4v2b ? week4v2bHeroHtml : heroHtml
 
     Promise.all([
       renderImage({ html: heroHtmlToUse, width: 600, height: heroHeight, transparent: isWeek7v2 || isWeek3v2 || isWeek5 || isWeek6v2 || isWeek4v2b }),
@@ -3347,7 +3135,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
           </div>
 
           {/* Sub-image adjusters — shown for templates that have sub-images */}
-          {[10, 11, 13, 16, 17, 18, 22, 24, 25].includes(tpl?.id) && [
+          {[10, 11, 13, 16, 17, 18, 24, 25].includes(tpl?.id) && [
             { key: 'sub1', label: 'Sub Image 1', color: '#7c3aed', bg: dark ? 'rgba(124,58,237,0.15)' : '#f5f3ff',
               controls: [
                 { name: 'Left', min: -200, max: 200, step: 4, val: img1X,     set: setImg1X,     unit: 'px' },
@@ -3369,7 +3157,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
                 { name: 'Zoom',  min: 1,    max: 2.5, step: 0.05, val: img3Scale, set: setImg3Scale, unit: 'x', toDisplay: v => v.toFixed(2) },
               ]
             }] : []),
-            ...([13, 22, 23, 24].includes(tpl?.id) ? [{ key: 'sub4', label: 'Sub Image 4', color: '#0891b2', bg: dark ? 'rgba(8,145,178,0.15)' : '#ecfeff',
+            ...([13, 23, 24, 25].includes(tpl?.id) ? [{ key: 'sub4', label: 'Sub Image 4', color: '#0891b2', bg: dark ? 'rgba(8,145,178,0.15)' : '#ecfeff',
               controls: [
                 { name: 'Left', min: -200, max: 200, step: 4, val: img4X,     set: setImg4X,     unit: 'px' },
                 { name: 'Top', min: -200, max: 200, step: 4, val: img4Y,     set: setImg4Y,     unit: 'px' },

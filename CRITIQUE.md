@@ -95,8 +95,8 @@ Math.max(0, scrollWidth - 390)       // want 0 overflow
 Before the fix: 600px wide, 210px overflow. After: 390px, 0 overflow.
 
 ### Status per template
-Only **Week 5** and **Week 8v2** are fluid. Week 2, 7, 8 are still fixed 600px and
-still subject to this.
+Only **Week 5** and **Week 8** (the fluid rebuild, id 25) are fluid. Week 2, 3, 4, 6, 7
+are still fixed 600px and still subject to this.
 
 ---
 
