@@ -1603,15 +1603,15 @@ function buildTemplateWeek7v2({ client, copy, images, footerData, isHeroGenerate
     <table width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;border-collapse:collapse;line-height:0;font-size:0;">
       <tr>
         <td width="196" style="width:196px;padding:0;line-height:0;font-size:0;">
-          ${img1 ? `<img src="${img1}" alt="" width="196" style="width:196px;height:260px;object-fit:cover;object-position:${focalPos(img1Obj)};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/>` : `<div style="width:196px;height:260px;background:#2a2a2a;"></div>`}
+          ${img1 ? `<div style="position:relative;width:196px;height:260px;overflow:hidden;line-height:0;font-size:0;"><img src="${img1}" alt="" width="196" style="width:196px;height:260px;object-fit:cover;object-position:${focalPos(img1Obj)};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/></div>` : `<div style="width:196px;height:260px;background:#2a2a2a;"></div>`}
         </td>
         <td width="6" style="width:6px;padding:0;background-color:${pageBg};line-height:0;font-size:0;"> </td>
         <td width="196" style="width:196px;padding:0;line-height:0;font-size:0;">
-          ${img2 ? `<img src="${img2}" alt="" width="196" style="width:196px;height:260px;object-fit:cover;object-position:${focalPos(img2Obj)};transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/>` : `<div style="width:196px;height:260px;background:#2a2a2a;"></div>`}
+          ${img2 ? `<div style="position:relative;width:196px;height:260px;overflow:hidden;line-height:0;font-size:0;"><img src="${img2}" alt="" width="196" style="width:196px;height:260px;object-fit:cover;object-position:${focalPos(img2Obj)};transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/></div>` : `<div style="width:196px;height:260px;background:#2a2a2a;"></div>`}
         </td>
         <td width="6" style="width:6px;padding:0;background-color:${pageBg};line-height:0;font-size:0;"> </td>
         <td width="196" style="width:196px;padding:0;line-height:0;font-size:0;">
-          ${(img3 || img1) ? `<img src="${img3 || img1}" alt="" width="196" style="width:196px;height:260px;object-fit:cover;object-position:${focalPos(img3 ? img3Obj : img1Obj)};transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/>` : `<div style="width:196px;height:260px;background:#2a2a2a;"></div>`}
+          ${(img3 || img1) ? `<div style="position:relative;width:196px;height:260px;overflow:hidden;line-height:0;font-size:0;"><img src="${img3 || img1}" alt="" width="196" style="width:196px;height:260px;object-fit:cover;object-position:${focalPos(img3 ? img3Obj : img1Obj)};transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/></div>` : `<div style="width:196px;height:260px;background:#2a2a2a;"></div>`}
         </td>
       </tr>
     </table>
@@ -2603,11 +2603,11 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
   ${(img1Url || img2Url || img3Url) ? `<div style="padding:8px 0 0;background-color:${w7PageBg};line-height:0;font-size:0;">
     <table width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;border-collapse:collapse;line-height:0;font-size:0;">
       <tr>
-        <td width="196" style="width:196px;padding:0;line-height:0;font-size:0;">${img1Url ? `<img src="${img1Url}" alt="" width="196" style="width:196px;height:260px;object-fit:cover;object-position:${w7img1Fp};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/>` : `<div style="width:196px;height:260px;background:#2a2a2a;"></div>`}</td>
+        <td width="196" style="width:196px;padding:0;line-height:0;font-size:0;">${img1Url ? `<div style="position:relative;width:196px;height:260px;overflow:hidden;line-height:0;font-size:0;"><img src="${img1Url}" alt="" width="196" style="width:196px;height:260px;object-fit:cover;object-position:${w7img1Fp};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/></div>` : `<div style="width:196px;height:260px;background:#2a2a2a;"></div>`}</td>
         <td width="6" style="width:6px;padding:0;background-color:${w7PageBg};line-height:0;font-size:0;"> </td>
-        <td width="196" style="width:196px;padding:0;line-height:0;font-size:0;">${img2Url ? `<img src="${img2Url}" alt="" width="196" style="width:196px;height:260px;object-fit:cover;object-position:${w7img2Fp};transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/>` : `<div style="width:196px;height:260px;background:#2a2a2a;"></div>`}</td>
+        <td width="196" style="width:196px;padding:0;line-height:0;font-size:0;">${img2Url ? `<div style="position:relative;width:196px;height:260px;overflow:hidden;line-height:0;font-size:0;"><img src="${img2Url}" alt="" width="196" style="width:196px;height:260px;object-fit:cover;object-position:${w7img2Fp};transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/></div>` : `<div style="width:196px;height:260px;background:#2a2a2a;"></div>`}</td>
         <td width="6" style="width:6px;padding:0;background-color:${w7PageBg};line-height:0;font-size:0;"> </td>
-        <td width="196" style="width:196px;padding:0;line-height:0;font-size:0;">${(img3Url || img1Url) ? `<img src="${img3Url || img1Url}" alt="" width="196" style="width:196px;height:260px;object-fit:cover;object-position:${img3Url ? w7img3Fp : w7img1Fp};transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/>` : `<div style="width:196px;height:260px;background:#2a2a2a;"></div>`}</td>
+        <td width="196" style="width:196px;padding:0;line-height:0;font-size:0;">${(img3Url || img1Url) ? `<div style="position:relative;width:196px;height:260px;overflow:hidden;line-height:0;font-size:0;"><img src="${img3Url || img1Url}" alt="" width="196" style="width:196px;height:260px;object-fit:cover;object-position:${img3Url ? w7img3Fp : w7img1Fp};transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/></div>` : `<div style="width:196px;height:260px;background:#2a2a2a;"></div>`}</td>
       </tr>
     </table>
   </div>` : ''}
