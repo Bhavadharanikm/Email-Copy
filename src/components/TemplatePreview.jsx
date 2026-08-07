@@ -1618,19 +1618,26 @@ function buildTemplateWeek7v2({ client, copy, images, footerData, isHeroGenerate
   <!-- BODY BLOCK -->
   ${copy.bodyText ? `<div class="w7v2-section" style="padding:24px 48px 32px;background-color:${pageBg};"><div class="mobile-body" style="font-size:17px;line-height:1.8;color:${mutedTextCol};margin-bottom:18px;font-family:Arial,sans-serif;">${body}</div></div>` : ''}
 
-  <!-- STRIP IMAGES (img2+img3): transparent PNG after body text -->
+  <!-- STAMP DESIGN (from Week 7) — replaces the 2-up strip. Source: Sub Image 2 -->
   ${isHeroGenerated && img5
-    ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${img5}" alt="" width="600" style="width:100%;display:block;max-width:600px;border:0;"/></a></div>`
-    : img2 ? `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;background-color:${pageBg};">
-      <tr><td style="padding:0 36px 24px;">
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;line-height:0;font-size:0;">
-          <tr>
-            <td width="49%" style="padding-right:4px;vertical-align:top;"><div style="overflow:hidden;border-radius:6px;height:220px;"><img src="${img2}" alt="" width="100%" style="width:100%;height:220px;object-fit:cover;display:block;object-position:${focalPos(img2Obj)};transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/></div></td>
-            ${img3 ? `<td width="49%" style="padding-left:4px;vertical-align:top;"><div style="overflow:hidden;border-radius:6px;height:220px;"><img src="${img3}" alt="" width="100%" style="width:100%;height:220px;object-fit:cover;display:block;object-position:${focalPos(img3Obj)};transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/></div></td>` : ''}
-          </tr>
-        </table>
-      </td></tr>
-    </table>` : ''}
+    ? `<div style="padding:20px 0 0;background-color:${pageBg};text-align:center;line-height:0;font-size:0;">
+          <img src="${img5}" alt="" width="400" style="width:400px;max-width:100%;display:block;margin:0 auto;border:0;"/>
+        </div>`
+    : img2
+    ? `<div style="padding:20px 0 0;background-color:${pageBg};text-align:center;line-height:0;font-size:0;">
+          <div style="display:inline-block;position:relative;width:400px;height:500px;overflow:hidden;background:#c8c0b5;border-radius:0;">
+            <img src="${img2}" alt="" style="position:absolute;top:0;left:0;width:400px;height:500px;object-fit:cover;object-position:${focalPos(img2Obj)};display:block;transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/>
+            <div style="position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;">
+              <div style="position:relative;width:365px;height:478px;">
+                <img src="/stamp-frame.png" alt="" style="position:absolute;top:0;left:0;width:365px;height:478px;object-fit:contain;display:block;"/>
+                <div style="position:absolute;top:116px;left:94px;width:178px;height:245px;overflow:hidden;">
+                  <img src="${img2}" alt="" style="width:100%;height:100%;object-fit:cover;object-position:${focalPos(img2Obj)};display:block;"/>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>`
+    : ''}
 
   <!-- BODY BLOCK 2: title + body2 + closing + CTA -->
   ${(copy.bodyBlock2Title || copy.bodyBlock2 || copy.closingLine) ? `
@@ -2613,15 +2620,21 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
   <div style="overflow:hidden;border-radius:8px;height:360px;"><img src="${img1Url}" alt="" style="width:100%;height:360px;object-fit:cover;display:block;object-position:${w2img1Fp};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/></div>
 </div>
 </body></html>` : null
-    const week7v2StripHtml = img2Url ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
+    // Week 7v2 stamp — same construction as Week 7's, sourced from Sub Image 2
+    const week7v2StampHtml = img2Url ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:400px;background:transparent;}</style>
 </head><body>
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;background:transparent;">
-  <tr>
-    <td style="padding:0 4px 24px 36px;vertical-align:top;"><div style="overflow:hidden;border-radius:6px;height:220px;"><img src="${img2Url}" alt="" style="width:100%;height:220px;object-fit:cover;display:block;object-position:${w2img2Fp};transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/></div></td>
-    ${img3Url ? `<td style="padding:0 36px 24px 4px;vertical-align:top;"><div style="overflow:hidden;border-radius:6px;height:220px;"><img src="${img3Url}" alt="" style="width:100%;height:220px;object-fit:cover;display:block;object-position:${w2img3Fp};transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/></div></td>` : ''}
-  </tr>
-</table>
+<div style="position:relative;width:400px;height:500px;overflow:hidden;background:#c8c0b5;">
+  <img src="${img2Url}" alt="" style="position:absolute;top:0;left:0;width:400px;height:500px;object-fit:cover;display:block;object-position:${w2img2Fp};transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/>
+  <div style="position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;">
+    <div style="position:relative;width:365px;height:478px;">
+      <img src="${stampFrameUrl}" alt="" style="position:absolute;top:0;left:0;width:365px;height:478px;object-fit:contain;display:block;"/>
+      <div style="position:absolute;top:116px;left:94px;width:178px;height:245px;overflow:hidden;">
+        <img src="${img2Url}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;object-position:${w2img2Fp};"/>
+      </div>
+    </div>
+  </div>
+</div>
 </body></html>` : null
 
     const week2LongImgHtml = img1Url ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
@@ -2793,7 +2806,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     const tertiaryPromise = isWeek8 && week8PinHtml
       ? renderImage({ html: week8PinHtml, width: 600, height: 435, transparent: true })
       : isWeek7v2 && img2Url
-      ? renderImage({ html: week7v2StripHtml, width: 600, height: 244, transparent: true })
+      ? renderImage({ html: week7v2StampHtml, width: 400, height: 500, transparent: true })
       : isWeek2v2 && img2Url
       ? renderImage({ html: week2StripHtml, width: 600, height: 244, transparent: true })
       : isWeek3v2 && (img3Url || img1Url)
