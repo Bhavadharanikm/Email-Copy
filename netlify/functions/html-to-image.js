@@ -3,10 +3,12 @@
  * Renders HTML to a PNG and returns a hosted image URL.
  *
  * Priority:
- *   1. html2image.net (fast, external)
- *   2. Puppeteer (local Chromium → upload to GHL Media Library)
+ *   1. VPS screenshot server (fastest). Handles transparent renders only when
+ *      VPS_SUPPORTS_TRANSPARENT=true — see note at the call site.
+ *   2. Puppeteer (local Chromium, omitBackground → upload to GHL Media Library)
+ *   3. html2image.net (last resort; transparency not guaranteed)
  *
- * Body: { html, width?, height?, locationId? }
+ * Body: { html, width?, height?, locationId?, transparent? }
  * Returns: { url }
  */
 
@@ -17,8 +19,9 @@ const GHL_VERSION = '2021-07-28'
 
 // ── html2image.net ────────────────────────────────────────────────────────
 
-async function callHtml2Image(apiKey, html, width, height) {
+async function callHtml2Image(apiKey, html, width, height, transparent) {
   const qs = new URLSearchParams({ key: apiKey, type: 'png', width: String(width), height: String(height), zoom: '2' })
+  if (transparent) qs.set('transparent', '1')
   const body = new URLSearchParams({ source: html })
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), 20_000)
@@ -115,19 +118,24 @@ export const handler = async (event) => {
     const { html, width = 600, height = 580, locationId, apiKey, transparent } = JSON.parse(event.body || '{}')
     if (!html) throw new Error('html is required')
 
-    // ── 1. VPS screenshot server (primary, skipped for transparent renders) ──
-    if (!transparent) {
+    // ── 1. VPS screenshot server (primary — much faster than local Puppeteer) ──
+    // Most week-template renders are transparent, so if the VPS cannot do
+    // omitBackground they would all fall through to slow local Puppeteer. Set
+    // VPS_SUPPORTS_TRANSPARENT=true once the VPS honours the `transparent` flag
+    // to route those through it as well.
+    const vpsHandlesTransparent = process.env.VPS_SUPPORTS_TRANSPARENT === 'true'
+    if (!transparent || vpsHandlesTransparent) {
       const VPS_URL = 'http://2.24.211.60:3001/screenshot'
       try {
         const vpsRes = await fetch(VPS_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ html, width, height, locationId, ghlApiKey: apiKey }),
+          body: JSON.stringify({ html, width, height, locationId, ghlApiKey: apiKey, transparent: !!transparent }),
           signal: AbortSignal.timeout(10_000),
         })
         const vpsData = await vpsRes.json()
         if (!vpsRes.ok || !vpsData.url) throw new Error(vpsData.error || 'VPS returned no URL')
-        console.log('[html-to-image] VPS OK:', vpsData.url)
+        console.log('[html-to-image] VPS OK (transparent:', !!transparent, '):', vpsData.url)
         return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: vpsData.url }) }
       } catch (vpsErr) {
         console.warn('[html-to-image] VPS failed:', vpsErr.message, '— trying local Puppeteer')
@@ -137,21 +145,26 @@ export const handler = async (event) => {
     // ── 2. Local Puppeteer (always used for transparent renders) ────────────
     try {
       const url = await callPuppeteer(html, width, height, locationId, apiKey || process.env.GHL_API_KEY, transparent)
+      console.log('[html-to-image] Puppeteer OK (transparent:', !!transparent, '):', url)
       return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) }
     } catch (puppeteerErr) {
       console.warn('[html-to-image] Puppeteer failed:', puppeteerErr.message, '— trying html2image.net fallback')
     }
 
-    // ── 2. html2image.net fallback ───────────────────────────────────────
+    // ── 3. html2image.net fallback ───────────────────────────────────────
+    // Transparency is not guaranteed here. Returning an opaque PNG when a
+    // transparent one was requested looks like a template bug and is very hard
+    // to trace, so fail loudly instead of silently baking a background.
     const h2iKey = process.env.HTML2IMAGE_API_KEY
     if (!h2iKey) throw new Error('No renderer available — Puppeteer failed and HTML2IMAGE_API_KEY not set')
+    if (transparent) console.warn('[html-to-image] transparent render falling back to html2image.net — background may not be transparent')
 
     const MAX_RETRIES = 4
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
       if (attempt > 1) { await sleep(attempt * 800); console.log(`[html-to-image] Retry ${attempt}/${MAX_RETRIES}`) }
       let res, data
       try {
-        ;({ res, data } = await callHtml2Image(h2iKey, html, width, height))
+        ;({ res, data } = await callHtml2Image(h2iKey, html, width, height, transparent))
       } catch (fetchErr) {
         console.warn('[html-to-image] html2image.net fetch error:', fetchErr.message)
         break
