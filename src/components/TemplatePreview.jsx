@@ -1623,10 +1623,6 @@ ${(() => {
     : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accent};border-radius:999px;"><a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`
   }</div>` : ''}
 
-  <!-- LONG IMAGE (img1): transparent PNG above body text -->
-  ${isHeroGenerated && img4
-    ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${img4}" alt="" width="600" style="width:100%;display:block;max-width:600px;border:0;"/></a></div>`
-    : img1 ? `<div style="line-height:0;font-size:0;padding:0 36px 16px;background-color:${pageBg};"><div style="overflow:hidden;border-radius:8px;height:360px;"><img src="${img1}" alt="" style="width:100%;height:360px;object-fit:cover;display:block;object-position:${focalPos(img1Obj)};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/></div></div>` : ''}
 
   <!-- BODY BLOCK -->
   ${copy.bodyText ? `<div class="w8v2-section" style="padding:24px 48px 32px;background-color:${pageBg};"><div class="mobile-body" style="font-size:17px;line-height:1.8;color:${mutedTextCol};margin-bottom:18px;font-family:Arial,sans-serif;">${body}</div></div>` : ''}
@@ -2617,14 +2613,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </table>
 </body></html>` : null
 
-    // ── Week 8v2 — own copies of the Week 2 long-image + strip generators ──
-    const week8v2LongImgHtml = img1Url ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
-</head><body>
-<div style="padding:0 36px 16px;line-height:0;font-size:0;background:transparent;">
-  <div style="overflow:hidden;border-radius:8px;height:360px;"><img src="${img1Url}" alt="" style="width:100%;height:360px;object-fit:cover;display:block;object-position:${w2img1Fp};transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/></div>
-</div>
-</body></html>` : null
+    // ── Week 8v2 — own copy of the Week 2 strip generator ──
     const week8v2StripHtml = img2Url ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
 </head><body>
@@ -2777,8 +2766,6 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     const heroHeight = isWeek9 ? 720 : isWeek8 ? 680 : isWeek2 ? 580 : isWeek8v2 ? 680 : isWeek7v2 ? ((img1Url || img2Url || img3Url) ? 988 : 720) : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : isTest ? 520 : 400
     const secondaryPromise = isWeek9 && week9GridHtml
       ? renderImage({ html: week9GridHtml, width: 600, height: 564, transparent: true })
-      : isWeek8v2 && img1Url
-      ? renderImage({ html: week8v2LongImgHtml, width: 600, height: 376, transparent: true })
       : isWeek2v2 && img1Url
       ? renderImage({ html: week2LongImgHtml, width: 600, height: 376, transparent: true })
       : isWeek3v2 && (img1Url || img2Url)
