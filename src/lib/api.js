@@ -56,6 +56,11 @@ export const pushToGHL = ({ client, renderedHtml, generatedCopy, selectedImages,
 export const pushHtmlToGHL = ({ client, renderedHtml, generatedCopy, templateId, locationId, folderId, templateLabel }) =>
   post('/push-html-to-ghl', { client, renderedHtml, generatedCopy, templateId, locationId, folderId, templateLabel })
 
+// ── Send rendered HTML to the fixed test inbox via GHL ───────────
+// Sender + recipient are hardcoded server-side; only html/subject are sent.
+export const sendTestEmail = ({ html, subject }) =>
+  post('/send-test-email', { html, subject })
+
 // ── Google Chat notification ─────────────────────────────────────
 export const notifyChat = ({ clientName, previewUrl, approvedBy }) =>
   post('/notify-chat', { clientName, previewUrl, approvedBy })
