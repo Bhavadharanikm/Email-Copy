@@ -2462,7 +2462,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     const week1wfCardBtnHtml = (isWeek1WF && week1wfCardCtaText) ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:400px;background:transparent;}</style>
 </head><body>
-<div style="width:400px;text-align:center;">
+<div style="width:400px;text-align:left;">
   <div style="display:inline-block;background:${w2v2AccentColor};border-radius:999px;padding:17px 60px;">
     <span style="font-family:Arial,sans-serif;font-size:24px;font-weight:700;color:#ffffff;white-space:nowrap;">${week1wfCardCtaText} &rarr;</span>
   </div>
