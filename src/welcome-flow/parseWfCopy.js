@@ -297,6 +297,16 @@ export function parseWfCopy(text) {
 export function extractWfVariations(payload) {
   if (!payload) return []
 
+  /* n8n works on items, so a workflow that ends with "Respond to Webhook" sends
+     the body wrapped in a one-item array: [ { variations: [...] } ]. Unwrap it,
+     and merge if several items each carry their own variations. */
+  if (Array.isArray(payload)) {
+    const merged = payload.flatMap(p => (Array.isArray(p?.variations) ? p.variations : []))
+    if (merged.length) payload = { variations: merged }
+    else if (payload.length === 1) payload = payload[0]
+    else payload = { variations: payload }
+  }
+
   /* n8n's HTTP Request node needs `{{ { ...$json, jobId } }}`. Written without
      the spread it sends `{ $json: {...}, jobId }`, burying everything one level
      down. That is easy to get wrong in the n8n UI and silently yields no copy,
@@ -304,6 +314,13 @@ export function extractWfVariations(payload) {
   if (payload.$json && typeof payload.$json === 'object') {
     payload = { ...payload.$json, ...payload }
   }
+  /* One variation sent on its own, with no `variations` wrapper around it. */
+  if (payload && !Array.isArray(payload.variations)) {
+    const looksLikeVariation = ['subjectLine', 'subject_line', 'heroHeadline', 'hero_headline']
+      .some(k => typeof payload[k] === 'string' && payload[k].trim())
+    if (looksLikeVariation) payload = { variations: [payload] }
+  }
+
   /* A real variations array — but still run it through the key mapper. The
      workflow uses its own names (heroHeadline, introCTA, povName, cardName…)
      and returning it raw would hand the template fields it cannot read. The
