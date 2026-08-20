@@ -21,7 +21,8 @@ const FIELD_MAP = {
   'intro cta (hero cta)':  'heroCtaText',   // what the workflow currently emits
   'intro cta':             'introCtaText',
   'intro body':            'bodyText',
-  'body block':            'bodyText',      // the workflow's name for the intro body
+  'intro body block':      'bodyText',
+  'body block':            'bodyText',      // legacy: older prose used this for the intro
   'section eyebrow':       'sectionEyebrow',
   'section headline':      'sectionHeadline',
   'section subhead':       'sectionSubhead',
@@ -133,6 +134,7 @@ const JSON_KEY_MAP = {
   hero_cta:         'heroCtaText',
   intro_cta:        'heroCtaText',   // the workflow's name for the hero pill
   intro_body:       'bodyText',
+  intro_body_block: 'bodyText',
   body_block:       'bodyText',
   section_eyebrow:  'sectionEyebrow',
   section_headline: 'sectionHeadline',
@@ -153,6 +155,7 @@ const JSON_KEY_MAP = {
   herocta:          'heroCtaText',
   introcta:         'heroCtaText',   // the hero pill, e.g. "Use code BUY3 at checkout"
   introbody:        'bodyText',
+  introbodyblock:   'bodyText',
   bodyblock:        'bodyText',
   bodyblocktitle:   'bodyBlock2Title',
   closingnudge:     'bodyBlock2',
@@ -193,6 +196,15 @@ const JSON_CARD_MAP = {
 
 const snakeToCamel = (k) => k.replace(/[_\s]+(\w)/g, (_, c) => c.toUpperCase())
 
+/* The workflow now emits TWO body fields: `introBodyblock` (the paragraph under
+   the hero) and `bodyBlock` (the body of the closing nudge, under
+   `closingNudgeTitle`). Older payloads sent only `bodyBlock`, and there it held
+   the intro copy — so `bodyBlock` means the nudge body only when an intro field
+   arrives alongside it. Keyed on presence, not on value, because the workflow
+   can legitimately send an empty intro. */
+const INTRO_BODY_KEYS = ['introbodyblock', 'introbody', 'intro_body', 'intro_body_block']
+const BODY_BLOCK_KEYS = ['bodyblock', 'body_block']
+
 /** Pull the first ```json fenced block, or the first bare [ … ] / { … }. */
 function findJsonPayload(text) {
   const fence = text.match(/```(?:json)?\s*([\s\S]*?)```/i)
@@ -223,6 +235,7 @@ function mapCard(raw) {
 function mapVariation(raw, i) {
   const out = {}
   let cards = []
+  const hasIntroBody = Object.keys(raw || {}).some(k => INTRO_BODY_KEYS.includes(k.toLowerCase()))
   for (const [k, v] of Object.entries(raw || {})) {
     const lk = k.toLowerCase()
     if (lk === 'property_cards' || lk === 'propertycards' || lk === 'cards') {
@@ -230,7 +243,9 @@ function mapVariation(raw, i) {
       continue
     }
     if (lk === 'variation' || lk === 'variationnumber' || lk === 'id') continue   // handled below
-    const key = JSON_KEY_MAP[lk] || snakeToCamel(k)
+    const key = (hasIntroBody && BODY_BLOCK_KEYS.includes(lk))
+      ? 'bodyBlock2'                              // the nudge body, not the intro
+      : (JSON_KEY_MAP[lk] || snakeToCamel(k))
     if (v != null && typeof v !== 'object') out[key] = String(v).trim()
   }
   return {
