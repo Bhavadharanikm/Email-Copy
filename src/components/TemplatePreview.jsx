@@ -1787,6 +1787,247 @@ function buildTemplateWeek1WF({ client, copy, images, footerData, isHeroGenerate
 </body></html>`
 }
 
+/* ── WEEK 2 WF ─────────────────────────────────────────────────────────────
+   An exact duplicate of Week 1 WF (id 31), kept as its own function on
+   purpose: email templates diverge fast, and a shared one would mean every
+   Week 2 tweak risks Week 1. Verified byte-identical output to Week 1 WF for
+   the same inputs at the time of cloning. Design changes come later.        */
+function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerated = false, isStoryGenerated = false,
+  heroScale=1, heroX=0, heroY=0,
+  textSize=44, textTop=34, textLeft=52,
+  logoColor='original', logoTop=64, logoRight=200, logoSize=44,
+  img1Scale=1, img1X=0, img1Y=0,
+  img2Scale=1, img2X=0, img2Y=0,
+  img3Scale=1, img3X=0, img3Y=0,
+  img4Scale=1, img4X=0, img4Y=0,
+  btnImgUrl = null, introBtnImgUrl = null, cardBtnImgUrl = null,
+  cardsGenerated = [false, false, false],
+}) {
+  const heroObj = images?.[0]; const heroImg = heroObj?.url || ''
+  /* Cards cap at 3, so they only ever need Sub 1–3. That leaves slots 4 and 5
+     free for the story section's two circles. */
+  const cardImgs = [images?.[1]?.url || '', images?.[2]?.url || '', images?.[3]?.url || '']
+  const storyA = images?.[4]?.url || ''
+  const storyB = images?.[5]?.url || ''
+  const cardTf = [
+    `translate(${img1X}px,${img1Y}px) scale(${img1Scale})`,
+    `translate(${img2X}px,${img2Y}px) scale(${img2Scale})`,
+    `translate(${img3X}px,${img3Y}px) scale(${img3Scale})`,
+    `translate(${img4X}px,${img4Y}px) scale(${img4Scale})`,
+  ]
+
+  const body    = (copy.bodyText || '').replace(/\n/g, '<br>')
+  const b2body  = (copy.bodyBlock2 || '').replace(/\n/g, '<br>')
+  const closing = (copy.closingLine || '').replace(/\n/g, '<br>')
+  const logoUrl = client?.logoUrl || ''
+
+  // this design sits on white unless the brand board says otherwise
+  const pageBg    = footerData?.bgColor || '#ffffff'
+  const accent    = footerData?.buttonColor || '#1a73e8'
+  const secondary = footerData?.secondaryColor || accent
+
+  const _rgb = pageBg.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i)
+  const _r = _rgb ? parseInt(_rgb[1],16) : 255
+  const _g = _rgb ? parseInt(_rgb[2],16) : 255
+  const _b = _rgb ? parseInt(_rgb[3],16) : 255
+  const _lum = (0.299*_r + 0.587*_g + 0.114*_b)/255
+  const lightBg      = _lum > 0.55
+  const textCol      = lightBg ? '#1a1a1a' : '#ffffff'
+  const mutedTextCol = lightBg ? '#595959' : '#d4d4d4'
+  const faintTextCol = lightBg ? '#8a8a8a' : '#a8a8a8'
+  const cardBorder   = lightBg ? '#e6e6e6' : '#3a3a3a'
+  const pillBg       = lightBg ? '#f1f3f4' : 'rgba(255,255,255,0.10)'
+
+  /* Card background: the brand's secondary, mixed most of the way into the page
+     colour so it reads as a soft tint rather than a block of brand colour. */
+  const _mix = (hex, ratio) => {
+    const m = (hex || '').match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i)
+    if (!m) return pageBg
+    const to = (a, b) => Math.round(b + (a - b) * ratio).toString(16).padStart(2, '0')
+    return `#${to(parseInt(m[1],16), _r)}${to(parseInt(m[2],16), _g)}${to(parseInt(m[3],16), _b)}`
+  }
+  const cardTint = _mix(secondary, 0.16)
+
+  const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
+  const logoOverlay = logoUrl
+    ? `<img src="${logoUrl}" alt="${client?.name||''}" style="display:inline-block;height:${logoSize}px;width:auto;max-width:100%;filter:${logoFilter};"/>`
+    : `<div style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:${mutedTextCol};">${client?.name||''}</div>`
+
+  /* The logo now sits on the photo, so it defaults to white rather than to the
+     brand's own colours — a dark logo would disappear against a dark image. */
+  const heroLogoFilter = logoColor === 'original' ? 'brightness(0) invert(1)' : logoFilter
+  const logoOverlayOnHero = logoUrl
+    ? `<img src="${logoUrl}" alt="${client?.name||''}" style="display:inline-block;height:${logoSize}px;width:auto;max-width:100%;filter:${heroLogoFilter};"/>`
+    : `<div style="font-family:Arial,sans-serif;font-size:20px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#ffffff;text-shadow:0 1px 6px rgba(0,0,0,.4);">${client?.name||''}</div>`
+
+  const cards = Array.isArray(copy.propertyCards) ? copy.propertyCards.filter(Boolean) : []
+
+  /**
+   * One full-width card, stacked. Every count — 1, 2 or 3 — renders the same
+   * shape, so nothing depends on a media query. That matters: Gmail strips the
+   * <style> block, and a 2-up grid would stay 2-up on a phone there. Full width
+   * is correct everywhere with no stylesheet at all.
+   */
+  const cardBlock = (card, i) => {
+    const img = cardImgs[i] || ''
+    const baked = cardsGenerated[i]
+    return `<div class="w1wf-cardbox" style="background-color:${cardTint};border-radius:16px;padding:14px;margin-bottom:16px;">
+      <div style="line-height:0;font-size:0;">
+        ${img
+          ? (baked
+              // already cropped to 600×320 by Puppeteer — a plain img, no live
+              // position:absolute crop needed (and none for Outlook to break)
+              ? `<img src="${img}" alt="${card.name||''}" width="600" style="width:100%;height:320px;object-fit:cover;display:block;border-radius:12px;border:0;outline:none;"/>`
+              : `<div style="position:relative;width:100%;height:320px;overflow:hidden;border-radius:12px;"><img src="${img}" alt="${card.name||''}" style="position:absolute;top:0;left:0;width:100%;height:320px;object-fit:cover;display:block;transform:${cardTf[i]};transform-origin:center center;"/></div>`)
+          : `<div style="width:100%;height:320px;background:${pillBg};border-radius:12px;"></div>`}
+      </div>
+      <div style="padding:14px 6px 4px;">
+        ${card.name ? `<div style="font-family:Arial,sans-serif;font-size:19px;font-weight:700;color:${textCol};line-height:1.3;">${card.name}</div>` : ''}
+        ${card.stats ? `<div style="font-family:Arial,sans-serif;font-size:14px;color:${faintTextCol};line-height:1.4;margin-top:6px;">${card.stats}</div>` : ''}
+        ${card.description ? `<div class="mobile-body" style="font-family:Arial,sans-serif;font-size:16px;color:${textCol};line-height:1.6;margin-top:10px;">${card.description}</div>` : ''}
+        ${card.ctaText ? `<div style="margin-top:14px;">${cardBtnImgUrl
+          // baked at 400×76 — width and height attributes both set (not just
+          // CSS), since Outlook's Word engine ignores CSS width on <img>
+          ? `<a href="${card.ctaUrl||copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img src="${cardBtnImgUrl}" alt="${card.ctaText}" width="200" height="38" style="width:200px;height:38px;max-width:100%;display:block;border:0;outline:none;"/></a>`
+          : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0;max-width:100%;"><tr><td style="background:${accent};border-radius:999px;">
+              <a class="w1wf-cardcta" href="${card.ctaUrl||copy.ctaUrl||'#'}" style="display:inline-block;padding:14px 30px;font-family:Arial,sans-serif;font-size:15px;font-weight:700;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;">${card.ctaText} &rarr;</a>
+            </td></tr></table>`
+        }</div>` : ''}
+      </div>
+    </div>`
+  }
+
+  const cardsHtml = cards.length ? `
+  <div style="padding:4px 0 8px;background-color:${pageBg};">
+    ${cards.map((c, i) => cardBlock(c, i)).join('')}
+  </div>` : ''
+
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@700&display=swap" rel="stylesheet"/>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{margin:0;padding:0;color:#1a1a1a;}
+  table{border-collapse:collapse;}
+  .w1wf-outer { width:100%!important; max-width:600px!important; }
+  ${SHARED_MOBILE_CSS}
+  @media only screen and (max-width:600px){
+    .w1wf-section  { padding-left:24px!important; padding-right:24px!important; }
+    /* 772px of hero is a lot of phone screen — crop it rather than scale it */
+    .w1wf-hero     { height:560px!important; }
+    /* let the baked button use the full phone width instead of 300px */
+    .w1wf-btn-img  { width:100%!important; max-width:100%!important; }
+    /* SHARED_MOBILE_CSS gives .mobile-cta 80px side padding, which a fluid card
+       cannot absorb — this rule comes later, so it wins. */
+    .w1wf-cta      { padding:18px 36px!important; }
+    /* cards are full width at every count, so nothing needs stacking here */
+    .w1wf-cardbox    { padding:14px!important; }
+  }
+</style></head>
+<body style="margin:0;padding:32px 0 48px;background-color:#ffffff;">
+
+<table class="w1wf-outer" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="width:100%;max-width:600px;margin:0 auto;background-color:${pageBg};border-collapse:collapse;border-radius:20px;overflow:hidden;">
+<tr><td style="background-color:${pageBg};">
+
+  <!-- HERO: full-bleed 600×772 portrait. The logo, campaign eyebrow and headline
+       all sit ON the photo — there is no separate logo band. When the Puppeteer
+       hero has been baked it already carries all three, so it drops in whole. -->
+  ${isHeroGenerated
+    ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${heroImg}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;border:0;outline:none;"/></a></div>`
+    : `<div style="line-height:0;font-size:0;background-color:${pageBg};">
+    <div class="w1wf-hero" style="position:relative;width:100%;max-width:600px;height:772px;overflow:hidden;">
+      ${heroImg
+        ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
+        : `<div style="width:100%;height:100%;background:${pillBg};"></div>`}
+      <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.34) 0%,rgba(0,0,0,0.16) 45%,rgba(0,0,0,0.05) 70%,rgba(0,0,0,0) 100%);">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
+          <tr><td valign="top" align="center" style="vertical-align:top;text-align:center;padding:${logoTop}px ${textLeft}px 0;line-height:normal;">
+            ${logoOverlayOnHero}
+            ${copy.campaignEyebrow ? `<div style="font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#ffffff;margin-top:30px;text-shadow:0 1px 6px rgba(0,0,0,.4);">${copy.campaignEyebrow}</div>` : ''}
+            ${copy.headlineText ? `<div style="font-family:'Lora',Georgia,serif;font-size:${textSize}px;font-weight:700;color:#ffffff;line-height:1.16;text-shadow:0 2px 12px rgba(0,0,0,.4);margin-top:${textTop}px;display:inline-block;max-width:100%;">${copy.headlineText}</div>` : ''}
+            ${copy.heroCtaText ? `<div style="margin-top:30px;">
+              <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;max-width:100%;"><tr><td style="background:#e2eae8;border-radius:999px;">
+                <a class="w1wf-herocta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:17px 44px;font-family:Arial,sans-serif;font-size:18px;font-weight:600;color:#1f2937!important;-webkit-text-fill-color:#1f2937;text-decoration:none!important;">${copy.heroCtaText}</a>
+              </td></tr></table>
+            </div>` : ''}
+          </td></tr>
+        </table>
+      </div>
+    </div>
+  </div>`}
+
+  <!-- INTRO BODY -->
+  ${copy.bodyText ? `<div class="w1wf-section" style="padding:26px 48px 4px;background-color:${pageBg};"><div class="mobile-body" style="font-family:Arial,sans-serif;font-size:17px;line-height:1.8;color:${mutedTextCol};">${body}</div></div>` : ''}
+
+  <!-- INTRO CTA — pill button under the intro line, sends the reader to the stays -->
+  ${copy.introCtaText ? `<div class="w1wf-section" style="padding:22px 48px 4px;text-align:center;background-color:${pageBg};">${introBtnImgUrl
+    ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w1wf-btn-img" src="${introBtnImgUrl}" alt="${copy.introCtaText}" width="375" style="width:375px;max-width:100%;display:block;margin:0 auto;border:0;outline:none;"/></a>`
+    : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;max-width:100%;"><tr><td style="background:${accent};border-radius:999px;">
+        <a class="w1wf-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;">${copy.introCtaText} &rarr;</a>
+      </td></tr></table>`
+  }</div>` : ''}
+
+  <!-- DIVIDER — closes off the intro before the property section starts -->
+  ${(copy.introCtaText && (copy.sectionEyebrow || copy.sectionHeadline)) ? `<div class="w1wf-section" style="padding:26px 48px 0;background-color:${pageBg};">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
+      <tr><td style="height:1px;line-height:1px;font-size:0;background-color:${cardBorder};">&nbsp;</td></tr>
+    </table>
+  </div>` : ''}
+
+  <!-- SECTION EYEBROW PILL -->
+  ${copy.sectionEyebrow ? `<div class="w1wf-section" style="padding:26px 48px 0;text-align:center;background-color:${pageBg};">
+    <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${pillBg};border-radius:999px;padding:5px 14px;">
+      <span style="font-family:Arial,sans-serif;font-size:12px;font-weight:600;color:${mutedTextCol};letter-spacing:.02em;">${copy.sectionEyebrow}</span>
+    </td></tr></table>
+  </div>` : ''}
+
+  <!-- SECTION HEADLINE -->
+  ${copy.sectionHeadline ? `<div class="w1wf-section" style="padding:12px 48px 4px;text-align:center;background-color:${pageBg};"><div style="font-family:'Lora',Georgia,serif;font-size:26px;font-weight:700;color:${secondary};line-height:1.25;">${copy.sectionHeadline}</div></div>` : ''}
+
+  <!-- SECTION SUBHEAD -->
+  ${copy.sectionSubhead ? `<div class="w1wf-section" style="padding:8px 48px 16px;text-align:center;background-color:${pageBg};"><div class="mobile-subhead" style="font-family:Georgia,serif;font-size:20px;font-weight:400;font-style:italic;color:${mutedTextCol};line-height:1.5;">${copy.sectionSubhead}</div></div>` : ''}
+
+  <!-- PROPERTY CARDS -->
+  ${cardsHtml}
+
+  <!-- STORY — two overlapping circles, then the headline and the longer read.
+       The circles overlap, which needs absolute positioning, so once Generate
+       Images has run they arrive as one flat PNG at slot 4. The CSS version
+       below is the on-screen preview only. -->
+  ${(storyA || storyB) ? `
+  <div style="background-color:${pageBg};padding:34px 0 8px;">
+    <div style="line-height:0;font-size:0;text-align:center;">
+      ${isStoryGenerated
+        ? `<img src="${storyA}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;margin:0 auto;border:0;outline:none;"/>`
+        : `<div style="position:relative;width:100%;max-width:600px;height:360px;margin:0 auto;">
+            <!-- pair spans 60→540, i.e. 480 wide centred in the 600 box -->
+            ${storyB ? `<div style="position:absolute;left:60px;top:150px;width:200px;height:200px;border-radius:50%;overflow:hidden;border:6px solid ${pageBg};"><img src="${storyB}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;"/></div>` : ''}
+            ${storyA ? `<div style="position:absolute;left:220px;top:20px;width:320px;height:320px;border-radius:50%;overflow:hidden;border:6px solid ${pageBg};"><img src="${storyA}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;"/></div>` : ''}
+          </div>`}
+    </div>
+  </div>` : ''}
+
+  <!-- BODY BLOCK — the observation, then the nudge -->
+  ${(copy.bodyBlock2Title || copy.bodyBlock2) ? `<div class="w1wf-section" style="padding:22px 48px 0;background-color:${pageBg};">
+    ${copy.bodyBlock2Title ? `<div class="mobile-b2title" style="font-family:Arial,sans-serif;font-size:22px;font-weight:700;text-transform:uppercase;letter-spacing:0;color:${secondary};line-height:1.25;margin-bottom:8px;">${copy.bodyBlock2Title}</div>` : ''}
+    ${copy.bodyBlock2 ? `<div class="mobile-body" style="font-family:Arial,sans-serif;font-size:17px;line-height:1.8;color:${mutedTextCol};">${b2body}</div>` : ''}
+  </div>` : ''}
+
+  <!-- CLOSING -->
+  ${closing ? `<div class="w1wf-section" style="padding:18px 48px 0;background-color:${pageBg};"><div class="mobile-closing" style="font-family:Georgia,serif;font-size:17px;font-style:italic;line-height:1.7;color:${mutedTextCol};">${closing}</div></div>` : ''}
+
+  <!-- CTA -->
+  ${copy.ctaText ? `<div class="w1wf-section" style="padding:22px 48px 34px;text-align:center;background-color:${pageBg};">${btnImgUrl
+    ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w1wf-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:100%;display:block;margin:0 auto;border:0;outline:none;"/></a>`
+    : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;max-width:100%;"><tr><td style="background:${accent};border-radius:999px;"><a class="w1wf-cta mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;">${copy.ctaText} &rarr;</a></td></tr></table>`
+  }</div>` : ''}
+
+  <div style="background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary })}</div>
+
+</td></tr></table>
+</body></html>`
+}
+
 /* ─────────────────────────── registry ──────────────────────────────────── */
 const TEMPLATES = [
   { id:17, label:'✅ Week 2', build:buildTemplateWeek2v2 },
@@ -1798,6 +2039,7 @@ const TEMPLATES = [
   { id:24, label:'✅ Week 7',   build:buildTemplateWeek7v2 },
   { id:25, label:'✅ Week 8',   build:buildTemplateWeek8v2 },
   { id:31, label:'✅ Week 1 WF', build:buildTemplateWeek1WF, welcomeFlowOnly:true },
+  { id:32, label:'✅ Week 2 WF', build:buildTemplateWeek2WF, welcomeFlowOnly:true },
   { id:20, label:'🧪 Test',   build:buildTemplateTest,  adminOnly:true },
 ]
 
@@ -1851,7 +2093,7 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
   }, [active])  // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Hero editor — all week templates ─────────────────────────────────────────
-  const isEditable = [10, 11, 13, 16, 17, 18, 19, 20, 23, 24, 25, 31].includes(tpl?.id)
+  const isEditable = [10, 11, 13, 16, 17, 18, 19, 20, 23, 24, 25, 31, 32].includes(tpl?.id)
   const [heroScale,   setHeroScale]   = useState(1)
   const [heroX,       setHeroX]       = useState(0)
   const [heroY,       setHeroY]       = useState(0)
@@ -1896,11 +2138,11 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
     if (tpl?.id === 20) { setTextSize(38); setTextTop(32); setTextLeft(24); setLogoColor('original'); setLogoTop(24); setLogoRight(200); setLogoSize(40) }
     if (tpl?.id === 25) { setTextSize(48); setTextTop(108); setTextLeft(28); setLogoColor('white');    setLogoTop(28); setLogoRight(28);  setLogoSize(40) }
     if (tpl?.id === 23) { setTextSize(68); setTextTop(80);  setTextLeft(64); setLogoColor('white');    setLogoTop(28); setLogoRight(28);  setLogoSize(44) }
-    if (tpl?.id === 31) { setTextSize(44); setTextTop(34);  setTextLeft(52); setLogoColor('original'); setLogoTop(64); setLogoRight(200); setLogoSize(44) }
+    if (tpl?.id === 31 || tpl?.id === 32) { setTextSize(44); setTextTop(34);  setTextLeft(52); setLogoColor('original'); setLogoTop(64); setLogoRight(200); setLogoSize(44) }
   }, [tpl?.id])  // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Week template image generation ───────────────────────────────────────────
-  const isWeekTemplate = [10, 11, 13, 16, 17, 18, 19, 20, 23, 24, 25, 31].includes(tpl?.id)
+  const isWeekTemplate = [10, 11, 13, 16, 17, 18, 19, 20, 23, 24, 25, 31, 32].includes(tpl?.id)
   const [weekGenUrls,     setWeekGenUrls]     = useState({})  // { [tplId]: { hero, sec, ter } }
   const [weekGenLoading,  setWeekGenLoading]  = useState(false)
   const [weekGenError,    setWeekGenError]    = useState(null)
@@ -1921,13 +2163,13 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
       if (tplUrls.ter)   effectiveImages[5] = { url: tplUrls.ter,   focalX: 50, focalY: 50 }
     }
     const editorProps = isEditable ? { heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y } : {}
-    const isHeroGenerated = [10, 11, 13, 16, 17, 18, 19, 20, 23, 24, 25, 31].includes(tpl?.id) && !!tplUrls.hero
+    const isHeroGenerated = [10, 11, 13, 16, 17, 18, 19, 20, 23, 24, 25, 31, 32].includes(tpl?.id) && !!tplUrls.hero
     // Week 1 WF bakes its two overlapping story circles into one PNG at slot 4
-    const isStoryGenerated = tpl?.id === 31 && !!tplUrls.sec
+    const isStoryGenerated = (tpl?.id === 31 || tpl?.id === 32) && !!tplUrls.sec
     // ...and each stay photo into its own flat crop, so cardsGenerated[i] tells
     // the builder that images[i+1] is already cropped/zoomed and should render
     // as a plain <img> rather than re-applying position:absolute + a transform
-    const cardsGenerated = tpl?.id === 31 ? [!!tplUrls.card1, !!tplUrls.card2, !!tplUrls.card3] : [false, false, false]
+    const cardsGenerated = (tpl?.id === 31 || tpl?.id === 32) ? [!!tplUrls.card1, !!tplUrls.card2, !!tplUrls.card3] : [false, false, false]
     const effectiveFooterData = clientFooter
       ? { ...clientFooter, logoColor: footerLogoColor, footerLogoSize }
       : clientFooter
@@ -2219,6 +2461,10 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
     const isWeek7v2  = tpl?.id === 24
     const isWeek8v2  = tpl?.id === 25
     const isWeek1WF  = tpl?.id === 31
+    const isWeek2WF  = tpl?.id === 32
+    /* Week 2 WF is a duplicate of Week 1 WF, so every bake below is identical
+       for both. Gate on this rather than on isWeek1WF alone. */
+    const isWF1or2   = isWeek1WF || isWeek2WF
     const isTest     = tpl?.id === 20
     const renderLogoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
     const logoHtml = logoUrl
@@ -2303,7 +2549,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
        around each circle is drawn in the page colour so the smaller one reads as
        cut out of the larger without adding a visible band. */
     const week1wfPageBg = clientFooter?.bgColor || '#ffffff'
-    const week1wfStoryHtml = (isWeek1WF && (img4Url || img5Url)) ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+    const week1wfStoryHtml = (isWF1or2 && (img4Url || img5Url)) ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
 </head><body>
 <div style="position:relative;width:600px;height:360px;">
@@ -2314,7 +2560,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 
     const heroHtml = isWeek2
       ? week2ArchHtml(midBg, false)
-      : isWeek1WF
+      : isWF1or2
       ? week1wfHeroHtml
       : (isWeek2v2 || isWeek6v2)
       ? week2v2HeroHtml
@@ -2437,7 +2683,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
        its full-width pill cannot alter Weeks 2, 4 and 6, which still use the
        centred inline-block version. */
     const week1wfMainCtaText = generatedCopy?.ctaText || 'Book Now'
-    const week1wfMainBtnHtml = isWeek1WF ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+    const week1wfMainBtnHtml = isWF1or2 ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
 </head><body>
 <div style="width:600px;">
@@ -2448,7 +2694,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </body></html>` : null
 
     const week1wfIntroCtaText = generatedCopy?.introCtaText || ''
-    const week1wfIntroBtnHtml = (isWeek1WF && week1wfIntroCtaText) ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+    const week1wfIntroBtnHtml = (isWF1or2 && week1wfIntroCtaText) ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
 </head><body>
 <div style="width:600px;">
@@ -2461,7 +2707,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     // identical wording on every card by design (TEMPLATE spec), so one baked
     // image serves all three cards — same idea as Week 2 reusing one button PNG
     const week1wfCardCtaText = generatedCopy?.propertyCards?.[0]?.ctaText || ''
-    const week1wfCardBtnHtml = (isWeek1WF && week1wfCardCtaText) ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+    const week1wfCardBtnHtml = (isWF1or2 && week1wfCardCtaText) ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:400px;background:transparent;}</style>
 </head><body>
 <div style="width:400px;text-align:left;">
@@ -2483,9 +2729,9 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
   <img src="${url}" style="position:absolute;top:0;left:0;width:600px;height:320px;object-fit:cover;display:block;transform:translate(${x}px,${y}px) scale(${scale});transform-origin:center center;"/>
 </div>
 </body></html>` : null
-    const week1wfCard1Html = isWeek1WF ? week1wfCardHtml(img1Url, img1Scale, img1X, img1Y) : null
-    const week1wfCard2Html = isWeek1WF ? week1wfCardHtml(img2Url, img2Scale, img2X, img2Y) : null
-    const week1wfCard3Html = isWeek1WF ? week1wfCardHtml(img3Url, img3Scale, img3X, img3Y) : null
+    const week1wfCard1Html = isWF1or2 ? week1wfCardHtml(img1Url, img1Scale, img1X, img1Y) : null
+    const week1wfCard2Html = isWF1or2 ? week1wfCardHtml(img2Url, img2Scale, img2X, img2Y) : null
+    const week1wfCard3Html = isWF1or2 ? week1wfCardHtml(img3Url, img3Scale, img3X, img3Y) : null
 
     const w8v2ButtonHtml  = isWeek8v2 ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
@@ -2984,8 +3230,8 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </div>
 </body></html>` : null
 
-    const heroHeight = isWeek9 ? 720 : isWeek2 ? 580 : isWeek1WF ? 772 : isWeek8v2 ? 680 : isWeek7v2 ? ((img1Url || img2Url || img3Url) ? 988 : 720) : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : isTest ? 520 : 400
-    const secondaryPromise = isWeek1WF && week1wfStoryHtml
+    const heroHeight = isWeek9 ? 720 : isWeek2 ? 580 : isWF1or2 ? 772 : isWeek8v2 ? 680 : isWeek7v2 ? ((img1Url || img2Url || img3Url) ? 988 : 720) : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : isTest ? 520 : 400
+    const secondaryPromise = isWF1or2 && week1wfStoryHtml
       ? renderImage({ html: week1wfStoryHtml, width: 600, height: 360, transparent: true })
       : isWeek9 && week9GridHtml
       ? renderImage({ html: week9GridHtml, width: 600, height: 564, transparent: true })
@@ -3023,13 +3269,13 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
           ? renderImage({ html: week4v2bStackedHtml, width: 600, height: 548, transparent: true })
           : Promise.resolve(null)
 
-    const buttonPromise = isWeek1WF && week1wfMainBtnHtml
+    const buttonPromise = isWF1or2 && week1wfMainBtnHtml
       ? renderImage({ html: week1wfMainBtnHtml, width: 600, height: 88, transparent: true })
       : isWeek8v2 && w8v2ButtonHtml
       ? renderImage({ html: w8v2ButtonHtml, width: 600, height: 88, transparent: true })
       : isWeek7v2 && w7v2ButtonHtml
       ? renderImage({ html: w7v2ButtonHtml, width: 600, height: 88, transparent: true })
-      : (isWeek2v2 || isWeek6v2 || isWeek4v2b || isWeek9 || isWeek1WF) && w2v2ButtonHtml
+      : (isWeek2v2 || isWeek6v2 || isWeek4v2b || isWeek9 || isWF1or2) && w2v2ButtonHtml
       ? renderImage({ html: w2v2ButtonHtml, width: 600, height: 88, transparent: true })
       : isWeek3v2 && w3v2ButtonHtml
       ? renderImage({ html: w3v2ButtonHtml, width: 600, height: 88, transparent: true })
@@ -3046,19 +3292,19 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     // couple miss the 30s function timeout. Calling these AFTER wave 1
     // resolves keeps peak concurrency at ~4 Puppeteer launches, matching what
     // every other template has always done.
-    const introBtnThunk = () => isWeek1WF && week1wfIntroBtnHtml
+    const introBtnThunk = () => isWF1or2 && week1wfIntroBtnHtml
       ? renderImage({ html: week1wfIntroBtnHtml, width: 600, height: 88, transparent: true })
       : Promise.resolve(null)
-    const cardBtnThunk = () => isWeek1WF && week1wfCardBtnHtml
+    const cardBtnThunk = () => isWF1or2 && week1wfCardBtnHtml
       ? renderImage({ html: week1wfCardBtnHtml, width: 400, height: 76, transparent: true })
       : Promise.resolve(null)
-    const card1Thunk = () => isWeek1WF && week1wfCard1Html
+    const card1Thunk = () => isWF1or2 && week1wfCard1Html
       ? renderImage({ html: week1wfCard1Html, width: 600, height: 320, transparent: false })
       : Promise.resolve(null)
-    const card2Thunk = () => isWeek1WF && week1wfCard2Html
+    const card2Thunk = () => isWF1or2 && week1wfCard2Html
       ? renderImage({ html: week1wfCard2Html, width: 600, height: 320, transparent: false })
       : Promise.resolve(null)
-    const card3Thunk = () => isWeek1WF && week1wfCard3Html
+    const card3Thunk = () => isWF1or2 && week1wfCard3Html
       ? renderImage({ html: week1wfCard3Html, width: 600, height: 320, transparent: false })
       : Promise.resolve(null)
 
@@ -3075,7 +3321,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
         ])
 
         // wave 2 — Week 1 WF only, and only started once wave 1 has finished
-        const [introBtnRes, cardBtnRes, card1Res, card2Res, card3Res] = isWeek1WF
+        const [introBtnRes, cardBtnRes, card1Res, card2Res, card3Res] = isWF1or2
           ? await Promise.all([introBtnThunk(), cardBtnThunk(), card1Thunk(), card2Thunk(), card3Thunk()])
           : [null, null, null, null, null]
 
@@ -3555,7 +3801,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
           </div>
 
           {/* Sub-image adjusters — shown for templates that have sub-images */}
-          {[10, 11, 13, 16, 17, 18, 24, 25, 31].includes(tpl?.id) && [
+          {[10, 11, 13, 16, 17, 18, 24, 25, 31, 32].includes(tpl?.id) && [
             { key: 'sub1', label: 'Sub Image 1', color: '#7c3aed', bg: dark ? 'rgba(124,58,237,0.15)' : '#f5f3ff',
               controls: [
                 { name: 'Left', min: -200, max: 200, step: 4, val: img1X,     set: setImg1X,     unit: 'px' },
@@ -3639,7 +3885,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
             if (tpl?.id === 18 || tpl?.id === 19) { setTextSize(38); setTextTop(32);  setTextLeft(24);  setLogoColor('original'); setLogoTop(12); setLogoRight(24);  setLogoSize(40) }
             if (tpl?.id === 24) { setTextSize(54); setTextTop(60);  setTextLeft(24);  setLogoColor('original'); setLogoTop(48); setLogoRight(200); setLogoSize(40) }
             if (tpl?.id === 23) { setTextSize(68); setTextTop(80);  setTextLeft(64);  setLogoColor('white');    setLogoTop(28); setLogoRight(28);  setLogoSize(44) }
-            if (tpl?.id === 31) { setTextSize(44); setTextTop(34);  setTextLeft(52);  setLogoColor('original'); setLogoTop(64); setLogoRight(200); setLogoSize(44) }
+            if (tpl?.id === 31 || tpl?.id === 32) { setTextSize(44); setTextTop(34);  setTextLeft(52);  setLogoColor('original'); setLogoTop(64); setLogoRight(200); setLogoSize(44) }
           }} style={{
             width: '100%', padding: '7px 0', borderRadius: 8, fontSize: 11, fontWeight: 600,
             cursor: 'pointer',
