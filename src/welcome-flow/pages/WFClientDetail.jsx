@@ -36,6 +36,14 @@ function Tile({ label, value, tone }) {
 export default function WFClientDetail() {
   const { clientId } = useParams()
   const navigate = useNavigate()
+
+  /* An email that already has its three variations opens straight at the
+     variations step, not back at the brief — the brief is still reachable from
+     the step nav there. Anything without copy yet starts at the brief. */
+  const openEmail = (e) => {
+    const hasCopy = Array.isArray(e?.variations) && e.variations.length > 0
+    navigate(`/welcome-flow/${clientId}/email/${e.id}${hasCopy ? '/copy' : ''}`)
+  }
   const t = useWfTheme()
   const { getClient, getEmails, counts, addEmail, ensureClients, loadingClients } = useWelcomeFlowStore()
   const [filter, setFilter] = useState('all')
@@ -167,7 +175,7 @@ export default function WFClientDetail() {
           shown.map((e, i) => (
             <div
               key={e.id}
-              onClick={() => navigate(`/welcome-flow/${clientId}/email/${e.id}`)}
+              onClick={() => openEmail(e)}
               style={{
                 display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px', cursor: 'pointer',
                 borderTop: i === 0 ? 'none' : `1px solid ${t.border}`,

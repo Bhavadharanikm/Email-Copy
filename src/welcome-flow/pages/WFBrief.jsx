@@ -10,7 +10,7 @@
 
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { IconArrowLeft, IconSparkles, IconBolt } from '@tabler/icons-react'
+import { IconArrowLeft, IconSparkles, IconBolt, IconPlus } from '@tabler/icons-react'
 import { useWelcomeFlowStore } from '../store/welcomeFlowStore'
 import { useWfTheme, WfCard, WfButton, WfInput, WfStepNav } from '../components/wfUi'
 import { WF_WEEKS, wfWeek, wfWeekReady } from '../wfWeeks'
@@ -47,7 +47,7 @@ export default function WFBrief() {
   const { clientId, emailId } = useParams()
   const navigate = useNavigate()
   const t = useWfTheme()
-  const { getClient, getEmails, updateClient, updateEmail, ensureClients, loadingClients } = useWelcomeFlowStore()
+  const { getClient, getEmails, updateClient, updateEmail, addEmail, ensureClients, loadingClients } = useWelcomeFlowStore()
 
   // clients are not persisted — refetch after a reload on this deep route
   useEffect(() => { ensureClients() }, [ensureClients])
@@ -149,6 +149,15 @@ export default function WFBrief() {
     }
   }
 
+  /* Start another email for the same client without going back to the client
+     page first. Saves the current brief on the way out so nothing typed here
+     is lost. */
+  function startNewCampaign() {
+    persist()
+    const id = addEmail(clientId, {})
+    navigate(`/welcome-flow/${clientId}/email/${id}`)
+  }
+
   return (
     <div style={{ maxWidth: 820, margin: '0 auto', padding: '28px 24px 64px' }}>
       <WfStepNav
@@ -177,6 +186,9 @@ export default function WFBrief() {
         <p style={{ fontSize: 13, color: t.muted, margin: '7px 0 0' }}>
           Describe this email. The client is already set by the flow.
         </p>
+        <WfButton variant="ghost" style={{ marginTop: 14 }} onClick={startNewCampaign}>
+          <IconPlus size={15} stroke={2.4} /> New campaign
+        </WfButton>
       </div>
 
       <WfCard style={{ padding: 24 }}>

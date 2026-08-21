@@ -72,6 +72,7 @@ export default function WFApprove() {
         clientId:   clientId,
         clientName: client.name,
         position:   email.position,
+        week:       email.week ?? null,
         dbId:       email.dbId || null,
         email,
       })
@@ -96,11 +97,36 @@ export default function WFApprove() {
         folderId:      client.folderId,
         templateLabel: email.templateLabel || `Email ${email.position}`,
       })
+      const pushedAt = new Date().toISOString()
       updateEmail(clientId, emailId, {
         status: 'pushed',
         ghlTemplateId: result.templateId || email.ghlTemplateId || null,
-        pushedAt: new Date().toISOString(),
+        pushedAt,
       })
+
+      /* Approving also stores the work, so a client page always has something
+         to come back to. Keyed on the week, so a second run of the same week
+         replaces that row rather than stacking another one.
+
+         Deliberately non-fatal: the GHL push has already succeeded by this
+         point, and failing the whole approve because the database was
+         unreachable would misreport what actually happened. The separate Push
+         to Database button stays for a manual retry. */
+      try {
+        const saved = await wfPushEmail({
+          clientId,
+          clientName: client.name,
+          position:   email.position,
+          week:       email.week ?? null,
+          dbId:       email.dbId || null,
+          email: { ...email, status: 'pushed', pushedAt,
+                   ghlTemplateId: result.templateId || email.ghlTemplateId || null },
+        })
+        updateEmail(clientId, emailId, { dbId: saved.id })
+      } catch (dbe) {
+        console.warn('[WFApprove] GHL push succeeded but the database save did not:', dbe.message)
+        setDbErr(`Pushed to GHL, but saving to the database failed: ${dbe.message}`)
+      }
       setPreviewUrl(client.folderUrl || result.previewUrl || '')
       try {
         await notifyChat({ clientName: client.name, previewUrl: result.previewUrl, approvedBy: 'Welcome Flow' })

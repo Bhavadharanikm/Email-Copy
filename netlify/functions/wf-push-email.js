@@ -50,7 +50,7 @@ export const handler = async (event) => {
     const raw = event.isBase64Encoded
       ? Buffer.from(event.body, 'base64').toString('utf-8')
       : event.body
-    const { clientId, clientName, position, dbId, email } = JSON.parse(raw || '{}')
+    const { clientId, clientName, position, week, dbId, email } = JSON.parse(raw || '{}')
 
     if (!clientId) return json(400, { error: 'clientId is required' })
     if (!email)    return json(400, { error: 'email is required' })
@@ -63,6 +63,7 @@ export const handler = async (event) => {
       client_id:      clientId,
       client_name:    clientName || '',
       position:       position ?? email.position ?? 1,
+      week:           week ?? email.week ?? null,
       subject_line:   chosen.subjectLine || '',
       preview_text:   chosen.previewText || '',
       status:         email.status || 'ready',
@@ -78,13 +79,32 @@ export const handler = async (event) => {
       updated_at:     new Date().toISOString(),
     }
 
+    /* Three ways in, in order of certainty:
+         - a known row id            -> PATCH that row
+         - a client + week           -> upsert on the (client_id, week) unique
+                                        index, so re-running a week overwrites
+                                        it instead of stacking rows
+         - neither                   -> plain insert
+       The middle case is what Approve & Push uses: it has no dbId the first
+       time, but the week identifies the row just as well. */
+    const upsertOnWeek = !dbId && row.week != null
+
     const target = dbId
       ? `${url}/rest/v1/email_wf_emails?id=eq.${encodeURIComponent(dbId)}`
+      : upsertOnWeek
+      ? `${url}/rest/v1/email_wf_emails?on_conflict=client_id,week`
       : `${url}/rest/v1/email_wf_emails`
 
     const res = await fetch(target, {
       method: dbId ? 'PATCH' : 'POST',
-      headers: { ...headers(key), Prefer: 'return=representation' },
+      headers: {
+        ...headers(key),
+        // on_conflict goes in the query string; merge-duplicates turns the
+        // insert into an update when the (client_id, week) pair already exists
+        Prefer: upsertOnWeek
+          ? 'return=representation,resolution=merge-duplicates'
+          : 'return=representation',
+      },
       body: JSON.stringify(row),
     })
 
@@ -94,12 +114,13 @@ export const handler = async (event) => {
     const [saved] = JSON.parse(text)
     if (!saved) throw new Error('Supabase accepted the write but returned no row')
 
-    console.log(`[wf-push-email] ${dbId ? 'updated' : 'inserted'} ${saved.id} ` +
+    console.log(`[wf-push-email] ${dbId ? 'updated' : upsertOnWeek ? 'upserted week ' + row.week : 'inserted'} ${saved.id} ` +
                 `(${variations.length} variations, rendered ${row.rendered_html.length} bytes)`)
 
     return json(200, {
       id: saved.id,
-      action: dbId ? 'updated' : 'inserted',
+      action: dbId ? 'updated' : upsertOnWeek ? 'upserted' : 'inserted',
+      week:   row.week,
       variations: variations.length,
       renderedBytes: row.rendered_html.length,
     })
