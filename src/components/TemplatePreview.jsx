@@ -99,11 +99,13 @@ function buildFooter(client, footerData = null, options = {}) {
 
   // Social icon URLs (GHL CDN circular icons)
   const CDN = 'https://storage.googleapis.com/preview-production-assets/email/img/hl_default_img/social'
+  // Website leads, then the socials. Applies to every template — the footer is
+  // shared, and this order is wanted everywhere.
   const socialIcons = [
+    { url: website,   icon: `${CDN}/website_circle_grey.png`,   label: 'Website'   },
     { url: instagram, icon: `${CDN}/instagram_circle_grey.png`, label: 'Instagram' },
     { url: facebook,  icon: `${CDN}/facebook_circle_grey.png`,  label: 'Facebook'  },
     { url: tiktok,    icon: `${CDN}/tiktok_circle_grey.png`,    label: 'TikTok'    },
-    { url: website,   icon: `${CDN}/website_circle_grey.png`,   label: 'Website'   },
   ].filter(s => s.url)
 
   const sectionGap     = options.sectionGap     !== undefined ? options.sectionGap     : 28
