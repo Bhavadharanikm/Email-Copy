@@ -1739,7 +1739,7 @@ function buildTemplateWeek1WF({ client, copy, images, footerData, isHeroGenerate
   </div>` : ''}
 
   <!-- SECTION HEADLINE -->
-  ${copy.sectionHeadline ? `<div class="w1wf-section" style="padding:12px 48px 4px;text-align:center;background-color:${pageBg};"><div style="font-family:'Lora',Georgia,serif;font-size:26px;font-weight:700;color:${textCol};line-height:1.25;">${copy.sectionHeadline}</div></div>` : ''}
+  ${copy.sectionHeadline ? `<div class="w1wf-section" style="padding:12px 48px 4px;text-align:center;background-color:${pageBg};"><div style="font-family:'Lora',Georgia,serif;font-size:26px;font-weight:700;color:${secondary};line-height:1.25;">${copy.sectionHeadline}</div></div>` : ''}
 
   <!-- SECTION SUBHEAD -->
   ${copy.sectionSubhead ? `<div class="w1wf-section" style="padding:8px 48px 16px;text-align:center;background-color:${pageBg};"><div class="mobile-subhead" style="font-family:Georgia,serif;font-size:20px;font-weight:400;font-style:italic;color:${mutedTextCol};line-height:1.5;">${copy.sectionSubhead}</div></div>` : ''}
