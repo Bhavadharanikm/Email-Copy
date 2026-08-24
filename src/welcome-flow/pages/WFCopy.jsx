@@ -21,7 +21,7 @@ import { useWfTheme, WfCard, WfButton, WfStepNav } from '../components/wfUi'
    sit between the two groups, which is where they appear in the email. */
 
 
-const MULTILINE = new Set(['bodyText', 'bodyBlock2', 'closingLine'])
+const MULTILINE = new Set(['bodyText', 'bodyBlock2', 'closingLine', 'momentCopy'])
 
 /* Facts stay identical across variations; only the description shifts with POV. */
 
@@ -43,7 +43,19 @@ export default function WFCopy() {
 
   useEffect(() => {
     if (!email) return
-    setVars((email.variations || []).map(v => ({ ...v })))
+    /* A fixed group always has the same number of slots, and each slot starts
+       with a suggested title. Seed them here rather than only in the display, so
+       what the editor shows is what gets saved and rendered. */
+    const g = wfCopySchema(email.week).group
+    const seed = (v) => {
+      if (g.mode !== 'fixed') return { ...v }
+      const list = v[g.listKey] || []
+      return { ...v, [g.listKey]: g.labels.map((lbl, i) => ({
+        ...g.blank, ...(list[i] || {}),
+        label: (list[i]?.label || '').trim() || lbl,
+      })) }
+    }
+    setVars((email.variations || []).map(seed))
     setPicked(email.selectedVariation ?? 0)
   }, [email?.id])   // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -149,7 +161,7 @@ export default function WFCopy() {
     const next = vars.map((v, i) => {
       if (i !== picked) return v
       const list = [...(v[group.listKey] || [])]
-      while (list.length <= idx) list.push({ ...group.blank })
+      while (list.length <= idx) list.push({ ...group.blank, ...(isFixed ? { label: group.labels[list.length] || '' } : {}) })
       list[idx] = { ...list[idx], [key]: value }
       return { ...v, [group.listKey]: list }
     })
@@ -170,7 +182,7 @@ export default function WFCopy() {
       <label style={{ fontSize: 11.5, fontWeight: 700, color: t.text, display: 'block', marginBottom: 5 }}>
         {label}{hint && <span style={{ fontWeight: 400, color: t.muted }}> — {hint}</span>}
       </label>
-      {MULTILINE.has(key) ? (
+      {(MULTILINE.has(key) || MULTILINE.has(String(key).split('-').pop())) ? (
         <textarea
           value={value || ''}
           onChange={(e) => onChange(e.target.value)}
@@ -281,7 +293,7 @@ export default function WFCopy() {
             }}>
               <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: t.faint }}>
                 {isFixed
-                  ? `${group.labels[ci]} · Sub Image ${ci + 1}`
+                  ? `Moment ${ci + 1} of ${MAX_ITEMS} · Sub Image ${ci + 1}`
                   : `${group.itemLabel} ${ci + 1} of ${items.length} · Sub Image ${ci + 1}`}
               </span>
               {!isFixed && (

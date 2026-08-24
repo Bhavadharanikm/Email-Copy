@@ -60,9 +60,10 @@ const WEEK1 = {
   ],
 }
 
-/* The five moments are a fixed set, not a list you add to: the email walks the
-   reader through two days in order, so the slots and their labels are part of
-   the format rather than something the writer chooses. */
+/* Five moments, in order — the email walks the reader through two days, so the
+   number of slots is part of the format. The titles below are only the starting
+   point: each one is an editable field, so a flow that runs three days or names
+   its moments differently can say so. */
 export const WF2_MOMENTS = [
   'Day One, Afternoon',
   'Day One, Evening',
@@ -83,12 +84,12 @@ const WEEK2 = {
     mode:      'fixed',
     listKey:   'moments',
     title:     'The 48 Hours',
-    note:      'Five moments in order. Each one pairs an image cue with the copy that sits beside it',
+    note:      'Five moments in order. Each has its own title and the copy that sits beside it',
     labels:    WF2_MOMENTS,
-    blank:     { imageCue: '', momentCopy: '' },
+    blank:     { label: '', momentCopy: '' },
     fields: [
-      { key: 'imageCue',   label: 'Image Cue',   hint: 'What the photo should show — guides the image pick, never printed in the email' },
-      { key: 'momentCopy', label: 'Moment Copy', hint: '1–2 sentences. Present tense, second person' },
+      { key: 'label',      label: 'Moment Title', hint: 'e.g. "Day One, Afternoon" — shown in the email above the copy' },
+      { key: 'momentCopy', label: 'Moment Copy',  hint: '1–2 sentences. Present tense, second person' },
     ],
   },
   after: [

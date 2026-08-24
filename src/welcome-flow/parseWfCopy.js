@@ -40,6 +40,8 @@ const FIELD_MAP = {
 /* Week 2's five itinerary slots. The workflow writes them as `**Day One,
    Afternoon**` blocks holding `Image Cue:` and `Moment Copy:` lines, so they
    are parsed like property cards rather than as flat fields. */
+/* Only used to keep itinerary headings out of the flat fields. */
+const MOMENT_TITLE_RE = /^day\s|\b(morning|afternoon|evening|night)\b/i
 const MOMENT_LABELS = [
   'day one, afternoon',
   'day one, evening',
@@ -47,7 +49,7 @@ const MOMENT_LABELS = [
   'day two, afternoon',
   'day two, evening',
 ]
-const MOMENT_FIELD_MAP = { 'image cue': 'imageCue', 'moment copy': 'momentCopy' }
+const MOMENT_FIELD_MAP = { 'moment copy': 'momentCopy', 'copy': 'momentCopy' }
 
 const CARD_MAP = {
   'card name':        'name',
@@ -105,26 +107,29 @@ function parseCards(body) {
    Kept in the order MOMENT_LABELS defines, not the order they appear, so a
    workflow that emits them out of sequence still reads correctly. */
 function parseMoments(body) {
-  const found = new Map()
+  const out = []
   const lines = body.split('\n')
-  let slot = null
+  let current = null
+  const flush = () => { if (current && current.momentCopy) out.push(current); current = null }
   for (const line of lines) {
     const head = line.match(/^\*\*(.+?):?\*\*\s*$/)
     if (head) {
-      const label = clean(head[1]).toLowerCase().replace(/:$/, '')
-      slot = MOMENT_LABELS.indexOf(label)
-      if (slot !== -1 && !found.has(slot)) found.set(slot, {})
+      flush()
+      const label = clean(head[1]).replace(/:$/, '')
+      /* Any heading may turn out to be a moment; only a block that actually
+         carries Moment Copy is kept, which flush() decides. Titles are editable
+         so they cannot be matched against a fixed list. */
+      current = /^property card/i.test(label) ? null : { label, momentCopy: '' }
       continue
     }
-    if (slot === -1 || slot === null) continue
+    if (!current) continue
     const kv = line.match(/^\s*(?:[-*]\s*)?\*?\*?([A-Za-z ]+?)\*?\*?\s*:\s*(.+)$/)
     if (!kv) continue
     const key = MOMENT_FIELD_MAP[clean(kv[1]).toLowerCase()]
-    if (key) found.get(slot)[key] = clean(kv[2])
+    if (key) current[key] = clean(kv[2])
   }
-  if (!found.size) return []
-  const highest = Math.max(...found.keys())
-  return Array.from({ length: highest + 1 }, (_, i) => found.get(i) || { imageCue: '', momentCopy: '' })
+  flush()
+  return out
 }
 
 /** Fields are `**Label**` on one line, value on the following line(s). */
@@ -151,6 +156,9 @@ function parseFields(body) {
       current = (/^property card/.test(label) || MOMENT_LABELS.includes(label))
         ? null
         : (FIELD_MAP[label] || null)
+      /* A heading whose block holds Moment Copy is an itinerary slot handled by
+         parseMoments; parseFields must not also claim it. */
+      if (current && MOMENT_TITLE_RE.test(label)) current = null
       continue
     }
     // a horizontal rule or a new bullet list ends the current field
