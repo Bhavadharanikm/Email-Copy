@@ -6,6 +6,7 @@
  * Order: Casa · Tropica · Refined · Newsletter · MasterClass · Blueprint
  */
 import { useMemo, useState, useEffect, useCallback, useRef } from 'react'
+import { W2_HERO_OVERLAY_URI } from './w2HeroOverlay'
 import { useCampaignStore }  from '../store/campaignStore'
 import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
@@ -1985,6 +1986,10 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
             </div>` : ''}
           </td></tr>
         </table>
+        <!-- the No-internet scene, centred over the lower half of the photo -->
+        <div style="position:absolute;left:0;right:0;bottom:150px;text-align:center;line-height:0;font-size:0;">
+          <img src="/gogleinternet-crop.png" alt="" width="300" style="width:300px;max-width:62%;height:auto;display:inline-block;border:0;outline:none;"/>
+        </div>
       </div>
     </div>
   </div>`}
@@ -2886,6 +2891,9 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
         ${week1wfHeroCta ? `<div style="margin-top:30px;">
           <span style="display:inline-block;background:#e2eae8;border-radius:999px;padding:17px 44px;font-family:Arial,sans-serif;font-size:18px;font-weight:600;color:#1f2937;white-space:nowrap;">${week1wfHeroCta}</span>
         </div>` : ''}
+      </div>
+      <div style="position:absolute;left:0;right:0;bottom:150px;text-align:center;line-height:0;font-size:0;">
+        <img src="${W2_HERO_OVERLAY_URI}" width="300" style="width:300px;height:auto;display:inline-block;border:0;outline:none;"/>
       </div>
     </div>
   </div>
