@@ -102,18 +102,13 @@ export default function WFCopy() {
     )
   }
 
-  const active = vars[picked] || vars[0]
-  /* The week decides the field list: Week 1 is featured stays, Week 2 is the
-     48-hour itinerary. Weeks with no schema of their own fall back to Week 1. */
+  /* The week decides the field list: Week 1 is featured stays, Week 2 the
+     48-hour itinerary, Week 3 guest reviews. Weeks with no schema of their own
+     fall back to Week 1. */
   const schema    = wfCopySchema(email?.week)
   const group     = schema.group
   const isFixed   = group.mode === 'fixed'
   const MAX_ITEMS = isFixed ? group.labels.length : group.max
-  /* A fixed group always shows all of its slots, filled or not. */
-  const stored    = active[group.listKey] || []
-  const items     = isFixed
-    ? group.labels.map((_, i) => stored[i] || { ...group.blank })
-    : stored
 
   const persist = (nextVars = vars, nextPicked = picked) => {
     // Section Subhead is the single source; mirror it onto subhead so any
@@ -128,18 +123,25 @@ export default function WFCopy() {
     })
   }
 
-  const editField = (key, value) => {
-    const next = vars.map((v, i) => (i === picked ? { ...v, [key]: value } : v))
-    setVars(next)
+  /* Every handler takes the variation index now: the three are edited side by
+     side, so "the one being edited" is no longer whichever tab is selected.
+     `picked` still means the one carried forward to the next step. */
+  const editField = (vi, key, value) => {
+    setVars(vars.map((v, i) => (i === vi ? { ...v, [key]: value } : v)))
   }
 
-  const addItem = () => {
+  const itemsOf = (vi) => {
+    const stored = (vars[vi]?.[group.listKey]) || []
+    return isFixed ? group.labels.map((_, i) => stored[i] || { ...group.blank }) : stored
+  }
+
+  const addItem = (vi) => {
     const next = vars.map((v, i) => {
-      if (i !== picked) return v
+      if (i !== vi) return v
       const list = v[group.listKey] || []
       if (list.length >= MAX_ITEMS) return v
-      // carry the CTA wording from the first item — identical by design
       const blank = { ...group.blank }
+      // carry the CTA wording from the first item — identical by design
       if ('ctaText' in blank && list[0]?.ctaText) blank.ctaText = list[0].ctaText
       if ('ctaUrl'  in blank && list[0]?.ctaUrl)  blank.ctaUrl  = list[0].ctaUrl
       // suggested title for this position, where the schema offers one
@@ -149,25 +151,22 @@ export default function WFCopy() {
     setVars(next); persist(next)
   }
 
-  const removeItem = (idx) => {
-    const next = vars.map((v, i) => {
-      if (i !== picked) return v
-      return { ...v, [group.listKey]: (v[group.listKey] || []).filter((_, ci) => ci !== idx) }
-    })
+  const removeItem = (vi, idx) => {
+    const next = vars.map((v, i) =>
+      i === vi ? { ...v, [group.listKey]: (v[group.listKey] || []).filter((_, ci) => ci !== idx) } : v)
     setVars(next); persist(next)
   }
 
-  /* A fixed group has no add step, so writing into an empty slot has to grow
-     the array up to that index rather than drop the edit on the floor. */
-  const editItem = (idx, key, value) => {
-    const next = vars.map((v, i) => {
-      if (i !== picked) return v
+  /* A fixed group has no add step, so writing into an empty slot has to grow the
+     array up to that index rather than drop the edit on the floor. */
+  const editItem = (vi, idx, key, value) => {
+    setVars(vars.map((v, i) => {
+      if (i !== vi) return v
       const list = [...(v[group.listKey] || [])]
       while (list.length <= idx) list.push({ ...group.blank, ...(isFixed ? { label: group.labels[list.length] || '' } : {}) })
       list[idx] = { ...list[idx], [key]: value }
       return { ...v, [group.listKey]: list }
-    })
-    setVars(next)
+    }))
   }
 
   const choose = (i) => { setPicked(i); persist(vars, i) }
@@ -177,34 +176,35 @@ export default function WFCopy() {
     border: `1px solid ${t.border}`, background: t.inputBg, color: t.text,
     fontSize: 13, fontFamily: 'Inter, sans-serif', lineHeight: 1.6, outline: 'none',
   }
+  const COLS = { display: 'grid', gridTemplateColumns: `repeat(${Math.max(vars.length, 1)}, 1fr)`, gap: 12 }
 
-  /** One labelled row. Used for both the copy fields and the card fields. */
-  const fieldRow = ({ key, label, hint }, value, onChange, last) => (
+  const isMultiline = (key) =>
+    MULTILINE.has(key) || MULTILINE.has(String(key).split('-').pop())
+
+  /** One input, for one variation. */
+  const oneInput = (key, value, onChange) =>
+    isMultiline(key)
+      ? <textarea value={value || ''} onChange={(e) => onChange(e.target.value)} onBlur={() => persist()}
+          rows={key === 'bodyText' ? 4 : 2} style={{ ...inputStyle, resize: 'vertical' }} />
+      : <input value={value || ''} onChange={(e) => onChange(e.target.value)} onBlur={() => persist()}
+          style={inputStyle} />
+
+  /** One labelled row: the label once, then the same field for all three. */
+  const fieldRow = ({ key, label, hint }, valueAt, onChangeAt, last) => (
     <div key={key} style={{ padding: '14px 18px', borderBottom: last ? 'none' : `1px solid ${t.border}` }}>
-      <label style={{ fontSize: 11.5, fontWeight: 700, color: t.text, display: 'block', marginBottom: 5 }}>
+      <label style={{ fontSize: 11.5, fontWeight: 700, color: t.text, display: 'block', marginBottom: 6 }}>
         {label}{hint && <span style={{ fontWeight: 400, color: t.muted }}> — {hint}</span>}
       </label>
-      {(MULTILINE.has(key) || MULTILINE.has(String(key).split('-').pop())) ? (
-        <textarea
-          value={value || ''}
-          onChange={(e) => onChange(e.target.value)}
-          onBlur={() => persist()}
-          rows={key === 'bodyText' ? 4 : 2}
-          style={{ ...inputStyle, resize: 'vertical' }}
-        />
-      ) : (
-        <input
-          value={value || ''}
-          onChange={(e) => onChange(e.target.value)}
-          onBlur={() => persist()}
-          style={inputStyle}
-        />
-      )}
+      <div style={COLS}>
+        {vars.map((_, vi) => (
+          <div key={vi}>{oneInput(key, valueAt(vi), (val) => onChangeAt(vi, val))}</div>
+        ))}
+      </div>
     </div>
   )
 
   return (
-    <div style={{ maxWidth: 980, margin: '0 auto', padding: '28px 24px 64px' }}>
+    <div style={{ maxWidth: 1500, margin: '0 auto', padding: '28px 24px 64px' }}>
       <WfStepNav
         backLabel="Brief"
         onBack={() => { persist(); navigate(`/welcome-flow/${clientId}/email/${emailId}`) }}
@@ -225,12 +225,14 @@ export default function WFCopy() {
           Choose Your Copy
         </h1>
         <p style={{ fontSize: 13, color: t.muted, margin: '7px 0 0' }}>
-          Three variations. Pick one, edit anything, then continue.
+          All three side by side. Edit any of them, then pick the one to carry forward.
         </p>
       </div>
 
-      {/* variation tabs */}
-      <div style={{ display: 'grid', gridTemplateColumns: `repeat(${vars.length},1fr)`, gap: 10, marginBottom: 18 }}>
+      {/* Column headers — also the picker for which variation carries forward */}
+      <div style={{ ...COLS, marginBottom: 18, position: 'sticky', top: 0, zIndex: 5,
+                    background: t.dark ? 'rgba(17,17,20,0.92)' : 'rgba(247,248,250,0.92)',
+                    paddingTop: 6, paddingBottom: 6 }}>
         {vars.map((v, i) => {
           const on = i === picked
           return (
@@ -245,7 +247,7 @@ export default function WFCopy() {
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
                 <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', color: on ? t.accent : t.faint }}>
-                  V{i + 1}
+                  V{i + 1}{on ? ' · carried forward' : ''}
                 </div>
                 {on && <IconCheck size={14} color={t.accent} stroke={2.6} />}
               </div>
@@ -258,75 +260,86 @@ export default function WFCopy() {
       {/* everything above the repeated block */}
       <WfCard style={{ padding: 0, overflow: 'hidden' }}>
         {schema.before.map((f, i) =>
-          fieldRow(f, active[f.key], (v) => editField(f.key, v), i === schema.before.length - 1))}
+          fieldRow(f, (vi) => vars[vi]?.[f.key], (vi, val) => editField(vi, f.key, val),
+                   i === schema.before.length - 1))}
       </WfCard>
 
-      {/* the repeated block — stays for Week 1, itinerary moments for Week 2 */}
+      {/* the repeated block — one column per variation, since the counts can differ */}
       <WfCard style={{ padding: 0, overflow: 'hidden', marginTop: 16 }}>
-        <div style={{ padding: '14px 18px', borderBottom: `1px solid ${t.border}`, display: 'flex',
-                      alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+        <div style={{ padding: '14px 18px', borderBottom: `1px solid ${t.border}` }}>
           <div style={{ fontSize: 11.5, fontWeight: 700, color: t.text }}>
             {group.title}{' '}
-            <span style={{ fontWeight: 400, color: t.muted }}>
-              — {isFixed ? `${MAX_ITEMS} moments` : `${items.length} of ${MAX_ITEMS}`}. {group.note}
-            </span>
+            <span style={{ fontWeight: 400, color: t.muted }}>— {group.note}</span>
           </div>
-          {!isFixed && (
-            <WfButton
-              variant="subtle"
-              disabled={items.length >= MAX_ITEMS}
-              onClick={addItem}
-              style={{ padding: '6px 12px', fontSize: 12 }}
-            >
-              <IconPlus size={13} stroke={2.4} /> {group.addLabel}
-            </WfButton>
-          )}
         </div>
-
-        {(!isFixed && items.length === 0) ? (
-          <div style={{ padding: '22px 18px', fontSize: 12.5, color: t.muted }}>
-            Nothing here yet. Add one to show it in the email.
-          </div>
-        ) : items.map((item, ci) => (
-          <div key={ci} style={{ borderBottom: ci < items.length - 1 ? `1px solid ${t.border}` : 'none' }}>
-            <div style={{
-              padding: '10px 18px', background: t.dark ? 'rgba(255,255,255,0.03)' : '#f7f8fa',
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10,
-            }}>
-              <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: t.faint }}>
-                {isFixed
-                  ? `Moment ${ci + 1} of ${MAX_ITEMS} · Sub Image ${ci + 1}`
-                  : `${group.itemLabel} ${ci + 1} of ${items.length} · Sub Image ${ci + 1}`}
-              </span>
-              {!isFixed && (
-                <button
-                  onClick={() => removeItem(ci)}
-                  title="Remove this one"
-                  style={{
-                    display: 'inline-flex', alignItems: 'center', gap: 4, background: 'none',
-                    border: 'none', cursor: 'pointer', padding: '2px 4px',
-                    fontSize: 11.5, fontWeight: 600, color: '#dc2626', fontFamily: 'Inter, sans-serif',
-                  }}
-                >
-                  <IconTrash size={13} stroke={2} /> Remove
-                </button>
-              )}
-            </div>
-            {group.fields.map((cf, fi) =>
-              fieldRow(
-                { ...cf, key: `${group.listKey}${ci}-${cf.key}` },
-                item[cf.key],
-                (v) => editItem(ci, cf.key, v),
-                fi === group.fields.length - 1,
-              ))}
-          </div>
-        ))}
+        <div style={{ ...COLS, padding: '14px 18px' }}>
+          {vars.map((_, vi) => {
+            const list = itemsOf(vi)
+            return (
+              <div key={vi}>
+                {list.length === 0 && !isFixed && (
+                  <div style={{ fontSize: 12.5, color: t.muted, padding: '6px 0 10px' }}>
+                    Nothing here yet.
+                  </div>
+                )}
+                {list.map((item, ci) => (
+                  <div key={ci} style={{ border: `1px solid ${t.border}`, borderRadius: 10, marginBottom: 10, overflow: 'hidden' }}>
+                    <div style={{
+                      padding: '8px 12px', background: t.dark ? 'rgba(255,255,255,0.03)' : '#f7f8fa',
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8,
+                    }}>
+                      <span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: t.faint }}>
+                        {isFixed
+                          ? `${group.itemLabel || 'Item'} ${ci + 1} of ${MAX_ITEMS} · Sub ${ci + 1}`
+                          : `${group.itemLabel} ${ci + 1} · Sub ${ci + 1}`}
+                      </span>
+                      {!isFixed && (
+                        <button
+                          onClick={() => removeItem(vi, ci)}
+                          title="Remove"
+                          style={{
+                            display: 'inline-flex', alignItems: 'center', gap: 3, background: 'none',
+                            border: 'none', cursor: 'pointer', padding: '2px 3px',
+                            fontSize: 11, fontWeight: 600, color: '#dc2626', fontFamily: 'Inter, sans-serif',
+                          }}
+                        >
+                          <IconTrash size={12} stroke={2} /> Remove
+                        </button>
+                      )}
+                    </div>
+                    <div style={{ padding: '10px 12px' }}>
+                      {group.fields.map((cf) => (
+                        <div key={cf.key} style={{ marginBottom: 8 }}>
+                          <label style={{ fontSize: 10.5, fontWeight: 700, color: t.muted, display: 'block', marginBottom: 4 }}>
+                            {cf.label}
+                          </label>
+                          {oneInput(cf.key, item[cf.key], (val) => editItem(vi, ci, cf.key, val))}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+                {!isFixed && (
+                  <WfButton
+                    variant="subtle"
+                    disabled={list.length >= MAX_ITEMS}
+                    onClick={() => addItem(vi)}
+                    style={{ padding: '6px 12px', fontSize: 12, width: '100%' }}
+                  >
+                    <IconPlus size={13} stroke={2.4} /> {group.addLabel} ({list.length}/{MAX_ITEMS})
+                  </WfButton>
+                )}
+              </div>
+            )
+          })}
+        </div>
       </WfCard>
 
       {/* everything below the repeated block */}
       <WfCard style={{ padding: 0, overflow: 'hidden', marginTop: 16 }}>
         {schema.after.map((f, i) =>
-          fieldRow(f, active[f.key], (v) => editField(f.key, v), i === schema.after.length - 1))}
+          fieldRow(f, (vi) => vars[vi]?.[f.key], (vi, val) => editField(vi, f.key, val),
+                   i === schema.after.length - 1))}
       </WfCard>
 
     </div>
