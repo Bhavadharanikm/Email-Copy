@@ -60,10 +60,9 @@ const WEEK1 = {
   ],
 }
 
-/* Five moments, in order — the email walks the reader through two days, so the
-   number of slots is part of the format. The titles below are only the starting
-   point: each one is an editable field, so a flow that runs three days or names
-   its moments differently can say so. */
+/* Suggested titles, used to pre-fill each new moment as it is added. Only a
+   starting point — the title is an editable field, so a flow that runs three
+   days or names its moments differently just says so. */
 export const WF2_MOMENTS = [
   'Day One, Afternoon',
   'Day One, Evening',
@@ -81,11 +80,17 @@ const WEEK2 = {
     { key: 'bodyText',     label: 'Intro Line',   hint: '1–2 sentences. Sets up the itinerary without selling' },
   ],
   group: {
-    mode:      'fixed',
+    mode:      'dynamic',
     listKey:   'moments',
-    title:     'The 48 Hours',
-    note:      'Five moments in order. Each has its own title and the copy that sits beside it',
-    labels:    WF2_MOMENTS,
+    title:     'Moments',
+    note:      'One block per moment, in order. How many is up to the client',
+    itemLabel: 'Moment',
+    addLabel:  'Add moment',
+    /* Capped at 5: each moment takes one sub-image slot, and the picker offers
+       Sub 1-5 for this template. */
+    max:       5,
+    /* Pre-fills the title of each moment as it is added. */
+    defaultLabels: WF2_MOMENTS,
     blank:     { label: '', momentCopy: '' },
     fields: [
       { key: 'label',      label: 'Moment Title', hint: 'e.g. "Day One, Afternoon" — shown in the email above the copy' },

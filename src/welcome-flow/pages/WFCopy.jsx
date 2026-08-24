@@ -142,6 +142,8 @@ export default function WFCopy() {
       const blank = { ...group.blank }
       if ('ctaText' in blank && list[0]?.ctaText) blank.ctaText = list[0].ctaText
       if ('ctaUrl'  in blank && list[0]?.ctaUrl)  blank.ctaUrl  = list[0].ctaUrl
+      // suggested title for this position, where the schema offers one
+      if (group.defaultLabels?.[list.length]) blank.label = group.defaultLabels[list.length]
       return { ...v, [group.listKey]: [...list, blank] }
     })
     setVars(next); persist(next)
