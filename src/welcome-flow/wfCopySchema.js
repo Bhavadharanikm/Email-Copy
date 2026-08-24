@@ -134,6 +134,9 @@ const WEEK3 = {
     ],
   },
   after: [
+    { key: 'amenitiesEyebrow',  label: 'Amenities Eyebrow',  hint: 'Small label above the photo grid. Blank reads "Amenities"' },
+    { key: 'amenitiesHeadline', label: 'Amenities Headline', hint: 'Blank reads "Enjoy property amenities"' },
+    { key: 'amenitiesSubhead',  label: 'Amenities Subhead',  hint: 'One line under the amenities heading' },
     { key: 'ctaText',     label: 'CTA Button',   hint: '2–4 words. One button for the whole email' },
     { key: 'ctaUrl',      label: 'CTA URL',      hint: 'Full URL with https://' },
     { key: 'closingLine', label: 'Closing Line', hint: 'The code reminder — what it is worth and where to book' },
