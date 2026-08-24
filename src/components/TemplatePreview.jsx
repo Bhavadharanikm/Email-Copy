@@ -1922,13 +1922,14 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
     const leftToRight = i % 2 === 0
     const x1 = leftToRight ? 78 : 426
     const x2 = leftToRight ? 426 : 78
-    /* The second control point sits directly above the end point, so the curve
-       arrives travelling straight down and the arrowhead points into the card
-       below rather than off to one side. */
-    const c1 = x1 + (x2 - x1) * 0.62
+    /* Both control points are vertical from their own end — one below the
+       start, one above the finish — which makes an S: the trail drops out of
+       one card, sweeps across, and arrives pointing down into the next. A
+       horizontal first control point made it leave flat, which read as a stray
+       line rather than a route. */
     return `<div style="line-height:0;font-size:0;text-align:center;padding:2px 0 0;">
       <svg width="504" height="88" viewBox="0 0 504 88" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;max-width:504px;height:auto;margin:0 auto;">
-        <path d="M${x1},8 C${c1},8 ${x2},34 ${x2},62" fill="none" stroke="${secondary}" stroke-width="2" stroke-linecap="round" stroke-dasharray="2 7" opacity="0.75"/>
+        <path d="M${x1},8 C${x1},36 ${x2},34 ${x2},62" fill="none" stroke="${secondary}" stroke-width="2" stroke-linecap="round" stroke-dasharray="2 7" opacity="0.75"/>
         <circle cx="${x1}" cy="8" r="4.5" fill="${secondary}"/>
         <polygon points="${x2},82 ${x2 - 8},65 ${x2 + 8},65" fill="${secondary}"/>
       </svg>
