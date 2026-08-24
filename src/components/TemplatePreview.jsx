@@ -2089,6 +2089,14 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
      email's one CTA. */
   const heroCta = copy.heroCtaText || copy.ctaText || ''
 
+  /* Week 5's headline treatment: first word italic, the middle in heavy
+     uppercase, the last word italic again — all in Lora. A two-word headline
+     drops the italic tail, a one-word headline is just the uppercase line. */
+  const hw = (copy.headlineText || '').trim().split(/\s+/).filter(Boolean)
+  const hwFirst = hw.length >= 2 ? hw[0] : ''
+  const hwLast  = hw.length >= 3 ? hw[hw.length - 1] : ''
+  const hwMain  = hw.length >= 3 ? hw.slice(1, -1).join(' ') : hw.length === 2 ? hw[1] : hw[0] || ''
+
   const reviews = Array.isArray(copy.reviews) ? copy.reviews.filter(r => r && (r.quote || r.attribution || r.guestFirstName)) : []
 
   /* The section names itself when the copy does not. */
@@ -2180,7 +2188,10 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
         <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
           <tr><td valign="top" align="center" style="vertical-align:top;text-align:center;padding:${logoTop}px ${textLeft}px 0;line-height:normal;">
             ${logoOverlayOnHero}
-            ${copy.headlineText ? `<div style="font-family:'Lora',Georgia,serif;font-size:${textSize}px;font-weight:700;color:#ffffff;line-height:1.16;text-shadow:0 2px 12px rgba(0,0,0,.4);margin-top:${textTop}px;display:inline-block;max-width:100%;">${copy.headlineText}</div>` : ''}
+            ${copy.headlineText ? `<div style="text-align:left;margin-top:${textTop + 210}px;">
+              ${hwFirst ? `<div style="font-family:'Lora',Georgia,serif;font-size:${Math.round(textSize * 0.8)}px;font-style:italic;font-weight:400;color:#ffffff;line-height:1;text-shadow:0 2px 12px rgba(0,0,0,.35);margin-bottom:2px;">${hwFirst}</div>` : ''}
+              <div style="font-family:'Lora',Georgia,serif;font-size:${textSize}px;font-weight:700;text-transform:uppercase;color:#ffffff;line-height:1.02;text-shadow:0 2px 20px rgba(0,0,0,.3);">${hwMain}${hwLast ? ` <span style="font-family:'Lora',Georgia,serif;font-style:italic;font-weight:400;text-transform:none;font-size:${Math.round(textSize * 0.9)}px;">${hwLast}</span>` : ''}</div>
+            </div>` : ''}
             ${heroCta ? `<div style="margin-top:30px;">
               <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;max-width:100%;"><tr><td style="background:#e2eae8;border-radius:999px;">
                 <a class="w3wf-herocta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:17px 44px;font-family:Arial,sans-serif;font-size:18px;font-weight:600;color:#1f2937!important;-webkit-text-fill-color:#1f2937;text-decoration:none!important;">${heroCta}</a>
@@ -2833,8 +2844,40 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </div>
 </body></html>`
 
+    /* Week 3's hero carries Week 5's split headline, so it needs its own bake:
+       sharing Week 1's would put the centred version into the PNG and the
+       preview would change the moment Generate Images ran. */
+    const w3hw = (headline || '').trim().split(/\s+/).filter(Boolean)
+    const w3First = w3hw.length >= 2 ? w3hw[0] : ''
+    const w3Last  = w3hw.length >= 3 ? w3hw[w3hw.length - 1] : ''
+    const w3Main  = w3hw.length >= 3 ? w3hw.slice(1, -1).join(' ') : w3hw.length === 2 ? w3hw[1] : w3hw[0] || ''
+    const week3wfHeroHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:${week1wfBg};}</style>
+</head><body>
+<div style="width:600px;background:${week1wfBg};box-sizing:border-box;line-height:0;font-size:0;">
+  <div style="position:relative;width:600px;height:772px;overflow:hidden;border-radius:0 0 90px 90px;">
+    ${heroImgUrl
+      ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:600px;height:772px;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
+      : `<div style="width:600px;height:772px;background:#e8eaed;"></div>`}
+    <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.42) 0%,rgba(0,0,0,0.18) 40%,rgba(0,0,0,0.45) 100%);">
+      <div style="position:absolute;top:${logoTop}px;left:0;right:0;text-align:center;line-height:normal;">${week1wfLogoHtml}</div>
+      <div style="position:absolute;left:${textLeft}px;right:${textLeft}px;top:${textTop + 210}px;text-align:left;line-height:normal;">
+        ${w3First ? `<div style="font-family:'Lora',Georgia,serif;font-size:${Math.round(textSize * 0.8)}px;font-style:italic;font-weight:400;color:#fff;line-height:1;text-shadow:0 2px 12px rgba(0,0,0,.35);margin-bottom:2px;">${w3First}</div>` : ''}
+        <div style="font-family:'Lora',Georgia,serif;font-size:${textSize}px;font-weight:700;text-transform:uppercase;color:#fff;line-height:1.02;text-shadow:0 2px 20px rgba(0,0,0,.3);">${w3Main}${w3Last ? ` <span style="font-family:'Lora',Georgia,serif;font-style:italic;font-weight:400;text-transform:none;font-size:${Math.round(textSize * 0.9)}px;">${w3Last}</span>` : ''}</div>
+        ${week1wfHeroCta ? `<div style="margin-top:26px;">
+          <span style="display:inline-block;background:#e2eae8;border-radius:999px;padding:17px 44px;font-family:Arial,sans-serif;font-size:18px;font-weight:600;color:#1f2937;white-space:nowrap;">${week1wfHeroCta}</span>
+        </div>` : ''}
+      </div>
+    </div>
+  </div>
+</div>
+</body></html>`
+
     const heroHtml = isWeek2
       ? week2ArchHtml(midBg, false)
+      : isWeek3WF
+      ? week3wfHeroHtml
       : isWeek2WF
       ? week2wfHeroHtml
       : isWFAny
