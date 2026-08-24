@@ -1843,6 +1843,9 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
     return `#${to(parseInt(m[1],16), _r)}${to(parseInt(m[2],16), _g)}${to(parseInt(m[3],16), _b)}`
   }
   const cardTint = _mix(secondary, 0.16)
+  /* Stronger than cardTint so the rule reads against it, weaker than the title
+     so it stays a divider rather than a second line of emphasis. */
+  const momentRule = _mix(secondary, 0.40)
 
   const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
   const heroLogoFilter = logoColor === 'original' ? 'brightness(0) invert(1)' : logoFilter
@@ -1881,7 +1884,8 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
     const textCol_ = `<div class="w2wf-col" style="display:inline-block;width:100%;max-width:${TEXT_COL}px;vertical-align:top;">
         <div style="padding:0 14px 14px 0;">
           ${moment.label ? `<div style="font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:${secondary};line-height:1.35;">${moment.label}</div>` : ''}
-          ${moment.momentCopy ? `<div class="mobile-body" style="font-family:Arial,sans-serif;font-size:15px;color:${textCol};line-height:1.65;margin-top:10px;">${moment.momentCopy}</div>` : ''}
+          ${(moment.label && moment.momentCopy) ? `<div style="height:1px;background-color:${momentRule};line-height:1px;font-size:0;margin:12px 0 0;">&nbsp;</div>` : ''}
+          ${moment.momentCopy ? `<div class="mobile-body" style="font-family:Arial,sans-serif;font-size:15px;color:${textCol};line-height:1.65;margin-top:12px;">${moment.momentCopy}</div>` : ''}
         </div>
       </div>`
     const imgCol = `<div class="w2wf-col" style="display:inline-block;width:100%;max-width:${IMG_COL}px;vertical-align:top;">
