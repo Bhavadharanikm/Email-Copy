@@ -2145,16 +2145,30 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
   /* The row breaks out of the section's right padding so the photo sits almost
      on the email's edge. 600 - 48 left = 552 of usable width; text 300 + photo
      246 = 546 leaves a 6px sliver of card showing past the photo. */
-  const TEXT_COL  = 300
   const PHOTO_COL = 246
+  /* The first row runs corner to corner — no left gutter, so it spans the full
+     600 and the card reaches the left edge as the photo reaches the right. The
+     text column takes the difference, since the photo holds its width. Later
+     rows keep the 48px gutter. */
+  const FULL_TEXT_COL = 600 - PHOTO_COL   // 354
+  const INSET_TEXT_COL = 300
   const reviewBlock = (review, i) => {
+    /* The first and last rows run corner to corner; the ones between keep the
+       gutter, so the section opens and closes wide and breathes in the middle. */
+    const full     = i === 0 || i === reviews.length - 1
+    const TEXT_COL = full ? FULL_TEXT_COL : INSET_TEXT_COL
     const byline   = bylineOf(review)
     const platform = platformOf(review)
     const img      = reviewImgs[i] || ''
     const photoLeft = i % 2 === 1          // rows 2 and 4 lead with the photo
+    /* Flush to the edge, the card's own padding stands in for the gutter so its
+       text still lines up with everything above — on whichever side it sits. */
+    const cardPad = !full ? '28px 26px'
+      : photoLeft ? '28px 48px 28px 26px'
+      : '28px 26px 28px 48px'
 
     const textCell = `<div class="w3wf-col" style="display:inline-block;width:100%;max-width:${TEXT_COL}px;vertical-align:top;">
-      <div style="background-color:${cardTint};border:1px solid ${cardBorder};padding:28px 26px;">
+      <div style="background-color:${cardTint};border:1px solid ${cardBorder};padding:${cardPad};">
         ${stars}
         ${review.quote ? `<div class="mobile-body" style="font-family:'Lora',serif;font-size:17px;color:${textCol};line-height:1.62;margin-top:14px;">&ldquo;${review.quote}&rdquo;</div>` : ''}
         ${byline ? `<div style="font-family:'Lora',serif;font-size:15px;font-style:italic;color:${secondary};line-height:1.45;margin-top:16px;">${byline}</div>` : ''}
@@ -2174,7 +2188,7 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
        photo reads as a stray image. So the swap only applies side by side. */
     const first  = photoLeft ? photoCell : textCell
     const second = photoLeft ? textCell  : photoCell
-    return `<div style="font-size:0;line-height:0;margin-bottom:14px;">
+    return `<div class="w3wf-revrow" style="font-size:0;line-height:0;margin-bottom:14px;padding-left:${full ? 0 : 48}px;">
       <!--[if mso]><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="50%" valign="top"><![endif]-->
       ${first}
       <!--[if mso]></td><td width="50%" valign="top"><![endif]-->
@@ -2249,7 +2263,7 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
     ${setup ? `<div class="mobile-body" style="font-family:Arial,sans-serif;font-size:15px;color:${mutedTextCol};line-height:1.6;margin-top:10px;">${setup}</div>` : ''}
   </div>` : ''}
 
-  ${reviews.length ? `<div class="w3wf-revrow" style="padding:20px 0 0 48px;background-color:${pageBg};">
+  ${reviews.length ? `<div style="padding:20px 0 0;background-color:${pageBg};">
     ${reviews.map(reviewBlock).join('')}
   </div>` : ''}
 
