@@ -2105,7 +2105,10 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
   const sectionLabel = copy.sectionEyebrow  || 'Testimonials'
   const sectionHead  = copy.sectionHeadline || 'Hear From Our Guests'
   const amenEyebrow  = copy.amenitiesEyebrow  || 'Amenities'
-  const amenHead     = copy.amenitiesHeadline || 'Enjoy property amenities'
+  /* The Body Block Title heads the photo grid — it is the one line of copy the
+     workflow writes for this part of the email, so it beats a generic default.
+     An explicit Amenities Headline still wins if one is set. */
+  const amenHead     = copy.amenitiesHeadline || copy.bodyBlock2Title || 'Enjoy property amenities'
   const amenSubhead  = copy.amenitiesSubhead  || 'Make yourself at home and enjoy our amenities'
   const hasGrid      = gridImgs.some(Boolean)
 
@@ -2293,9 +2296,8 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
   </div>` : ''}
 
   <!-- BODY BLOCK — a title and the paragraph that follows the reviews -->
-  ${(copy.bodyBlock2Title || bodyBlock2) ? `<div class="w3wf-section" style="padding:26px 48px 0;background-color:${pageBg};">
-    ${copy.bodyBlock2Title ? `<div style="font-family:Arial,sans-serif;font-size:20px;font-weight:700;color:${secondary};line-height:1.35;">${copy.bodyBlock2Title}</div>` : ''}
-    ${bodyBlock2 ? `<div class="mobile-body" style="font-family:Arial,sans-serif;font-size:15px;color:${textCol};line-height:1.7;margin-top:10px;">${bodyBlock2}</div>` : ''}
+  ${bodyBlock2 ? `<div class="w3wf-section" style="padding:26px 48px 0;background-color:${pageBg};">
+    <div class="mobile-body" style="font-family:Arial,sans-serif;font-size:15px;color:${textCol};line-height:1.7;">${bodyBlock2}</div>
   </div>` : ''}
 
   <!-- CLOSING LINE, then the single CTA, then the code reminder -->
