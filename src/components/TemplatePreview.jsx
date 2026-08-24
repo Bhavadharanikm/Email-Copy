@@ -1801,7 +1801,7 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
   img3Scale=1, img3X=0, img3Y=0,
   img4Scale=1, img4X=0, img4Y=0,
   img5Scale=1, img5X=0, img5Y=0,
-  btnImgUrl = null,
+  btnImgUrl = null, introBtnImgUrl = null,
   cardsGenerated = [false, false, false],
 }) {
   const heroObj = images?.[0]; const heroImg = heroObj?.url || ''
@@ -1855,7 +1855,11 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
 
   /* Week 2 has no separate hero CTA of its own, so the hero pill carries the
      email's one CTA. Same wording top and bottom by design. */
-  const heroCta = copy.heroCtaText || copy.ctaText || ''
+  const heroCta  = copy.heroCtaText || copy.ctaText || ''
+  const introCta = copy.introCtaText || ''
+  /* Names the block below the divider. Defaults rather than disappearing, since
+     the itinerary always needs a label even if the copy does not supply one. */
+  const sectionLabel = copy.sectionEyebrow || 'Your Itinerary'
 
   const moments = Array.isArray(copy.moments) ? copy.moments.filter(m => m && (m.label || m.momentCopy)) : []
 
@@ -1990,8 +1994,23 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
     <div class="mobile-body" style="font-family:Arial,sans-serif;font-size:17px;color:${textCol};line-height:1.7;">${body}</div>
   </div>` : ''}
 
+  <!-- INTRO CTA — into the itinerary. Week 2 has no field of its own for the
+       hero pill, so this one falls back to the email's CTA when left blank. -->
+  ${introCta ? `<div class="w2wf-section" style="padding:22px 48px 0;background-color:${pageBg};text-align:center;">
+    ${introBtnImgUrl
+      ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w2wf-btn-img" src="${introBtnImgUrl}" alt="${introCta}" width="600" height="88" style="width:100%;max-width:600px;height:auto;display:block;margin:0 auto;border:0;outline:none;"/></a>`
+      : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;width:100%;max-width:600px;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w2wf-cta mobile-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:18px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;text-align:center;">${introCta} &rarr;</a></td></tr></table>`}
+  </div>` : ''}
+
   ${moments.length ? `<div class="w2wf-section" style="padding:22px 48px 0;background-color:${pageBg};">
     <div style="height:1px;background-color:${cardBorder};line-height:1px;font-size:0;">&nbsp;</div>
+  </div>` : ''}
+
+  <!-- Names the itinerary, sitting between the divider and the first moment -->
+  ${moments.length ? `<div class="w2wf-section" style="padding:22px 48px 14px;text-align:center;background-color:${pageBg};">
+    <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${pillBg};border-radius:999px;padding:6px 14px;">
+      <span style="font-family:Arial,sans-serif;font-size:12px;line-height:12px;font-weight:600;color:${mutedTextCol};letter-spacing:.02em;">${sectionLabel}</span>
+    </td></tr></table>
   </div>` : ''}
 
   <!-- THE MOMENTS — one card each, however many the copy carries -->

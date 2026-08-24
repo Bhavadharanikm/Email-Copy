@@ -78,6 +78,8 @@ const WEEK2 = {
     { key: 'previewText',  label: 'Preview Text', hint: '8–9 words. Supports the subject, never repeats it' },
     { key: 'headlineText', label: 'Headline',     hint: '4–7 words. Must make sense on its own' },
     { key: 'bodyText',     label: 'Intro Line',   hint: '1–2 sentences. Sets up the itinerary without selling' },
+    { key: 'introCtaText', label: 'Intro CTA',    hint: '2–3 words. Button under the intro line, into the itinerary. Falls back to the CTA Button' },
+    { key: 'sectionEyebrow', label: 'Section Eyebrow', hint: 'Small label above the itinerary. Left blank it reads "Your Itinerary"' },
   ],
   group: {
     mode:      'dynamic',
