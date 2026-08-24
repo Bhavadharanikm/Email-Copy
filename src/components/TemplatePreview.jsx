@@ -2106,12 +2106,10 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
   /* The section names itself when the copy does not. */
   const sectionLabel = copy.sectionEyebrow  || 'Testimonials'
   const sectionHead  = copy.sectionHeadline || 'Hear From Our Guests'
-  const amenEyebrow  = copy.amenitiesEyebrow  || 'Amenities'
   /* The Body Block Title heads the photo grid — it is the one line of copy the
      workflow writes for this part of the email, so it beats a generic default.
      An explicit Amenities Headline still wins if one is set. */
   const amenHead     = copy.amenitiesHeadline || copy.bodyBlock2Title || 'Enjoy property amenities'
-  const amenSubhead  = copy.amenitiesSubhead  || 'Make yourself at home and enjoy our amenities'
   const hasStory     = !!(storyA || storyB)
 
   /* Five gold stars, drawn as text rather than images: no download, no blocked
@@ -2277,11 +2275,7 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
        absolute positioning, so once Generate Images has run they arrive as one
        flat PNG at slot 4. The CSS version below is the on-screen preview. -->
   ${hasStory ? `<div class="w3wf-section" style="padding:30px 48px 0;text-align:center;background-color:${pageBg};">
-    <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${pillBg};border-radius:999px;padding:6px 14px;">
-      <span style="font-family:Arial,sans-serif;font-size:12px;line-height:12px;font-weight:600;color:${mutedTextCol};letter-spacing:.02em;">${amenEyebrow}</span>
-    </td></tr></table>
-    <div style="font-family:'Lora',serif;font-size:26px;font-weight:700;color:${secondary};line-height:1.25;margin-top:14px;">${amenHead}</div>
-    ${amenSubhead ? `<div class="mobile-body" style="font-family:Arial,sans-serif;font-size:15px;color:${mutedTextCol};line-height:1.6;margin-top:10px;">${amenSubhead}</div>` : ''}
+    <div style="font-family:'Lora',serif;font-size:26px;font-weight:700;color:${secondary};line-height:1.25;">${amenHead}</div>
   </div>
 
   <div style="background-color:${pageBg};padding:22px 0 8px;">
