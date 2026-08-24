@@ -1,0 +1,79 @@
+{
+  "variations": [
+    {
+      "variationNumber": 1,
+      "povName": "The Guest Book",
+      "subjectLine": "What Megan said after checkout",
+      "previewText": "\"We got the best of both worlds\" — Megan, March guest",
+      "headline": "Straight from the guest book",
+      "setupLine": "We could tell you about the hot tubs and the quiet — but the people who've stayed say it better.",
+      "reviews": [
+        {
+          "quote": "My husband has always wanted to try staying in a vacation dome. He loved it!! … We got the best of both worlds. We were in the woods, but downtown Hot Springs was super close.",
+          "attribution": "Megan, Deluxe Dome stay, March 2026, via Airbnb"
+        },
+        {
+          "quote": "This was our second time staying in one of the treehouse cabins, and we will definitely be back for a third visit. The cabins are always spotless, cozy, and thoughtfully designed for a relaxing getaway.",
+          "attribution": "Daniel, Treehouse stay, February 2026, via Google"
+        },
+        {
+          "quote": "The surrounding forest was beautiful, filled with wildlife. Not to mention the hiking trails on site. If you need a good way to relax and change up your routine, I highly recommend going to Starlight Haven!",
+          "attribution": "Priya, Treehouse stay, January 2026, via Airbnb"
+        }
+      ],
+      "ctaButton": "Experience It Yourself",
+      "ctaUrl": "https://visitstarlight.com",
+      "closingLine": "Your welcome code STAR23 is still good: 10% off any stay of two nights or more when you book direct at visitstarlight.com."
+    },
+    {
+      "variationNumber": 2,
+      "povName": "The Repeat Visit",
+      "subjectLine": "They came back a second time. Here's why.",
+      "previewText": "\"We will definitely be back for a third visit\" — Daniel, February guest",
+      "headline": "What guests say after the drive home",
+      "setupLine": "Some guests book once. These ones keep coming back — here's what they told us.",
+      "reviews": [
+        {
+          "quote": "This was our second time staying in one of the treehouse cabins, and we will definitely be back for a third visit. The cabins are always spotless, cozy, and thoughtfully designed for a relaxing getaway.",
+          "attribution": "Daniel, Treehouse stay, February 2026, via Google"
+        },
+        {
+          "quote": "My husband has always wanted to try staying in a vacation dome. He loved it!! … We got the best of both worlds. We were in the woods, but downtown Hot Springs was super close.",
+          "attribution": "Megan, Deluxe Dome stay, March 2026, via Airbnb"
+        },
+        {
+          "quote": "The surrounding forest was beautiful, filled with wildlife. Not to mention the hiking trails on site. If you need a good way to relax and change up your routine, I highly recommend going to Starlight Haven!",
+          "attribution": "Priya, Treehouse stay, January 2026, via Airbnb"
+        }
+      ],
+      "ctaButton": "Book Your First Stay",
+      "ctaUrl": "https://visitstarlight.com",
+      "closingLine": "Your welcome code STAR23 is still good: 10% off any stay of two nights or more when you book direct at visitstarlight.com."
+    },
+    {
+      "variationNumber": 3,
+      "povName": "The Quiet Reset",
+      "subjectLine": "\"A good way to relax and change up your routine\"",
+      "previewText": "\"Filled with wildlife\" — Priya, January guest",
+      "headline": "Don't take our word for it",
+      "setupLine": "Three guests, three different stays, and the same thing said three ways.",
+      "reviews": [
+        {
+          "quote": "The surrounding forest was beautiful, filled with wildlife. Not to mention the hiking trails on site. If you need a good way to relax and change up your routine, I highly recommend going to Starlight Haven!",
+          "attribution": "Priya, Treehouse stay, January 2026, via Airbnb"
+        },
+        {
+          "quote": "My husband has always wanted to try staying in a vacation dome. He loved it!! … We got the best of both worlds. We were in the woods, but downtown Hot Springs was super close.",
+          "attribution": "Megan, Deluxe Dome stay, March 2026, via Airbnb"
+        },
+        {
+          "quote": "This was our second time staying in one of the treehouse cabins, and we will definitely be back for a third visit. The cabins are always spotless, cozy, and thoughtfully designed for a relaxing getaway.",
+          "attribution": "Daniel, Treehouse stay, February 2026, via Google"
+        }
+      ],
+      "ctaButton": "See It For Yourself",
+      "ctaUrl": "https://visitstarlight.com",
+      "closingLine": "Your welcome code STAR23 is still good: 10% off any stay of two nights or more when you book direct at visitstarlight.com."
+    }
+  ]
+}
