@@ -18,9 +18,9 @@ const W2_TRY_ITEMS = [
   'Remembering what quiet sounds like',
 ]
 
-const W2_TRY_LIST_HTML = `<div style="padding:14px 0 0 20px;">${W2_TRY_ITEMS.map(t =>
-  `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:1.95;color:#ffffff;white-space:nowrap;">
-     <span style="display:inline-block;width:18px;color:rgba(255,255,255,0.75);">&bull;</span>${t}</div>`
+const W2_TRY_LIST_HTML = `<div style="padding:12px 0 0 18px;">${W2_TRY_ITEMS.map(t =>
+  `<div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.9;color:#ffffff;white-space:nowrap;">
+     <span style="display:inline-block;width:16px;color:rgba(255,255,255,0.75);">&bull;</span>${t}</div>`
 ).join('')}</div>`
 
 import { useCampaignStore }  from '../store/campaignStore'
@@ -1994,8 +1994,8 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
           </td></tr>
         </table>
         <!-- the No-internet scene, centred over the lower half of the photo -->
-        <div style="position:absolute;left:36px;bottom:96px;width:470px;max-width:86%;text-align:left;line-height:0;font-size:0;">
-          <img src="/gogleinternet-crop.png" alt="" width="380" style="width:100%;height:auto;display:block;border:0;outline:none;"/>
+        <div style="position:absolute;left:36px;bottom:96px;width:390px;max-width:72%;text-align:left;line-height:0;font-size:0;">
+          <img src="/gogleinternet-crop.png" alt="" width="390" style="width:100%;height:auto;display:block;border:0;outline:none;"/>
           ${W2_TRY_LIST_HTML}
         </div>
       </div>
@@ -2896,8 +2896,8 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
       <div style="position:absolute;top:${logoTop}px;left:0;right:0;text-align:center;padding:0 ${textLeft}px;line-height:normal;">
         ${week1wfLogoHtml}
       </div>
-      <div style="position:absolute;left:36px;bottom:96px;width:470px;text-align:left;line-height:0;font-size:0;">
-        <img src="${W2_HERO_OVERLAY_URI}" width="380" style="width:100%;height:auto;display:block;border:0;outline:none;"/>
+      <div style="position:absolute;left:36px;bottom:96px;width:390px;text-align:left;line-height:0;font-size:0;">
+        <img src="${W2_HERO_OVERLAY_URI}" width="390" style="width:100%;height:auto;display:block;border:0;outline:none;"/>
         ${W2_TRY_LIST_HTML}
       </div>
     </div>
