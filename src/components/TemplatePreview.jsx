@@ -2154,7 +2154,7 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
 
   return `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<link href="https://fonts.googleapis.com/css2?family=Lora:wght@700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   body{margin:0;padding:0;color:#1a1a1a;}
@@ -2189,8 +2189,8 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
           <tr><td valign="top" align="center" style="vertical-align:top;text-align:center;padding:${logoTop}px ${textLeft}px 0;line-height:normal;">
             ${logoOverlayOnHero}
             ${copy.headlineText ? `<div style="text-align:left;margin-top:${textTop + 210}px;">
-              ${hwFirst ? `<div style="font-family:'Lora',Georgia,serif;font-size:${Math.round(textSize * 0.8)}px;font-style:italic;font-weight:400;color:#ffffff;line-height:1;text-shadow:0 2px 12px rgba(0,0,0,.35);margin-bottom:2px;">${hwFirst}</div>` : ''}
-              <div style="font-family:'Lora',Georgia,serif;font-size:${textSize}px;font-weight:700;text-transform:uppercase;color:#ffffff;line-height:1.02;text-shadow:0 2px 20px rgba(0,0,0,.3);">${hwMain}${hwLast ? ` <span style="font-family:'Lora',Georgia,serif;font-style:italic;font-weight:400;text-transform:none;font-size:${Math.round(textSize * 0.9)}px;">${hwLast}</span>` : ''}</div>
+              ${hwFirst ? `<div style="font-family:'Lora',serif;font-size:${Math.round(textSize * 0.8)}px;font-style:italic;font-weight:400;color:#ffffff;line-height:1;text-shadow:0 2px 12px rgba(0,0,0,.35);margin-bottom:2px;">${hwFirst}</div>` : ''}
+              <div style="font-family:'Lora',serif;font-size:${textSize}px;font-weight:700;text-transform:uppercase;color:#ffffff;line-height:1.02;text-shadow:0 2px 20px rgba(0,0,0,.3);">${hwMain}${hwLast ? ` <span style="font-family:'Lora',serif;font-style:italic;font-weight:400;text-transform:none;font-size:${Math.round(textSize * 0.9)}px;">${hwLast}</span>` : ''}</div>
             </div>` : ''}
             ${heroCta ? `<div style="margin-top:30px;">
               <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;max-width:100%;"><tr><td style="background:#e2eae8;border-radius:999px;">
@@ -2208,7 +2208,7 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
     <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${pillBg};border-radius:999px;padding:6px 14px;">
       <span style="font-family:Arial,sans-serif;font-size:12px;line-height:12px;font-weight:600;color:${mutedTextCol};letter-spacing:.02em;">${sectionLabel}</span>
     </td></tr></table>
-    <div style="font-family:'Lora',Georgia,serif;font-size:26px;font-weight:700;color:${secondary};line-height:1.25;margin-top:14px;">${sectionHead}</div>
+    <div style="font-family:'Lora',serif;font-size:26px;font-weight:700;color:${secondary};line-height:1.25;margin-top:14px;">${sectionHead}</div>
     ${setup ? `<div class="mobile-body" style="font-family:Arial,sans-serif;font-size:15px;color:${mutedTextCol};line-height:1.6;margin-top:10px;">${setup}</div>` : ''}
   </div>` : ''}
 
@@ -2223,7 +2223,7 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
     <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${pillBg};border-radius:999px;padding:6px 14px;">
       <span style="font-family:Arial,sans-serif;font-size:12px;line-height:12px;font-weight:600;color:${mutedTextCol};letter-spacing:.02em;">${amenEyebrow}</span>
     </td></tr></table>
-    <div style="font-family:'Lora',Georgia,serif;font-size:26px;font-weight:700;color:${secondary};line-height:1.25;margin-top:14px;">${amenHead}</div>
+    <div style="font-family:'Lora',serif;font-size:26px;font-weight:700;color:${secondary};line-height:1.25;margin-top:14px;">${amenHead}</div>
     ${amenSubhead ? `<div class="mobile-body" style="font-family:Arial,sans-serif;font-size:15px;color:${mutedTextCol};line-height:1.6;margin-top:10px;">${amenSubhead}</div>` : ''}
   </div>
 
@@ -2863,8 +2863,8 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.42) 0%,rgba(0,0,0,0.18) 40%,rgba(0,0,0,0.45) 100%);">
       <div style="position:absolute;top:${logoTop}px;left:0;right:0;text-align:center;line-height:normal;">${week1wfLogoHtml}</div>
       <div style="position:absolute;left:${textLeft}px;right:${textLeft}px;top:${textTop + 210}px;text-align:left;line-height:normal;">
-        ${w3First ? `<div style="font-family:'Lora',Georgia,serif;font-size:${Math.round(textSize * 0.8)}px;font-style:italic;font-weight:400;color:#fff;line-height:1;text-shadow:0 2px 12px rgba(0,0,0,.35);margin-bottom:2px;">${w3First}</div>` : ''}
-        <div style="font-family:'Lora',Georgia,serif;font-size:${textSize}px;font-weight:700;text-transform:uppercase;color:#fff;line-height:1.02;text-shadow:0 2px 20px rgba(0,0,0,.3);">${w3Main}${w3Last ? ` <span style="font-family:'Lora',Georgia,serif;font-style:italic;font-weight:400;text-transform:none;font-size:${Math.round(textSize * 0.9)}px;">${w3Last}</span>` : ''}</div>
+        ${w3First ? `<div style="font-family:'Lora',serif;font-size:${Math.round(textSize * 0.8)}px;font-style:italic;font-weight:400;color:#fff;line-height:1;text-shadow:0 2px 12px rgba(0,0,0,.35);margin-bottom:2px;">${w3First}</div>` : ''}
+        <div style="font-family:'Lora',serif;font-size:${textSize}px;font-weight:700;text-transform:uppercase;color:#fff;line-height:1.02;text-shadow:0 2px 20px rgba(0,0,0,.3);">${w3Main}${w3Last ? ` <span style="font-family:'Lora',serif;font-style:italic;font-weight:400;text-transform:none;font-size:${Math.round(textSize * 0.9)}px;">${w3Last}</span>` : ''}</div>
         ${week1wfHeroCta ? `<div style="margin-top:26px;">
           <span style="display:inline-block;background:#e2eae8;border-radius:999px;padding:17px 44px;font-family:Arial,sans-serif;font-size:18px;font-weight:600;color:#1f2937;white-space:nowrap;">${week1wfHeroCta}</span>
         </div>` : ''}
