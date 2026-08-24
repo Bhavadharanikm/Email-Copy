@@ -2150,22 +2150,17 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
      600 and the card reaches the left edge as the photo reaches the right. The
      text column takes the difference, since the photo holds its width. Later
      rows keep the 48px gutter. */
-  const FULL_TEXT_COL = 600 - PHOTO_COL   // 354
-  const INSET_TEXT_COL = 300
+  const TEXT_COL  = 600 - PHOTO_COL   // 354
   const reviewBlock = (review, i) => {
     /* The first and last rows run corner to corner; the ones between keep the
        gutter, so the section opens and closes wide and breathes in the middle. */
-    const full     = i === 0 || i === reviews.length - 1
-    const TEXT_COL = full ? FULL_TEXT_COL : INSET_TEXT_COL
     const byline   = bylineOf(review)
     const platform = platformOf(review)
     const img      = reviewImgs[i] || ''
     const photoLeft = i % 2 === 1          // rows 2 and 4 lead with the photo
     /* Flush to the edge, the card's own padding stands in for the gutter so its
        text still lines up with everything above — on whichever side it sits. */
-    const cardPad = !full ? '28px 26px'
-      : photoLeft ? '28px 48px 28px 26px'
-      : '28px 26px 28px 48px'
+    const cardPad = photoLeft ? '28px 48px 28px 26px' : '28px 26px 28px 48px'
 
     const textCell = `<div class="w3wf-col" style="display:inline-block;width:100%;max-width:${TEXT_COL}px;vertical-align:top;">
       <div style="background-color:${cardTint};border:1px solid ${cardBorder};padding:${cardPad};">
@@ -2188,7 +2183,7 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
        photo reads as a stray image. So the swap only applies side by side. */
     const first  = photoLeft ? photoCell : textCell
     const second = photoLeft ? textCell  : photoCell
-    return `<div class="w3wf-revrow" style="font-size:0;line-height:0;margin-bottom:14px;padding-left:${(full || photoLeft) ? 0 : 48}px;">
+    return `<div class="w3wf-revrow" style="font-size:0;line-height:0;margin-bottom:14px;padding-left:0;">
       <!--[if mso]><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="50%" valign="top"><![endif]-->
       ${first}
       <!--[if mso]></td><td width="50%" valign="top"><![endif]-->
