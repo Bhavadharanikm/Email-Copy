@@ -1903,7 +1903,7 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
             : `<div style="width:100%;height:230px;background:${pillBg};border-radius:12px;border:1px solid ${cardBorder};"></div>`}
         </div>
       </div>`
-    return `<div class="w2wf-cardbox" style="background-color:${cardTint};border:1px solid ${cardBorder};border-radius:16px;padding:14px;margin-bottom:16px;">
+    return `<div class="w2wf-cardbox" style="background-color:${cardTint};border:1px solid ${cardBorder};border-radius:16px;padding:14px;">
       <div style="font-size:0;line-height:0;">
         <!--[if mso]><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="50%" valign="top"><![endif]-->
         ${textCol_}
@@ -1914,9 +1914,28 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
     </div>`
   }
 
+  /* A dotted trail between consecutive moments, weaving left then right so the
+     itinerary reads as one route rather than a stack of cards. Drawn as inline
+     SVG: it shows in the preview and in Apple Mail, and is simply absent in
+     Gmail and Outlook, which drop SVG — the cards still read in order there. */
+  const connector = (i) => {
+    const leftToRight = i % 2 === 0
+    const x1 = leftToRight ? 78 : 426
+    const x2 = leftToRight ? 426 : 78
+    const c1 = leftToRight ? 210 : 294
+    const c2 = leftToRight ? 294 : 210
+    return `<div style="line-height:0;font-size:0;text-align:center;padding:2px 0 6px;">
+      <svg width="504" height="86" viewBox="0 0 504 86" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;max-width:504px;height:auto;margin:0 auto;">
+        <path d="M${x1},6 C${c1},6 ${c2},80 ${x2},80" fill="none" stroke="${secondary}" stroke-width="2" stroke-linecap="round" stroke-dasharray="2 7" opacity="0.75"/>
+        <circle cx="${x1}" cy="6"  r="4.5" fill="${secondary}"/>
+        <circle cx="${x2}" cy="80" r="4.5" fill="${secondary}"/>
+      </svg>
+    </div>`
+  }
+
   const momentsHtml = moments.length ? `
   <div class="w2wf-section" style="padding:8px 48px 4px;background-color:${pageBg};">
-    ${moments.map(momentBlock).join('')}
+    ${moments.map((m, i) => momentBlock(m, i) + (i < moments.length - 1 ? connector(i) : '')).join('')}
   </div>` : ''
 
   return `<!DOCTYPE html>
