@@ -8,14 +8,14 @@
 import { useMemo, useState, useEffect, useCallback, useRef } from 'react'
 import { W2_HERO_OVERLAY_URI } from './w2HeroOverlay'
 
-/* The three lines under the "Try:" that is baked into the hero artwork. Written
-   in the itinerary's voice — present-tense gerunds, second person — and
-   deliberately avoiding "connect" or "reconnect", since those are the words a
-   real offline page puts on its retry button. */
+/* The three lines under the "Try:" that is baked into the hero artwork.
+   Imperatives, second person, and deliberately avoiding "connect" and
+   "reconnect" — those are the words a real offline page puts on its retry
+   button. */
 const W2_TRY_ITEMS = [
-  'Turning the phone face down',
-  'Letting the hot tub take an hour',
-  'Remembering what quiet sounds like',
+  'Leave your notifications behind',
+  'Step into the open air',
+  'Let your mind slow down',
 ]
 
 /* An outlined pill on the photo — no fill, a white hairline border and white
