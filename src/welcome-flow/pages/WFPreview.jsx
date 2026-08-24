@@ -16,6 +16,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { IconArrowLeft } from '@tabler/icons-react'
 import { useWelcomeFlowStore } from '../store/welcomeFlowStore'
+import { wfWeek } from '../wfWeeks'
 import { useCampaignStore } from '../../store/campaignStore'
 import { useWfTheme, WfCard, WfButton, WfStepNav } from '../components/wfUi'
 import TemplatePreview from '../../components/TemplatePreview'
@@ -29,8 +30,13 @@ export default function WFPreview() {
   // clients are not persisted — refetch after a reload on this deep route
   useEffect(() => { ensureClients() }, [ensureClients])
 
+  /* Resolve the template from the week rather than trusting the id stored on
+     the email: the brief only writes templateId when copy is generated, so an
+     email whose week was changed since — or created before its template
+     existed — would otherwise open on the wrong layout, or on all of them. */
   const client = getClient(clientId)
   const email  = (getEmails(clientId) || []).find(e => e.id === emailId)
+  const wfWeekTemplateId = wfWeek(email?.week)?.templateId ?? email?.templateId ?? null
 
   const [ready, setReady] = useState(false)
   const snapshot = useRef(null)
@@ -132,7 +138,7 @@ export default function WFPreview() {
         </p>
       </div>
 
-      {ready ? <TemplatePreview welcomeFlow templateId={email.templateId || null} /> : (
+      {ready ? <TemplatePreview welcomeFlow templateId={wfWeekTemplateId} /> : (
         <WfCard style={{ padding: 40, textAlign: 'center' }}>
           <div style={{ fontSize: 13, color: t.muted }}>Loading the template…</div>
         </WfCard>
