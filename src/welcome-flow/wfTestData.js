@@ -42,6 +42,16 @@ export const WF_TEST_VARIATIONS = [
       { name: 'Treehouses',   stats: '2 beds | 1 bath | 4 guests', description: 'Sleep in the treetops, hot tub included.',   ctaText: 'View Dates', ctaUrl: CTA_URL },
       { name: 'Deluxe Domes', stats: '3 beds | 1 bath | 4 guests', description: 'Twin loft for kids, hot tub for parents.',   ctaText: 'View Dates', ctaUrl: CTA_URL },
     ],
+    /* Guest reviews, quoted verbatim. Week 1's template ignores them; they are
+       here so the first sample also exercises Week 3's testimonials block. */
+    reviews: [
+      { quote: 'My husband has always wanted to try staying in a vacation dome. He loved it!! … We got the best of both worlds. We were in the woods, but downtown Hot Springs was super close.',
+        attribution: 'Megan, Deluxe Dome stay, March 2026, via Airbnb' },
+      { quote: 'This was our second time staying in one of the treehouse cabins, and we will definitely be back for a third visit. The cabins are always spotless, cozy, and thoughtfully designed for a relaxing getaway.',
+        attribution: 'Daniel, Treehouse stay, February 2026, via Google' },
+      { quote: 'The surrounding forest was beautiful, filled with wildlife. Not to mention the hiking trails on site. If you need a good way to relax and change up your routine, I highly recommend going to Starlight Haven!',
+        attribution: 'Priya, Treehouse stay, January 2026, via Airbnb' },
+    ],
     bodyBlock2Title: "Your family trip doesn't have to look like every other one.",
     bodyBlock2:      'Four nights, 30% off, and a private hot tub waiting when you arrive. Use BUY3 and lock it in.',
     closingLine:     'The kids will remember this one. Book with BUY3 and make it happen.',
