@@ -1854,9 +1854,6 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
     ? `<img src="${logoUrl}" alt="${client?.name||''}" style="display:inline-block;height:${logoSize}px;width:auto;max-width:100%;filter:${heroLogoFilter};"/>`
     : `<div style="font-family:Arial,sans-serif;font-size:20px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#ffffff;text-shadow:0 1px 6px rgba(0,0,0,.4);">${client?.name||''}</div>`
 
-  /* Week 2 has no separate hero CTA of its own, so the hero pill carries the
-     email's one CTA. Same wording top and bottom by design. */
-  const heroCta  = copy.heroCtaText || copy.ctaText || ''
   const introCta = copy.introCtaText || ''
   /* Names the block below the divider. Defaults rather than disappearing, since
      the itinerary always needs a label even if the copy does not supply one. */
@@ -1974,20 +1971,15 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
       ${heroImg
         ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
         : `<div style="width:100%;height:100%;background:${pillBg};"></div>`}
-      <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.34) 0%,rgba(0,0,0,0.16) 45%,rgba(0,0,0,0.05) 70%,rgba(0,0,0,0) 100%);">
+      <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.25) 40%,rgba(0,0,0,0.45) 100%);">
         <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
           <tr><td valign="top" align="center" style="vertical-align:top;text-align:center;padding:${logoTop}px ${textLeft}px 0;line-height:normal;">
             ${logoOverlayOnHero}
             ${copy.headlineText ? `<div style="font-family:'Lora',Georgia,serif;font-size:${textSize}px;font-weight:700;color:#ffffff;line-height:1.16;text-shadow:0 2px 12px rgba(0,0,0,.4);margin-top:${textTop}px;display:inline-block;max-width:100%;">${copy.headlineText}</div>` : ''}
-            ${heroCta ? `<div style="margin-top:30px;">
-              <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;max-width:100%;"><tr><td style="background:#e2eae8;border-radius:999px;">
-                <a class="w2wf-herocta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:17px 44px;font-family:Arial,sans-serif;font-size:18px;font-weight:600;color:#1f2937!important;-webkit-text-fill-color:#1f2937;text-decoration:none!important;">${heroCta}</a>
-              </td></tr></table>
-            </div>` : ''}
           </td></tr>
         </table>
         <!-- the No-internet scene, centred over the lower half of the photo -->
-        <div style="position:absolute;left:0;right:0;bottom:150px;text-align:center;line-height:0;font-size:0;">
+        <div style="position:absolute;left:28px;bottom:150px;text-align:left;line-height:0;font-size:0;">
           <img src="/gogleinternet-crop.png" alt="" width="300" style="width:300px;max-width:62%;height:auto;display:inline-block;border:0;outline:none;"/>
         </div>
       </div>
@@ -2884,15 +2876,12 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     ${heroImgUrl
       ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:600px;height:772px;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
       : `<div style="width:600px;height:772px;background:#e8eaed;"></div>`}
-    <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.34) 0%,rgba(0,0,0,0.16) 45%,rgba(0,0,0,0.05) 70%,rgba(0,0,0,0) 100%);">
+    <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.25) 40%,rgba(0,0,0,0.45) 100%);">
       <div style="position:absolute;top:${logoTop}px;left:0;right:0;text-align:center;padding:0 ${textLeft}px;line-height:normal;">
         ${week1wfLogoHtml}
         ${headline ? `<div style="font-family:'Lora',Georgia,serif;font-size:${textSize}px;font-weight:700;color:#fff;line-height:1.16;text-shadow:0 2px 12px rgba(0,0,0,.4);margin-top:${textTop}px;display:inline-block;">${headline}</div>` : ''}
-        ${week1wfHeroCta ? `<div style="margin-top:30px;">
-          <span style="display:inline-block;background:#e2eae8;border-radius:999px;padding:17px 44px;font-family:Arial,sans-serif;font-size:18px;font-weight:600;color:#1f2937;white-space:nowrap;">${week1wfHeroCta}</span>
-        </div>` : ''}
       </div>
-      <div style="position:absolute;left:0;right:0;bottom:150px;text-align:center;line-height:0;font-size:0;">
+      <div style="position:absolute;left:28px;bottom:150px;text-align:left;line-height:0;font-size:0;">
         <img src="${W2_HERO_OVERLAY_URI}" width="300" style="width:300px;height:auto;display:inline-block;border:0;outline:none;"/>
       </div>
     </div>
