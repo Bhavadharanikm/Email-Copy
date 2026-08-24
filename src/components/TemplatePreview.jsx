@@ -1876,18 +1876,36 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
    */
   const momentBlock = (moment, i) => {
     const img = momentImgs[i] || ''
-    const baked = cardsGenerated[i]
+    /* Text left, photo right — the two columns are inline-blocks with
+       width:100% and a max-width, so they sit side by side while there is room
+       and wrap to stacked when there is not. That works without a media query,
+       which matters because Gmail strips the <style> block: a table with two
+       <td>s would stay two columns on a phone there and squeeze to nothing.
+       The MSO conditional gives Outlook a real table, since it ignores
+       inline-block. */
+    /* 504px card - 2px border - 28px padding = 474px of usable width, so the
+       pair must total less than that or it wraps when it should not. */
+    const COL = 228
+    const textCol_ = `<div style="display:inline-block;width:100%;max-width:${COL}px;vertical-align:top;">
+        <div style="padding:6px 10px 6px 4px;">
+          ${moment.label ? `<div style="font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:${secondary};line-height:1.35;">${moment.label}</div>` : ''}
+          ${moment.momentCopy ? `<div class="mobile-body" style="font-family:Arial,sans-serif;font-size:15px;color:${textCol};line-height:1.65;margin-top:10px;">${moment.momentCopy}</div>` : ''}
+        </div>
+      </div>`
+    const imgCol = `<div style="display:inline-block;width:100%;max-width:${COL}px;vertical-align:top;">
+        <div style="line-height:0;font-size:0;padding:4px;">
+          ${img
+            ? `<div style="position:relative;width:100%;height:230px;overflow:hidden;border-radius:12px;border:1px solid ${cardBorder};"><img src="${img}" alt="${moment.label||''}" style="position:absolute;top:0;left:0;width:100%;height:230px;object-fit:cover;display:block;transform:${momentTf[i]};transform-origin:center center;"/></div>`
+            : `<div style="width:100%;height:230px;background:${pillBg};border-radius:12px;border:1px solid ${cardBorder};"></div>`}
+        </div>
+      </div>`
     return `<div class="w2wf-cardbox" style="background-color:${cardTint};border:1px solid ${cardBorder};border-radius:16px;padding:14px;margin-bottom:16px;">
-      <div style="line-height:0;font-size:0;">
-        ${img
-          ? (baked
-              ? `<img src="${img}" alt="${moment.label||''}" width="600" style="width:100%;height:300px;object-fit:cover;display:block;border-radius:12px;border:0;outline:none;"/>`
-              : `<div style="position:relative;width:100%;height:300px;overflow:hidden;border-radius:12px;"><img src="${img}" alt="${moment.label||''}" style="position:absolute;top:0;left:0;width:100%;height:300px;object-fit:cover;display:block;transform:${momentTf[i]};transform-origin:center center;"/></div>`)
-          : `<div style="width:100%;height:300px;background:${pillBg};border-radius:12px;"></div>`}
-      </div>
-      <div style="padding:14px 6px 4px;">
-        ${moment.label ? `<div style="font-family:Arial,sans-serif;font-size:14px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:${secondary};line-height:1.4;">${moment.label}</div>` : ''}
-        ${moment.momentCopy ? `<div class="mobile-body" style="font-family:Arial,sans-serif;font-size:16px;color:${textCol};line-height:1.6;margin-top:8px;">${moment.momentCopy}</div>` : ''}
+      <div style="font-size:0;line-height:0;">
+        <!--[if mso]><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="50%" valign="top"><![endif]-->
+        ${textCol_}
+        <!--[if mso]></td><td width="50%" valign="top"><![endif]-->
+        ${imgCol}
+        <!--[if mso]></td></tr></table><![endif]-->
       </div>
     </div>`
   }
@@ -2126,7 +2144,7 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
     // ...and each stay photo into its own flat crop, so cardsGenerated[i] tells
     // the builder that images[i+1] is already cropped/zoomed and should render
     // as a plain <img> rather than re-applying position:absolute + a transform
-    const cardsGenerated = (tpl?.id === 31 || tpl?.id === 32) ? [!!tplUrls.card1, !!tplUrls.card2, !!tplUrls.card3] : [false, false, false]
+    const cardsGenerated = tpl?.id === 31 ? [!!tplUrls.card1, !!tplUrls.card2, !!tplUrls.card3] : [false, false, false]
     const effectiveFooterData = clientFooter
       ? { ...clientFooter, logoColor: footerLogoColor, footerLogoSize }
       : clientFooter
@@ -2715,9 +2733,9 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
   <img src="${url}" style="position:absolute;top:0;left:0;width:600px;height:320px;object-fit:cover;display:block;transform:translate(${x}px,${y}px) scale(${scale});transform-origin:center center;"/>
 </div>
 </body></html>` : null
-    const week1wfCard1Html = isWF1or2 ? week1wfCardHtml(img1Url, img1Scale, img1X, img1Y) : null
-    const week1wfCard2Html = isWF1or2 ? week1wfCardHtml(img2Url, img2Scale, img2X, img2Y) : null
-    const week1wfCard3Html = isWF1or2 ? week1wfCardHtml(img3Url, img3Scale, img3X, img3Y) : null
+    const week1wfCard1Html = isWeek1WF ? week1wfCardHtml(img1Url, img1Scale, img1X, img1Y) : null
+    const week1wfCard2Html = isWeek1WF ? week1wfCardHtml(img2Url, img2Scale, img2X, img2Y) : null
+    const week1wfCard3Html = isWeek1WF ? week1wfCardHtml(img3Url, img3Scale, img3X, img3Y) : null
 
     const w8v2ButtonHtml  = isWeek8v2 ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
@@ -3284,13 +3302,13 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     const cardBtnThunk = () => isWF1or2 && week1wfCardBtnHtml
       ? renderImage({ html: week1wfCardBtnHtml, width: 400, height: 76, transparent: true })
       : Promise.resolve(null)
-    const card1Thunk = () => isWF1or2 && week1wfCard1Html
+    const card1Thunk = () => isWeek1WF && week1wfCard1Html
       ? renderImage({ html: week1wfCard1Html, width: 600, height: 320, transparent: false })
       : Promise.resolve(null)
-    const card2Thunk = () => isWF1or2 && week1wfCard2Html
+    const card2Thunk = () => isWeek1WF && week1wfCard2Html
       ? renderImage({ html: week1wfCard2Html, width: 600, height: 320, transparent: false })
       : Promise.resolve(null)
-    const card3Thunk = () => isWF1or2 && week1wfCard3Html
+    const card3Thunk = () => isWeek1WF && week1wfCard3Html
       ? renderImage({ html: week1wfCard3Html, width: 600, height: 320, transparent: false })
       : Promise.resolve(null)
 
