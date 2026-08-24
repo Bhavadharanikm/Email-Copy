@@ -1883,17 +1883,21 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
        <td>s would stay two columns on a phone there and squeeze to nothing.
        The MSO conditional gives Outlook a real table, since it ignores
        inline-block. */
-    /* 504px card - 2px border - 28px padding = 474px of usable width, so the
-       pair must total less than that or it wraps when it should not. */
-    const COL = 228
-    const textCol_ = `<div style="display:inline-block;width:100%;max-width:${COL}px;vertical-align:top;">
-        <div style="padding:6px 10px 6px 4px;">
+    /* 504px card - 2px border - 28px padding = 474px of usable width. The two
+       columns total exactly that, so the photo reaches the card's padding on
+       the right and the inset is an even 14px all round. Fixed pixels rather
+       than percentages on purpose: percentages would never wrap, so the pair
+       would squeeze into two thin columns on a phone instead of stacking. */
+    const TEXT_COL = 228
+    const IMG_COL  = 246
+    const textCol_ = `<div class="w2wf-col" style="display:inline-block;width:100%;max-width:${TEXT_COL}px;vertical-align:top;">
+        <div style="padding:0 14px 14px 0;">
           ${moment.label ? `<div style="font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:${secondary};line-height:1.35;">${moment.label}</div>` : ''}
           ${moment.momentCopy ? `<div class="mobile-body" style="font-family:Arial,sans-serif;font-size:15px;color:${textCol};line-height:1.65;margin-top:10px;">${moment.momentCopy}</div>` : ''}
         </div>
       </div>`
-    const imgCol = `<div style="display:inline-block;width:100%;max-width:${COL}px;vertical-align:top;">
-        <div style="line-height:0;font-size:0;padding:4px;">
+    const imgCol = `<div class="w2wf-col" style="display:inline-block;width:100%;max-width:${IMG_COL}px;vertical-align:top;">
+        <div style="line-height:0;font-size:0;">
           ${img
             ? `<div style="position:relative;width:100%;height:230px;overflow:hidden;border-radius:12px;border:1px solid ${cardBorder};"><img src="${img}" alt="${moment.label||''}" style="position:absolute;top:0;left:0;width:100%;height:230px;object-fit:cover;display:block;transform:${momentTf[i]};transform-origin:center center;"/></div>`
             : `<div style="width:100%;height:230px;background:${pillBg};border-radius:12px;border:1px solid ${cardBorder};"></div>`}
@@ -1930,6 +1934,10 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
     .w2wf-btn-img  { width:100%!important; max-width:100%!important; }
     .w2wf-cta      { padding:18px 36px!important; }
     .w2wf-cardbox  { padding:14px!important; }
+    /* Once the columns have wrapped, each should span the card so the photo
+       keeps its even 14px inset. Gmail strips this block, but there the card
+       stays 504px wide and the columns never wrap, so the inset holds anyway. */
+    .w2wf-col      { max-width:100%!important; }
   }
 </style></head>
 <body style="margin:0;padding:32px 0 48px;background-color:#ffffff;">
