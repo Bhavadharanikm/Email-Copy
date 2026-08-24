@@ -10,7 +10,7 @@
  * its own CTA wording and its own link.
  */
 
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { IconArrowLeft, IconCheck, IconPlus, IconTrash } from '@tabler/icons-react'
 import { useWelcomeFlowStore } from '../store/welcomeFlowStore'
@@ -21,7 +21,33 @@ import { useWfTheme, WfCard, WfButton, WfStepNav } from '../components/wfUi'
    sit between the two groups, which is where they appear in the email. */
 
 
-const MULTILINE = new Set(['bodyText', 'bodyBlock2', 'closingLine', 'momentCopy', 'quote'])
+const MULTILINE = new Set(['bodyText', 'bodyBlock2', 'closingLine', 'momentCopy', 'quote', 'attribution', 'description'])
+
+/**
+ * A textarea that grows to whatever it holds, so nothing scrolls inside a box
+ * three columns wide. Height is reset to auto before it is read, otherwise
+ * scrollHeight only ever reports the taller of old and new and the field can
+ * grow but never shrink.
+ */
+function AutoTextarea({ value, onChange, onBlur, style }) {
+  const ref = useRef(null)
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!el) return
+    el.style.height = 'auto'
+    el.style.height = `${el.scrollHeight}px`
+  }, [value])
+  return (
+    <textarea
+      ref={ref}
+      value={value || ''}
+      onChange={onChange}
+      onBlur={onBlur}
+      rows={1}
+      style={{ ...style, resize: 'none', overflow: 'hidden' }}
+    />
+  )
+}
 
 /* Facts stay identical across variations; only the description shifts with POV. */
 
@@ -184,8 +210,8 @@ export default function WFCopy() {
   /** One input, for one variation. */
   const oneInput = (key, value, onChange) =>
     isMultiline(key)
-      ? <textarea value={value || ''} onChange={(e) => onChange(e.target.value)} onBlur={() => persist()}
-          rows={key === 'bodyText' ? 4 : 2} style={{ ...inputStyle, resize: 'vertical' }} />
+      ? <AutoTextarea value={value} onChange={(e) => onChange(e.target.value)}
+          onBlur={() => persist()} style={inputStyle} />
       : <input value={value || ''} onChange={(e) => onChange(e.target.value)} onBlur={() => persist()}
           style={inputStyle} />
 
