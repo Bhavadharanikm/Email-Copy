@@ -1924,11 +1924,17 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
     const x2 = leftToRight ? 426 : 78
     const c1 = leftToRight ? 210 : 294
     const c2 = leftToRight ? 294 : 210
+    /* The curve's last control point shares the end's y, so the tangent there is
+       horizontal — the arrowhead only has to point along x, no rotation needed.
+       It is drawn a little short of the tip so the dashes do not run through it. */
+    const dir  = leftToRight ? 1 : -1
+    const tipX = x2 + 7 * dir
+    const back = x2 - 8 * dir
     return `<div style="line-height:0;font-size:0;text-align:center;padding:2px 0 6px;">
       <svg width="504" height="86" viewBox="0 0 504 86" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;max-width:504px;height:auto;margin:0 auto;">
-        <path d="M${x1},6 C${c1},6 ${c2},80 ${x2},80" fill="none" stroke="${secondary}" stroke-width="2" stroke-linecap="round" stroke-dasharray="2 7" opacity="0.75"/>
-        <circle cx="${x1}" cy="6"  r="4.5" fill="${secondary}"/>
-        <circle cx="${x2}" cy="80" r="4.5" fill="${secondary}"/>
+        <path d="M${x1},6 C${c1},6 ${c2},76 ${x2 - 10 * dir},76" fill="none" stroke="${secondary}" stroke-width="2" stroke-linecap="round" stroke-dasharray="2 7" opacity="0.75"/>
+        <circle cx="${x1}" cy="6" r="4.5" fill="${secondary}"/>
+        <polygon points="${tipX},76 ${back},69 ${back},83" fill="${secondary}"/>
       </svg>
     </div>`
   }
