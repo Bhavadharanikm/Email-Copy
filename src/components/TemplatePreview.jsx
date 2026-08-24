@@ -2049,7 +2049,9 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
   const gridImgs = [1,2,3,4].map(i => images?.[i]?.url || '')
 
   const setup   = (copy.bodyText || '').replace(/\n/g, '<br>')
-  const closing = (copy.closingLine || '').replace(/\n/g, '<br>')
+  const closing    = (copy.closingLine || '').replace(/\n/g, '<br>')
+  const bodyBlock2 = (copy.bodyBlock2  || '').replace(/\n/g, '<br>')
+  const footerLine = (copy.footerLine  || '').replace(/\n/g, '<br>')
   const logoUrl = client?.logoUrl || ''
 
   const pageBg    = footerData?.bgColor || '#ffffff'
@@ -2087,7 +2089,7 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
      email's one CTA. */
   const heroCta = copy.heroCtaText || copy.ctaText || ''
 
-  const reviews = Array.isArray(copy.reviews) ? copy.reviews.filter(r => r && (r.quote || r.attribution)) : []
+  const reviews = Array.isArray(copy.reviews) ? copy.reviews.filter(r => r && (r.quote || r.attribution || r.guestFirstName)) : []
 
   /* The section names itself when the copy does not. */
   const sectionLabel = copy.sectionEyebrow  || 'Testimonials'
@@ -2105,19 +2107,28 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
      via Airbnb". The initial and the platform are read off it rather than asking
      the workflow for separate fields, so nothing upstream has to change. */
   const initialOf = (s) => (String(s || '').trim().match(/[A-Za-z]/) || ['?'])[0].toUpperCase()
-  const platformOf = (s) => {
-    const m = String(s || '').match(/\bvia\s+([A-Za-z][A-Za-z .&'-]*)$/)
+  /* A review arrives either as one attribution line — "Megan, Deluxe Dome stay,
+     March 2026, via Airbnb" — or as its parts. Handle both: split the line where
+     it is one, join the parts where they are separate. */
+  const platformOf = (r) => {
+    if (r.platform) return String(r.platform).trim()
+    const m = String(r.attribution || '').match(/\bvia\s+([A-Za-z][A-Za-z .&'-]*)$/)
     return m ? m[1].trim() : ''
   }
-  const bylineOf = (s) => String(s || '').replace(/,?\s*\bvia\s+[A-Za-z][A-Za-z .&'-]*$/, '').replace(/^[—–-]\s*/, '').trim()
+  const bylineOf = (r) => {
+    const parts = [r.guestFirstName, r.stayType, r.monthYear].map(x => String(x || '').trim()).filter(Boolean)
+    if (parts.length) return parts.join(', ')
+    return String(r.attribution || '')
+      .replace(/,?\s*\bvia\s+[A-Za-z][A-Za-z .&'-]*$/, '').replace(/^[—–-]\s*/, '').trim()
+  }
 
   const reviewBlock = (review) => {
-    const byline   = bylineOf(review.attribution)
-    const platform = platformOf(review.attribution)
+    const byline   = bylineOf(review)
+    const platform = platformOf(review)
     return `<div class="w3wf-cardbox" style="background-color:${cardTint};border:1px solid ${cardBorder};border-radius:16px;padding:18px;margin-bottom:14px;">
       ${stars}
       ${review.quote ? `<div class="mobile-body" style="font-family:Arial,sans-serif;font-size:15px;color:${textCol};line-height:1.65;margin-top:12px;">&ldquo;${review.quote}&rdquo;</div>` : ''}
-      ${review.attribution ? `<table cellpadding="0" cellspacing="0" border="0" style="margin-top:16px;border-collapse:collapse;">
+      ${byline ? `<table cellpadding="0" cellspacing="0" border="0" style="margin-top:16px;border-collapse:collapse;">
         <tr>
           <td width="38" valign="top" style="width:38px;padding-right:10px;">
             <table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;"><tr>
@@ -2218,8 +2229,14 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
     </div>
   </div>` : ''}
 
-  <!-- CLOSING LINE — the code reminder — then the single CTA -->
-  ${closing ? `<div class="w3wf-section" style="padding:14px 48px 0;background-color:${pageBg};">
+  <!-- BODY BLOCK — a title and the paragraph that follows the reviews -->
+  ${(copy.bodyBlock2Title || bodyBlock2) ? `<div class="w3wf-section" style="padding:26px 48px 0;background-color:${pageBg};">
+    ${copy.bodyBlock2Title ? `<div style="font-family:Arial,sans-serif;font-size:20px;font-weight:700;color:${secondary};line-height:1.35;">${copy.bodyBlock2Title}</div>` : ''}
+    ${bodyBlock2 ? `<div class="mobile-body" style="font-family:Arial,sans-serif;font-size:15px;color:${textCol};line-height:1.7;margin-top:10px;">${bodyBlock2}</div>` : ''}
+  </div>` : ''}
+
+  <!-- CLOSING LINE, then the single CTA, then the code reminder -->
+  ${closing ? `<div class="w3wf-section" style="padding:16px 48px 0;background-color:${pageBg};">
     <div class="mobile-body" style="font-family:Arial,sans-serif;font-size:15px;color:${mutedTextCol};line-height:1.7;">${closing}</div>
   </div>` : ''}
 
@@ -2227,6 +2244,10 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
     ${btnImgUrl
       ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w3wf-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="600" height="88" style="width:100%;max-width:600px;height:auto;display:block;margin:0 auto;border:0;outline:none;"/></a>`
       : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;width:100%;max-width:600px;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w3wf-cta mobile-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:18px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;text-align:center;">${copy.ctaText} &rarr;</a></td></tr></table>`}
+  </div>` : ''}
+
+  ${footerLine ? `<div class="w3wf-section" style="padding:0 48px 30px;background-color:${pageBg};text-align:center;">
+    <div style="font-family:Arial,sans-serif;font-size:13px;color:${faintTextCol};line-height:1.6;">${footerLine}</div>
   </div>` : ''}
 
   <div style="background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary })}</div>

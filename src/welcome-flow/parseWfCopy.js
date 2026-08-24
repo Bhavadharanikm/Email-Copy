@@ -272,7 +272,8 @@ const snakeToCamel = (k) => k.replace(/[_\s]+(\w)/g, (_, c) => c.toUpperCase())
    the intro copy — so `bodyBlock` means the nudge body only when an intro field
    arrives alongside it. Keyed on presence, not on value, because the workflow
    can legitimately send an empty intro. */
-const INTRO_BODY_KEYS = ['introbodyblock', 'introbody', 'intro_body', 'intro_body_block']
+const INTRO_BODY_KEYS = ['introbodyblock', 'introbody', 'intro_body', 'intro_body_block',
+                         'setupline', 'setup_line', 'setup']
 const BODY_BLOCK_KEYS = ['bodyblock', 'body_block']
 
 /** Pull the first ```json fenced block, or the first bare [ … ] / { … }. */
@@ -296,10 +297,17 @@ function findJsonPayload(text) {
 /* A review is {quote, attribution} however the workflow spells it. */
 function mapReview(raw) {
   const out = {}
+  const put = (key, v) => { const t = String(v ?? '').trim(); if (t) out[key] = t }
   for (const [k, v] of Object.entries(raw || {})) {
     const lk = k.toLowerCase().replace(/[_\s]/g, '')
-    if (lk === 'quote' || lk === 'text' || lk === 'body' || lk === 'review') out.quote = String(v ?? '').trim()
-    if (lk === 'attribution' || lk === 'attrib' || lk === 'byline' || lk === 'source' || lk === 'guest') out.attribution = String(v ?? '').trim()
+    if (lk === 'quote' || lk === 'text' || lk === 'body' || lk === 'review') put('quote', v)
+    else if (lk === 'attribution' || lk === 'attrib' || lk === 'byline' || lk === 'source') put('attribution', v)
+    /* The parts of the byline, sent separately. Kept as parts so the editor can
+       show them individually and the template can assemble the line itself. */
+    else if (lk === 'guestfirstname' || lk === 'guestname' || lk === 'firstname' || lk === 'guest') put('guestFirstName', v)
+    else if (lk === 'staytype' || lk === 'stay' || lk === 'property' || lk === 'propertyname') put('stayType', v)
+    else if (lk === 'monthyear' || lk === 'date' || lk === 'stayed') put('monthYear', v)
+    else if (lk === 'platform' || lk === 'via' || lk === 'channel') put('platform', v)
   }
   return out
 }
@@ -325,16 +333,22 @@ function mapCard(raw) {
   return card
 }
 
+const SECTION_HEAD_KEYS = ['heroheadline', 'hero_headline']
+
 function mapVariation(raw, i) {
   const out = {}
   let cards = []
   let moments = []
   let reviews = []
   const hasIntroBody = Object.keys(raw || {}).some(k => INTRO_BODY_KEYS.includes(k.toLowerCase()))
+  /* Some workflows send `heroHeadline` for the photo and a separate `headline`
+     for the section beneath it. Where both arrive, the plain one is the section
+     heading; where only `headline` comes, it is still the hero's. */
+  const hasHeroHead  = Object.keys(raw || {}).some(k => SECTION_HEAD_KEYS.includes(k.toLowerCase()))
   for (const [k, v] of Object.entries(raw || {})) {
     const lk = k.toLowerCase()
     if (lk === 'reviews' || lk === 'review_blocks' || lk === 'reviewblocks' || lk === 'testimonials') {
-      reviews = (Array.isArray(v) ? v : []).map(mapReview).filter(r => r.quote)
+      reviews = (Array.isArray(v) ? v : []).map(mapReview).filter(r => r.quote || r.attribution || r.guestFirstName)
       continue
     }
     if (lk === 'moments' || lk === 'itinerary') {
@@ -347,7 +361,9 @@ function mapVariation(raw, i) {
     }
     if (lk === 'variation' || lk === 'variationnumber' || lk === 'id') continue   // handled below
     const key = (hasIntroBody && BODY_BLOCK_KEYS.includes(lk))
-      ? 'bodyBlock2'                              // the nudge body, not the intro
+      ? 'bodyBlock2'                              // the closing block, not the intro
+      : (hasHeroHead && lk === 'headline')
+      ? 'sectionHeadline'                         // the hero already has its own
       : (JSON_KEY_MAP[lk] || snakeToCamel(k))
     if (v != null && typeof v !== 'object') out[key] = String(v).trim()
   }

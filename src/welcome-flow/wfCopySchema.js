@@ -112,10 +112,11 @@ const WEEK2 = {
 const WEEK3 = {
   week: 3,
   before: [
-    { key: 'subjectLine',  label: 'Subject Line', hint: 'One sentence. Names the guest or the moment' },
-    { key: 'previewText',  label: 'Preview Text', hint: 'A short fragment, verbatim from one of the reviews' },
-    { key: 'headlineText', label: 'Headline',     hint: '4–7 words. Must make sense on its own' },
-    { key: 'bodyText',     label: 'Setup Line',   hint: 'One line. Hands over to the guests instead of selling' },
+    { key: 'subjectLine',     label: 'Subject Line',     hint: 'One sentence. Names the guest or the moment' },
+    { key: 'previewText',     label: 'Preview Text',     hint: 'A short fragment, verbatim from one of the reviews' },
+    { key: 'headlineText',    label: 'Hero Headline',    hint: 'On the hero photo. 4–7 words, makes sense on its own' },
+    { key: 'sectionHeadline', label: 'Section Headline', hint: 'Heading above the reviews. Blank reads "Hear From Our Guests"' },
+    { key: 'bodyText',        label: 'Setup Line',       hint: 'One line under that heading. Hands over to the guests instead of selling' },
   ],
   group: {
     mode:      'dynamic',
@@ -127,19 +128,22 @@ const WEEK3 = {
     /* Capped at 3: each review takes one sub-image slot, and the picker offers
        Sub 1-3 for this template. */
     max:       3,
-    blank:     { quote: '', attribution: '' },
+    blank:     { quote: '', guestFirstName: '', stayType: '', monthYear: '', platform: '' },
     fields: [
-      { key: 'quote',       label: 'Quote',       hint: 'The guest\u2019s own words. Trim with an ellipsis if long, never reword' },
-      { key: 'attribution', label: 'Attribution', hint: 'Name, which stay, month and year, and where the review came from' },
+      { key: 'quote',          label: 'Quote',           hint: 'The guest\u2019s own words. Trim with an ellipsis if long, never reword' },
+      { key: 'guestFirstName', label: 'Guest First Name', hint: 'First name only' },
+      { key: 'stayType',       label: 'Stay',            hint: 'Which stay they booked, e.g. Deluxe Dome' },
+      { key: 'monthYear',      label: 'Month & Year',    hint: 'e.g. July 2026' },
+      { key: 'platform',       label: 'Platform',        hint: 'Where the review came from, e.g. Airbnb. Blank hides it' },
     ],
   },
   after: [
-    { key: 'amenitiesEyebrow',  label: 'Amenities Eyebrow',  hint: 'Small label above the photo grid. Blank reads "Amenities"' },
-    { key: 'amenitiesHeadline', label: 'Amenities Headline', hint: 'Blank reads "Enjoy property amenities"' },
-    { key: 'amenitiesSubhead',  label: 'Amenities Subhead',  hint: 'One line under the amenities heading' },
-    { key: 'ctaText',     label: 'CTA Button',   hint: '2–4 words. One button for the whole email' },
-    { key: 'ctaUrl',      label: 'CTA URL',      hint: 'Full URL with https://' },
-    { key: 'closingLine', label: 'Closing Line', hint: 'The code reminder — what it is worth and where to book' },
+    { key: 'bodyBlock2Title', label: 'Body Block Title', hint: 'One line above the closing paragraph' },
+    { key: 'bodyBlock2',      label: 'Body Block',       hint: 'The paragraph after the reviews, before the closing line' },
+    { key: 'closingLine',     label: 'Closing Line',     hint: '1–2 sentences. Warm but direct' },
+    { key: 'ctaText',         label: 'CTA Button',       hint: '2–4 words. One button for the whole email' },
+    { key: 'ctaUrl',          label: 'CTA URL',          hint: 'Full URL with https://' },
+    { key: 'footerLine',      label: 'Footer Line',      hint: 'The code reminder — what it is worth and where to book' },
   ],
 }
 
