@@ -132,7 +132,7 @@ export default function WFPreview() {
         </p>
       </div>
 
-      {ready ? <TemplatePreview welcomeFlow /> : (
+      {ready ? <TemplatePreview welcomeFlow templateId={email.templateId || null} /> : (
         <WfCard style={{ padding: 40, textAlign: 'center' }}>
           <div style={{ fontSize: 13, color: t.muted }}>Loading the template…</div>
         </WfCard>

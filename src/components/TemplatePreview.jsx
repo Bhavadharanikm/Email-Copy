@@ -2052,7 +2052,7 @@ const POOJA_NAME = 'Pooja'
  * the weekly ones. Everything else — Puppeteer generation, the edit controls,
  * zoom, mobile view — is shared, so both workflows behave identically.
  */
-export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = false }) {
+export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = false, templateId = null }) {
   const [active, setActive]         = useState(0)
   const [zoom,   setZoom]           = useState(1)
   const [mobileView, setMobileView] = useState(false)
@@ -2063,6 +2063,15 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
   const visibleTemplates = welcomeFlow
     ? TEMPLATES.filter(t => t.welcomeFlowOnly)
     : TEMPLATES.filter(t => !t.welcomeFlowOnly && (!t.adminOnly || isAdmin))
+
+  /* Welcome Flow fixes the template when the week is picked on the brief, so
+     open on that one rather than on whatever happens to be first. Without this
+     the picker always starts at index 0 — Week 1 WF — even for a Week 2 email. */
+  useEffect(() => {
+    if (!templateId) return
+    const i = visibleTemplates.findIndex(t => t.id === templateId)
+    if (i >= 0) setActive(i)
+  }, [templateId])
 
   // Send-test-email state (admin only)
   const [sendingTest, setSendingTest] = useState(false)
