@@ -2038,17 +2038,19 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
    Starts as an exact duplicate of Week 1 WF (id 31). Its own function from
    the outset so the guest-reviews design can diverge without touching Week 1.
    Verified byte-identical output to Week 1 WF at the time of cloning.      */
-function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerated = false,
+function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerated = false, isStoryGenerated = false,
   heroScale=1, heroX=0, heroY=0,
   textSize=44, textTop=34, textLeft=52,
   logoColor='original', logoTop=64, logoRight=200, logoSize=44,
   btnImgUrl = null, introBtnImgUrl = null,
 }) {
   const heroObj = images?.[0]; const heroImg = heroObj?.url || ''
-  /* Sub 1-3 pair with the reviews, one photo each; Sub 4-7 fill the amenities
-     grid below them. */
+  /* Sub 1-3 pair with the reviews, one photo each; Sub 4 and 5 are the two
+     overlapping circles below them — the same pair Week 1 uses, and the same
+     six slots the picker offers. */
   const reviewImgs = [1,2,3].map(i => images?.[i]?.url || '')
-  const gridImgs   = [4,5,6,7].map(i => images?.[i]?.url || '')
+  const storyA = images?.[4]?.url || ''
+  const storyB = images?.[5]?.url || ''
 
   const setup   = (copy.bodyText || '').replace(/\n/g, '<br>')
   const closing    = (copy.closingLine || '').replace(/\n/g, '<br>')
@@ -2110,7 +2112,7 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
      An explicit Amenities Headline still wins if one is set. */
   const amenHead     = copy.amenitiesHeadline || copy.bodyBlock2Title || 'Enjoy property amenities'
   const amenSubhead  = copy.amenitiesSubhead  || 'Make yourself at home and enjoy our amenities'
-  const hasGrid      = gridImgs.some(Boolean)
+  const hasStory     = !!(storyA || storyB)
 
   /* Five gold stars, drawn as text rather than images: no download, no blocked
      image, and it survives a client that strips background colours. */
@@ -2271,10 +2273,10 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
     ${reviews.map(reviewBlock).join('')}
   </div>` : ''}
 
-  <!-- AMENITIES — chip, heading, subhead, then a 2x2 photo grid. A real table
-       rather than inline-blocks: these are photos, so halving their width on a
-       phone reads fine, and Outlook handles a table correctly. -->
-  ${hasGrid ? `<div class="w3wf-section" style="padding:30px 48px 0;text-align:center;background-color:${pageBg};">
+  <!-- The two overlapping circles, same as Week 1. They overlap, which needs
+       absolute positioning, so once Generate Images has run they arrive as one
+       flat PNG at slot 4. The CSS version below is the on-screen preview. -->
+  ${hasStory ? `<div class="w3wf-section" style="padding:30px 48px 0;text-align:center;background-color:${pageBg};">
     <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${pillBg};border-radius:999px;padding:6px 14px;">
       <span style="font-family:Arial,sans-serif;font-size:12px;line-height:12px;font-weight:600;color:${mutedTextCol};letter-spacing:.02em;">${amenEyebrow}</span>
     </td></tr></table>
@@ -2282,16 +2284,14 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
     ${amenSubhead ? `<div class="mobile-body" style="font-family:Arial,sans-serif;font-size:15px;color:${mutedTextCol};line-height:1.6;margin-top:10px;">${amenSubhead}</div>` : ''}
   </div>
 
-  <div class="w3wf-section" style="padding:16px 48px 0;background-color:${pageBg};">
-    <div style="background-color:${cardTint};border:1px solid ${cardBorder};border-radius:16px;padding:8px;">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
-        ${[0, 2].map(row => `<tr>${[0, 1].map(col => {
-          const g = gridImgs[row + col]
-          return `<td width="50%" valign="top" style="width:50%;padding:6px;line-height:0;font-size:0;">${g
-            ? `<img src="${g}" alt="" style="width:100%;height:230px;object-fit:cover;display:block;border-radius:12px;border:0;outline:none;"/>`
-            : `<div style="width:100%;height:230px;background:${pillBg};border-radius:12px;"></div>`}</td>`
-        }).join('')}</tr>`).join('')}
-      </table>
+  <div style="background-color:${pageBg};padding:22px 0 8px;">
+    <div style="line-height:0;font-size:0;text-align:center;">
+      ${isStoryGenerated
+        ? `<img src="${storyA}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;margin:0 auto;border:0;outline:none;"/>`
+        : `<div style="position:relative;width:100%;max-width:600px;height:360px;margin:0 auto;">
+            ${storyB ? `<div style="position:absolute;left:60px;top:150px;width:200px;height:200px;border-radius:50%;overflow:hidden;border:6px solid ${pageBg};"><img src="${storyB}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;"/></div>` : ''}
+            ${storyA ? `<div style="position:absolute;left:220px;top:20px;width:320px;height:320px;border-radius:50%;overflow:hidden;border:6px solid ${pageBg};"><img src="${storyA}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;"/></div>` : ''}
+          </div>`}
     </div>
   </div>` : ''}
 
