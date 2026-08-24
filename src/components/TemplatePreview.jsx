@@ -2142,27 +2142,31 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
    * to stacked instead. Outlook ignores inline-block, so it gets a real table
    * through the MSO conditional.
    */
-  const COL = 246
+  /* The row breaks out of the section's right padding so the photo sits almost
+     on the email's edge. 600 - 48 left = 552 of usable width; text 300 + photo
+     246 = 546 leaves a 6px sliver of card showing past the photo. */
+  const TEXT_COL  = 300
+  const PHOTO_COL = 246
   const reviewBlock = (review, i) => {
     const byline   = bylineOf(review)
     const platform = platformOf(review)
     const img      = reviewImgs[i] || ''
     const photoLeft = i % 2 === 1          // rows 2 and 4 lead with the photo
 
-    const textCell = `<div class="w3wf-col" style="display:inline-block;width:100%;max-width:${COL}px;vertical-align:top;">
-      <div style="background-color:${cardTint};border:1px solid ${cardBorder};border-radius:14px;padding:20px 18px;">
+    const textCell = `<div class="w3wf-col" style="display:inline-block;width:100%;max-width:${TEXT_COL}px;vertical-align:top;">
+      <div style="background-color:${cardTint};border:1px solid ${cardBorder};padding:28px 26px;">
         ${stars}
-        ${review.quote ? `<div class="mobile-body" style="font-family:'Lora',serif;font-size:15px;color:${textCol};line-height:1.6;margin-top:12px;">&ldquo;${review.quote}&rdquo;</div>` : ''}
-        ${byline ? `<div style="font-family:'Lora',serif;font-size:14px;font-style:italic;color:${secondary};line-height:1.4;margin-top:14px;">${byline}</div>` : ''}
+        ${review.quote ? `<div class="mobile-body" style="font-family:'Lora',serif;font-size:17px;color:${textCol};line-height:1.62;margin-top:14px;">&ldquo;${review.quote}&rdquo;</div>` : ''}
+        ${byline ? `<div style="font-family:'Lora',serif;font-size:15px;font-style:italic;color:${secondary};line-height:1.45;margin-top:16px;">${byline}</div>` : ''}
         ${platform ? `<div style="font-family:Arial,sans-serif;font-size:11.5px;color:${faintTextCol};line-height:1.4;margin-top:4px;">&#10003; Verified review &middot; ${platform}</div>` : ''}
       </div>
     </div>`
 
-    const photoCell = `<div class="w3wf-col" style="display:inline-block;width:100%;max-width:${COL}px;vertical-align:top;">
+    const photoCell = `<div class="w3wf-col" style="display:inline-block;width:100%;max-width:${PHOTO_COL}px;vertical-align:top;">
       <div style="line-height:0;font-size:0;">
         ${img
-          ? `<img src="${img}" alt="${byline}" style="width:100%;height:300px;object-fit:cover;display:block;border-radius:14px;border:0;outline:none;"/>`
-          : `<div style="width:100%;height:300px;background:${pillBg};border-radius:14px;"></div>`}
+          ? `<img src="${img}" alt="${byline}" style="width:100%;height:352px;object-fit:cover;display:block;border:0;outline:none;"/>`
+          : `<div style="width:100%;height:352px;background:${pillBg};"></div>`}
       </div>
     </div>`
 
@@ -2197,6 +2201,9 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
     /* Once the pair has wrapped, each half spans the section so the photo and
        the card keep their full width. */
     .w3wf-col      { max-width:100%!important; }
+    /* Stacked, both halves span the phone, so the row takes normal padding
+       back rather than running the photo off the right edge. */
+    .w3wf-revrow   { padding-left:24px!important; padding-right:24px!important; }
   }
 </style></head>
 <body style="margin:0;padding:32px 0 48px;background-color:#ffffff;">
@@ -2242,7 +2249,7 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
     ${setup ? `<div class="mobile-body" style="font-family:Arial,sans-serif;font-size:15px;color:${mutedTextCol};line-height:1.6;margin-top:10px;">${setup}</div>` : ''}
   </div>` : ''}
 
-  ${reviews.length ? `<div class="w3wf-section" style="padding:20px 48px 0;background-color:${pageBg};">
+  ${reviews.length ? `<div class="w3wf-revrow" style="padding:20px 0 0 48px;background-color:${pageBg};">
     ${reviews.map(reviewBlock).join('')}
   </div>` : ''}
 
