@@ -1922,19 +1922,15 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
     const leftToRight = i % 2 === 0
     const x1 = leftToRight ? 78 : 426
     const x2 = leftToRight ? 426 : 78
-    const c1 = leftToRight ? 210 : 294
-    const c2 = leftToRight ? 294 : 210
-    /* The curve's last control point shares the end's y, so the tangent there is
-       horizontal — the arrowhead only has to point along x, no rotation needed.
-       It is drawn a little short of the tip so the dashes do not run through it. */
-    const dir  = leftToRight ? 1 : -1
-    const tipX = x2 + 7 * dir
-    const back = x2 - 8 * dir
-    return `<div style="line-height:0;font-size:0;text-align:center;padding:2px 0 6px;">
-      <svg width="504" height="86" viewBox="0 0 504 86" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;max-width:504px;height:auto;margin:0 auto;">
-        <path d="M${x1},6 C${c1},6 ${c2},76 ${x2 - 10 * dir},76" fill="none" stroke="${secondary}" stroke-width="2" stroke-linecap="round" stroke-dasharray="2 7" opacity="0.75"/>
-        <circle cx="${x1}" cy="6" r="4.5" fill="${secondary}"/>
-        <polygon points="${tipX},76 ${back},69 ${back},83" fill="${secondary}"/>
+    /* The second control point sits directly above the end point, so the curve
+       arrives travelling straight down and the arrowhead points into the card
+       below rather than off to one side. */
+    const c1 = x1 + (x2 - x1) * 0.62
+    return `<div style="line-height:0;font-size:0;text-align:center;padding:2px 0 0;">
+      <svg width="504" height="88" viewBox="0 0 504 88" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;max-width:504px;height:auto;margin:0 auto;">
+        <path d="M${x1},8 C${c1},8 ${x2},34 ${x2},62" fill="none" stroke="${secondary}" stroke-width="2" stroke-linecap="round" stroke-dasharray="2 7" opacity="0.75"/>
+        <circle cx="${x1}" cy="8" r="4.5" fill="${secondary}"/>
+        <polygon points="${x2},82 ${x2 - 8},65 ${x2 + 8},65" fill="${secondary}"/>
       </svg>
     </div>`
   }
