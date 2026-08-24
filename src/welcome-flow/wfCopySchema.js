@@ -106,7 +106,41 @@ const WEEK2 = {
   ],
 }
 
-const SCHEMAS = { 1: WEEK1, 2: WEEK2 }
+/* Week 3 is social proof: a short setup, then guest reviews quoted verbatim,
+   then one CTA. Quotes are never rewritten, so the editor keeps them in their
+   own field with the attribution beside them. */
+const WEEK3 = {
+  week: 3,
+  before: [
+    { key: 'subjectLine',  label: 'Subject Line', hint: 'One sentence. Names the guest or the moment' },
+    { key: 'previewText',  label: 'Preview Text', hint: 'A short fragment, verbatim from one of the reviews' },
+    { key: 'headlineText', label: 'Headline',     hint: '4–7 words. Must make sense on its own' },
+    { key: 'bodyText',     label: 'Setup Line',   hint: 'One line. Hands over to the guests instead of selling' },
+  ],
+  group: {
+    mode:      'dynamic',
+    listKey:   'reviews',
+    title:     'Reviews',
+    note:      'Quoted verbatim — never tidied or shortened. How many is up to the client',
+    itemLabel: 'Review',
+    addLabel:  'Add review',
+    /* Capped at 3: each review takes one sub-image slot, and the picker offers
+       Sub 1-3 for this template. */
+    max:       3,
+    blank:     { quote: '', attribution: '' },
+    fields: [
+      { key: 'quote',       label: 'Quote',       hint: 'The guest\u2019s own words. Trim with an ellipsis if long, never reword' },
+      { key: 'attribution', label: 'Attribution', hint: 'Name, which stay, month and year, and where the review came from' },
+    ],
+  },
+  after: [
+    { key: 'ctaText',     label: 'CTA Button',   hint: '2–4 words. One button for the whole email' },
+    { key: 'ctaUrl',      label: 'CTA URL',      hint: 'Full URL with https://' },
+    { key: 'closingLine', label: 'Closing Line', hint: 'The code reminder — what it is worth and where to book' },
+  ],
+}
+
+const SCHEMAS = { 1: WEEK1, 2: WEEK2, 3: WEEK3 }
 
 /** Weeks with no schema of their own fall back to Week 1's shape. */
 export const wfCopySchema = (week) => SCHEMAS[Number(week)] || WEEK1

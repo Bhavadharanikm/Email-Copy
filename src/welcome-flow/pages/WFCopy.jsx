@@ -21,7 +21,7 @@ import { useWfTheme, WfCard, WfButton, WfStepNav } from '../components/wfUi'
    sit between the two groups, which is where they appear in the email. */
 
 
-const MULTILINE = new Set(['bodyText', 'bodyBlock2', 'closingLine', 'momentCopy'])
+const MULTILINE = new Set(['bodyText', 'bodyBlock2', 'closingLine', 'momentCopy', 'quote'])
 
 /* Facts stay identical across variations; only the description shifts with POV. */
 

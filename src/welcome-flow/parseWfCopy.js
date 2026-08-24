@@ -35,6 +35,12 @@ const FIELD_MAP = {
   'headline':              'headlineText',
   'intro line':            'bodyText',
   'cta button':            'ctaText',
+  // Week 3 (guest reviews)
+  'setup':                 'bodyText',
+  'setup line':            'bodyText',
+  'setup (one line)':      'bodyText',
+  'subject':               'subjectLine',
+  'preview':               'previewText',
 }
 
 /* Week 2's five itinerary slots. The workflow writes them as `**Day One,
@@ -229,6 +235,11 @@ const JSON_KEY_MAP = {
   intro_line:       'bodyText',
   ctabutton:        'ctaText',      // Week 2's name for the bottom CTA
   cta_button:       'ctaText',
+  setup:            'bodyText',     // Week 3's name for the line above the reviews
+  setupline:        'bodyText',
+  setup_line:       'bodyText',
+  subject:          'subjectLine',
+  preview:          'previewText',
   finalcta:         'ctaText',      // the workflow's name for the bottom CTA
   finalctaurl:      'ctaUrl',
 }
@@ -282,6 +293,17 @@ function findJsonPayload(text) {
   return null
 }
 
+/* A review is {quote, attribution} however the workflow spells it. */
+function mapReview(raw) {
+  const out = {}
+  for (const [k, v] of Object.entries(raw || {})) {
+    const lk = k.toLowerCase().replace(/[_\s]/g, '')
+    if (lk === 'quote' || lk === 'text' || lk === 'body' || lk === 'review') out.quote = String(v ?? '').trim()
+    if (lk === 'attribution' || lk === 'attrib' || lk === 'byline' || lk === 'source' || lk === 'guest') out.attribution = String(v ?? '').trim()
+  }
+  return out
+}
+
 /* A moment is {imageCue, momentCopy} however the workflow spells it. */
 function mapMoment(raw) {
   const out = {}
@@ -307,9 +329,14 @@ function mapVariation(raw, i) {
   const out = {}
   let cards = []
   let moments = []
+  let reviews = []
   const hasIntroBody = Object.keys(raw || {}).some(k => INTRO_BODY_KEYS.includes(k.toLowerCase()))
   for (const [k, v] of Object.entries(raw || {})) {
     const lk = k.toLowerCase()
+    if (lk === 'reviews' || lk === 'review_blocks' || lk === 'reviewblocks' || lk === 'testimonials') {
+      reviews = (Array.isArray(v) ? v : []).map(mapReview).filter(r => r.quote)
+      continue
+    }
     if (lk === 'moments' || lk === 'itinerary') {
       moments = (Array.isArray(v) ? v : []).map(mapMoment).filter(m => m.imageCue || m.momentCopy)
       continue
@@ -332,6 +359,7 @@ function mapVariation(raw, i) {
     introCtaText: out.introCtaText || out.ctaText || '',
     ...(cards.length ? { propertyCards: cards } : {}),
     ...(moments.length ? { moments } : {}),
+    ...(reviews.length ? { reviews } : {}),
   }
 }
 
