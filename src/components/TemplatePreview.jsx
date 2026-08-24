@@ -2066,8 +2066,15 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
   const dark = theme === 'dark'
   const { user } = useAuth()
   const isAdmin = user?.name === POOJA_NAME
+  /* A welcome-flow email's template is decided by the week picked on the brief,
+     so show that one and nothing else — offering the others would only let
+     someone render a Week 2 email with Week 1's template and push it. If the
+     week has no template yet, fall back to the whole welcome-flow set rather
+     than showing an empty picker. */
+  const wfTemplates = TEMPLATES.filter(t => t.welcomeFlowOnly)
+  const wfForWeek   = templateId ? wfTemplates.filter(t => t.id === templateId) : []
   const visibleTemplates = welcomeFlow
-    ? TEMPLATES.filter(t => t.welcomeFlowOnly)
+    ? (wfForWeek.length ? wfForWeek : wfTemplates)
     : TEMPLATES.filter(t => !t.welcomeFlowOnly && (!t.adminOnly || isAdmin))
 
   /* Welcome Flow fixes the template when the week is picked on the brief, so
@@ -3437,8 +3444,8 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 14, maxWidth: 860, margin: '0 auto' }}>
 
-      {/* Template switcher */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+      {/* Template switcher — hidden when there is nothing to switch between */}
+      <div style={{ display: visibleTemplates.length > 1 ? 'flex' : 'none', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
         <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: dark ? 'rgba(255,255,255,0.28)' : '#a0a6b1', marginRight: 4 }}>
           Layout:
         </span>
