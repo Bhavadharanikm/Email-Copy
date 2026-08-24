@@ -31,7 +31,23 @@ const FIELD_MAP = {
   'closing nudge':         'bodyBlock2',
   'closing line':          'closingLine',
   'cta':                   'ctaText',
+  // Week 2 (the 48-hour itinerary) names some fields differently
+  'headline':              'headlineText',
+  'intro line':            'bodyText',
+  'cta button':            'ctaText',
 }
+
+/* Week 2's five itinerary slots. The workflow writes them as `**Day One,
+   Afternoon**` blocks holding `Image Cue:` and `Moment Copy:` lines, so they
+   are parsed like property cards rather than as flat fields. */
+const MOMENT_LABELS = [
+  'day one, afternoon',
+  'day one, evening',
+  'day two, morning',
+  'day two, afternoon',
+  'day two, evening',
+]
+const MOMENT_FIELD_MAP = { 'image cue': 'imageCue', 'moment copy': 'momentCopy' }
 
 const CARD_MAP = {
   'card name':        'name',
@@ -82,6 +98,35 @@ function parseCards(body) {
   return cards
 }
 
+/* The itinerary slots, written as
+     **Day One, Afternoon**
+     Image Cue: ...
+     Moment Copy: ...
+   Kept in the order MOMENT_LABELS defines, not the order they appear, so a
+   workflow that emits them out of sequence still reads correctly. */
+function parseMoments(body) {
+  const found = new Map()
+  const lines = body.split('\n')
+  let slot = null
+  for (const line of lines) {
+    const head = line.match(/^\*\*(.+?):?\*\*\s*$/)
+    if (head) {
+      const label = clean(head[1]).toLowerCase().replace(/:$/, '')
+      slot = MOMENT_LABELS.indexOf(label)
+      if (slot !== -1 && !found.has(slot)) found.set(slot, {})
+      continue
+    }
+    if (slot === -1 || slot === null) continue
+    const kv = line.match(/^\s*(?:[-*]\s*)?\*?\*?([A-Za-z ]+?)\*?\*?\s*:\s*(.+)$/)
+    if (!kv) continue
+    const key = MOMENT_FIELD_MAP[clean(kv[1]).toLowerCase()]
+    if (key) found.get(slot)[key] = clean(kv[2])
+  }
+  if (!found.size) return []
+  const highest = Math.max(...found.keys())
+  return Array.from({ length: highest + 1 }, (_, i) => found.get(i) || { imageCue: '', momentCopy: '' })
+}
+
 /** Fields are `**Label**` on one line, value on the following line(s). */
 function parseFields(body) {
   const out = {}
@@ -103,7 +148,9 @@ function parseFields(body) {
       flush()
       const label = clean(head[1]).toLowerCase().replace(/:$/, '')
       // property cards are handled separately
-      current = /^property card/.test(label) ? null : (FIELD_MAP[label] || null)
+      current = (/^property card/.test(label) || MOMENT_LABELS.includes(label))
+        ? null
+        : (FIELD_MAP[label] || null)
       continue
     }
     // a horizontal rule or a new bullet list ends the current field
@@ -170,6 +217,10 @@ const JSON_KEY_MAP = {
   povname:          'name',
   ctatext:          'ctaText',
   ctaurl:           'ctaUrl',
+  introline:        'bodyText',     // Week 2's name for the intro paragraph
+  intro_line:       'bodyText',
+  ctabutton:        'ctaText',      // Week 2's name for the bottom CTA
+  cta_button:       'ctaText',
   finalcta:         'ctaText',      // the workflow's name for the bottom CTA
   finalctaurl:      'ctaUrl',
 }
@@ -223,6 +274,18 @@ function findJsonPayload(text) {
   return null
 }
 
+/* A moment is {imageCue, momentCopy} however the workflow spells it. */
+function mapMoment(raw) {
+  const out = {}
+  for (const [k, v] of Object.entries(raw || {})) {
+    const lk = k.toLowerCase().replace(/[_\s]/g, '')
+    if (lk === 'imagecue'   || lk === 'image')  out.imageCue   = String(v ?? '').trim()
+    if (lk === 'momentcopy' || lk === 'copy' || lk === 'text') out.momentCopy = String(v ?? '').trim()
+    if (lk === 'label' || lk === 'slot') out.label = String(v ?? '').trim()
+  }
+  return out
+}
+
 function mapCard(raw) {
   const card = {}
   for (const [k, v] of Object.entries(raw || {})) {
@@ -235,9 +298,14 @@ function mapCard(raw) {
 function mapVariation(raw, i) {
   const out = {}
   let cards = []
+  let moments = []
   const hasIntroBody = Object.keys(raw || {}).some(k => INTRO_BODY_KEYS.includes(k.toLowerCase()))
   for (const [k, v] of Object.entries(raw || {})) {
     const lk = k.toLowerCase()
+    if (lk === 'moments' || lk === 'itinerary') {
+      moments = (Array.isArray(v) ? v : []).map(mapMoment).filter(m => m.imageCue || m.momentCopy)
+      continue
+    }
     if (lk === 'property_cards' || lk === 'propertycards' || lk === 'cards') {
       cards = (Array.isArray(v) ? v : []).map(mapCard).filter(c => c.name || c.description)
       continue
@@ -255,6 +323,7 @@ function mapVariation(raw, i) {
     subhead: out.sectionSubhead || out.subhead || '',
     introCtaText: out.introCtaText || out.ctaText || '',
     ...(cards.length ? { propertyCards: cards } : {}),
+    ...(moments.length ? { moments } : {}),
   }
 }
 
@@ -273,8 +342,9 @@ export function parseWfCopy(text) {
   if (typeof text !== 'string' || !text.trim()) return []
 
   return splitVariations(text).map((v, i) => {
-    const fields = parseFields(v.body)
-    const cards  = parseCards(v.body)
+    const fields  = parseFields(v.body)
+    const cards   = parseCards(v.body)
+    const moments = parseMoments(v.body)
     return {
       id: v.num || i + 1,
       name: v.name || `Variation ${i + 1}`,
@@ -286,6 +356,7 @@ export function parseWfCopy(text) {
       // is never blank; it stays editable either way.
       introCtaText: fields.introCtaText || fields.ctaText || '',
       ...(cards.length ? { propertyCards: cards } : {}),
+      ...(moments.length ? { moments } : {}),
     }
   }).filter(v => v.subjectLine || v.headlineText)
 }

@@ -14,43 +14,16 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { IconArrowLeft, IconCheck, IconPlus, IconTrash } from '@tabler/icons-react'
 import { useWelcomeFlowStore } from '../store/welcomeFlowStore'
+import { wfCopySchema } from '../wfCopySchema'
 import { useWfTheme, WfCard, WfButton, WfStepNav } from '../components/wfUi'
 
 /* Field order and guidance follow the welcome-flow copy spec. The property cards
    sit between the two groups, which is where they appear in the email. */
-const FIELDS_BEFORE_CARDS = [
-  { key: 'subjectLine',     label: 'Subject Line',     hint: 'One sentence. Question, imperative, or pattern interrupt' },
-  { key: 'previewText',     label: 'Preview Text',     hint: '8–9 words. Supports the subject, never repeats it. No location' },
-  { key: 'campaignEyebrow', label: 'Campaign Eyebrow', hint: '3–5 words, small caps. Same across all 3 variations' },
-  { key: 'headlineText',    label: 'Hero Headline',    hint: '4–7 words. Must make sense on its own' },
-  // pale pill sitting on the hero image, under the headline — usually the code
-  { key: 'heroCtaText',     label: 'Hero CTA',         hint: 'Pill on the hero image, under the headline. e.g. "Use code STAR23 at checkout."' },
-  { key: 'bodyText',        label: 'Intro Body',       hint: '2–3 sentences, 30–40 words. States the offer. No feature list' },
-  // renders as a pill button directly below the intro line
-  { key: 'introCtaText',    label: 'Intro CTA',        hint: '2–3 words. Button below the intro line, into the property section' },
-  { key: 'sectionEyebrow',  label: 'Section Eyebrow',  hint: '1–3 words. Small label above the property block' },
-  { key: 'sectionHeadline', label: 'Section Headline', hint: '5–8 words. Names the region or collection' },
-  { key: 'sectionSubhead',  label: 'Section Subhead',  hint: 'One sentence, 6–10 words. Names audience and brand' },
-]
 
-const FIELDS_AFTER_CARDS = [
-  { key: 'bodyBlock2Title', label: 'Body Block Title', hint: 'One sentence, present tense. Gentle pressure, no invented urgency' },
-  { key: 'bodyBlock2',      label: 'Body Block',       hint: 'One sentence. Real urgency only — an actual offer or availability' },
-  { key: 'closingLine',     label: 'Closing Line',     hint: '1–2 sentences. Warm but direct' },
-  { key: 'ctaText',         label: 'CTA',              hint: '2–3 words. The final push out of the email' },
-  { key: 'ctaUrl',          label: 'CTA URL',          hint: 'Full URL with https://' },
-]
 
 const MULTILINE = new Set(['bodyText', 'bodyBlock2', 'closingLine'])
 
 /* Facts stay identical across variations; only the description shifts with POV. */
-const CARD_FIELDS = [
-  { key: 'name',        label: 'Card Name',        hint: 'Exact from the brief — never invented or shortened' },
-  { key: 'stats',       label: 'Card Stats',       hint: 'bed | bath | guests, in that order. Missing figure → leave blank' },
-  { key: 'description', label: 'Card Description', hint: '5–8 words. What the guest does with it' },
-  { key: 'ctaText',     label: 'Card CTA',         hint: '2–3 words' },
-  { key: 'ctaUrl',      label: 'Card CTA URL',     hint: 'Where this stay links to — one per stay' },
-]
 
 export default function WFCopy() {
   const { clientId, emailId } = useParams()
@@ -118,7 +91,17 @@ export default function WFCopy() {
   }
 
   const active = vars[picked] || vars[0]
-  const cards  = active.propertyCards || []
+  /* The week decides the field list: Week 1 is featured stays, Week 2 is the
+     48-hour itinerary. Weeks with no schema of their own fall back to Week 1. */
+  const schema    = wfCopySchema(email?.week)
+  const group     = schema.group
+  const isFixed   = group.mode === 'fixed'
+  const MAX_ITEMS = isFixed ? group.labels.length : group.max
+  /* A fixed group always shows all of its slots, filled or not. */
+  const stored    = active[group.listKey] || []
+  const items     = isFixed
+    ? group.labels.map((_, i) => stored[i] || { ...group.blank })
+    : stored
 
   const persist = (nextVars = vars, nextPicked = picked) => {
     // Section Subhead is the single source; mirror it onto subhead so any
@@ -138,35 +121,37 @@ export default function WFCopy() {
     setVars(next)
   }
 
-  /* 1–3 stays. Capped at 3 because each card takes one sub-image slot and the
-     picker offers Sub 1–3 for this template. */
-  const MAX_CARDS = 3
-
-  const addCard = () => {
+  const addItem = () => {
     const next = vars.map((v, i) => {
       if (i !== picked) return v
-      const cards = v.propertyCards || []
-      if (cards.length >= MAX_CARDS) return v
-      // copy the CTA wording from the first card — it is identical by design
-      return { ...v, propertyCards: [...cards, { name: '', stats: '', description: '', ctaText: cards[0]?.ctaText || 'View Dates', ctaUrl: cards[0]?.ctaUrl || '' }] }
+      const list = v[group.listKey] || []
+      if (list.length >= MAX_ITEMS) return v
+      // carry the CTA wording from the first item — identical by design
+      const blank = { ...group.blank }
+      if ('ctaText' in blank && list[0]?.ctaText) blank.ctaText = list[0].ctaText
+      if ('ctaUrl'  in blank && list[0]?.ctaUrl)  blank.ctaUrl  = list[0].ctaUrl
+      return { ...v, [group.listKey]: [...list, blank] }
     })
     setVars(next); persist(next)
   }
 
-  const removeCard = (cardIndex) => {
+  const removeItem = (idx) => {
     const next = vars.map((v, i) => {
       if (i !== picked) return v
-      return { ...v, propertyCards: (v.propertyCards || []).filter((_, ci) => ci !== cardIndex) }
+      return { ...v, [group.listKey]: (v[group.listKey] || []).filter((_, ci) => ci !== idx) }
     })
     setVars(next); persist(next)
   }
 
-  const editCard = (cardIndex, key, value) => {
+  /* A fixed group has no add step, so writing into an empty slot has to grow
+     the array up to that index rather than drop the edit on the floor. */
+  const editItem = (idx, key, value) => {
     const next = vars.map((v, i) => {
       if (i !== picked) return v
-      const cards = (v.propertyCards || []).map((c, ci) =>
-        ci === cardIndex ? { ...c, [key]: value } : c)
-      return { ...v, propertyCards: cards }
+      const list = [...(v[group.listKey] || [])]
+      while (list.length <= idx) list.push({ ...group.blank })
+      list[idx] = { ...list[idx], [key]: value }
+      return { ...v, [group.listKey]: list }
     })
     setVars(next)
   }
@@ -256,72 +241,78 @@ export default function WFCopy() {
         })}
       </div>
 
-      {/* everything above the property block */}
+      {/* everything above the repeated block */}
       <WfCard style={{ padding: 0, overflow: 'hidden' }}>
-        {FIELDS_BEFORE_CARDS.map((f, i) =>
-          fieldRow(f, active[f.key], (v) => editField(f.key, v), i === FIELDS_BEFORE_CARDS.length - 1))}
+        {schema.before.map((f, i) =>
+          fieldRow(f, active[f.key], (v) => editField(f.key, v), i === schema.before.length - 1))}
       </WfCard>
 
-      {/* property cards — 1 to 3 featured stays, each rendered full width */}
+      {/* the repeated block — stays for Week 1, itinerary moments for Week 2 */}
       <WfCard style={{ padding: 0, overflow: 'hidden', marginTop: 16 }}>
         <div style={{ padding: '14px 18px', borderBottom: `1px solid ${t.border}`, display: 'flex',
                       alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
           <div style={{ fontSize: 11.5, fontWeight: 700, color: t.text }}>
-            Property Cards{' '}
+            {group.title}{' '}
             <span style={{ fontWeight: 400, color: t.muted }}>
-              — {cards.length} of {MAX_CARDS}. Facts stay the same across all 3 variations; only the description shifts
+              — {isFixed ? `${MAX_ITEMS} moments` : `${items.length} of ${MAX_ITEMS}`}. {group.note}
             </span>
           </div>
-          <WfButton
-            variant="subtle"
-            disabled={cards.length >= MAX_CARDS}
-            onClick={addCard}
-            style={{ padding: '6px 12px', fontSize: 12 }}
-          >
-            <IconPlus size={13} stroke={2.4} /> Add stay
-          </WfButton>
+          {!isFixed && (
+            <WfButton
+              variant="subtle"
+              disabled={items.length >= MAX_ITEMS}
+              onClick={addItem}
+              style={{ padding: '6px 12px', fontSize: 12 }}
+            >
+              <IconPlus size={13} stroke={2.4} /> {group.addLabel}
+            </WfButton>
+          )}
         </div>
 
-        {cards.length === 0 ? (
+        {(!isFixed && items.length === 0) ? (
           <div style={{ padding: '22px 18px', fontSize: 12.5, color: t.muted }}>
-            No stays yet. Add one to show a featured stay in the email.
+            Nothing here yet. Add one to show it in the email.
           </div>
-        ) : cards.map((card, ci) => (
-          <div key={ci} style={{ borderBottom: ci < cards.length - 1 ? `1px solid ${t.border}` : 'none' }}>
+        ) : items.map((item, ci) => (
+          <div key={ci} style={{ borderBottom: ci < items.length - 1 ? `1px solid ${t.border}` : 'none' }}>
             <div style={{
               padding: '10px 18px', background: t.dark ? 'rgba(255,255,255,0.03)' : '#f7f8fa',
               display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10,
             }}>
               <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: t.faint }}>
-                Card {ci + 1} of {cards.length} · Sub Image {ci + 1}
+                {isFixed
+                  ? `${group.labels[ci]} · Sub Image ${ci + 1}`
+                  : `${group.itemLabel} ${ci + 1} of ${items.length} · Sub Image ${ci + 1}`}
               </span>
-              <button
-                onClick={() => removeCard(ci)}
-                title="Remove this stay"
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 4, background: 'none',
-                  border: 'none', cursor: 'pointer', padding: '2px 4px',
-                  fontSize: 11.5, fontWeight: 600, color: '#dc2626', fontFamily: 'Inter, sans-serif',
-                }}
-              >
-                <IconTrash size={13} stroke={2} /> Remove
-              </button>
+              {!isFixed && (
+                <button
+                  onClick={() => removeItem(ci)}
+                  title="Remove this one"
+                  style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 4, background: 'none',
+                    border: 'none', cursor: 'pointer', padding: '2px 4px',
+                    fontSize: 11.5, fontWeight: 600, color: '#dc2626', fontFamily: 'Inter, sans-serif',
+                  }}
+                >
+                  <IconTrash size={13} stroke={2} /> Remove
+                </button>
+              )}
             </div>
-            {CARD_FIELDS.map((cf, fi) =>
+            {group.fields.map((cf, fi) =>
               fieldRow(
-                { ...cf, key: `card${ci}-${cf.key}` },
-                card[cf.key],
-                (v) => editCard(ci, cf.key, v),
-                fi === CARD_FIELDS.length - 1,
+                { ...cf, key: `${group.listKey}${ci}-${cf.key}` },
+                item[cf.key],
+                (v) => editItem(ci, cf.key, v),
+                fi === group.fields.length - 1,
               ))}
           </div>
         ))}
       </WfCard>
 
-      {/* everything below the property block */}
+      {/* everything below the repeated block */}
       <WfCard style={{ padding: 0, overflow: 'hidden', marginTop: 16 }}>
-        {FIELDS_AFTER_CARDS.map((f, i) =>
-          fieldRow(f, active[f.key], (v) => editField(f.key, v), i === FIELDS_AFTER_CARDS.length - 1))}
+        {schema.after.map((f, i) =>
+          fieldRow(f, active[f.key], (v) => editField(f.key, v), i === schema.after.length - 1))}
       </WfCard>
 
     </div>
