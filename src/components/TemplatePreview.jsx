@@ -2151,6 +2151,12 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
      text column takes the difference, since the photo holds its width. Later
      rows keep the 48px gutter. */
   const TEXT_COL  = 600 - PHOTO_COL   // 354
+  /* One height for the pair: the photo is fixed at it and the card takes it as
+     a floor, so the two line up top and bottom instead of the card ending
+     early. box-sizing is set inline on the card rather than left to the <style>
+     block, which Gmail strips — without it the padding and border would be
+     added on top and the card would overshoot by 58px there. */
+  const ROW_H = 352
   const reviewBlock = (review, i) => {
     /* The first and last rows run corner to corner; the ones between keep the
        gutter, so the section opens and closes wide and breathes in the middle. */
@@ -2163,7 +2169,7 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
     const cardPad = photoLeft ? '28px 48px 28px 26px' : '28px 26px 28px 48px'
 
     const textCell = `<div class="w3wf-col" style="display:inline-block;width:100%;max-width:${TEXT_COL}px;vertical-align:top;">
-      <div style="background-color:${cardTint};border:1px solid ${cardBorder};padding:${cardPad};">
+      <div style="box-sizing:border-box;min-height:${ROW_H}px;background-color:${cardTint};border:1px solid ${cardBorder};padding:${cardPad};">
         ${stars}
         ${review.quote ? `<div class="mobile-body" style="font-family:'Lora',serif;font-size:17px;color:${textCol};line-height:1.62;margin-top:14px;">&ldquo;${review.quote}&rdquo;</div>` : ''}
         ${byline ? `<div style="font-family:'Lora',serif;font-size:15px;font-style:italic;color:${secondary};line-height:1.45;margin-top:16px;">${byline}</div>` : ''}
@@ -2174,8 +2180,8 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
     const photoCell = `<div class="w3wf-col" style="display:inline-block;width:100%;max-width:${PHOTO_COL}px;vertical-align:top;">
       <div style="line-height:0;font-size:0;">
         ${img
-          ? `<img src="${img}" alt="${byline}" style="width:100%;height:352px;object-fit:cover;display:block;border:0;outline:none;"/>`
-          : `<div style="width:100%;height:352px;background:${pillBg};"></div>`}
+          ? `<img src="${img}" alt="${byline}" style="width:100%;height:${ROW_H}px;object-fit:cover;display:block;border:0;outline:none;"/>`
+          : `<div style="width:100%;height:${ROW_H}px;background:${pillBg};"></div>`}
       </div>
     </div>`
 
