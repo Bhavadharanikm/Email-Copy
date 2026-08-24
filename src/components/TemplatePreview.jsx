@@ -2188,7 +2188,7 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
        photo reads as a stray image. So the swap only applies side by side. */
     const first  = photoLeft ? photoCell : textCell
     const second = photoLeft ? textCell  : photoCell
-    return `<div class="w3wf-revrow" style="font-size:0;line-height:0;margin-bottom:14px;padding-left:${full ? 0 : 48}px;">
+    return `<div class="w3wf-revrow" style="font-size:0;line-height:0;margin-bottom:14px;padding-left:${(full || photoLeft) ? 0 : 48}px;">
       <!--[if mso]><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="50%" valign="top"><![endif]-->
       ${first}
       <!--[if mso]></td><td width="50%" valign="top"><![endif]-->
