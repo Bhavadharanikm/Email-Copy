@@ -1792,6 +1792,18 @@ function buildTemplateWeek1WF({ client, copy, images, footerData, isHeroGenerate
    purpose: email templates diverge fast, and a shared one would mean every
    Week 2 tweak risks Week 1. Verified byte-identical output to Week 1 WF for
    the same inputs at the time of cloning. Design changes come later.        */
+/* A torn-paper bottom edge for a photo: a band the colour of the page with a
+   ragged top boundary, laid over the bottom of the image. The path is fixed
+   rather than generated, so the same edge comes out every render — and it ends
+   up inside the baked hero PNG, so no email client has to understand SVG. */
+const TORN_EDGE_D = 'M0,30 L9,26 L23,32 L31,22 L44,27 L58,18 L64,24 L79,15 L91,23 L98,13 L113,20 L127,11 L134,18 L149,26 L158,17 L173,22 L186,12 L193,19 L208,29 L221,20 L229,14 L244,23 L257,32 L266,24 L281,17 L294,27 L302,20 L317,13 L330,21 L339,30 L354,23 L367,15 L375,22 L390,31 L403,24 L411,17 L426,25 L439,34 L448,27 L463,20 L476,29 L484,22 L499,15 L512,23 L521,32 L536,25 L549,18 L557,26 L572,34 L585,27 L600,21 L600,56 L0,56 Z'
+
+function tornEdge(fill, height = 56) {
+  return `<div style="position:absolute;left:0;right:0;bottom:-1px;height:${height}px;line-height:0;font-size:0;">`
+    + `<svg width="600" height="${height}" viewBox="0 0 600 56" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:${height}px;">`
+    + `<path d="${TORN_EDGE_D}" fill="${fill}"/></svg></div>`
+}
+
 function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerated = false,
   heroScale=1, heroX=0, heroY=0,
   textSize=44, textTop=34, textLeft=52,
@@ -1930,6 +1942,7 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
           </td></tr>
         </table>
       </div>
+      ${tornEdge(pageBg)}
     </div>
   </div>`}
 
@@ -2504,8 +2517,35 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </div>
 </body></html>` : null
 
+    /* Week 2's hero is Week 1's treatment minus the campaign eyebrow, plus the
+       torn-paper bottom edge. Kept separate so Week 1's bake is untouched. */
+    const week2wfHeroHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@700&display=swap" rel="stylesheet"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:${week1wfBg};}</style>
+</head><body>
+<div style="width:600px;background:${week1wfBg};box-sizing:border-box;line-height:0;font-size:0;">
+  <div style="position:relative;width:600px;height:772px;overflow:hidden;">
+    ${heroImgUrl
+      ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:600px;height:772px;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
+      : `<div style="width:600px;height:772px;background:#e8eaed;"></div>`}
+    <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.34) 0%,rgba(0,0,0,0.16) 45%,rgba(0,0,0,0.05) 70%,rgba(0,0,0,0) 100%);">
+      <div style="position:absolute;top:${logoTop}px;left:0;right:0;text-align:center;padding:0 ${textLeft}px;line-height:normal;">
+        ${week1wfLogoHtml}
+        ${headline ? `<div style="font-family:'Lora',Georgia,serif;font-size:${textSize}px;font-weight:700;color:#fff;line-height:1.16;text-shadow:0 2px 12px rgba(0,0,0,.4);margin-top:${textTop}px;display:inline-block;">${headline}</div>` : ''}
+        ${week1wfHeroCta ? `<div style="margin-top:30px;">
+          <span style="display:inline-block;background:#e2eae8;border-radius:999px;padding:17px 44px;font-family:Arial,sans-serif;font-size:18px;font-weight:600;color:#1f2937;white-space:nowrap;">${week1wfHeroCta}</span>
+        </div>` : ''}
+      </div>
+    </div>
+    ${tornEdge(week1wfBg)}
+  </div>
+</div>
+</body></html>`
+
     const heroHtml = isWeek2
       ? week2ArchHtml(midBg, false)
+      : isWeek2WF
+      ? week2wfHeroHtml
       : isWF1or2
       ? week1wfHeroHtml
       : (isWeek2v2 || isWeek6v2)
