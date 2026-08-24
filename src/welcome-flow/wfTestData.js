@@ -97,3 +97,133 @@ export const WF_TEST_VARIATIONS = [
     ctaUrl:          CTA_URL,
   },
 ]
+
+/* Week 2 — the 48-hour itinerary. Four moments, so the dev path exercises a
+   variable count rather than always the maximum. */
+export const WF2_TEST_VARIATIONS = [
+  {
+    id: 1,
+    name: 'The Mapped Weekend',
+    subjectLine:  'Your perfect 48 hours, mapped out.',
+    previewText:  'From first coffee to last stargaze, we mapped it out for you.',
+    headlineText: 'Two days. One hot tub under the stars.',
+    bodyText:     'You don\'t need a plan to enjoy this place. But if you like knowing what\'s ahead, here\'s the shape of a good 48 hours.',
+    introCtaText: 'See The Itinerary',
+    moments: [
+      { label: 'Day One, Afternoon', momentCopy: 'Unpack, then don\'t. The hot tub is already warm and waiting on the deck.' },
+      { label: 'Day One, Evening', momentCopy: 'Fire up the grill. Eat outside, then get in the hot tub and stay there longer than you meant to.' },
+      { label: 'Day Two, Morning', momentCopy: 'Make coffee in the kitchenette and take it out to the deck. The on-property trails are right there when you are ready to move.' },
+      { label: 'Day Two, Evening', momentCopy: 'Board games are already in the unit. Or skip all of it and get back in the hot tub.' },
+    ],
+    ctaText:     'See Where This Happens',
+    ctaUrl:      'https://visitstarlight.com',
+    closingLine: 'Your code STAR23 takes 10% off, two nights minimum.',
+  },
+  {
+    id: 2,
+    name: 'The Slow Reset',
+    subjectLine:  'Two days that do not need planning',
+    previewText:  'Everything is already here — here is one way to use it.',
+    headlineText: 'Forty-eight hours, already sorted',
+    bodyText:     'No itinerary required. But if you want one, this is how we would spend it.',
+    introCtaText: 'Start Here',
+    moments: [
+      { label: 'Day One, Afternoon', momentCopy: 'Unpack, then don\'t. The hot tub is already warm and waiting on the deck.' },
+      { label: 'Day One, Evening', momentCopy: 'Fire up the grill. Eat outside, then get in the hot tub and stay there longer than you meant to.' },
+      { label: 'Day Two, Morning', momentCopy: 'Make coffee in the kitchenette and take it out to the deck. The on-property trails are right there when you are ready to move.' },
+      { label: 'Day Two, Evening', momentCopy: 'Board games are already in the unit. Or skip all of it and get back in the hot tub.' },
+    ],
+    ctaText:     'Book Your Two Nights',
+    ctaUrl:      'https://visitstarlight.com',
+    closingLine: 'Your code STAR23 takes 10% off, two nights minimum.',
+  },
+  {
+    id: 3,
+    name: 'The Screen-Free Weekend',
+    subjectLine:  'What two nights away actually looks like',
+    previewText:  'Trails, a grill, a hot tub, and no reason to rush.',
+    headlineText: 'Slow down for two days',
+    bodyText:     'Here is the shape of a weekend where nobody checks their phone.',
+    introCtaText: 'See The Plan',
+    moments: [
+      { label: 'Day One, Afternoon', momentCopy: 'Unpack, then don\'t. The hot tub is already warm and waiting on the deck.' },
+      { label: 'Day One, Evening', momentCopy: 'Fire up the grill. Eat outside, then get in the hot tub and stay there longer than you meant to.' },
+      { label: 'Day Two, Morning', momentCopy: 'Make coffee in the kitchenette and take it out to the deck. The on-property trails are right there when you are ready to move.' },
+      { label: 'Day Two, Evening', momentCopy: 'Board games are already in the unit. Or skip all of it and get back in the hot tub.' },
+    ],
+    ctaText:     'Reserve Your Stay',
+    ctaUrl:      'https://visitstarlight.com',
+    closingLine: 'Your code STAR23 takes 10% off, two nights minimum.',
+  },
+]
+
+/* Week 3 — guest reviews, quoted verbatim from the real Starlight Haven ones.
+   The attributions end in "via <platform>" because the template reads the
+   platform off the end of that line. */
+export const WF3_TEST_VARIATIONS = [
+  {
+    id: 1,
+    name: 'The Guest Book',
+    subjectLine:  'What Megan said after checkout',
+    previewText:  '"We got the best of both worlds" — Megan, March guest',
+    headlineText: 'Straight from the guest book',
+    bodyText:     'We could tell you about the hot tubs and the quiet — but the people who\'ve stayed say it better.',
+    reviews: [
+      { quote: 'My husband has always wanted to try staying in a vacation dome. He loved it!! … We got the best of both worlds. We were in the woods, but downtown Hot Springs was super close.',
+        attribution: 'Megan, Deluxe Dome stay, March 2026, via Airbnb' },
+      { quote: 'This was our second time staying in one of the treehouse cabins, and we will definitely be back for a third visit. The cabins are always spotless, cozy, and thoughtfully designed for a relaxing getaway.',
+        attribution: 'Daniel, Treehouse stay, February 2026, via Google' },
+      { quote: 'The surrounding forest was beautiful, filled with wildlife. Not to mention the hiking trails on site. If you need a good way to relax and change up your routine, I highly recommend going to Starlight Haven!',
+        attribution: 'Priya, Treehouse stay, January 2026, via Airbnb' },
+    ],
+    ctaText:     'Experience It Yourself',
+    ctaUrl:      'https://visitstarlight.com',
+    closingLine: 'Your welcome code STAR23 is still good: 10% off any stay of two nights or more when you book direct at visitstarlight.com.',
+  },
+  {
+    id: 2,
+    name: 'The Repeat Visit',
+    subjectLine:  'They came back a second time. Here\'s why.',
+    previewText:  '"We will definitely be back for a third visit" — Daniel, February guest',
+    headlineText: 'What guests say after the drive home',
+    bodyText:     'Some guests book once. These ones keep coming back — here\'s what they told us.',
+    reviews: [
+      { quote: 'This was our second time staying in one of the treehouse cabins, and we will definitely be back for a third visit. The cabins are always spotless, cozy, and thoughtfully designed for a relaxing getaway.',
+        attribution: 'Daniel, Treehouse stay, February 2026, via Google' },
+      { quote: 'My husband has always wanted to try staying in a vacation dome. He loved it!! … We got the best of both worlds. We were in the woods, but downtown Hot Springs was super close.',
+        attribution: 'Megan, Deluxe Dome stay, March 2026, via Airbnb' },
+      { quote: 'The surrounding forest was beautiful, filled with wildlife. Not to mention the hiking trails on site. If you need a good way to relax and change up your routine, I highly recommend going to Starlight Haven!',
+        attribution: 'Priya, Treehouse stay, January 2026, via Airbnb' },
+    ],
+    ctaText:     'Book Your First Stay',
+    ctaUrl:      'https://visitstarlight.com',
+    closingLine: 'Your welcome code STAR23 is still good: 10% off any stay of two nights or more when you book direct at visitstarlight.com.',
+  },
+  {
+    id: 3,
+    name: 'The Quiet Reset',
+    subjectLine:  '"A good way to relax and change up your routine"',
+    previewText:  '"Filled with wildlife" — Priya, January guest',
+    headlineText: 'Don\'t take our word for it',
+    bodyText:     'Three guests, three different stays, and the same thing said three ways.',
+    reviews: [
+      { quote: 'The surrounding forest was beautiful, filled with wildlife. Not to mention the hiking trails on site. If you need a good way to relax and change up your routine, I highly recommend going to Starlight Haven!',
+        attribution: 'Priya, Treehouse stay, January 2026, via Airbnb' },
+      { quote: 'My husband has always wanted to try staying in a vacation dome. He loved it!! … We got the best of both worlds. We were in the woods, but downtown Hot Springs was super close.',
+        attribution: 'Megan, Deluxe Dome stay, March 2026, via Airbnb' },
+      { quote: 'This was our second time staying in one of the treehouse cabins, and we will definitely be back for a third visit. The cabins are always spotless, cozy, and thoughtfully designed for a relaxing getaway.',
+        attribution: 'Daniel, Treehouse stay, February 2026, via Google' },
+    ],
+    ctaText:     'See It For Yourself',
+    ctaUrl:      'https://visitstarlight.com',
+    closingLine: 'Your welcome code STAR23 is still good: 10% off any stay of two nights or more when you book direct at visitstarlight.com.',
+  },
+]
+
+/* The dev-skip path seeds whichever week the brief has selected. A week with no
+   test copy of its own falls back to Week 1's, which is what the button did for
+   every week before. */
+export const wfTestVariations = (week) =>
+  Number(week) === 2 ? WF2_TEST_VARIATIONS
+  : Number(week) === 3 ? WF3_TEST_VARIATIONS
+  : WF_TEST_VARIATIONS

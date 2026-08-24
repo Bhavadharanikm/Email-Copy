@@ -14,7 +14,7 @@ import { IconArrowLeft, IconSparkles, IconBolt, IconPlus } from '@tabler/icons-r
 import { useWelcomeFlowStore } from '../store/welcomeFlowStore'
 import { useWfTheme, WfCard, WfButton, WfInput, WfStepNav } from '../components/wfUi'
 import { WF_WEEKS, wfWeek, wfWeekReady } from '../wfWeeks'
-import { WF_TEST_VARIATIONS } from '../wfTestData'
+import { wfTestVariations } from '../wfTestData'
 import { wfGenerateCopy } from '../../lib/api'
 import { extractWfVariations } from '../parseWfCopy'
 
@@ -292,12 +292,17 @@ export default function WFBrief() {
         <button
           onClick={() => {
             persist()
-            // skip n8n: drop the Starlight Haven variations straight into the email
+            /* skip n8n: drop the Starlight Haven variations straight into the
+               email — the ones for the week selected above, so the copy matches
+               what that week's template knows how to render */
+            const testVars = wfTestVariations(week)
             updateEmail(clientId, emailId, {
-              variations:        WF_TEST_VARIATIONS,
+              week:              week ? Number(week) : null,
+              templateId:        wfWeek(week)?.templateId ?? null,
+              variations:        testVars,
               selectedVariation: 0,
-              copy:              WF_TEST_VARIATIONS[0],
-              subject:           WF_TEST_VARIATIONS[0].subjectLine,
+              copy:              testVars[0],
+              subject:           testVars[0].subjectLine,
               status:            'ready',
             })
             navigate(`/welcome-flow/${clientId}/email/${emailId}/copy`)
