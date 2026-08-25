@@ -2898,18 +2898,22 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     const w3First = w3hw.length >= 2 ? w3hw[0] : ''
     const w3Last  = w3hw.length >= 3 ? w3hw[w3hw.length - 1] : ''
     const w3Main  = w3hw.length >= 3 ? w3hw.slice(1, -1).join(' ') : w3hw.length === 2 ? w3hw[1] : w3hw[0] || ''
+    /* The headline is absolutely positioned here, but in the on-screen hero it
+       sits in normal flow below the logo — so the bake has to add the logo's
+       own offset and height to land in the same place. Without that the text
+       jumps 108px the moment Generate Images runs. */
     const week3wfHeroHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:${week1wfBg};}</style>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
 </head><body>
-<div style="width:600px;background:${week1wfBg};box-sizing:border-box;line-height:0;font-size:0;">
+<div style="width:600px;background:transparent;box-sizing:border-box;line-height:0;font-size:0;">
   <div style="position:relative;width:600px;height:772px;overflow:hidden;border-radius:0 0 20px 20px;">
     ${heroImgUrl
       ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:600px;height:772px;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
       : `<div style="width:600px;height:772px;background:#e8eaed;"></div>`}
     <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.25) 40%,rgba(0,0,0,0.45) 100%);">
       <div style="position:absolute;top:${logoTop}px;left:0;right:0;text-align:center;line-height:normal;">${week1wfLogoHtml}</div>
-      <div style="position:absolute;left:${textLeft}px;right:${textLeft}px;top:${textTop + 210}px;text-align:left;line-height:normal;">
+      <div style="position:absolute;left:${textLeft}px;right:${textLeft}px;top:${logoTop + logoSize + textTop + 210}px;text-align:left;line-height:normal;">
         ${w3First ? `<div style="font-family:'Lora',serif;font-size:${Math.round(textSize * 0.8)}px;font-style:italic;font-weight:400;color:#fff;line-height:1;text-shadow:0 2px 12px rgba(0,0,0,.35);margin-bottom:2px;">${w3First}</div>` : ''}
         <div style="font-family:'Lora',serif;font-size:${textSize}px;font-weight:700;text-transform:uppercase;color:#fff;line-height:1.02;text-shadow:0 2px 20px rgba(0,0,0,.3);">${w3Main}${w3Last ? ` <span style="font-family:'Lora',serif;font-style:italic;font-weight:400;text-transform:capitalize;font-size:${Math.round(textSize * 0.9)}px;">${w3Last}</span>` : ''}</div>
         ${week1wfHeroCta ? `<div style="margin-top:26px;">
@@ -3681,7 +3685,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
       try {
         // wave 1 — unchanged from every other template: hero, story/stamp/pin, main CTA
         const [heroRes, secRes, terRes, btnRes] = await Promise.all([
-          renderImage({ html: heroHtmlToUse, width: 600, height: heroHeight, transparent: isWeek7v2 || isWeek3v2 || isWeek5 || isWeek6v2 || isWeek4v2b }),
+          renderImage({ html: heroHtmlToUse, width: 600, height: heroHeight, transparent: isWeek7v2 || isWeek3v2 || isWeek5 || isWeek6v2 || isWeek4v2b || isWeek3WF }),
           secondaryPromise,
           tertiaryPromise,
           buttonPromise,
