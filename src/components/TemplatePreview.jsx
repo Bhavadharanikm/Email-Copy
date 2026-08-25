@@ -2083,10 +2083,9 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
   btnImgUrl = null, introBtnImgUrl = null,
 }) {
   const heroObj = images?.[0]; const heroImg = heroObj?.url || ''
-  /* Sub 1-3 pair with the reviews, one photo each; Sub 4 and 5 are the two
-     overlapping circles below them — the same pair Week 1 uses, and the same
-     six slots the picker offers. */
-  const reviewImgs = [1,2,3].map(i => images?.[i]?.url || '')
+  /* The reviews are text only, so no sub-image is spent on them. Sub 4 and 5
+     are the two overlapping circles below them — the same pair Week 1 uses, and
+     the same slot the component swaps for the baked PNG. */
   const storyA = images?.[4]?.url || ''
   const storyB = images?.[5]?.url || ''
 
@@ -2173,69 +2172,25 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
       .replace(/,?\s*\bvia\s+[A-Za-z][A-Za-z .&'-]*$/, '').replace(/^[—–-]\s*/, '').trim()
   }
 
-  /**
-   * One review as a two-up row: the quote card beside its photo, the sides
-   * swapping each row so the section reads as a checkerboard.
-   *
-   * Built from inline-blocks with a max-width rather than a two-cell table, for
-   * the same reason as Week 2's moments: Gmail strips the <style> block, so a
-   * table would stay two columns on a phone and squeeze both halves. These wrap
-   * to stacked instead. Outlook ignores inline-block, so it gets a real table
-   * through the MSO conditional.
-   */
-  /* The row breaks out of the section's right padding so the photo sits almost
-     on the email's edge. 600 - 48 left = 552 of usable width; text 300 + photo
-     246 = 546 leaves a 6px sliver of card showing past the photo. */
-  const PHOTO_COL = 246
-  /* The first row runs corner to corner — no left gutter, so it spans the full
-     600 and the card reaches the left edge as the photo reaches the right. The
-     text column takes the difference, since the photo holds its width. Later
-     rows keep the 48px gutter. */
-  const TEXT_COL  = 600 - PHOTO_COL   // 354
-  /* One height for the pair: the photo is fixed at it and the card takes it as
-     a floor, so the two line up top and bottom instead of the card ending
-     early. box-sizing is set inline on the card rather than left to the <style>
-     block, which Gmail strips — without it the padding and border would be
-     added on top and the card would overshoot by 58px there. */
-  const ROW_H = 352
-  const reviewBlock = (review, i) => {
-    /* The first and last rows run corner to corner; the ones between keep the
-       gutter, so the section opens and closes wide and breathes in the middle. */
+  const reviewBlock = (review) => {
     const byline   = bylineOf(review)
     const platform = platformOf(review)
-    const img      = reviewImgs[i] || ''
-    const photoLeft = i % 2 === 1          // rows 2 and 4 lead with the photo
-    /* Flush to the edge, the card's own padding stands in for the gutter so its
-       text still lines up with everything above — on whichever side it sits. */
-    const cardPad = photoLeft ? '28px 48px 28px 26px' : '28px 26px 28px 48px'
-
-    const textCell = `<div class="w3wf-col" style="display:inline-block;width:100%;max-width:${TEXT_COL}px;vertical-align:top;">
-      <div style="box-sizing:border-box;min-height:${ROW_H}px;background-color:${cardTint};border:1px solid ${cardBorder};padding:${cardPad};">
-        ${stars}
-        ${review.quote ? `<div class="mobile-body" style="font-family:'Lora',serif;font-size:17px;color:${textCol};line-height:1.62;margin-top:14px;">&ldquo;${review.quote}&rdquo;</div>` : ''}
-        ${byline ? `<div style="font-family:'Lora',serif;font-size:15px;font-style:italic;color:${secondary};line-height:1.45;margin-top:16px;">${byline}</div>` : ''}
-        ${platform ? `<div style="font-family:Arial,sans-serif;font-size:11.5px;color:${faintTextCol};line-height:1.4;margin-top:4px;">&#10003; Verified review &middot; ${platform}</div>` : ''}
-      </div>
-    </div>`
-
-    const photoCell = `<div class="w3wf-col" style="display:inline-block;width:100%;max-width:${PHOTO_COL}px;vertical-align:top;">
-      <div style="line-height:0;font-size:0;">
-        ${img
-          ? `<img src="${img}" alt="${byline}" style="width:100%;height:${ROW_H}px;object-fit:cover;display:block;border:0;outline:none;"/>`
-          : `<div style="width:100%;height:${ROW_H}px;background:${pillBg};"></div>`}
-      </div>
-    </div>`
-
-    /* Stacked, the photo always follows its quote — leading with an unexplained
-       photo reads as a stray image. So the swap only applies side by side. */
-    const first  = photoLeft ? photoCell : textCell
-    const second = photoLeft ? textCell  : photoCell
-    return `<div class="w3wf-revrow" style="font-size:0;line-height:0;margin-bottom:14px;padding-left:0;">
-      <!--[if mso]><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="50%" valign="top"><![endif]-->
-      ${first}
-      <!--[if mso]></td><td width="50%" valign="top"><![endif]-->
-      ${second}
-      <!--[if mso]></td></tr></table><![endif]-->
+    return `<div class="w3wf-cardbox" style="background-color:${cardTint};border:1px solid ${cardBorder};border-radius:16px;padding:18px;margin-bottom:14px;">
+      ${stars}
+      ${review.quote ? `<div class="mobile-body" style="font-family:Arial,sans-serif;font-size:15px;color:${textCol};line-height:1.65;margin-top:12px;">&ldquo;${review.quote}&rdquo;</div>` : ''}
+      ${byline ? `<table cellpadding="0" cellspacing="0" border="0" style="margin-top:16px;border-collapse:collapse;">
+        <tr>
+          <td width="38" valign="top" style="width:38px;padding-right:10px;">
+            <table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;"><tr>
+              <td width="38" height="38" align="center" valign="middle" style="width:38px;height:38px;background:${avatarTint};border-radius:19px;font-family:Arial,sans-serif;font-size:15px;font-weight:700;color:${textCol};text-align:center;">${initialOf(byline)}</td>
+            </tr></table>
+          </td>
+          <td valign="middle" style="vertical-align:middle;">
+            <div style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;color:${textCol};line-height:1.4;">${byline}</div>
+            <div style="font-family:Arial,sans-serif;font-size:11.5px;color:${faintTextCol};line-height:1.4;margin-top:2px;">&#10003; Verified review${platform ? ` &middot; ${platform}` : ''}</div>
+          </td>
+        </tr>
+      </table>` : ''}
     </div>`
   }
 
@@ -2254,12 +2209,6 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
     .w3wf-btn-img  { width:100%!important; max-width:100%!important; }
     .w3wf-cta      { padding:18px 36px!important; }
     .w3wf-cardbox  { padding:16px!important; }
-    /* Once the pair has wrapped, each half spans the section so the photo and
-       the card keep their full width. */
-    .w3wf-col      { max-width:100%!important; }
-    /* Stacked, both halves span the phone, so the row takes normal padding
-       back rather than running the photo off the right edge. */
-    .w3wf-revrow   { padding-left:24px!important; padding-right:24px!important; }
   }
 </style></head>
 <body style="margin:0;padding:32px 0 48px;background-color:#ffffff;">
@@ -2305,7 +2254,7 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
     ${setup ? `<div class="mobile-body" style="font-family:Arial,sans-serif;font-size:15px;color:${mutedTextCol};line-height:1.6;margin-top:10px;">${setup}</div>` : ''}
   </div>` : ''}
 
-  ${reviews.length ? `<div style="padding:20px 0 0;background-color:${pageBg};">
+  ${reviews.length ? `<div class="w3wf-section" style="padding:20px 48px 0;background-color:${pageBg};">
     ${reviews.map(reviewBlock).join('')}
   </div>` : ''}
 
