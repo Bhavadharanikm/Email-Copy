@@ -2076,18 +2076,16 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
    Starts as an exact duplicate of Week 1 WF (id 31). Its own function from
    the outset so the guest-reviews design can diverge without touching Week 1.
    Verified byte-identical output to Week 1 WF at the time of cloning.      */
-function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerated = false, isStoryGenerated = false,
+function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerated = false,
   heroScale=1, heroX=0, heroY=0,
   textSize=44, textTop=34, textLeft=52,
   logoColor='original', logoTop=64, logoRight=200, logoSize=44,
   btnImgUrl = null, introBtnImgUrl = null,
 }) {
   const heroObj = images?.[0]; const heroImg = heroObj?.url || ''
-  /* The reviews are text only, so no sub-image is spent on them. Sub 4 and 5
-     are the two overlapping circles below them — the same pair Week 1 uses, and
-     the same slot the component swaps for the baked PNG. */
-  const storyA = images?.[4]?.url || ''
-  const storyB = images?.[5]?.url || ''
+  /* The reviews are text only, so every sub-image goes to the photo grid below
+     them: Sub 1-4, the four cells. */
+  const gridImgs = [1,2,3,4].map(i => images?.[i]?.url || '')
 
   const setup   = (copy.bodyText || '').replace(/\n/g, '<br>')
   const closing    = (copy.closingLine || '').replace(/\n/g, '<br>')
@@ -2147,7 +2145,7 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
      workflow writes for this part of the email, so it beats a generic default.
      An explicit Amenities Headline still wins if one is set. */
   const amenHead     = copy.amenitiesHeadline || copy.bodyBlock2Title || 'Enjoy property amenities'
-  const hasStory     = !!(storyA || storyB)
+  const hasGrid      = gridImgs.some(Boolean)
 
   /* Five gold stars, drawn as text rather than images: no download, no blocked
      image, and it survives a client that strips background colours. */
@@ -2235,8 +2233,8 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
               <div style="font-family:'Lora',serif;font-size:${textSize}px;font-weight:700;text-transform:uppercase;color:#ffffff;line-height:1.02;text-shadow:0 2px 20px rgba(0,0,0,.3);">${hwMain}${hwLast ? ` <span style="font-family:'Lora',serif;font-style:italic;font-weight:400;text-transform:none;font-size:${Math.round(textSize * 0.9)}px;">${hwLast}</span>` : ''}</div>
             </div>` : ''}
             ${heroCta ? `<div style="margin-top:30px;">
-              <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;max-width:100%;"><tr><td style="background:#e2eae8;border-radius:999px;">
-                <a class="w3wf-herocta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:17px 44px;font-family:Arial,sans-serif;font-size:18px;font-weight:600;color:#1f2937!important;-webkit-text-fill-color:#1f2937;text-decoration:none!important;">${heroCta}</a>
+              <table cellpadding="0" cellspacing="0" border="0" style="margin:0;max-width:100%;border-collapse:separate;"><tr><td style="border:2px solid #ffffff;border-radius:999px;padding:0;">
+                <a class="w3wf-herocta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:16px 38px;font-family:Arial,sans-serif;font-size:17px;line-height:20px;font-weight:700;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${heroCta}</a>
               </td></tr></table>
             </div>` : ''}
           </td></tr>
@@ -2258,21 +2256,23 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
     ${reviews.map(reviewBlock).join('')}
   </div>` : ''}
 
-  <!-- The two overlapping circles, same as Week 1. They overlap, which needs
-       absolute positioning, so once Generate Images has run they arrive as one
-       flat PNG at slot 4. The CSS version below is the on-screen preview. -->
-  ${hasStory ? `<div class="w3wf-section" style="padding:30px 48px 0;text-align:center;background-color:${pageBg};">
+  <!-- The photo grid: a heading, then four cells. A real table rather than
+       inline-blocks — these are photos, so halving their width on a phone reads
+       fine, and Outlook handles a table correctly. -->
+  ${hasGrid ? `<div class="w3wf-section" style="padding:30px 48px 0;text-align:center;background-color:${pageBg};">
     <div style="font-family:'Lora',serif;font-size:26px;font-weight:700;color:${secondary};line-height:1.25;">${amenHead}</div>
   </div>
 
-  <div style="background-color:${pageBg};padding:22px 0 8px;">
-    <div style="line-height:0;font-size:0;text-align:center;">
-      ${isStoryGenerated
-        ? `<img src="${storyA}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;margin:0 auto;border:0;outline:none;"/>`
-        : `<div style="position:relative;width:100%;max-width:600px;height:360px;margin:0 auto;">
-            ${storyB ? `<div style="position:absolute;left:60px;top:150px;width:200px;height:200px;border-radius:50%;overflow:hidden;border:6px solid ${pageBg};"><img src="${storyB}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;"/></div>` : ''}
-            ${storyA ? `<div style="position:absolute;left:220px;top:20px;width:320px;height:320px;border-radius:50%;overflow:hidden;border:6px solid ${pageBg};"><img src="${storyA}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;"/></div>` : ''}
-          </div>`}
+  <div class="w3wf-section" style="padding:16px 48px 0;background-color:${pageBg};">
+    <div style="background-color:${cardTint};border:1px solid ${cardBorder};border-radius:16px;padding:8px;">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
+        ${[0, 2].map(row => `<tr>${[0, 1].map(col => {
+          const g = gridImgs[row + col]
+          return `<td width="50%" valign="top" style="width:50%;padding:6px;line-height:0;font-size:0;">${g
+            ? `<img src="${g}" alt="" style="width:100%;height:230px;object-fit:cover;display:block;border-radius:12px;border:0;outline:none;"/>`
+            : `<div style="width:100%;height:230px;background:${pillBg};border-radius:12px;"></div>`}</td>`
+        }).join('')}</tr>`).join('')}
+      </table>
     </div>
   </div>` : ''}
 
@@ -2457,11 +2457,11 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
     const editorProps = isEditable ? { heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y } : {}
     const isHeroGenerated = [10, 11, 13, 16, 17, 18, 19, 20, 23, 24, 25, 31, 32, 33].includes(tpl?.id) && !!tplUrls.hero
     // Week 1 WF bakes its two overlapping story circles into one PNG at slot 4
-    const isStoryGenerated = (tpl?.id === 31 || tpl?.id === 33) && !!tplUrls.sec
+    const isStoryGenerated = tpl?.id === 31 && !!tplUrls.sec
     // ...and each stay photo into its own flat crop, so cardsGenerated[i] tells
     // the builder that images[i+1] is already cropped/zoomed and should render
     // as a plain <img> rather than re-applying position:absolute + a transform
-    const cardsGenerated = (tpl?.id === 31 || tpl?.id === 33) ? [!!tplUrls.card1, !!tplUrls.card2, !!tplUrls.card3] : [false, false, false]
+    const cardsGenerated = tpl?.id === 31 ? [!!tplUrls.card1, !!tplUrls.card2, !!tplUrls.card3] : [false, false, false]
     const effectiveFooterData = clientFooter
       ? { ...clientFooter, logoColor: footerLogoColor, footerLogoSize }
       : clientFooter
@@ -2756,10 +2756,11 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
     const isWeek2WF  = tpl?.id === 32
     const isWeek3WF  = tpl?.id === 33
     /* All three welcome templates share the hero and the buttons, so those bakes
-       gate on isWFAny. Weeks 1 and 3 additionally carry stay cards and the story
-       circles; Week 2's itinerary has neither, so those gate on isWFCards. */
+       gate on isWFAny. Only Week 1 carries stay cards and the story circles —
+       Week 2 is an itinerary and Week 3 is reviews plus a plain photo grid, and
+       neither renders either — so those gate on isWFCards. */
     const isWFAny    = isWeek1WF || isWeek2WF || isWeek3WF
-    const isWFCards  = isWeek1WF || isWeek3WF
+    const isWFCards  = isWeek1WF
     const isTest     = tpl?.id === 20
     const renderLogoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
     const logoHtml = logoUrl
@@ -2902,7 +2903,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
         ${w3First ? `<div style="font-family:'Lora',serif;font-size:${Math.round(textSize * 0.8)}px;font-style:italic;font-weight:400;color:#fff;line-height:1;text-shadow:0 2px 12px rgba(0,0,0,.35);margin-bottom:2px;">${w3First}</div>` : ''}
         <div style="font-family:'Lora',serif;font-size:${textSize}px;font-weight:700;text-transform:uppercase;color:#fff;line-height:1.02;text-shadow:0 2px 20px rgba(0,0,0,.3);">${w3Main}${w3Last ? ` <span style="font-family:'Lora',serif;font-style:italic;font-weight:400;text-transform:none;font-size:${Math.round(textSize * 0.9)}px;">${w3Last}</span>` : ''}</div>
         ${week1wfHeroCta ? `<div style="margin-top:26px;">
-          <span style="display:inline-block;background:#e2eae8;border-radius:999px;padding:17px 44px;font-family:Arial,sans-serif;font-size:18px;font-weight:600;color:#1f2937;white-space:nowrap;">${week1wfHeroCta}</span>
+          <span style="display:inline-block;border:2px solid #ffffff;border-radius:999px;padding:16px 38px;font-family:Arial,sans-serif;font-size:17px;line-height:20px;font-weight:700;color:#ffffff;white-space:nowrap;">${week1wfHeroCta}</span>
         </div>` : ''}
       </div>
     </div>
