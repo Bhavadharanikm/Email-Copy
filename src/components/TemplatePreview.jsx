@@ -1925,9 +1925,9 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
     const IMG_COL  = 246
     const textCol_ = `<div class="w2wf-col" style="display:inline-block;width:100%;max-width:${TEXT_COL}px;vertical-align:middle;">
         <div style="padding:2px 14px 2px 0;">
-          ${moment.label ? `<div style="font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:${secondary};line-height:1.35;">${moment.label}</div>` : ''}
+          ${moment.label ? `<div style="font-family:Arial,sans-serif;font-size:18px;font-style:italic;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:${secondary};line-height:1.3;">${moment.label}</div>` : ''}
           ${(moment.label && moment.momentCopy) ? `<div style="height:2px;background-color:${momentRule};line-height:2px;font-size:0;margin:7px 0 0;">&nbsp;</div>` : ''}
-          ${moment.momentCopy ? `<div class="mobile-body" style="font-family:Arial,sans-serif;font-size:15px;color:${textCol};line-height:1.65;margin-top:11px;">${moment.momentCopy}</div>` : ''}
+          ${moment.momentCopy ? `<div class="mobile-body" style="font-family:Arial,sans-serif;font-size:15px;color:${textCol};line-height:1.65;margin-top:6px;">${moment.momentCopy}</div>` : ''}
         </div>
       </div>`
     const imgCol = `<div class="w2wf-col" style="display:inline-block;width:100%;max-width:${IMG_COL}px;vertical-align:middle;">
