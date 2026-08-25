@@ -1925,7 +1925,7 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
     const IMG_COL  = 246
     const textCol_ = `<div class="w2wf-col" style="display:inline-block;width:100%;max-width:${TEXT_COL}px;vertical-align:middle;">
         <div style="padding:2px 14px 2px 0;">
-          ${moment.label ? `<div style="font-family:Arial,sans-serif;font-size:18px;font-style:italic;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:${secondary};line-height:1.3;">${moment.label}</div>` : ''}
+          ${moment.label ? `<div style="font-family:'Lora',Georgia,serif;font-size:19px;font-style:italic;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:${secondary};line-height:1.28;">${moment.label}</div>` : ''}
           ${(moment.label && moment.momentCopy) ? `<div style="height:2px;background-color:${momentRule};line-height:2px;font-size:0;margin:7px 0 0;">&nbsp;</div>` : ''}
           ${moment.momentCopy ? `<div class="mobile-body" style="font-family:Arial,sans-serif;font-size:15px;color:${textCol};line-height:1.65;margin-top:6px;">${moment.momentCopy}</div>` : ''}
         </div>
@@ -1977,7 +1977,7 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
 
   return `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<link href="https://fonts.googleapis.com/css2?family=Lora:wght@700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,700;1,400;1,700&display=swap" rel="stylesheet"/>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   body{margin:0;padding:0;color:#1a1a1a;}
