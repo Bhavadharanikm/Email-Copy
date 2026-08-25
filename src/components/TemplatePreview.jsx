@@ -20,19 +20,27 @@ const W2_TRY_ITEMS = [
 
 /* An outlined pill on the photo — no fill, a white hairline border and white
    label — so it reads as a control sitting on the image rather than a second
-   solid button competing with the one at the foot of the email. Its wording
-   comes from the email's CTA, so there is still only one thing being asked.
+   solid button competing with the one at the foot of the email.
+
+   Its wording is fixed rather than taken from the email's CTA: the hero is
+   dressed as an offline page, and "Try Reconnecting" is the line that scene
+   ends on. It is also why the three Try lines above avoid the word.
+
    A table rather than a bare <a>: Outlook ignores padding on an inline-block,
-   and a bordered cell is the one shape it renders reliably. */
-const w2TryButtonHtml = (label, href) => label
-  ? `<div style="padding:22px 0 0;">
+   and a bordered cell is the one shape it renders reliably. line-height is
+   set explicitly because the box this sits in runs line-height:0 to kill
+   image gaps — inherited, it collapses the label's own line box and the
+   pill comes out 44px tall instead of 61. */
+const W2_TRY_BUTTON_LABEL = 'Try Reconnecting'
+
+const w2TryButtonHtml = (href) =>
+  `<div style="padding:24px 0 0;">
       <table cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;"><tr>
         <td style="border:2px solid #ffffff;border-radius:999px;padding:0;">
-          <a href="${href || '#'}" style="display:inline-block;padding:13px 30px;font-family:Arial,sans-serif;font-size:15px;font-weight:700;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${label}</a>
+          <a href="${href || '#'}" style="display:inline-block;padding:20px 40px;font-family:Arial,sans-serif;font-size:17px;line-height:20px;font-weight:700;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${W2_TRY_BUTTON_LABEL}</a>
         </td>
       </tr></table>
     </div>`
-  : ''
 
 const W2_TRY_LIST_HTML = `<div style="padding:14px 0 0 18px;">${W2_TRY_ITEMS.map(t =>
   `<div style="font-family:Arial,sans-serif;font-size:18px;line-height:1.85;color:#ffffff;white-space:nowrap;">
@@ -2013,7 +2021,7 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
         <div style="position:absolute;left:36px;bottom:96px;width:390px;max-width:72%;text-align:left;line-height:0;font-size:0;">
           <img src="/gogleinternet-crop.png" alt="" width="390" style="width:100%;height:auto;display:block;border:0;outline:none;"/>
           ${W2_TRY_LIST_HTML}
-          ${w2TryButtonHtml(copy.ctaText, copy.ctaUrl)}
+          ${w2TryButtonHtml(copy.ctaUrl)}
         </div>
       </div>
     </div>
@@ -2916,7 +2924,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
       <div style="position:absolute;left:36px;bottom:96px;width:390px;text-align:left;line-height:0;font-size:0;">
         <img src="${W2_HERO_OVERLAY_URI}" width="390" style="width:100%;height:auto;display:block;border:0;outline:none;"/>
         ${W2_TRY_LIST_HTML}
-        ${w2TryButtonHtml(generatedCopy?.ctaText || '', '#')}
+        ${w2TryButtonHtml('#')}
       </div>
     </div>
   </div>
