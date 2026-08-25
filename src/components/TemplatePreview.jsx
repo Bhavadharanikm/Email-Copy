@@ -2230,7 +2230,7 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
             ${logoOverlayOnHero}
             ${copy.headlineText ? `<div style="text-align:left;margin-top:${textTop + 210}px;">
               ${hwFirst ? `<div style="font-family:'Lora',serif;font-size:${Math.round(textSize * 0.8)}px;font-style:italic;font-weight:400;color:#ffffff;line-height:1;text-shadow:0 2px 12px rgba(0,0,0,.35);margin-bottom:2px;">${hwFirst}</div>` : ''}
-              <div style="font-family:'Lora',serif;font-size:${textSize}px;font-weight:700;text-transform:uppercase;color:#ffffff;line-height:1.02;text-shadow:0 2px 20px rgba(0,0,0,.3);">${hwMain}${hwLast ? ` <span style="font-family:'Lora',serif;font-style:italic;font-weight:400;text-transform:none;font-size:${Math.round(textSize * 0.9)}px;">${hwLast}</span>` : ''}</div>
+              <div style="font-family:'Lora',serif;font-size:${textSize}px;font-weight:700;text-transform:uppercase;color:#ffffff;line-height:1.02;text-shadow:0 2px 20px rgba(0,0,0,.3);">${hwMain}${hwLast ? ` <span style="font-family:'Lora',serif;font-style:italic;font-weight:400;text-transform:capitalize;font-size:${Math.round(textSize * 0.9)}px;">${hwLast}</span>` : ''}</div>
             </div>` : ''}
             ${heroCta ? `<div style="margin-top:30px;">
               <table cellpadding="0" cellspacing="0" border="0" style="margin:0;max-width:100%;border-collapse:separate;"><tr><td style="border:2px solid #ffffff;border-radius:999px;padding:0;">
@@ -2901,7 +2901,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
       <div style="position:absolute;top:${logoTop}px;left:0;right:0;text-align:center;line-height:normal;">${week1wfLogoHtml}</div>
       <div style="position:absolute;left:${textLeft}px;right:${textLeft}px;top:${textTop + 210}px;text-align:left;line-height:normal;">
         ${w3First ? `<div style="font-family:'Lora',serif;font-size:${Math.round(textSize * 0.8)}px;font-style:italic;font-weight:400;color:#fff;line-height:1;text-shadow:0 2px 12px rgba(0,0,0,.35);margin-bottom:2px;">${w3First}</div>` : ''}
-        <div style="font-family:'Lora',serif;font-size:${textSize}px;font-weight:700;text-transform:uppercase;color:#fff;line-height:1.02;text-shadow:0 2px 20px rgba(0,0,0,.3);">${w3Main}${w3Last ? ` <span style="font-family:'Lora',serif;font-style:italic;font-weight:400;text-transform:none;font-size:${Math.round(textSize * 0.9)}px;">${w3Last}</span>` : ''}</div>
+        <div style="font-family:'Lora',serif;font-size:${textSize}px;font-weight:700;text-transform:uppercase;color:#fff;line-height:1.02;text-shadow:0 2px 20px rgba(0,0,0,.3);">${w3Main}${w3Last ? ` <span style="font-family:'Lora',serif;font-style:italic;font-weight:400;text-transform:capitalize;font-size:${Math.round(textSize * 0.9)}px;">${w3Last}</span>` : ''}</div>
         ${week1wfHeroCta ? `<div style="margin-top:26px;">
           <span style="display:inline-block;border:2px solid #ffffff;border-radius:999px;padding:16px 38px;font-family:Arial,sans-serif;font-size:17px;line-height:20px;font-weight:700;color:#ffffff;white-space:nowrap;">${week1wfHeroCta}</span>
         </div>` : ''}
