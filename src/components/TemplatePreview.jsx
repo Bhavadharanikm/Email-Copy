@@ -2204,8 +2204,12 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
   @media only screen and (max-width:600px){
     .w3wf-section  { padding-left:24px!important; padding-right:24px!important; }
     .w3wf-hero     { height:560px!important; }
+    /* The desktop button is deliberately narrow — 420px with a 15px label.
+       These put the phone back to full width at the old size, so nothing about
+       the mobile button changes. */
     .w3wf-btn-img  { width:100%!important; max-width:100%!important; }
-    .w3wf-cta      { padding:18px 36px!important; }
+    .w3wf-btnwrap  { max-width:100%!important; }
+    .w3wf-cta      { padding:18px 36px!important; font-size:17px!important; }
     .w3wf-cardbox  { padding:16px!important; }
   }
 </style></head>
@@ -2288,8 +2292,8 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
 
   ${copy.ctaText ? `<div class="w3wf-section" style="padding:22px 48px 34px;background-color:${pageBg};text-align:center;">
     ${btnImgUrl
-      ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w3wf-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="600" height="88" style="width:100%;max-width:600px;height:auto;display:block;margin:0 auto;border:0;outline:none;"/></a>`
-      : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;width:100%;max-width:600px;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w3wf-cta mobile-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:18px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;text-align:center;">${copy.ctaText} &rarr;</a></td></tr></table>`}
+      ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w3wf-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="420" height="62" style="width:420px;max-width:420px;height:auto;display:block;margin:0 auto;border:0;outline:none;"/></a>`
+      : `<table class="w3wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;width:100%;max-width:420px;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w3wf-cta mobile-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:15px 30px;font-family:Arial,sans-serif;font-size:15px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;text-align:center;">${copy.ctaText} &rarr;</a></td></tr></table>`}
   </div>` : ''}
 
   ${footerLine ? `<div class="w3wf-section" style="padding:0 48px 30px;background-color:${pageBg};text-align:center;">
@@ -2451,8 +2455,14 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
       if (tplUrls.card1) effectiveImages[1] = { url: tplUrls.card1, focalX: 50, focalY: 50 }
       if (tplUrls.card2) effectiveImages[2] = { url: tplUrls.card2, focalX: 50, focalY: 50 }
       if (tplUrls.card3) effectiveImages[3] = { url: tplUrls.card3, focalX: 50, focalY: 50 }
-      if (tplUrls.sec)   effectiveImages[4] = { url: tplUrls.sec,   focalX: 50, focalY: 50 }
-      if (tplUrls.ter)   effectiveImages[5] = { url: tplUrls.ter,   focalX: 50, focalY: 50 }
+      /* Slots 4 and 5 normally hold baked composites — Week 1's story circles,
+         a stamp, a pin. Week 3 WF fills its photo grid straight from Sub 1-4,
+         so swapping slot 4 would drop a composite into the fourth cell. It used
+         to bake circles into that slot, so a stale one can still be sitting in
+         weekGenUrls from before the grid replaced them. */
+      const usesBakedSecTer = tpl?.id !== 33
+      if (usesBakedSecTer && tplUrls.sec) effectiveImages[4] = { url: tplUrls.sec, focalX: 50, focalY: 50 }
+      if (usesBakedSecTer && tplUrls.ter) effectiveImages[5] = { url: tplUrls.ter, focalX: 50, focalY: 50 }
     }
     const editorProps = isEditable ? { heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y } : {}
     const isHeroGenerated = [10, 11, 13, 16, 17, 18, 19, 20, 23, 24, 25, 31, 32, 33].includes(tpl?.id) && !!tplUrls.hero
