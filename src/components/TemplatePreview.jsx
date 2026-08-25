@@ -1923,14 +1923,14 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
        would squeeze into two thin columns on a phone instead of stacking. */
     const TEXT_COL = 228
     const IMG_COL  = 246
-    const textCol_ = `<div class="w2wf-col" style="display:inline-block;width:100%;max-width:${TEXT_COL}px;vertical-align:top;">
-        <div style="padding:0 14px 14px 0;">
+    const textCol_ = `<div class="w2wf-col" style="display:inline-block;width:100%;max-width:${TEXT_COL}px;vertical-align:middle;">
+        <div style="padding:2px 14px 2px 0;">
           ${moment.label ? `<div style="font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:${secondary};line-height:1.35;">${moment.label}</div>` : ''}
-          ${(moment.label && moment.momentCopy) ? `<div style="height:1px;background-color:${momentRule};line-height:1px;font-size:0;margin:12px 0 0;">&nbsp;</div>` : ''}
-          ${moment.momentCopy ? `<div class="mobile-body" style="font-family:Arial,sans-serif;font-size:15px;color:${textCol};line-height:1.65;margin-top:12px;">${moment.momentCopy}</div>` : ''}
+          ${(moment.label && moment.momentCopy) ? `<div style="height:2px;background-color:${momentRule};line-height:2px;font-size:0;margin:7px 0 0;">&nbsp;</div>` : ''}
+          ${moment.momentCopy ? `<div class="mobile-body" style="font-family:Arial,sans-serif;font-size:15px;color:${textCol};line-height:1.65;margin-top:11px;">${moment.momentCopy}</div>` : ''}
         </div>
       </div>`
-    const imgCol = `<div class="w2wf-col" style="display:inline-block;width:100%;max-width:${IMG_COL}px;vertical-align:top;">
+    const imgCol = `<div class="w2wf-col" style="display:inline-block;width:100%;max-width:${IMG_COL}px;vertical-align:middle;">
         <div style="line-height:0;font-size:0;">
           ${img
             ? `<div style="position:relative;width:100%;height:230px;overflow:hidden;border-radius:12px;border:1px solid ${cardBorder};"><img src="${img}" alt="${moment.label||''}" style="position:absolute;top:0;left:0;width:100%;height:230px;object-fit:cover;display:block;transform:${momentTf[i]};transform-origin:center center;"/></div>`
@@ -1939,9 +1939,9 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
       </div>`
     return `<div class="w2wf-cardbox" style="background-color:${cardTint};border:1px solid ${cardBorder};border-radius:16px;padding:14px;">
       <div style="font-size:0;line-height:0;">
-        <!--[if mso]><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="50%" valign="top"><![endif]-->
+        <!--[if mso]><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="50%" valign="middle"><![endif]-->
         ${textCol_}
-        <!--[if mso]></td><td width="50%" valign="top"><![endif]-->
+        <!--[if mso]></td><td width="50%" valign="middle"><![endif]-->
         ${imgCol}
         <!--[if mso]></td></tr></table><![endif]-->
       </div>
