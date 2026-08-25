@@ -2220,7 +2220,7 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
   ${isHeroGenerated
     ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${heroImg}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;border:0;outline:none;"/></a></div>`
     : `<div style="line-height:0;font-size:0;background-color:${pageBg};">
-    <div class="w3wf-hero" style="position:relative;width:100%;max-width:600px;height:772px;overflow:hidden;border-radius:0 0 300px 300px;">
+    <div class="w3wf-hero" style="position:relative;width:100%;max-width:600px;height:772px;overflow:hidden;">
       ${heroImg
         ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
         : `<div style="width:100%;height:100%;background:${pillBg};"></div>`}
@@ -2893,7 +2893,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:${week1wfBg};}</style>
 </head><body>
 <div style="width:600px;background:${week1wfBg};box-sizing:border-box;line-height:0;font-size:0;">
-  <div style="position:relative;width:600px;height:772px;overflow:hidden;border-radius:0 0 300px 300px;">
+  <div style="position:relative;width:600px;height:772px;overflow:hidden;">
     ${heroImgUrl
       ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:600px;height:772px;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
       : `<div style="width:600px;height:772px;background:#e8eaed;"></div>`}
