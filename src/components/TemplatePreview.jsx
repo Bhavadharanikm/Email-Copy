@@ -2080,7 +2080,7 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
   heroScale=1, heroX=0, heroY=0,
   textSize=44, textTop=34, textLeft=52,
   logoColor='original', logoTop=64, logoRight=200, logoSize=44,
-  btnImgUrl = null, introBtnImgUrl = null,
+  btnImgUrl = null, introBtnImgUrl = null, gridImgUrl = null,
 }) {
   const heroObj = images?.[0]; const heroImg = heroObj?.url || ''
   /* The reviews are text only, so every sub-image goes to the photo grid below
@@ -2268,6 +2268,7 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
   </div>
 
   <div style="padding:16px 0 0;background-color:${pageBg};">
+    ${gridImgUrl ? `<div style="line-height:0;font-size:0;"><img src="${gridImgUrl}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;border:0;outline:none;"/></div>` : `
     <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
       ${[0, 2].map(row => `<tr>${[0, 1].map(col => {
         const g = gridImgs[row + col]
@@ -2278,7 +2279,7 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
           ? `<img src="${g}" alt="" style="width:100%;height:230px;object-fit:cover;display:block;border-radius:12px;border:0;outline:none;"/>`
           : `<div style="width:100%;height:230px;background:${pillBg};border-radius:12px;"></div>`}</td>`
       }).join('')}</tr>`).join('')}
-    </table>
+    </table>`}
   </div>` : ''}
 
   <!-- BODY BLOCK — a title and the paragraph that follows the reviews -->
@@ -2478,7 +2479,7 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
       : clientFooter
     console.log('[baseHtml] tplId:', tpl?.id, 'isHeroGenerated:', isHeroGenerated, 'tplUrls:', tplUrls, 'effectiveImages[4]:', effectiveImages?.[4], 'effectiveImages[5]:', effectiveImages?.[5])
     const effectiveCopy = generatedCopy ? { ...generatedCopy, headlineText: (generatedCopy.headlineText || '').replace(/\.$/, '') } : generatedCopy
-    return tpl.build({ client:selectedClient, copy:effectiveCopy, images:effectiveImages, headerStyle, imageStyle, footerData: effectiveFooterData, isHeroGenerated, isStoryGenerated, cardsGenerated, btnImgUrl: tplUrls.btn || null, introBtnImgUrl: tplUrls.introBtn || null, cardBtnImgUrl: tplUrls.cardBtn || null, stampImgUrl: tplUrls.sec || null, pinImgUrl: tplUrls.ter || null, ...editorProps })
+    return tpl.build({ client:selectedClient, copy:effectiveCopy, images:effectiveImages, headerStyle, imageStyle, footerData: effectiveFooterData, isHeroGenerated, isStoryGenerated, cardsGenerated, btnImgUrl: tplUrls.btn || null, introBtnImgUrl: tplUrls.introBtn || null, cardBtnImgUrl: tplUrls.cardBtn || null, stampImgUrl: tplUrls.sec || null, pinImgUrl: tplUrls.ter || null, gridImgUrl: (tpl?.id === 33 ? tplUrls.sec : null) || null, ...editorProps })
   }, [active, selectedClient, generatedCopy, selectedImages, headerStyle, imageStyle, clientFooter, footerLogoColor, footerLogoSize, weekGenUrls, heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y])
 
   // Keep store in sync so ApprovalPanel always has the latest HTML
@@ -2925,6 +2926,25 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
   </div>
 </div>
 </body></html>`
+
+    /* Week 3's 2x2 photo grid, baked flat. Transparent, so the 12px corner on
+       each cell shows the page through instead of a filled square — the same
+       reason its hero is transparent. 600 wide, two rows of 230 plus a 6px
+       gutter, which is the 466 the render is asked for. */
+    const week3wfGridHtml = (isWeek3WF && (img1Url || img2Url || img3Url || img4Url))
+      ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
+</head><body>
+<table width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;border-collapse:collapse;background:transparent;">
+  ${[[img1Url, img2Url], [img3Url, img4Url]].map((row, r) => `<tr>${row.map((u, c) => `
+    <td width="300" valign="top" style="width:300px;padding-top:0;padding-bottom:${r === 0 ? 6 : 0}px;padding-left:${c === 1 ? 3 : 0}px;padding-right:${c === 0 ? 3 : 0}px;line-height:0;font-size:0;">
+      ${u
+        ? `<img src="${u}" style="width:100%;height:230px;object-fit:cover;display:block;border-radius:12px;"/>`
+        : `<div style="width:100%;height:230px;background:rgba(0,0,0,0.06);border-radius:12px;"></div>`}
+    </td>`).join('')}</tr>`).join('')}
+</table>
+</body></html>`
+      : null
 
     const heroHtml = isWeek2
       ? week2ArchHtml(midBg, false)
@@ -3603,7 +3623,9 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </body></html>` : null
 
     const heroHeight = isWeek9 ? 720 : isWeek2 ? 580 : isWFAny ? 772 : isWeek8v2 ? 680 : isWeek7v2 ? ((img1Url || img2Url || img3Url) ? 988 : 720) : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : isTest ? 520 : 400
-    const secondaryPromise = isWFCards && week1wfStoryHtml
+    const secondaryPromise = isWeek3WF && week3wfGridHtml
+      ? renderImage({ html: week3wfGridHtml, width: 600, height: 466, transparent: true })
+      : isWFCards && week1wfStoryHtml
       ? renderImage({ html: week1wfStoryHtml, width: 600, height: 360, transparent: true })
       : isWeek9 && week9GridHtml
       ? renderImage({ html: week9GridHtml, width: 600, height: 564, transparent: true })
