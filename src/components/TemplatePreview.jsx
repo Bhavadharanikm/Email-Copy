@@ -2267,17 +2267,18 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
     <div style="font-family:'Lora',serif;font-size:26px;font-weight:700;color:${secondary};line-height:1.25;">${amenHead}</div>
   </div>
 
-  <div class="w3wf-section" style="padding:16px 24px 0;background-color:${pageBg};">
-    <div style="background-color:${cardTint};border:1px solid ${cardBorder};border-radius:16px;padding:8px;">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
-        ${[0, 2].map(row => `<tr>${[0, 1].map(col => {
-          const g = gridImgs[row + col]
-          return `<td width="50%" valign="top" style="width:50%;padding:6px;line-height:0;font-size:0;">${g
-            ? `<img src="${g}" alt="" style="width:100%;height:230px;object-fit:cover;display:block;border-radius:12px;border:0;outline:none;"/>`
-            : `<div style="width:100%;height:230px;background:${pillBg};border-radius:12px;"></div>`}</td>`
-        }).join('')}</tr>`).join('')}
-      </table>
-    </div>
+  <div style="padding:16px 0 0;background-color:${pageBg};">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
+      ${[0, 2].map(row => `<tr>${[0, 1].map(col => {
+        const g = gridImgs[row + col]
+        /* No wrapper, no border: the grid runs edge to edge, so the outer sides
+           carry no padding and only the gutter between the cells does. */
+        const pad = col === 0 ? '0 3px 6px 0' : '0 0 6px 3px'
+        return `<td width="50%" valign="top" style="width:50%;padding:${pad};line-height:0;font-size:0;">${g
+          ? `<img src="${g}" alt="" style="width:100%;height:230px;object-fit:cover;display:block;border-radius:12px;border:0;outline:none;"/>`
+          : `<div style="width:100%;height:230px;background:${pillBg};border-radius:12px;"></div>`}</td>`
+      }).join('')}</tr>`).join('')}
+    </table>
   </div>` : ''}
 
   <!-- BODY BLOCK — a title and the paragraph that follows the reviews -->
