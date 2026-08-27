@@ -169,18 +169,20 @@ function buildFooter(client, footerData = null, options = {}) {
     : `<div style="margin:0 0 20px;font-size:16px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:${textCol};font-family:Arial,sans-serif">${name}</div>`
 
   const contactParts = [
-    contactInfo   ? `<a href="mailto:${contactInfo}" style="color:${textCol};text-decoration:underline;font-weight:600">${contactInfo}</a>` : '',
-    contactNumber ? `<a href="tel:${contactNumber.replace(/\s/g,'')}" style="color:${textCol};text-decoration:underline;font-weight:600">${contactNumber}</a>` : '',
+    contactInfo   ? `<a href="mailto:${contactInfo}" style="color:${textCol};text-decoration:underline;white-space:nowrap">${contactInfo}</a>` : '',
+    contactNumber ? `<a href="tel:${contactNumber.replace(/\s/g,'')}" style="color:${textCol};text-decoration:underline;white-space:nowrap">${contactNumber}</a>` : '',
   ].filter(Boolean)
   const contactHtml = contactParts.length
-    ? `<div style="font-size:14px;color:${textCol};font-family:Arial,sans-serif;margin-bottom:${sectionGap || 16}px;line-height:1.25;text-align:center">${contactParts.join(`&nbsp;&nbsp;·&nbsp;&nbsp;`)}</div>`
+    ? `<div style="font-size:14px;color:${textCol};font-family:Arial,sans-serif;margin-bottom:${sectionGap || 16}px;line-height:1.25;text-align:center">${contactParts.join(`&nbsp;·&nbsp;<wbr> `)}</div>`
     : ''
 
   const footerTextHtml = footerText
     ? `<div class="mobile-footer" style="font-size:${footerTextSize}px;color:#878787;font-family:Arial,sans-serif;margin-bottom:${sectionGap || 20}px;line-height:1.25;text-align:left">${footerText}</div>`
     : ''
 
-  const divClass = options.gmailClass ? ` class="${options.gmailClass}"` : ''
+  const wrapClasses = [options.gmailClass, options.compactMobile ? 'footer-compact' : '']
+    .filter(Boolean).join(' ')
+  const divClass = wrapClasses ? ` class="${wrapClasses}"` : ''
   return `
   <!-- Footer -->
   <div${divClass} style="background:${bgRaw};padding:44px 48px 36px;text-align:left;border-top:1px solid ${divCol}">
@@ -191,7 +193,7 @@ function buildFooter(client, footerData = null, options = {}) {
     <div style="font-size:14px;color:${linkCol};font-family:Arial,sans-serif;line-height:1.25;margin-top:8px;text-align:center">
       <a href="{{email.view_in_browser_url}}" style="color:${linkCol};text-decoration:underline">View in browser</a>
       &nbsp;·&nbsp;
-      <a href="{{email.unsubscribe_link}}" style="color:${linkCol};text-decoration:underline;font-weight:600">Unsubscribe</a>
+      <a href="{{email.unsubscribe_link}}" style="color:${linkCol};text-decoration:underline">Unsubscribe</a>
     </div>
   </div>`
 }
@@ -214,6 +216,7 @@ const SHARED_MOBILE_CSS = `
     .mobile-closing { font-size:17px!important; line-height:1.5!important; }
     .mobile-cta     { font-size:20px!important; padding:20px 80px!important; }
     .mobile-footer  { font-size:14px!important; line-height:1.4!important; }
+    .footer-compact { padding-left:20px!important; padding-right:20px!important; }
   }
 `
 
@@ -1822,7 +1825,7 @@ function buildTemplateWeek1WF({ client, copy, images, footerData, isHeroGenerate
     : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;max-width:100%;"><tr><td style="background:${accent};border-radius:999px;"><a class="w1wf-cta mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;">${copy.ctaText} &rarr;</a></td></tr></table>`
   }</div>` : ''}
 
-  <div style="background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary })}</div>
+  <div style="background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true })}</div>
 
 </td></tr></table>
 </body></html>`
@@ -2065,7 +2068,7 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
       : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;width:100%;max-width:600px;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w2wf-cta mobile-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:18px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;text-align:center;">${copy.ctaText} &rarr;</a></td></tr></table>`}
   </div>` : ''}
 
-  <div style="background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary })}</div>
+  <div style="background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true })}</div>
 
 </td></tr>
 </table>
@@ -2170,22 +2173,29 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
       .replace(/,?\s*\bvia\s+[A-Za-z][A-Za-z .&'-]*$/, '').replace(/^[—–-]\s*/, '').trim()
   }
 
+  /* **like this** inside a quote comes out bold. Whoever edits the copy picks
+     the words to emphasise — the template does not guess, because deciding what
+     to stress inside someone's verbatim review is an editorial call. Left
+     unmarked, the quote renders exactly as written. */
+  const emphasise = (t) => String(t || '')
+    .replace(/\*\*(.+?)\*\*/g, '<strong style="font-weight:700;">$1</strong>')
+
   const reviewBlock = (review) => {
     const byline   = bylineOf(review)
     const platform = platformOf(review)
     return `<div class="w3wf-cardbox" style="background-color:${cardTint};border:1px solid ${cardBorder};border-radius:16px;padding:18px;margin-bottom:14px;">
       ${stars}
-      ${review.quote ? `<div class="mobile-body" style="font-family:Arial,sans-serif;font-size:15px;color:${textCol};line-height:1.65;margin-top:12px;">&ldquo;${review.quote}&rdquo;</div>` : ''}
+      ${review.quote ? `<div style="font-family:Arial,sans-serif;font-size:16px;color:${textCol};line-height:24px;margin-top:12px;">&ldquo;${emphasise(review.quote)}&rdquo;</div>` : ''}
       ${byline ? `<table cellpadding="0" cellspacing="0" border="0" style="margin-top:16px;border-collapse:collapse;">
         <tr>
           <td width="38" valign="top" style="width:38px;padding-right:10px;">
             <table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;"><tr>
-              <td width="38" height="38" align="center" valign="middle" style="width:38px;height:38px;background:${avatarTint};border-radius:19px;font-family:Arial,sans-serif;font-size:15px;font-weight:700;color:${textCol};text-align:center;">${initialOf(byline)}</td>
+              <td width="44" align="left" valign="top" style="width:44px;"><div style="width:44px;height:44px;border-radius:50%;background:${avatarTint};font-family:Arial,sans-serif;font-size:16px;line-height:44px;font-weight:700;color:${textCol};text-align:center;">${initialOf(byline)}</div></td>
             </tr></table>
           </td>
           <td valign="middle" style="vertical-align:middle;">
-            <div style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;color:${textCol};line-height:1.4;">${byline}</div>
-            <div style="font-family:Arial,sans-serif;font-size:11.5px;color:${faintTextCol};line-height:1.4;margin-top:2px;">&#10003; Verified review${platform ? ` &middot; ${platform}` : ''}</div>
+            <div style="font-family:Arial,sans-serif;font-size:14px;color:${textCol};line-height:20px;">${byline}</div>
+            <div style="font-family:Arial,sans-serif;font-size:12px;color:${faintTextCol};line-height:16px;margin-top:2px;">&#10003; Verified review${platform ? ` &middot; ${platform}` : ''}</div>
           </td>
         </tr>
       </table>` : ''}
@@ -2249,8 +2259,8 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
 
   <!-- TESTIMONIALS — chip, heading, then the setup line as the subhead -->
   ${reviews.length ? `<div class="w3wf-section" style="padding:34px 48px 0;text-align:center;background-color:${pageBg};">
-    <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${pillBg};border-radius:999px;padding:6px 14px;">
-      <span style="font-family:Arial,sans-serif;font-size:12px;line-height:12px;font-weight:600;color:${mutedTextCol};letter-spacing:.02em;">${sectionLabel}</span>
+    <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;border-collapse:separate;"><tr><td style="background:#F0F0F0;border:1px solid #DEDEDE;border-radius:999px;padding:6px 14px;">
+      <span style="font-family:Arial,sans-serif;font-size:14px;line-height:14px;font-weight:600;color:#3A3A3A;letter-spacing:.02em;">${sectionLabel}</span>
     </td></tr></table>
     <div style="font-family:'Lora',serif;font-size:26px;font-weight:700;color:${secondary};line-height:1.25;margin-top:14px;">${sectionHead}</div>
     ${setup ? `<div class="mobile-body" style="font-family:Arial,sans-serif;font-size:15px;color:${mutedTextCol};line-height:1.6;margin-top:10px;">${setup}</div>` : ''}
@@ -2263,11 +2273,18 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
   <!-- The photo grid: a heading, then four cells. A real table rather than
        inline-blocks — these are photos, so halving their width on a phone reads
        fine, and Outlook handles a table correctly. -->
-  ${hasGrid ? `<div class="w3wf-section" style="padding:30px 48px 0;text-align:center;background-color:${pageBg};">
+  ${hasGrid ? `<!-- A rule closes off the reviews before the amenities heading opens
+       the next section. A bordered div rather than <hr>, which Outlook styles
+       on its own terms. -->
+  <div class="w3wf-section" style="padding:32px 24px 0;background-color:${pageBg};">
+    <div style="height:0;border-top:1px solid ${cardBorder};line-height:0;font-size:0;">&nbsp;</div>
+  </div>
+
+  <div class="w3wf-section" style="padding:26px 48px 0;text-align:center;background-color:${pageBg};">
     <div style="font-family:'Lora',serif;font-size:26px;font-weight:700;color:${secondary};line-height:1.25;">${amenHead}</div>
   </div>
 
-  <div style="padding:16px 0 0;background-color:${pageBg};">
+  <div style="padding:18px 0 0;background-color:${pageBg};">
     ${gridImgUrl ? `<div style="line-height:0;font-size:0;"><img src="${gridImgUrl}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;border:0;outline:none;"/></div>` : `
     <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
       ${[0, 2].map(row => `<tr>${[0, 1].map(col => {
@@ -2276,8 +2293,8 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
            carry no padding and only the gutter between the cells does. */
         const pad = col === 0 ? '0 3px 6px 0' : '0 0 6px 3px'
         return `<td width="50%" valign="top" style="width:50%;padding:${pad};line-height:0;font-size:0;">${g
-          ? `<img src="${g}" alt="" style="width:100%;height:230px;object-fit:cover;display:block;border-radius:12px;border:0;outline:none;"/>`
-          : `<div style="width:100%;height:230px;background:${pillBg};border-radius:12px;"></div>`}</td>`
+          ? `<img src="${g}" alt="" style="width:100%;aspect-ratio:1/1;height:auto;object-fit:cover;display:block;border-radius:12px;border:0;outline:none;"/>`
+          : `<div style="width:100%;aspect-ratio:1/1;background:${pillBg};border-radius:12px;"></div>`}</td>`
       }).join('')}</tr>`).join('')}
     </table>`}
   </div>` : ''}
@@ -2295,14 +2312,14 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
   ${copy.ctaText ? `<div class="w3wf-section" style="padding:22px 48px 34px;background-color:${pageBg};text-align:center;">
     ${btnImgUrl
       ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w3wf-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="420" height="62" style="width:420px;max-width:420px;height:auto;display:block;margin:0 auto;border:0;outline:none;"/></a>`
-      : `<table class="w3wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;width:100%;max-width:420px;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w3wf-cta mobile-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:15px 30px;font-family:Arial,sans-serif;font-size:15px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;text-align:center;">${copy.ctaText} &rarr;</a></td></tr></table>`}
+      : `<table class="w3wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;width:100%;max-width:420px;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w3wf-cta mobile-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:15px 30px;font-family:Arial,sans-serif;font-size:15px;font-weight:700;letter-spacing:.04em;color:#1a1a1a!important;-webkit-text-fill-color:#1a1a1a;text-decoration:none!important;text-align:center;">${copy.ctaText} &rarr;</a></td></tr></table>`}
   </div>` : ''}
 
   ${footerLine ? `<div class="w3wf-section" style="padding:0 48px 30px;background-color:${pageBg};text-align:center;">
     <div style="font-family:Arial,sans-serif;font-size:13px;color:${faintTextCol};line-height:1.6;">${footerLine}</div>
   </div>` : ''}
 
-  <div style="background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary })}</div>
+  <div style="background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true })}</div>
 
 </td></tr>
 </table>
@@ -2939,8 +2956,8 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
   ${[[img1Url, img2Url], [img3Url, img4Url]].map((row, r) => `<tr>${row.map((u, c) => `
     <td width="300" valign="top" style="width:300px;padding-top:0;padding-bottom:${r === 0 ? 6 : 0}px;padding-left:${c === 1 ? 3 : 0}px;padding-right:${c === 0 ? 3 : 0}px;line-height:0;font-size:0;">
       ${u
-        ? `<img src="${u}" style="width:100%;height:230px;object-fit:cover;display:block;border-radius:12px;"/>`
-        : `<div style="width:100%;height:230px;background:rgba(0,0,0,0.06);border-radius:12px;"></div>`}
+        ? `<img src="${u}" style="width:100%;height:297px;object-fit:cover;display:block;border-radius:12px;"/>`
+        : `<div style="width:100%;height:297px;background:rgba(0,0,0,0.06);border-radius:12px;"></div>`}
     </td>`).join('')}</tr>`).join('')}
 </table>
 </body></html>`
@@ -3080,7 +3097,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </head><body>
 <div style="width:600px;">
   <div style="display:block;background:${w2v2AccentColor};border-radius:999px;padding:20px 24px;text-align:center;">
-    <span style="font-family:Arial,sans-serif;font-size:28px;font-weight:700;color:#ffffff;white-space:nowrap;">${week1wfMainCtaText} &rarr;</span>
+    <span style="font-family:Arial,sans-serif;font-size:28px;font-weight:700;color:${isWeek3WF ? '#1a1a1a' : '#ffffff'};white-space:nowrap;">${week1wfMainCtaText} &rarr;</span>
   </div>
 </div>
 </body></html>` : null
@@ -3624,7 +3641,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 
     const heroHeight = isWeek9 ? 720 : isWeek2 ? 580 : isWFAny ? 772 : isWeek8v2 ? 680 : isWeek7v2 ? ((img1Url || img2Url || img3Url) ? 988 : 720) : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : isTest ? 520 : 400
     const secondaryPromise = isWeek3WF && week3wfGridHtml
-      ? renderImage({ html: week3wfGridHtml, width: 600, height: 466, transparent: true })
+      ? renderImage({ html: week3wfGridHtml, width: 600, height: 600, transparent: true })
       : isWFCards && week1wfStoryHtml
       ? renderImage({ html: week1wfStoryHtml, width: 600, height: 360, transparent: true })
       : isWeek9 && week9GridHtml
