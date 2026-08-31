@@ -95,17 +95,35 @@ Chips and buttons are unchanged.
 
 ---
 
+## Display face
+
+**Lora** is an approved display face for welcome-flow section headings — the
+Week 2 Body Block Title and Week 3's "Hear From Our Guests" and "Enjoy property
+amenities". It is not a licence to leave the scale: those headings sit at
+**Heading 3**, 24/32 desktop and 20/30 mobile, the same numbers Arial would use.
+
+Everything else below the hero is Arial.
+
+---
+
 ## Where the templates currently disagree
 
-Recorded so the gap is visible rather than forgotten. None of these are fixed yet.
+Recorded so the gap is visible rather than forgotten.
 
-- **Serif headings.** Week 1 WF, Week 2 WF and Week 3 WF set their section
-  headings and moment titles in **Lora**, not Arial. The design system is
-  Arial-only, so either the templates change or the system records Lora as a
-  deliberate display face. Undecided.
-- **Heading sizes.** The section headings in those templates are 26px, which
-  matches neither Heading 2 (32 desktop) nor Heading 3 (24 desktop).
-- **Buttons.** Week 3's bottom CTA is 15px on desktop and its hero pill is 23px;
-  the system says 16px. The hero pill is exempt, the bottom CTA is not.
-- **No chips use the ramp.** The "Testimonials" and "Your Itinerary" chips use
-  the page's neutral tint rather than brand 200 with a brand 400 border.
+- **Week 1 WF** still sets its section headline at Lora 26px with a ratio
+  line-height. Left alone deliberately — Week 1 is not to be touched.
+- **Week 3 WF** carries two sizes the system does not name: the hero pill at
+  23px (the hero is exempt, so this is fine) and "Verified review" at 12px,
+  which borrows Chip small because there is no caption size.
+- **The footer** is on Body small 14/20 for Week 2 WF only, via the
+  `systemSizes` option on `buildFooter`. Every other template — the weeklies,
+  Week 1 WF and Week 3 WF — still renders it at 14/1.25, the brand name at 16px
+  with no line-height, and the footer paragraph at 12px.
+- **No chips use the brand ramp.** Week 2 and Week 3's chips are Chip medium's
+  fixed greys (`#F0F0F0` / `#3A3A3A` / `#DEDEDE`) rather than brand 200 with a
+  brand 400 border.
+
+### Fully on the system
+
+**Week 2 WF, below the hero** — verified by rendering and reading computed
+styles: 17 text styles at 700px and 17 at 390px, all matching a named size.

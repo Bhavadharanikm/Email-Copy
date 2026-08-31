@@ -150,7 +150,12 @@ function buildFooter(client, footerData = null, options = {}) {
   ].filter(s => s.url)
 
   const sectionGap     = options.sectionGap     !== undefined ? options.sectionGap     : 28
-  const footerTextSize = options.footerTextSize !== undefined ? options.footerTextSize : 12
+  const footerTextSize = options.footerTextSize !== undefined ? options.footerTextSize
+    : options.systemSizes ? 14 : 12
+  /* Body small is 14/20 everywhere in the design system. Opt-in, because this
+     footer is shared with the weekly templates, which keep 14/1.25. */
+  const sysLh   = options.systemSizes ? '20px' : '1.25'
+  const sysName = options.systemSizes ? 'font-size:16px;line-height:24px;' : 'font-size:16px;'
 
   const socialHtml = socialIcons.length ? `
     <div style="margin:0 0 ${sectionGap || 20}px;text-align:center;font-size:0">
@@ -166,18 +171,18 @@ function buildFooter(client, footerData = null, options = {}) {
     : 'brightness(0) invert(1)'
   const logoHtml = logoUrl
     ? `<div style="margin:0 0 20px;text-align:center"><img class="w5-footer-logo" src="${logoUrl}" alt="${name}" style="height:${fd.footerLogoSize || 40}px;width:auto;object-fit:contain;display:inline-block;filter:${footerLogoFilter};opacity:.8;background-color:${bgRaw};"/></div>`
-    : `<div style="margin:0 0 20px;font-size:16px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:${textCol};font-family:Arial,sans-serif">${name}</div>`
+    : `<div style="margin:0 0 20px;${sysName}font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:${textCol};font-family:Arial,sans-serif">${name}</div>`
 
   const contactParts = [
     contactInfo   ? `<a href="mailto:${contactInfo}" style="color:${textCol};text-decoration:underline;white-space:nowrap">${contactInfo}</a>` : '',
     contactNumber ? `<a href="tel:${contactNumber.replace(/\s/g,'')}" style="color:${textCol};text-decoration:underline;white-space:nowrap">${contactNumber}</a>` : '',
   ].filter(Boolean)
   const contactHtml = contactParts.length
-    ? `<div style="font-size:14px;color:${textCol};font-family:Arial,sans-serif;margin-bottom:${sectionGap || 16}px;line-height:1.25;text-align:center">${contactParts.join(`&nbsp;·&nbsp;<wbr> `)}</div>`
+    ? `<div style="font-size:14px;color:${textCol};font-family:Arial,sans-serif;margin-bottom:${sectionGap || 16}px;line-height:${sysLh};text-align:center">${contactParts.join(`&nbsp;·&nbsp;<wbr> `)}</div>`
     : ''
 
   const footerTextHtml = footerText
-    ? `<div class="mobile-footer" style="font-size:${footerTextSize}px;color:#878787;font-family:Arial,sans-serif;margin-bottom:${sectionGap || 20}px;line-height:1.25;text-align:left">${footerText}</div>`
+    ? `<div class="mobile-footer" style="font-size:${footerTextSize}px;color:#878787;font-family:Arial,sans-serif;margin-bottom:${sectionGap || 20}px;line-height:${sysLh};text-align:left">${footerText}</div>`
     : ''
 
   const wrapClasses = [options.gmailClass, options.compactMobile ? 'footer-compact' : '']
@@ -190,7 +195,7 @@ function buildFooter(client, footerData = null, options = {}) {
     ${socialHtml}
     ${contactHtml}
     ${footerTextHtml}
-    <div style="font-size:14px;color:${linkCol};font-family:Arial,sans-serif;line-height:1.25;margin-top:8px;text-align:center">
+    <div style="font-size:14px;color:${linkCol};font-family:Arial,sans-serif;line-height:${sysLh};margin-top:8px;text-align:center">
       <a href="{{email.view_in_browser_url}}" style="color:${linkCol};text-decoration:underline">View in browser</a>
       &nbsp;·&nbsp;
       <a href="{{email.unsubscribe_link}}" style="color:${linkCol};text-decoration:underline">Unsubscribe</a>
@@ -1894,10 +1899,11 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
   const momentRule = _mix(secondary, 0.40)
 
   const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
-  const heroLogoFilter = logoColor === 'original' ? 'brightness(0) invert(1)' : logoFilter
-  const logoOverlayOnHero = logoUrl
-    ? `<img src="${logoUrl}" alt="${client?.name||''}" style="display:inline-block;height:${logoSize}px;width:auto;max-width:100%;filter:${heroLogoFilter};"/>`
-    : `<div style="font-family:Arial,sans-serif;font-size:20px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#ffffff;text-shadow:0 1px 6px rgba(0,0,0,.4);">${client?.name||''}</div>`
+  /* The arch puts the logo above the photo on the page background, so it keeps
+     its own colours and the text fallback is dark, not white. */
+  const logoOnPage = logoUrl
+    ? `<img src="${logoUrl}" alt="${client?.name||''}" style="display:inline-block;height:${logoSize}px;width:auto;max-width:100%;filter:${logoFilter};"/>`
+    : `<div style="font-family:Arial,sans-serif;font-size:16px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:${textCol};">${client?.name||''}</div>`
 
   const introCta = copy.introCtaText || ''
   /* Names the block below the divider. Defaults rather than disappearing, since
@@ -1914,44 +1920,38 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
    */
   const momentBlock = (moment, i) => {
     const img = momentImgs[i] || ''
-    /* Text left, photo right — the two columns are inline-blocks with
-       width:100% and a max-width, so they sit side by side while there is room
-       and wrap to stacked when there is not. That works without a media query,
-       which matters because Gmail strips the <style> block: a table with two
-       <td>s would stay two columns on a phone there and squeeze to nothing.
-       The MSO conditional gives Outlook a real table, since it ignores
-       inline-block. */
-    /* 504px card - 2px border - 28px padding = 474px of usable width. The two
-       columns total exactly that, so the photo reaches the card's padding on
-       the right and the inset is an even 14px all round. Fixed pixels rather
-       than percentages on purpose: percentages would never wrap, so the pair
-       would squeeze into two thin columns on a phone instead of stacking. */
-    const TEXT_COL = 228
-    const IMG_COL  = 246
-    const textCol_ = `<div class="w2wf-col" style="display:inline-block;width:100%;max-width:${TEXT_COL}px;vertical-align:middle;">
-        <div style="padding:2px 14px 2px 0;">
-          ${moment.label ? `<div style="font-family:'Lora',Georgia,serif;font-size:19px;font-style:italic;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:${secondary};line-height:1.28;">${moment.label}</div>` : ''}
-          ${(moment.label && moment.momentCopy) ? `<div style="height:2px;background-color:${momentRule};line-height:2px;font-size:0;margin:7px 0 0;">&nbsp;</div>` : ''}
-          ${moment.momentCopy ? `<div class="mobile-body" style="font-family:Arial,sans-serif;font-size:15px;color:${textCol};line-height:1.65;margin-top:6px;">${moment.momentCopy}</div>` : ''}
-        </div>
-      </div>`
-    const imgCol = `<div class="w2wf-col" style="display:inline-block;width:100%;max-width:${IMG_COL}px;vertical-align:middle;">
-        <div style="line-height:0;font-size:0;">
-          ${img
-            ? `<div style="position:relative;width:100%;height:230px;overflow:hidden;border-radius:12px;border:1px solid ${cardBorder};"><img src="${img}" alt="${moment.label||''}" style="position:absolute;top:0;left:0;width:100%;height:230px;object-fit:cover;display:block;transform:${momentTf[i]};transform-origin:center center;"/></div>`
-            : `<div style="width:100%;height:230px;background:${pillBg};border-radius:12px;border:1px solid ${cardBorder};"></div>`}
-        </div>
-      </div>`
-    return `<div class="w2wf-cardbox" style="background-color:${cardTint};border:1px solid ${cardBorder};border-radius:16px;padding:14px;">
-      <div style="font-size:0;line-height:0;">
-        <!--[if mso]><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="50%" valign="middle"><![endif]-->
-        ${textCol_}
-        <!--[if mso]></td><td width="50%" valign="middle"><![endif]-->
-        ${imgCol}
-        <!--[if mso]></td></tr></table><![endif]-->
-      </div>
+    /* A real two-cell table, not wrapping inline-blocks: the thumbnail is meant
+       to stay beside the text at every width, so there is nothing to wrap. The
+       photo cell shrinks on a phone via .w2wf-thumb instead. */
+    /* "Day One, Afternoon" splits at the first comma — the day leads, the time
+       of day sits under it small. A label with no comma leads on its own. */
+    const [dayPart, ...restParts] = String(moment.label || '').split(',')
+    const timePart = restParts.join(',').trim()
+    const THUMB = 168
+    /* The photo alternates sides so the dotted trail leaves one photo and its
+       arrowhead lands on the next. connector(i) runs left-to-right on even i,
+       so an even moment keeps its photo left and an odd one moves it right. */
+    const imgLeft = i % 2 === 0
+    const photoTd = `<td class="w2wf-thumb" width="${THUMB}" valign="middle" style="width:${THUMB}px;line-height:0;font-size:0;">
+            ${img
+              ? `<div class="w2wf-thumbbox" style="position:relative;width:100%;height:${THUMB}px;overflow:hidden;border-radius:14px;"><img src="${img}" alt="${moment.label||''}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:${momentTf[i]};transform-origin:center center;"/></div>`
+              : `<div class="w2wf-thumbbox" style="width:100%;height:${THUMB}px;background:${pillBg};border-radius:14px;"></div>`}
+          </td>`
+    const copyTd = `<td valign="middle" style="padding-${imgLeft ? 'left' : 'right'}:16px;">
+            ${dayPart ? `<div class="w2wf-day" style="font-family:Arial,sans-serif;font-size:24px;line-height:32px;font-weight:700;color:${textCol};">${dayPart.trim()}</div>` : ''}
+            ${timePart ? `<div style="font-family:Arial,sans-serif;font-size:14px;line-height:20px;letter-spacing:.08em;text-transform:uppercase;color:${mutedTextCol};margin-top:2px;">${timePart}</div>` : ''}
+            ${moment.momentCopy ? `<div style="font-family:Arial,sans-serif;font-size:16px;color:${textCol};line-height:24px;margin-top:10px;">${moment.momentCopy}</div>` : ''}
+          </td>`
+    return `<div class="w2wf-cardbox" style="padding:0;">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
+        <tr>
+          ${imgLeft ? photoTd : copyTd}
+          ${imgLeft ? copyTd : photoTd}
+        </tr>
+      </table>
     </div>`
   }
+
 
   /* A dotted trail between consecutive moments, weaving left then right so the
      itinerary reads as one route rather than a stack of cards. Drawn as inline
@@ -1993,12 +1993,17 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
     .w2wf-section  { padding-left:24px!important; padding-right:24px!important; }
     .w2wf-hero     { height:560px!important; }
     .w2wf-btn-img  { width:100%!important; max-width:100%!important; }
-    .w2wf-cta      { padding:18px 36px!important; }
-    .w2wf-cardbox  { padding:14px!important; }
-    /* Once the columns have wrapped, each should span the card so the photo
-       keeps its even 14px inset. Gmail strips this block, but there the card
-       stays 504px wide and the columns never wrap, so the inset holds anyway. */
-    .w2wf-col      { max-width:100%!important; }
+    /* The system fills a button edge to edge on a phone and lets it hug its
+       label on desktop; only the left/right padding differs. */
+    .w2wf-btnwrap  { width:100%!important; }
+    .w2wf-cta      { padding:12px 20px!important; }
+    /* A narrower thumbnail on a phone, so the text keeps a readable measure
+       beside it. Gmail strips this block, but there the card stays 504px wide
+       and 168px leaves plenty of room anyway. */
+    .w2wf-thumb    { width:112px!important; }
+    .wf-lora-h3    { font-size:20px!important; line-height:30px!important; }
+    .w2wf-thumbbox { height:112px!important; }
+    .w2wf-day      { font-size:20px!important; line-height:30px!important; }
   }
 </style></head>
 <body style="margin:0;padding:32px 0 48px;background-color:#ffffff;">
@@ -2006,35 +2011,30 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
 <table class="w2wf-outer" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="width:100%;max-width:600px;margin:0 auto;background-color:${pageBg};border-collapse:collapse;border-radius:20px;overflow:hidden;">
 <tr><td style="background-color:${pageBg};">
 
-  <!-- HERO: full-bleed 600×772 portrait, same treatment as Week 1 — logo,
-       headline and the CTA pill all sit ON the photo. Week 2's copy has no
-       campaign eyebrow, so that line is simply absent. -->
+  <!-- HERO: the logo on the page background, then an arch-topped photo with
+       the headline over its foot. Fluid (max-width, not width) so the card
+       still lays out at the phone's own width — see CRITIQUE.md #1. -->
   ${isHeroGenerated
     ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${heroImg}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;border:0;outline:none;"/></a></div>`
-    : `<div style="line-height:0;font-size:0;background-color:${pageBg};">
-    <div class="w2wf-hero" style="position:relative;width:100%;max-width:600px;height:772px;overflow:hidden;">
+    : `<div style="padding:${logoTop}px 32px 18px;text-align:center;background-color:${pageBg};line-height:normal;">${logoOnPage}</div>
+  <div style="line-height:0;font-size:0;padding:0 36px;background-color:${pageBg};">
+    <div class="w2wf-hero" style="position:relative;width:100%;max-width:528px;height:680px;margin:0 auto;border-radius:999px 999px 0 0;overflow:hidden;">
       ${heroImg
         ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
         : `<div style="width:100%;height:100%;background:${pillBg};"></div>`}
-      <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.25) 40%,rgba(0,0,0,0.45) 100%);">
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
-          <tr><td valign="top" align="center" style="vertical-align:top;text-align:center;padding:${logoTop}px ${textLeft}px 0;line-height:normal;">
-            ${logoOverlayOnHero}
+      <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0) 0%,rgba(0,0,0,0) 50%,rgba(0,0,0,0.45) 100%);">
+        <table width="100%" height="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;height:100%;border-collapse:collapse;">
+          <tr><td valign="bottom" align="center" style="vertical-align:bottom;text-align:center;padding:0 ${textLeft}px ${textTop}px;line-height:normal;">
+            <div style="font-family:'Lora',Georgia,serif;font-size:${textSize}px;font-weight:700;color:#ffffff;line-height:1.12;text-shadow:0 2px 10px rgba(0,0,0,.3);display:inline-block;max-width:360px;">${copy.headlineText||''}</div>
           </td></tr>
         </table>
-        <!-- the No-internet scene, centred over the lower half of the photo -->
-        <div style="position:absolute;left:36px;bottom:96px;width:390px;max-width:72%;text-align:left;line-height:0;font-size:0;">
-          <img src="/gogleinternet-crop.png" alt="" width="390" style="width:100%;height:auto;display:block;border:0;outline:none;"/>
-          ${W2_TRY_LIST_HTML}
-          ${w2TryButtonHtml(copy.ctaUrl)}
-        </div>
       </div>
     </div>
   </div>`}
 
   <!-- INTRO LINE — sets up the itinerary, no selling -->
   ${body ? `<div class="w2wf-section" style="padding:30px 48px 4px;background-color:${pageBg};">
-    <div class="mobile-body" style="font-family:Arial,sans-serif;font-size:17px;color:${textCol};line-height:1.7;">${body}</div>
+    <div style="font-family:Arial,sans-serif;font-size:18px;color:${textCol};line-height:28px;">${body}</div>
   </div>` : ''}
 
   <!-- INTRO CTA — into the itinerary. Week 2 has no field of its own for the
@@ -2042,7 +2042,7 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
   ${introCta ? `<div class="w2wf-section" style="padding:22px 48px 0;background-color:${pageBg};text-align:center;">
     ${introBtnImgUrl
       ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w2wf-btn-img" src="${introBtnImgUrl}" alt="${introCta}" width="600" height="88" style="width:100%;max-width:600px;height:auto;display:block;margin:0 auto;border:0;outline:none;"/></a>`
-      : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;width:100%;max-width:600px;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w2wf-cta mobile-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:18px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;text-align:center;">${introCta} &rarr;</a></td></tr></table>`}
+      : `<table class="w2wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w2wf-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;text-align:center;">${introCta} &rarr;</a></td></tr></table>`}
   </div>` : ''}
 
   ${moments.length ? `<div class="w2wf-section" style="padding:22px 48px 0;background-color:${pageBg};">
@@ -2051,8 +2051,8 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
 
   <!-- Names the itinerary, sitting between the divider and the first moment -->
   ${moments.length ? `<div class="w2wf-section" style="padding:22px 48px 14px;text-align:center;background-color:${pageBg};">
-    <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${pillBg};border-radius:999px;padding:6px 14px;">
-      <span style="font-family:Arial,sans-serif;font-size:12px;line-height:12px;font-weight:600;color:${mutedTextCol};letter-spacing:.02em;">${sectionLabel}</span>
+    <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;border-collapse:separate;"><tr><td style="background:#F0F0F0;border:1px solid #DEDEDE;border-radius:999px;padding:6px 14px;">
+      <span style="font-family:Arial,sans-serif;font-size:14px;line-height:14px;font-weight:600;color:#3A3A3A;letter-spacing:.02em;">${sectionLabel}</span>
     </td></tr></table>
   </div>` : ''}
 
@@ -2061,22 +2061,22 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
 
   <!-- BODY BLOCK — a title and the paragraph that closes out the itinerary -->
   ${copy.bodyBlock2Title ? `<div class="w2wf-section" style="padding:30px 48px 0;text-align:center;background-color:${pageBg};">
-    <div style="font-family:'Lora',Georgia,serif;font-size:26px;font-weight:700;color:${secondary};line-height:1.25;">${copy.bodyBlock2Title}</div>
+    <div class="wf-lora-h3" style="font-family:'Lora',Georgia,serif;font-size:24px;line-height:32px;font-weight:700;color:${secondary};">${copy.bodyBlock2Title}</div>
   </div>` : ''}
 
   ${bodyBlock2 ? `<div class="w2wf-section" style="padding:16px 48px 0;background-color:${pageBg};">
-    <div class="mobile-body" style="font-family:Arial,sans-serif;font-size:16px;color:${textCol};line-height:1.7;">${bodyBlock2}</div>
+    <div style="font-family:Arial,sans-serif;font-size:16px;color:${textCol};line-height:24px;">${bodyBlock2}</div>
   </div>` : ''}
 
   <!-- CLOSING LINE, then the one CTA, then the code reminder -->
   ${closing ? `<div class="w2wf-section" style="padding:18px 48px 0;background-color:${pageBg};">
-    <div class="mobile-body" style="font-family:Arial,sans-serif;font-size:16px;color:${mutedTextCol};line-height:1.7;">${closing}</div>
+    <div style="font-family:Arial,sans-serif;font-size:16px;color:${mutedTextCol};line-height:24px;">${closing}</div>
   </div>` : ''}
 
   ${copy.ctaText ? `<div class="w2wf-section" style="padding:22px 48px 34px;background-color:${pageBg};text-align:center;">
     ${btnImgUrl
       ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w2wf-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="600" height="88" style="width:100%;max-width:600px;height:auto;display:block;margin:0 auto;border:0;outline:none;"/></a>`
-      : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;width:100%;max-width:600px;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w2wf-cta mobile-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:18px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;text-align:center;">${copy.ctaText} &rarr;</a></td></tr></table>`}
+      : `<table class="w2wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w2wf-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;text-align:center;">${copy.ctaText} &rarr;</a></td></tr></table>`}
   </div>` : ''}
 
   <!-- CODE REMINDER — the small line under the button -->
@@ -2084,7 +2084,7 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
     <div style="font-family:Arial,sans-serif;font-size:14px;color:${faintTextCol};line-height:20px;">${footerLine}</div>
   </div>` : ''}
 
-  <div style="background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true })}</div>
+  <div style="background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true, systemSizes: true })}</div>
 
 </td></tr>
 </table>
@@ -2237,6 +2237,7 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
     .w3wf-btnwrap  { max-width:100%!important; }
     .w3wf-cta      { padding:18px 36px!important; font-size:17px!important; }
     .w3wf-cardbox  { padding:16px!important; }
+    .wf-lora-h3    { font-size:20px!important; line-height:30px!important; }
   }
 </style></head>
 <body style="margin:0;padding:32px 0 48px;background-color:#ffffff;">
@@ -2278,7 +2279,7 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
     <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;border-collapse:separate;"><tr><td style="background:#F0F0F0;border:1px solid #DEDEDE;border-radius:999px;padding:6px 14px;">
       <span style="font-family:Arial,sans-serif;font-size:14px;line-height:14px;font-weight:600;color:#3A3A3A;letter-spacing:.02em;">${sectionLabel}</span>
     </td></tr></table>
-    <div style="font-family:'Lora',serif;font-size:26px;font-weight:700;color:${secondary};line-height:1.25;margin-top:14px;">${sectionHead}</div>
+    <div class="wf-lora-h3" style="font-family:'Lora',serif;font-size:24px;line-height:32px;font-weight:700;color:${secondary};margin-top:14px;">${sectionHead}</div>
     ${setup ? `<div class="mobile-body" style="font-family:Arial,sans-serif;font-size:15px;color:${mutedTextCol};line-height:1.6;margin-top:10px;">${setup}</div>` : ''}
   </div>` : ''}
 
@@ -2297,7 +2298,7 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
   </div>
 
   <div class="w3wf-section" style="padding:26px 48px 0;text-align:center;background-color:${pageBg};">
-    <div style="font-family:'Lora',serif;font-size:26px;font-weight:700;color:${secondary};line-height:1.25;">${amenHead}</div>
+    <div class="wf-lora-h3" style="font-family:'Lora',serif;font-size:24px;line-height:32px;font-weight:700;color:${secondary};">${amenHead}</div>
   </div>
 
   <div style="padding:18px 0 0;background-color:${pageBg};">
@@ -2901,25 +2902,25 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </div>
 </body></html>` : null
 
-    /* Week 2's hero is Week 1's treatment minus the campaign eyebrow, plus the
-       torn-paper bottom edge. Kept separate so Week 1's bake is untouched. */
+    /* Week 2's hero is the arch: the logo on the page background, then an
+       arch-topped photo with the headline over its foot. Every number here has
+       to match the on-screen hero above, or the layout shifts the moment
+       Generate Images runs. */
     const week2wfHeroHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <link href="https://fonts.googleapis.com/css2?family=Lora:wght@700&display=swap" rel="stylesheet"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:${week1wfBg};}</style>
 </head><body>
-<div style="width:600px;background:${week1wfBg};box-sizing:border-box;line-height:0;font-size:0;">
-  <div style="position:relative;width:600px;height:772px;overflow:hidden;">
+<div style="width:600px;background:${week1wfBg};padding:${logoTop}px 32px 18px;box-sizing:border-box;line-height:normal;text-align:center;">
+  ${week2v2LogoHtml}
+</div>
+<div style="width:600px;padding:0 36px;background:${week1wfBg};box-sizing:border-box;line-height:0;font-size:0;">
+  <div style="position:relative;width:528px;height:680px;border-radius:999px 999px 0 0;overflow:hidden;">
     ${heroImgUrl
-      ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:600px;height:772px;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
-      : `<div style="width:600px;height:772px;background:#e8eaed;"></div>`}
-    <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.25) 40%,rgba(0,0,0,0.45) 100%);">
-      <div style="position:absolute;top:${logoTop}px;left:0;right:0;text-align:center;padding:0 ${textLeft}px;line-height:normal;">
-        ${week1wfLogoHtml}
-      </div>
-      <div style="position:absolute;left:36px;bottom:96px;width:390px;text-align:left;line-height:0;font-size:0;">
-        <img src="${W2_HERO_OVERLAY_URI}" width="390" style="width:100%;height:auto;display:block;border:0;outline:none;"/>
-        ${W2_TRY_LIST_HTML}
-        ${w2TryButtonHtml('#')}
+      ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:528px;height:680px;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
+      : `<div style="width:528px;height:680px;background:#e8eaed;"></div>`}
+    <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0) 0%,rgba(0,0,0,0) 50%,rgba(0,0,0,0.45) 100%);">
+      <div style="position:absolute;bottom:${textTop}px;left:0;right:0;text-align:center;padding:0 ${textLeft}px;line-height:normal;">
+        <div style="font-family:'Lora',Georgia,serif;font-size:${textSize}px;font-weight:700;color:#ffffff;line-height:1.12;text-shadow:0 2px 10px rgba(0,0,0,.3);display:inline-block;max-width:360px;">${headline}</div>
       </div>
     </div>
   </div>
@@ -3655,7 +3656,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </div>
 </body></html>` : null
 
-    const heroHeight = isWeek9 ? 720 : isWeek2 ? 580 : isWFAny ? 772 : isWeek8v2 ? 680 : isWeek7v2 ? ((img1Url || img2Url || img3Url) ? 988 : 720) : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : isTest ? 520 : 400
+    const heroHeight = isWeek9 ? 720 : isWeek2 ? 580 : isWeek2WF ? (logoTop + logoSize + 18 + 680) : isWFAny ? 772 : isWeek8v2 ? 680 : isWeek7v2 ? ((img1Url || img2Url || img3Url) ? 988 : 720) : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : isTest ? 520 : 400
     const secondaryPromise = isWeek3WF && week3wfGridHtml
       ? renderImage({ html: week3wfGridHtml, width: 600, height: 600, transparent: true })
       : isWFCards && week1wfStoryHtml
