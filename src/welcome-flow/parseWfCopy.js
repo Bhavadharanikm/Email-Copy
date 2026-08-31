@@ -312,6 +312,14 @@ function mapReview(raw) {
   return out
 }
 
+/* The workflow sometimes emits a URL as a markdown link. Unwrap it so the
+   href is a URL and not "[text](url)". Anything else passes through. */
+const cleanUrl = (s) => {
+  const t = String(s ?? '').trim()
+  const md = /^\[[^\]]*\]\(\s*(\S+?)\s*\)$/.exec(t)
+  return md ? md[1] : t
+}
+
 /* A moment is {imageCue, momentCopy} however the workflow spells it. */
 function mapMoment(raw) {
   const out = {}
@@ -319,7 +327,8 @@ function mapMoment(raw) {
     const lk = k.toLowerCase().replace(/[_\s]/g, '')
     if (lk === 'imagecue'   || lk === 'image')  out.imageCue   = String(v ?? '').trim()
     if (lk === 'momentcopy' || lk === 'copy' || lk === 'text') out.momentCopy = String(v ?? '').trim()
-    if (lk === 'label' || lk === 'slot') out.label = String(v ?? '').trim()
+    if (lk === 'label' || lk === 'slot' || lk === 'daytimelabel' || lk === 'daytime'
+        || lk === 'momenttitle' || lk === 'title') out.label = String(v ?? '').trim()
   }
   return out
 }
@@ -351,7 +360,7 @@ function mapVariation(raw, i) {
       reviews = (Array.isArray(v) ? v : []).map(mapReview).filter(r => r.quote || r.attribution || r.guestFirstName)
       continue
     }
-    if (lk === 'moments' || lk === 'itinerary') {
+    if (lk === 'moments' || lk === 'itinerary' || lk === 'daymoments' || lk === 'day_moments') {
       moments = (Array.isArray(v) ? v : []).map(mapMoment).filter(m => m.imageCue || m.momentCopy)
       continue
     }
@@ -365,7 +374,7 @@ function mapVariation(raw, i) {
       : (hasHeroHead && lk === 'headline')
       ? 'sectionHeadline'                         // the hero already has its own
       : (JSON_KEY_MAP[lk] || snakeToCamel(k))
-    if (v != null && typeof v !== 'object') out[key] = String(v).trim()
+    if (v != null && typeof v !== 'object') out[key] = /url$/i.test(key) ? cleanUrl(v) : String(v).trim()
   }
   return {
     id: Number(raw?.variation ?? raw?.variationNumber) || i + 1,
@@ -419,6 +428,17 @@ export function parseWfCopy(text) {
  */
 export function extractWfVariations(payload) {
   if (!payload) return []
+
+  /* The same body sometimes arrives as text rather than parsed JSON, depending
+     on the content-type n8n sends. Parse it here so it meets the same array and
+     $json unwrapping below — otherwise a wrapped payload silently yields
+     nothing, because the fallbacks further down do not unwrap. */
+  if (typeof payload === 'string') {
+    const t = payload.trim()
+    if (t.startsWith('{') || t.startsWith('[')) {
+      try { return extractWfVariations(JSON.parse(t)) } catch { /* prose; fall through */ }
+    }
+  }
 
   /* n8n works on items, so a workflow that ends with "Respond to Webhook" sends
      the body wrapped in a one-item array: [ { variations: [...] } ]. Unwrap it,
