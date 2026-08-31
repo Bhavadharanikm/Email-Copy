@@ -150,7 +150,45 @@ const WEEK3 = {
   ],
 }
 
-const SCHEMAS = { 1: WEEK1, 2: WEEK2, 3: WEEK3 }
+/* Week 4 is the local area guide: a few grouped recommendations, then one
+   bridge back to the property. The recommendations arrive from n8n as blocks of
+   {name, detail} entries; the editor keeps each block's entries in a single
+   textarea, one "Name — detail" per line, rather than a nested add/remove UI.
+   That is a deliberate trade: the copy is written as prose lines anyway, and a
+   nested list would need its own editor. The template splits on the dash. */
+const WEEK4 = {
+  week: 4,
+  before: [
+    { key: 'subjectLine',    label: 'Subject Line',   hint: 'One sentence. Names a place, not the property' },
+    { key: 'previewText',    label: 'Preview Text',   hint: '8–9 words. What the guide covers' },
+    { key: 'headlineText',   label: 'Hero Headline',  hint: 'On the hero photo. 4–8 words' },
+    { key: 'sectionSubhead', label: 'Hero Subhead',   hint: 'One line under the hero. Sets up the recommendations' },
+  ],
+  group: {
+    mode:      'dynamic',
+    listKey:   'blocks',
+    title:     'Area Blocks',
+    note:      'One block per theme, in order. Each block takes one photo',
+    itemLabel: 'Block',
+    addLabel:  'Add block',
+    /* Capped at 3: each block takes one sub-image slot, and the picker offers
+       Sub 1-3 for the blocks (Sub 4 is the bridge-back photo). */
+    max:       3,
+    blank:     { blockHeader: '', entries: '' },
+    fields: [
+      { key: 'blockHeader', label: 'Block Header', hint: 'A few words, small caps. e.g. "Where To Wander"' },
+      { key: 'entries',     label: 'Entries',      hint: 'One per line, written as "Name — what it is". The name comes out bold' },
+    ],
+  },
+  after: [
+    { key: 'bodyBlock2', label: 'Bridge Back',   hint: 'The paragraph that turns the day out there back towards the stay' },
+    { key: 'ctaText',    label: 'CTA Button',    hint: '2–4 words. One button for the whole email' },
+    { key: 'ctaUrl',     label: 'CTA URL',       hint: 'Full URL with https://' },
+    { key: 'footerLine', label: 'Code Reminder', hint: 'What the code is worth and where to book' },
+  ],
+}
+
+const SCHEMAS = { 1: WEEK1, 2: WEEK2, 3: WEEK3, 4: WEEK4 }
 
 /** Weeks with no schema of their own fall back to Week 1's shape. */
 export const wfCopySchema = (week) => SCHEMAS[Number(week)] || WEEK1

@@ -2346,6 +2346,212 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
 </body></html>`
 }
 
+/* ══════════════════════════════════════════════════════════════════════════
+   WF — WEEK 4 · the local area guide
+   A hero, then a few grouped recommendation blocks that alternate photo and
+   text, then one bridge back to the property carrying the single CTA.
+
+   Spec: TEMPLATE_SPEC.md · Mobile CSS: SHARED_MOBILE_CSS · DESIGN_SYSTEM.md
+   Everything below the hero sits on a named design-system size.
+   ══════════════════════════════════════════════════════════════════════════ */
+function buildTemplateWeek4WF({ client, copy, images, footerData, isHeroGenerated = false,
+  heroScale=1, heroX=0, heroY=0,
+  textSize=40, textTop=36, textLeft=44,
+  logoColor='original', logoTop=26, logoRight=200, logoSize=34,
+  img1Scale=1, img1X=0, img1Y=0,
+  img2Scale=1, img2X=0, img2Y=0,
+  img3Scale=1, img3X=0, img3Y=0,
+  img4Scale=1, img4X=0, img4Y=0,
+  btnImgUrl = null, introBtnImgUrl = null,
+}) {
+  const heroObj = images?.[0]; const heroImg = heroObj?.url || ''
+  /* One photo per block, Sub 1-3, then Sub 4 for the bridge-back card. */
+  const blockImgs = [1, 2, 3, 4].map(n => images?.[n]?.url || '')
+  const blockTf = [
+    `translate(${img1X}px,${img1Y}px) scale(${img1Scale})`,
+    `translate(${img2X}px,${img2Y}px) scale(${img2Scale})`,
+    `translate(${img3X}px,${img3Y}px) scale(${img3Scale})`,
+    `translate(${img4X}px,${img4Y}px) scale(${img4Scale})`,
+  ]
+
+  const pageBg    = footerData?.bgColor || '#ffffff'
+  const accent    = footerData?.buttonColor || '#1a73e8'
+  const secondary = footerData?.secondaryColor || accent
+
+  const hex = String(pageBg).replace('#', '')
+  const lum = hex.length >= 6
+    ? (0.299 * parseInt(hex.slice(0,2),16) + 0.587 * parseInt(hex.slice(2,4),16) + 0.114 * parseInt(hex.slice(4,6),16))
+    : 255
+  const lightBg      = lum > 160
+  const textCol      = lightBg ? '#1a1a1a' : '#ffffff'
+  const mutedTextCol = lightBg ? '#595959' : '#d4d4d4'
+  const faintTextCol = lightBg ? '#8a8a8a' : '#a8a8a8'
+  const cardBorder   = lightBg ? '#e6e6e6' : '#3a3a3a'
+  const _mix = (c, amt) => {
+    const h = String(c).replace('#','')
+    if (h.length < 6) return pageBg
+    const r = parseInt(h.slice(0,2),16), g = parseInt(h.slice(2,4),16), b = parseInt(h.slice(4,6),16)
+    const base = lightBg ? 255 : 26
+    const m = (x) => Math.round(x * amt + base * (1 - amt))
+    return `rgb(${m(r)},${m(g)},${m(b)})`
+  }
+  const cardTint = _mix(secondary, 0.18)
+  const pillBg   = _mix(secondary, 0.10)
+
+  const logoUrl = client?.logoUrl || ''
+  const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
+  const logoOnPage = logoUrl
+    ? `<img src="${logoUrl}" alt="${client?.name||''}" style="display:inline-block;height:${logoSize}px;width:auto;max-width:100%;filter:${logoFilter};"/>`
+    : `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:${textCol};">${client?.name||''}</div>`
+
+  const subhead    = (copy.sectionSubhead || copy.subhead || '').replace(/\n/g, '<br>')
+  const bridgeBack = (copy.bodyBlock2 || '').replace(/\n/g, '<br>')
+  const footerLine = (copy.footerLine  || '').replace(/\n/g, '<br>')
+  const blocks = Array.isArray(copy.blocks)
+    ? copy.blocks.filter(b => b && (b.blockHeader || b.entries)).slice(0, 3)
+    : []
+
+  /* One entry per line, written "Name — what it is". The name comes out bold,
+     the rest regular, both on Body regular. An em dash, en dash or a plain
+     hyphen surrounded by spaces all count as the separator, because the copy
+     arrives typed by hand as often as it arrives from the workflow. */
+  const entryHtml = (line) => {
+    const m = /^(.*?)\s+[—–-]\s+(.*)$/.exec(String(line).trim())
+    const name   = m ? m[1].trim() : String(line).trim()
+    const detail = m ? m[2].trim() : ''
+    return `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${textCol};margin-top:12px;"><span style="font-weight:700;">${name}</span>${detail ? ` &mdash; ${detail}` : ''}</div>`
+  }
+
+  const PHOTO = 216
+  /* A real two-cell table, so the photo stays beside its text at every width;
+     the photo cell narrows on a phone rather than dropping below. */
+  const blockRow = (block, i) => {
+    const img = blockImgs[i] || ''
+    const textLeftSide = i % 2 === 0
+    const photoTd = `<td class="w4wf-photo" width="${PHOTO}" valign="middle" style="width:${PHOTO}px;line-height:0;font-size:0;">
+            <div style="background:${cardTint};border-radius:18px;padding:10px;">
+              ${img
+                ? `<div class="w4wf-inbox" style="position:relative;width:100%;height:${PHOTO - 20}px;overflow:hidden;border-radius:12px;"><img src="${img}" alt="${block.blockHeader||''}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:${blockTf[i]};transform-origin:center center;"/></div>`
+                : `<div class="w4wf-inbox" style="width:100%;height:${PHOTO - 20}px;background:${pillBg};border-radius:12px;"></div>`}
+            </div>
+          </td>`
+    const textTd = `<td valign="middle" style="padding-${textLeftSide ? 'right' : 'left'}:18px;">
+            ${block.blockHeader ? `<div style="font-family:Arial,sans-serif;font-size:14px;line-height:20px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:${secondary};">${block.blockHeader}</div>` : ''}
+            ${String(block.entries || '').split('\n').map(l => l.trim()).filter(Boolean).map(entryHtml).join('')}
+          </td>`
+    return `<div class="w4wf-row" style="padding:0 0 30px;">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
+        <tr>
+          ${textLeftSide ? textTd : photoTd}
+          ${textLeftSide ? photoTd : textTd}
+        </tr>
+      </table>
+    </div>`
+  }
+
+  const blocksHtml = blocks.length ? `
+  <div class="w4wf-section" style="padding:30px 48px 0;background-color:${pageBg};">
+    ${blocks.map(blockRow).join('')}
+  </div>` : ''
+
+  const ctaButton = copy.ctaText
+    ? (btnImgUrl
+      ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w4wf-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="600" style="width:100%;max-width:420px;height:auto;display:block;margin:0;border:0;outline:none;"/></a>`
+      : `<table class="w4wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w4wf-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;text-align:center;">${copy.ctaText}</a></td></tr></table>`)
+    : ''
+
+  return `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,700;1,400;1,700&display=swap" rel="stylesheet"/>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{margin:0;padding:0;color:#1a1a1a;}
+  table{border-collapse:collapse;}
+  .w4wf-outer { width:100%!important; max-width:600px!important; }
+  ${SHARED_MOBILE_CSS}
+  @media only screen and (max-width:600px){
+    .w4wf-section  { padding-left:24px!important; padding-right:24px!important; }
+    .w4wf-hero     { height:460px!important; }
+    .w4wf-btn-img  { max-width:100%!important; }
+    .w4wf-btnwrap  { width:100%!important; }
+    .w4wf-cta      { padding:12px 20px!important; }
+    /* A narrower photo on a phone, so the text keeps a readable measure. */
+    .w4wf-photo    { width:128px!important; }
+    .w4wf-photobox { height:128px!important; }
+    .w4wf-inbox    { height:108px!important; }
+    .wf-lora-h3    { font-size:20px!important; line-height:30px!important; }
+  }
+</style></head>
+<body style="margin:0;padding:32px 0 48px;background-color:#ffffff;">
+
+<table class="w4wf-outer" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="width:100%;max-width:600px;margin:0 auto;background-color:${pageBg};border-collapse:collapse;border-radius:20px;overflow:hidden;">
+<tr><td style="background-color:${pageBg};">
+
+  <!-- TOP BAR: the logo, and the CTA repeated as a plain link -->
+  <div class="w4wf-section" style="padding:${logoTop}px 48px 18px;background-color:${pageBg};line-height:normal;">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
+      <tr>
+        <td valign="middle" align="left" style="line-height:0;font-size:0;">${logoOnPage}</td>
+        ${copy.ctaText ? `<td valign="middle" align="right"><a href="${copy.ctaUrl||'#'}" style="font-family:Arial,sans-serif;font-size:14px;line-height:20px;font-weight:700;color:${textCol};text-decoration:underline;">${copy.ctaText} &rsaquo;</a></td>` : ''}
+      </tr>
+    </table>
+  </div>
+
+  <!-- HERO: a rounded photo with the headline over its top. Hero only, so the
+       serif and its size are outside the design system by design. -->
+  ${isHeroGenerated
+    ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${heroImg}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;border:0;"/></a></div>`
+    : `<div style="line-height:0;font-size:0;padding:0 24px;background-color:${pageBg};">
+    <div class="w4wf-hero" style="position:relative;width:100%;max-width:552px;height:600px;margin:0 auto;border-radius:18px;overflow:hidden;">
+      ${heroImg
+        ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
+        : `<div style="width:100%;height:100%;background:${pillBg};"></div>`}
+      <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.45) 0%,rgba(0,0,0,0.12) 40%,rgba(0,0,0,0) 70%);">
+        <div style="padding:${textTop}px ${textLeft}px 0;text-align:center;line-height:normal;">
+          <div style="font-family:'Lora',Georgia,serif;font-size:${textSize}px;font-weight:700;color:#ffffff;line-height:1.12;text-shadow:0 2px 14px rgba(0,0,0,.35);">${copy.headlineText||''}</div>
+        </div>
+      </div>
+    </div>
+  </div>`}
+
+  <!-- HERO SUBHEAD — sets up the recommendations -->
+  ${subhead ? `<div class="w4wf-section" style="padding:26px 48px 0;text-align:center;background-color:${pageBg};">
+    <div class="wf-lora-h3" style="font-family:'Lora',Georgia,serif;font-size:24px;line-height:32px;font-style:italic;font-weight:400;color:${mutedTextCol};">${subhead}</div>
+  </div>` : ''}
+
+  <!-- THE AREA BLOCKS -->
+  ${blocksHtml}
+
+  <!-- BRIDGE BACK — the paragraph that turns the day out there back towards the
+       stay, carrying the one CTA. -->
+  ${(bridgeBack || copy.ctaText) ? `<div class="w4wf-section" style="padding:4px 48px 0;background-color:${pageBg};">
+    <div style="background:${cardTint};border-radius:18px;padding:24px;">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
+        <tr>
+          <td valign="middle" style="padding-right:${blockImgs[3] ? 18 : 0}px;">
+            ${bridgeBack ? `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${textCol};">${bridgeBack}</div>` : ''}
+            ${ctaButton ? `<div style="margin-top:18px;">${ctaButton}</div>` : ''}
+          </td>
+          ${blockImgs[3] ? `<td class="w4wf-photo" width="${PHOTO}" valign="middle" style="width:${PHOTO}px;line-height:0;font-size:0;">
+            <div class="w4wf-photobox" style="position:relative;width:100%;height:${PHOTO}px;overflow:hidden;border-radius:12px;"><img src="${blockImgs[3]}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:${blockTf[3]};transform-origin:center center;"/></div>
+          </td>` : ''}
+        </tr>
+      </table>
+    </div>
+  </div>` : ''}
+
+  <!-- CODE REMINDER -->
+  ${footerLine ? `<div class="w4wf-section" style="padding:22px 48px 30px;background-color:${pageBg};text-align:center;">
+    <div style="font-family:Arial,sans-serif;font-size:14px;line-height:20px;color:${faintTextCol};">${footerLine}</div>
+  </div>` : ''}
+
+  <div style="background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true, wfFooter: true })}</div>
+
+</td></tr>
+</table>
+</body></html>`
+}
+
 /* ─────────────────────────── registry ──────────────────────────────────── */
 const TEMPLATES = [
   { id:17, label:'✅ Week 2', build:buildTemplateWeek2v2 },
@@ -2359,6 +2565,7 @@ const TEMPLATES = [
   { id:31, label:'✅ Week 1 WF', build:buildTemplateWeek1WF, welcomeFlowOnly:true },
   { id:32, label:'✅ Week 2 WF', build:buildTemplateWeek2WF, welcomeFlowOnly:true },
   { id:33, label:'✅ Week 3 WF', build:buildTemplateWeek3WF, welcomeFlowOnly:true },
+  { id:34, label:'✅ Week 4 WF', build:buildTemplateWeek4WF, welcomeFlowOnly:true },
   { id:20, label:'🧪 Test',   build:buildTemplateTest,  adminOnly:true },
 ]
 
@@ -2804,11 +3011,12 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
     const isWeek1WF  = tpl?.id === 31
     const isWeek2WF  = tpl?.id === 32
     const isWeek3WF  = tpl?.id === 33
+    const isWeek4WF  = tpl?.id === 34
     /* All three welcome templates share the hero and the buttons, so those bakes
        gate on isWFAny. Only Week 1 carries stay cards and the story circles —
        Week 2 is an itinerary and Week 3 is reviews plus a plain photo grid, and
        neither renders either — so those gate on isWFCards. */
-    const isWFAny    = isWeek1WF || isWeek2WF || isWeek3WF
+    const isWFAny    = isWeek1WF || isWeek2WF || isWeek3WF || isWeek4WF
     const isWFCards  = isWeek1WF
     const isTest     = tpl?.id === 20
     const renderLogoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
@@ -2930,6 +3138,28 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </div>
 </body></html>`
 
+    /* Week 4's hero is a rounded photo with the headline over its top. The
+       top bar above it stays live HTML, so the bake is only the photo. Every
+       number here matches the on-screen hero or the layout shifts when
+       Generate Images runs. */
+    const week4wfHeroHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@700&display=swap" rel="stylesheet"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
+</head><body>
+<div style="width:600px;padding:0 24px;box-sizing:border-box;line-height:0;font-size:0;">
+  <div style="position:relative;width:552px;height:600px;border-radius:18px;overflow:hidden;">
+    ${heroImgUrl
+      ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:552px;height:600px;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
+      : `<div style="width:552px;height:600px;background:#e8eaed;"></div>`}
+    <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.45) 0%,rgba(0,0,0,0.12) 40%,rgba(0,0,0,0) 70%);">
+      <div style="padding:${textTop}px ${textLeft}px 0;text-align:center;line-height:normal;">
+        <div style="font-family:'Lora',Georgia,serif;font-size:${textSize}px;font-weight:700;color:#ffffff;line-height:1.12;text-shadow:0 2px 14px rgba(0,0,0,.35);">${headline}</div>
+      </div>
+    </div>
+  </div>
+</div>
+</body></html>`
+
     /* Week 3's hero carries Week 5's split headline, so it needs its own bake:
        sharing Week 1's would put the centred version into the PNG and the
        preview would change the moment Generate Images ran. */
@@ -2985,6 +3215,8 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 
     const heroHtml = isWeek2
       ? week2ArchHtml(midBg, false)
+      : isWeek4WF
+      ? week4wfHeroHtml
       : isWeek3WF
       ? week3wfHeroHtml
       : isWeek2WF
@@ -3659,7 +3891,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </div>
 </body></html>` : null
 
-    const heroHeight = isWeek9 ? 720 : isWeek2 ? 580 : isWeek2WF ? (logoTop + logoSize + 18 + 680) : isWFAny ? 772 : isWeek8v2 ? 680 : isWeek7v2 ? ((img1Url || img2Url || img3Url) ? 988 : 720) : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : isTest ? 520 : 400
+    const heroHeight = isWeek9 ? 720 : isWeek2 ? 580 : isWeek4WF ? 600 : isWeek2WF ? (logoTop + logoSize + 18 + 680) : isWFAny ? 772 : isWeek8v2 ? 680 : isWeek7v2 ? ((img1Url || img2Url || img3Url) ? 988 : 720) : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : isTest ? 520 : 400
     const secondaryPromise = isWeek3WF && week3wfGridHtml
       ? renderImage({ html: week3wfGridHtml, width: 600, height: 600, transparent: true })
       : isWFCards && week1wfStoryHtml
@@ -3745,7 +3977,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
       try {
         // wave 1 — unchanged from every other template: hero, story/stamp/pin, main CTA
         const [heroRes, secRes, terRes, btnRes] = await Promise.all([
-          renderImage({ html: heroHtmlToUse, width: 600, height: heroHeight, transparent: isWeek7v2 || isWeek3v2 || isWeek5 || isWeek6v2 || isWeek4v2b || isWeek3WF }),
+          renderImage({ html: heroHtmlToUse, width: 600, height: heroHeight, transparent: isWeek7v2 || isWeek3v2 || isWeek5 || isWeek6v2 || isWeek4v2b || isWeek3WF || isWeek4WF }),
           secondaryPromise,
           tertiaryPromise,
           buttonPromise,

@@ -233,7 +233,75 @@ export const WF3_TEST_VARIATIONS = [
 /* The dev-skip path seeds whichever week the brief has selected. A week with no
    test copy of its own falls back to Week 1's, which is what the button did for
    every week before. */
+
+/* Week 4 test copy — the local area guide. Same three blocks across all three
+   variations, since the recommendations are facts about the area; only the
+   framing around them shifts. */
+export const WF4_TEST_VARIATIONS = [
+  {
+    id: 1,
+    name: 'The Local Guide',
+    subjectLine:     'Under 10 minutes from Starlight Haven: Bathhouse Row',
+    previewText:     'The trails, towns, and detours worth planning around.',
+    headlineText:    "Start at Bathhouse Row. Don\u2019t stop there.",
+    sectionSubhead:  "A few things we\u2019d point you to, and one we\u2019d insist on.",
+    blocks: [
+      { blockHeader: 'Where To Wander',
+        entries: 'Hot Springs National Park and Bathhouse Row \u2014 A working bathhouse district, and the main reason Hot Springs is the most visited city in Arkansas.\nOuachita National Forest \u2014 The Northwoods Trail System, the Sunset Trail, and the Ouachita National Recreation Trail all run through it.\nGarvan Woodland Gardens \u2014 210 acres, and the Anthony Chapel, whose floor-to-ceiling glass walls frame the forest around it.' },
+      { blockHeader: 'Where To Eat',
+        entries: 'Superior Bathhouse Brewery \u2014 The only brewery inside a U.S. national park, brewing with thermal spring water.\nMcClard\u2019s BBQ \u2014 Fourth-generation, hickory-smoked ribs, and the famous \u201cspread.\u201d' },
+      { blockHeader: 'Where To End Up',
+        entries: 'The Gangster Museum of America \u2014 Al Capone used to retreat here. The town never got over it.' },
+    ],
+    bodyBlock2:  'Spend the day out there \u2014 the trails, the town, whatever the detour turns out to be. Then drive back up the mountain, and the rest of the evening is the deck, the hot tub, and nobody within earshot.',
+    ctaText:     'Plan The Stay',
+    ctaUrl:      CTA_URL,
+    footerLine:  'Code STAR23 \u2014 10% off, two nights or more, booking direct.',
+  },
+  {
+    id: 2,
+    name: 'The Detour',
+    subjectLine:     'The part of Hot Springs most people drive past',
+    previewText:     'Where we send guests when they ask what else is here.',
+    headlineText:    "There is more here than the drive in suggests.",
+    sectionSubhead:  "Three places worth the detour, and one worth the whole afternoon.",
+    blocks: [
+      { blockHeader: 'Where To Wander',
+        entries: 'Hot Springs National Park and Bathhouse Row \u2014 A working bathhouse district, and the main reason Hot Springs is the most visited city in Arkansas.\nOuachita National Forest \u2014 The Northwoods Trail System, the Sunset Trail, and the Ouachita National Recreation Trail all run through it.\nGarvan Woodland Gardens \u2014 210 acres, and the Anthony Chapel, whose floor-to-ceiling glass walls frame the forest around it.' },
+      { blockHeader: 'Where To Eat',
+        entries: 'Superior Bathhouse Brewery \u2014 The only brewery inside a U.S. national park, brewing with thermal spring water.\nMcClard\u2019s BBQ \u2014 Fourth-generation, hickory-smoked ribs, and the famous \u201cspread.\u201d' },
+      { blockHeader: 'Where To End Up',
+        entries: 'The Gangster Museum of America \u2014 Al Capone used to retreat here. The town never got over it.' },
+    ],
+    bodyBlock2:  'Spend the day out there \u2014 the trails, the town, whatever the detour turns out to be. Then drive back up the mountain, and the rest of the evening is the deck, the hot tub, and nobody within earshot.',
+    ctaText:     'Book Your Nights',
+    ctaUrl:      CTA_URL,
+    footerLine:  'Code STAR23 \u2014 10% off, two nights or more, booking direct.',
+  },
+  {
+    id: 3,
+    name: 'The Long Weekend',
+    subjectLine:     'What to do with the two days around your stay',
+    previewText:     'A short list, built from what guests actually go back for.',
+    headlineText:    "The stay is the anchor. This is the rest of it.",
+    sectionSubhead:  "Where to wander, where to eat, and where to end up.",
+    blocks: [
+      { blockHeader: 'Where To Wander',
+        entries: 'Hot Springs National Park and Bathhouse Row \u2014 A working bathhouse district, and the main reason Hot Springs is the most visited city in Arkansas.\nOuachita National Forest \u2014 The Northwoods Trail System, the Sunset Trail, and the Ouachita National Recreation Trail all run through it.\nGarvan Woodland Gardens \u2014 210 acres, and the Anthony Chapel, whose floor-to-ceiling glass walls frame the forest around it.' },
+      { blockHeader: 'Where To Eat',
+        entries: 'Superior Bathhouse Brewery \u2014 The only brewery inside a U.S. national park, brewing with thermal spring water.\nMcClard\u2019s BBQ \u2014 Fourth-generation, hickory-smoked ribs, and the famous \u201cspread.\u201d' },
+      { blockHeader: 'Where To End Up',
+        entries: 'The Gangster Museum of America \u2014 Al Capone used to retreat here. The town never got over it.' },
+    ],
+    bodyBlock2:  'Spend the day out there \u2014 the trails, the town, whatever the detour turns out to be. Then drive back up the mountain, and the rest of the evening is the deck, the hot tub, and nobody within earshot.',
+    ctaText:     'Sort The Dates',
+    ctaUrl:      CTA_URL,
+    footerLine:  'Code STAR23 \u2014 10% off, two nights or more, booking direct.',
+  },
+]
+
 export const wfTestVariations = (week) =>
   Number(week) === 2 ? WF2_TEST_VARIATIONS
   : Number(week) === 3 ? WF3_TEST_VARIATIONS
+  : Number(week) === 4 ? WF4_TEST_VARIATIONS
   : WF_TEST_VARIATIONS

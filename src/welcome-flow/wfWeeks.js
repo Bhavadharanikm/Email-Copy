@@ -18,7 +18,7 @@ export const WF_WEEKS = [
   { week: 1, templateId: 31 },   // Week 1 WF — the real welcome-offer template
   { week: 2, templateId: 32 },   // Week 2 WF — duplicate of Week 1 WF for now
   { week: 3, templateId: 33 },   // Week 3 WF — guest reviews
-  { week: 4, templateId: null },
+  { week: 4, templateId: 34 },   // Week 4 WF — the local area guide
   { week: 5, templateId: null },
   { week: 6, templateId: null },
   { week: 7, templateId: null },
@@ -44,6 +44,8 @@ const WF_BRIEF_FIELDS = {
       'Featured Stays (name + bed | bath | guests, up to 3)', 'Booking URL'],
   2: ['Theme', 'Audience', 'Moments (one per line, in order)', 'Booking URL'],
   3: ['Theme', 'Audience', 'Guest Reviews (quote + name, stay, month, platform)',
+      'Promo Code', 'Discount', 'Booking URL'],
+  4: ['Theme', 'Audience', 'Area Highlights (grouped: where to wander / eat / end up)',
       'Promo Code', 'Discount', 'Booking URL'],
 }
 

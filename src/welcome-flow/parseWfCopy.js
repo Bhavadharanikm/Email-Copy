@@ -242,6 +242,15 @@ const JSON_KEY_MAP = {
   preview:          'previewText',
   finalcta:         'ctaText',      // the workflow's name for the bottom CTA
   finalctaurl:      'ctaUrl',
+  preview_line:     'previewText',      // Week 4's name for the preview text
+  previewline:      'previewText',
+  subhead:          'sectionSubhead',   // Week 4's hero subhead
+  bridge_back_text: 'bodyBlock2',       // Week 4's paragraph back to the stay
+  bridgebacktext:   'bodyBlock2',
+  cta_button_text:  'ctaText',
+  ctabuttontext:    'ctaText',
+  footer_code_reminder: 'footerLine',
+  footercodereminder:   'footerLine',
   code_reminder:    'footerLine',   // Week 2's name for the line under the button
   codereminder:     'footerLine',
   footer_line:      'footerLine',
@@ -326,6 +335,30 @@ const cleanUrl = (s) => {
   return md ? md[1] : t
 }
 
+/* An area block is {blockHeader, entries} — the entries collapsed to one
+   "Name — detail" line each, so the editor can hold them in one textarea and
+   the template can split them back out. */
+function mapBlock(raw) {
+  const out = { blockHeader: '', entries: '' }
+  for (const [k, v] of Object.entries(raw || {})) {
+    const lk = k.toLowerCase().replace(/[_\s]/g, '')
+    if (lk === 'blockheader' || lk === 'header' || lk === 'title' || lk === 'label') {
+      out.blockHeader = String(v ?? '').trim()
+    }
+    if ((lk === 'entries' || lk === 'items') && Array.isArray(v)) {
+      out.entries = v.map(e => {
+        if (typeof e === 'string') return e.trim()
+        const name = String(e?.name ?? e?.title ?? '').trim()
+        const detail = String(e?.detail ?? e?.description ?? e?.copy ?? '').trim()
+        return name && detail ? `${name} — ${detail}` : (name || detail)
+      }).filter(Boolean).join('\n')
+    }
+    /* Already flattened — an edited variation round-tripping back through. */
+    if (lk === 'entries' && typeof v === 'string') out.entries = v
+  }
+  return out
+}
+
 /* A moment is {imageCue, momentCopy} however the workflow spells it. */
 function mapMoment(raw) {
   const out = {}
@@ -354,6 +387,7 @@ function mapVariation(raw, i) {
   const out = {}
   let cards = []
   let moments = []
+  let blocks = []
   let reviews = []
   const hasIntroBody = Object.keys(raw || {}).some(k => INTRO_BODY_KEYS.includes(k.toLowerCase()))
   /* Some workflows send `heroHeadline` for the photo and a separate `headline`
@@ -364,6 +398,10 @@ function mapVariation(raw, i) {
     const lk = k.toLowerCase()
     if (lk === 'reviews' || lk === 'review_blocks' || lk === 'reviewblocks' || lk === 'testimonials') {
       reviews = (Array.isArray(v) ? v : []).map(mapReview).filter(r => r.quote || r.attribution || r.guestFirstName)
+      continue
+    }
+    if (lk === 'grouped_blocks' || lk === 'groupedblocks' || lk === 'blocks') {
+      blocks = (Array.isArray(v) ? v : []).map(mapBlock).filter(x => x.blockHeader || x.entries)
       continue
     }
     if (lk === 'moments' || lk === 'itinerary' || lk === 'daymoments' || lk === 'day_moments') {
@@ -395,6 +433,7 @@ function mapVariation(raw, i) {
     introCtaText: out.introCtaText || out.ctaText || '',
     ...(cards.length ? { propertyCards: cards } : {}),
     ...(moments.length ? { moments } : {}),
+    ...(blocks.length ? { blocks } : {}),
     ...(reviews.length ? { reviews } : {}),
   }
 }
