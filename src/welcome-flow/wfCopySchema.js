@@ -100,9 +100,12 @@ const WEEK2 = {
     ],
   },
   after: [
-    { key: 'ctaText',     label: 'CTA Button',   hint: '2–3 words. The final push out of the email' },
-    { key: 'ctaUrl',      label: 'CTA URL',      hint: 'Full URL with https://' },
-    { key: 'closingLine', label: 'Closing Line', hint: 'Carries the code and the terms. Warm but direct' },
+    { key: 'bodyBlock2Title', label: 'Body Block Title', hint: 'One line above the paragraph that closes out the itinerary' },
+    { key: 'bodyBlock2',      label: 'Body Block',       hint: 'The paragraph after the moments, before the closing line' },
+    { key: 'ctaText',         label: 'CTA Button',       hint: '2–3 words. The final push out of the email' },
+    { key: 'ctaUrl',          label: 'CTA URL',          hint: 'Full URL with https://' },
+    { key: 'closingLine',     label: 'Closing Line',     hint: 'Carries the code and the terms. Warm but direct' },
+    { key: 'footerLine',      label: 'Code Reminder',    hint: 'Small line under the button — what the code is worth and where to book' },
   ],
 }
 

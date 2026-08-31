@@ -1861,7 +1861,9 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
   ]
 
   const body    = (copy.bodyText || '').replace(/\n/g, '<br>')
-  const closing = (copy.closingLine || '').replace(/\n/g, '<br>')
+  const closing    = (copy.closingLine || '').replace(/\n/g, '<br>')
+  const bodyBlock2 = (copy.bodyBlock2  || '').replace(/\n/g, '<br>')
+  const footerLine = (copy.footerLine  || '').replace(/\n/g, '<br>')
   const logoUrl = client?.logoUrl || ''
 
   const pageBg    = footerData?.bgColor || '#ffffff'
@@ -2057,7 +2059,16 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
   <!-- THE MOMENTS — one card each, however many the copy carries -->
   ${momentsHtml}
 
-  <!-- CLOSING LINE, then the one CTA -->
+  <!-- BODY BLOCK — a title and the paragraph that closes out the itinerary -->
+  ${copy.bodyBlock2Title ? `<div class="w2wf-section" style="padding:30px 48px 0;text-align:center;background-color:${pageBg};">
+    <div style="font-family:'Lora',Georgia,serif;font-size:26px;font-weight:700;color:${secondary};line-height:1.25;">${copy.bodyBlock2Title}</div>
+  </div>` : ''}
+
+  ${bodyBlock2 ? `<div class="w2wf-section" style="padding:16px 48px 0;background-color:${pageBg};">
+    <div class="mobile-body" style="font-family:Arial,sans-serif;font-size:16px;color:${textCol};line-height:1.7;">${bodyBlock2}</div>
+  </div>` : ''}
+
+  <!-- CLOSING LINE, then the one CTA, then the code reminder -->
   ${closing ? `<div class="w2wf-section" style="padding:18px 48px 0;background-color:${pageBg};">
     <div class="mobile-body" style="font-family:Arial,sans-serif;font-size:16px;color:${mutedTextCol};line-height:1.7;">${closing}</div>
   </div>` : ''}
@@ -2066,6 +2077,11 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
     ${btnImgUrl
       ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w2wf-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="600" height="88" style="width:100%;max-width:600px;height:auto;display:block;margin:0 auto;border:0;outline:none;"/></a>`
       : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;width:100%;max-width:600px;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w2wf-cta mobile-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:18px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;text-align:center;">${copy.ctaText} &rarr;</a></td></tr></table>`}
+  </div>` : ''}
+
+  <!-- CODE REMINDER — the small line under the button -->
+  ${footerLine ? `<div class="w2wf-section" style="padding:0 48px 30px;background-color:${pageBg};text-align:center;">
+    <div style="font-family:Arial,sans-serif;font-size:14px;color:${faintTextCol};line-height:20px;">${footerLine}</div>
   </div>` : ''}
 
   <div style="background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true })}</div>
