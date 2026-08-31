@@ -13,7 +13,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { IconArrowLeft, IconSparkles, IconBolt, IconPlus } from '@tabler/icons-react'
 import { useWelcomeFlowStore } from '../store/welcomeFlowStore'
 import { useWfTheme, WfCard, WfButton, WfInput, WfStepNav } from '../components/wfUi'
-import { WF_WEEKS, wfWeek, wfWeekReady } from '../wfWeeks'
+import { WF_WEEKS, wfWeek, wfWeekReady, wfBriefTemplate, wfBriefIsSeed } from '../wfWeeks'
 import { wfTestVariations } from '../wfTestData'
 import { wfGenerateCopy } from '../../lib/api'
 import { extractWfVariations } from '../parseWfCopy'
@@ -65,8 +65,16 @@ export default function WFBrief() {
   useEffect(() => {
     if (!client) return
     setFolderUrl(client.folderUrl || '')
-    setPrompt(prev => prev || `Client Name: ${client.name}\nTheme:\nAudience:`)
-  }, [client])
+    setPrompt(prev => prev || wfBriefTemplate(client.name, week))
+  }, [client])   // eslint-disable-line react-hooks/exhaustive-deps
+
+  /* Each week asks for different things, so switching the week re-seeds the
+     labels — but only while the box is still an untouched seed, so anything
+     already written is never thrown away. */
+  useEffect(() => {
+    if (!client || !week) return
+    setPrompt(prev => wfBriefIsSeed(prev, client.name) ? wfBriefTemplate(client.name, week) : prev)
+  }, [week])     // eslint-disable-line react-hooks/exhaustive-deps
 
   // default to this email's slot in the flow — email 3 is usually week 3
   useEffect(() => {

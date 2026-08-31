@@ -30,3 +30,31 @@ export const wfWeek = (week) => WF_WEEKS.find(w => w.week === Number(week)) || n
 
 /** A week is usable once its template exists. */
 export const wfWeekReady = (week) => !!wfWeek(week)?.templateId
+
+/**
+ * The lines the brief seeds for each week — labels only, no values. The writer
+ * fills them in; the whole box is sent to n8n as typed.
+ *
+ * Each week asks for what its own template renders, so Week 1 needs the offer
+ * and the stays while Week 3 needs the reviews. A week with no entry falls back
+ * to the three common lines.
+ */
+const WF_BRIEF_FIELDS = {
+  1: ['Theme', 'Audience', 'Promo Code', 'Discount', 'Promo Terms',
+      'Featured Stays (name + bed | bath | guests, up to 3)', 'Booking URL'],
+  2: ['Theme', 'Audience', 'Moments (one per line, in order)', 'Booking URL'],
+  3: ['Theme', 'Audience', 'Guest Reviews (quote + name, stay, month, platform)',
+      'Promo Code', 'Discount', 'Booking URL'],
+}
+
+const WF_BRIEF_FALLBACK = ['Theme', 'Audience']
+
+/** The seeded brief for a week: "Client Name: X" then one blank label per line. */
+export const wfBriefTemplate = (clientName, week) =>
+  [`Client Name: ${clientName || ''}`,
+   ...(WF_BRIEF_FIELDS[Number(week)] || WF_BRIEF_FALLBACK).map(f => `${f}:`)].join('\n')
+
+/** True when the text is still an untouched seed for some week — safe to replace. */
+export const wfBriefIsSeed = (text, clientName) =>
+  !text?.trim() || Object.keys(WF_BRIEF_FIELDS).concat('x')
+    .some(w => wfBriefTemplate(clientName, w) === text)
