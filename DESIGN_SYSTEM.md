@@ -115,10 +115,10 @@ Recorded so the gap is visible rather than forgotten.
 - **Week 3 WF** carries two sizes the system does not name: the hero pill at
   23px (the hero is exempt, so this is fine) and "Verified review" at 12px,
   which borrows Chip small because there is no caption size.
-- **The footer** is on Body small 14/20 for Week 2 WF only, via the
-  `systemSizes` option on `buildFooter`. Every other template — the weeklies,
-  Week 1 WF and Week 3 WF — still renders it at 14/1.25, the brand name at 16px
-  with no line-height, and the footer paragraph at 12px.
+- **The footer** is on Body small 14/20 for all three welcome-flow weeks, via
+  the `wfFooter` option on `buildFooter`, which also sets the contact email and
+  phone in bold. The weekly templates still render it at 14/1.25, the brand name
+  at 16px with no line-height, and the footer paragraph at 12px.
 - **No chips use the brand ramp.** Week 2 and Week 3's chips are Chip medium's
   fixed greys (`#F0F0F0` / `#3A3A3A` / `#DEDEDE`) rather than brand 200 with a
   brand 400 border.

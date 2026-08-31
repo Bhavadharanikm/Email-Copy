@@ -150,12 +150,15 @@ function buildFooter(client, footerData = null, options = {}) {
   ].filter(s => s.url)
 
   const sectionGap     = options.sectionGap     !== undefined ? options.sectionGap     : 28
+  /* The welcome-flow footer: Body small 14/20 throughout, and the contact
+     email and phone in bold. Opt-in, because this footer is shared with the
+     weekly templates, which keep 14/1.25 and no bold. */
+  const wfFooter = !!options.wfFooter
   const footerTextSize = options.footerTextSize !== undefined ? options.footerTextSize
-    : options.systemSizes ? 14 : 12
-  /* Body small is 14/20 everywhere in the design system. Opt-in, because this
-     footer is shared with the weekly templates, which keep 14/1.25. */
-  const sysLh   = options.systemSizes ? '20px' : '1.25'
-  const sysName = options.systemSizes ? 'font-size:16px;line-height:24px;' : 'font-size:16px;'
+    : wfFooter ? 14 : 12
+  const sysLh    = wfFooter ? '20px' : '1.25'
+  const sysName  = wfFooter ? 'font-size:16px;line-height:24px;' : 'font-size:16px;'
+  const contactW = wfFooter ? 'font-weight:700;' : ''
 
   const socialHtml = socialIcons.length ? `
     <div style="margin:0 0 ${sectionGap || 20}px;text-align:center;font-size:0">
@@ -174,8 +177,8 @@ function buildFooter(client, footerData = null, options = {}) {
     : `<div style="margin:0 0 20px;${sysName}font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:${textCol};font-family:Arial,sans-serif">${name}</div>`
 
   const contactParts = [
-    contactInfo   ? `<a href="mailto:${contactInfo}" style="color:${textCol};text-decoration:underline;white-space:nowrap">${contactInfo}</a>` : '',
-    contactNumber ? `<a href="tel:${contactNumber.replace(/\s/g,'')}" style="color:${textCol};text-decoration:underline;white-space:nowrap">${contactNumber}</a>` : '',
+    contactInfo   ? `<a href="mailto:${contactInfo}" style="color:${textCol};text-decoration:underline;white-space:nowrap;${contactW}">${contactInfo}</a>` : '',
+    contactNumber ? `<a href="tel:${contactNumber.replace(/\s/g,'')}" style="color:${textCol};text-decoration:underline;white-space:nowrap;${contactW}">${contactNumber}</a>` : '',
   ].filter(Boolean)
   const contactHtml = contactParts.length
     ? `<div style="font-size:14px;color:${textCol};font-family:Arial,sans-serif;margin-bottom:${sectionGap || 16}px;line-height:${sysLh};text-align:center">${contactParts.join(`&nbsp;·&nbsp;<wbr> `)}</div>`
@@ -1830,7 +1833,7 @@ function buildTemplateWeek1WF({ client, copy, images, footerData, isHeroGenerate
     : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;max-width:100%;"><tr><td style="background:${accent};border-radius:999px;"><a class="w1wf-cta mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;">${copy.ctaText} &rarr;</a></td></tr></table>`
   }</div>` : ''}
 
-  <div style="background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true })}</div>
+  <div style="background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true, wfFooter: true })}</div>
 
 </td></tr></table>
 </body></html>`
@@ -2084,7 +2087,7 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
     <div style="font-family:Arial,sans-serif;font-size:14px;color:${faintTextCol};line-height:20px;">${footerLine}</div>
   </div>` : ''}
 
-  <div style="background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true, systemSizes: true })}</div>
+  <div style="background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true, wfFooter: true })}</div>
 
 </td></tr>
 </table>
@@ -2336,7 +2339,7 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
     <div style="font-family:Arial,sans-serif;font-size:13px;color:${faintTextCol};line-height:1.6;">${footerLine}</div>
   </div>` : ''}
 
-  <div style="background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true })}</div>
+  <div style="background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true, wfFooter: true })}</div>
 
 </td></tr>
 </table>
