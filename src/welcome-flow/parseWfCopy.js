@@ -242,6 +242,11 @@ const JSON_KEY_MAP = {
   preview:          'previewText',
   finalcta:         'ctaText',      // the workflow's name for the bottom CTA
   finalctaurl:      'ctaUrl',
+  code_reminder:    'footerLine',   // Week 2's name for the line under the button
+  codereminder:     'footerLine',
+  footer_line:      'footerLine',
+  pov_angle:        'name',
+  povangle:         'name',
 }
 
 const JSON_CARD_MAP = {
@@ -273,7 +278,8 @@ const snakeToCamel = (k) => k.replace(/[_\s]+(\w)/g, (_, c) => c.toUpperCase())
    arrives alongside it. Keyed on presence, not on value, because the workflow
    can legitimately send an empty intro. */
 const INTRO_BODY_KEYS = ['introbodyblock', 'introbody', 'intro_body', 'intro_body_block',
-                         'setupline', 'setup_line', 'setup']
+                         'setupline', 'setup_line', 'setup',
+                         'introline', 'intro_line']
 const BODY_BLOCK_KEYS = ['bodyblock', 'body_block']
 
 /** Pull the first ```json fenced block, or the first bare [ … ] / { … }. */
@@ -369,6 +375,11 @@ function mapVariation(raw, i) {
       continue
     }
     if (lk === 'variation' || lk === 'variationnumber' || lk === 'id') continue   // handled below
+    if ((lk === 'cta_button' || lk === 'ctabutton') && v && typeof v === 'object') {
+      if (v.text) out.ctaText = String(v.text).trim()
+      if (v.url)  out.ctaUrl  = cleanUrl(v.url)
+      continue
+    }
     const key = (hasIntroBody && BODY_BLOCK_KEYS.includes(lk))
       ? 'bodyBlock2'                              // the closing block, not the intro
       : (hasHeroHead && lk === 'headline')
