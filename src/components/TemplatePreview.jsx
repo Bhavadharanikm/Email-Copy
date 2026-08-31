@@ -2471,7 +2471,9 @@ function buildTemplateWeek4WF({ client, copy, images, footerData, isHeroGenerate
   ${SHARED_MOBILE_CSS}
   @media only screen and (max-width:600px){
     .w4wf-section  { padding-left:24px!important; padding-right:24px!important; }
-    .w4wf-hero     { height:460px!important; }
+    .w4wf-hero      { height:600px!important; }
+    .w4wf-herocard  { height:360px!important; }
+    .w4wf-headline  { font-size:30px!important; }
     .w4wf-btn-img  { max-width:100%!important; }
     .w4wf-btnwrap  { width:100%!important; }
     .w4wf-cta      { padding:12px 20px!important; }
@@ -2497,27 +2499,38 @@ function buildTemplateWeek4WF({ client, copy, images, footerData, isHeroGenerate
     </table>
   </div>
 
-  <!-- HERO: a rounded photo with the headline over its top. Hero only, so the
-       serif and its size are outside the design system by design. -->
+  <!-- HERO: Week 6's treatment. A blurred, darkened copy of the photo makes
+       the backdrop, a sharp framed card sits on it, and the subhead and the
+       outlined button sit over the backdrop below the card. Laid out in flow
+       rather than with fixed top offsets so it stays fluid — see
+       CRITIQUE.md #1. Hero, so the serif and its sizes are exempt. -->
   ${isHeroGenerated
     ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${heroImg}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;border:0;"/></a></div>`
-    : `<div style="line-height:0;font-size:0;padding:0 24px;background-color:${pageBg};">
-    <div class="w4wf-hero" style="position:relative;width:100%;max-width:552px;height:600px;margin:0 auto;border-radius:18px;overflow:hidden;">
+    : `<div style="line-height:0;font-size:0;background-color:${pageBg};">
+    <div class="w4wf-hero" style="position:relative;width:100%;max-width:600px;height:740px;margin:0 auto;overflow:hidden;">
       ${heroImg
-        ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
-        : `<div style="width:100%;height:100%;background:${pillBg};"></div>`}
-      <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.45) 0%,rgba(0,0,0,0.12) 40%,rgba(0,0,0,0) 70%);">
-        <div style="padding:${textTop}px ${textLeft}px 0;text-align:center;line-height:normal;">
-          <div style="font-family:'Lora',Georgia,serif;font-size:${textSize}px;font-weight:700;color:#ffffff;line-height:1.12;text-shadow:0 2px 14px rgba(0,0,0,.35);">${copy.headlineText||''}</div>
+        ? `<img src="${heroImg}" alt="" style="position:absolute;top:-30px;left:-30px;width:calc(100% + 60px);height:calc(100% + 60px);object-fit:cover;object-position:calc(50% + ${heroX}px) calc(50% + ${heroY}px);filter:blur(36px) saturate(1.4) brightness(0.82);transform:scale(${Math.max(1.12, heroScale)});display:block;"/>`
+        : `<div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(160deg,#7ab5d8,#6ba87a);"></div>`}
+      <div style="position:relative;padding:22px 28px 0;line-height:normal;font-size:initial;">
+        <div class="w4wf-herocard" style="position:relative;width:100%;height:480px;overflow:hidden;border-radius:20px;box-shadow:0 6px 40px rgba(0,0,0,0.3);border:2px solid rgba(255,255,255,0.55);">
+          ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>` : ''}
+          <div style="position:absolute;top:0;left:0;right:0;height:72%;background:linear-gradient(to bottom,rgba(0,0,0,0.52) 0%,rgba(0,0,0,0.16) 65%,rgba(0,0,0,0) 100%);"></div>
+          <div style="position:absolute;top:0;left:0;right:0;padding:${textTop}px ${textLeft}px 0;line-height:normal;text-align:center;">
+            <div class="w4wf-headline" style="font-family:'Lora',Georgia,serif;font-size:${textSize}px;font-weight:700;color:#ffffff;line-height:1.08;text-shadow:0 2px 16px rgba(0,0,0,.3);">${copy.headlineText||''}</div>
+          </div>
         </div>
+        ${subhead ? `<div style="padding:26px 16px 0;text-align:center;line-height:normal;">
+          <div style="font-family:'Lora',Georgia,serif;font-size:17px;font-style:italic;line-height:1.6;color:#ffffff;text-shadow:0 1px 8px rgba(0,0,0,.25);">${subhead}</div>
+        </div>` : ''}
+        ${copy.ctaText ? `<div style="padding:20px 0 0;text-align:center;line-height:normal;">
+          <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto;display:inline-table;"><tr><td style="background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.85);border-radius:100px;">
+            <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:14px 44px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;letter-spacing:.03em;white-space:nowrap;">${copy.ctaText}</a>
+          </td></tr></table>
+          <div style="margin-top:14px;line-height:0;font-size:0;"><div style="display:inline-block;width:1px;height:28px;background:rgba(255,255,255,0.65);"></div></div>
+        </div>` : ''}
       </div>
     </div>
   </div>`}
-
-  <!-- HERO SUBHEAD — sets up the recommendations -->
-  ${subhead ? `<div class="w4wf-section" style="padding:26px 48px 0;text-align:center;background-color:${pageBg};">
-    <div class="wf-lora-h3" style="font-family:'Lora',Georgia,serif;font-size:24px;line-height:32px;font-style:italic;font-weight:400;color:${mutedTextCol};">${subhead}</div>
-  </div>` : ''}
 
   <!-- THE AREA BLOCKS -->
   ${blocksHtml}
@@ -3142,20 +3155,33 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
        top bar above it stays live HTML, so the bake is only the photo. Every
        number here matches the on-screen hero or the layout shifts when
        Generate Images runs. */
+    const week4wfSubhead = generatedCopy?.sectionSubhead || generatedCopy?.subhead || ''
+    const week4wfCta     = generatedCopy?.ctaText || ''
     const week4wfHeroHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
-<link href="https://fonts.googleapis.com/css2?family=Lora:wght@700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
 </head><body>
-<div style="width:600px;padding:0 24px;box-sizing:border-box;line-height:0;font-size:0;">
-  <div style="position:relative;width:552px;height:600px;border-radius:18px;overflow:hidden;">
-    ${heroImgUrl
-      ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:552px;height:600px;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
-      : `<div style="width:552px;height:600px;background:#e8eaed;"></div>`}
-    <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.45) 0%,rgba(0,0,0,0.12) 40%,rgba(0,0,0,0) 70%);">
-      <div style="padding:${textTop}px ${textLeft}px 0;text-align:center;line-height:normal;">
-        <div style="font-family:'Lora',Georgia,serif;font-size:${textSize}px;font-weight:700;color:#ffffff;line-height:1.12;text-shadow:0 2px 14px rgba(0,0,0,.35);">${headline}</div>
+<div style="position:relative;width:600px;height:740px;overflow:hidden;">
+  ${heroImgUrl
+    ? `<img src="${heroImgUrl}" style="position:absolute;top:-30px;left:-30px;width:660px;height:800px;object-fit:cover;object-position:calc(50% + ${heroX}px) calc(50% + ${heroY}px);filter:blur(36px) saturate(1.4) brightness(0.82);transform:scale(${Math.max(1.12, heroScale)});display:block;"/>`
+    : `<div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(160deg,#7ab5d8,#6ba87a);"></div>`}
+  <div style="position:relative;padding:22px 28px 0;line-height:normal;font-size:initial;">
+    <div style="position:relative;width:544px;height:480px;overflow:hidden;border-radius:20px;box-shadow:0 6px 40px rgba(0,0,0,0.3);border:2px solid rgba(255,255,255,0.55);">
+      ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;top:${Math.min(0,Math.max(480*(1-heroScale),-(480*(heroScale-1)/2)+heroY))}px;left:${Math.min(0,Math.max(544*(1-heroScale),-(544*(heroScale-1)/2)+heroX))}px;width:${544*heroScale}px;height:${480*heroScale}px;object-fit:cover;display:block;"/>` : ''}
+      <div style="position:absolute;top:0;left:0;right:0;height:72%;background:linear-gradient(to bottom,rgba(0,0,0,0.52) 0%,rgba(0,0,0,0.16) 65%,rgba(0,0,0,0) 100%);"></div>
+      <div style="position:absolute;top:0;left:0;right:0;padding:${textTop}px ${textLeft}px 0;line-height:normal;text-align:center;">
+        <div style="font-family:'Lora',Georgia,serif;font-size:${textSize}px;font-weight:700;color:#ffffff;line-height:1.08;text-shadow:0 2px 16px rgba(0,0,0,.3);">${headline}</div>
       </div>
     </div>
+    ${week4wfSubhead ? `<div style="padding:26px 16px 0;text-align:center;line-height:normal;">
+      <div style="font-family:'Lora',Georgia,serif;font-size:17px;font-style:italic;line-height:1.6;color:#ffffff;text-shadow:0 1px 8px rgba(0,0,0,.25);">${week4wfSubhead}</div>
+    </div>` : ''}
+    ${week4wfCta ? `<div style="padding:20px 0 0;text-align:center;line-height:normal;">
+      <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto;display:inline-table;"><tr><td style="background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.85);border-radius:100px;">
+        <span style="display:inline-block;padding:14px 44px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#ffffff;letter-spacing:.03em;white-space:nowrap;">${week4wfCta}</span>
+      </td></tr></table>
+      <div style="margin-top:14px;line-height:0;font-size:0;"><div style="display:inline-block;width:1px;height:28px;background:rgba(255,255,255,0.65);"></div></div>
+    </div>` : ''}
   </div>
 </div>
 </body></html>`
