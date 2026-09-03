@@ -13,6 +13,7 @@
 import { useCallback } from 'react'
 import { useCampaignStore } from '../store/campaignStore'
 import { generateCopy, logToSheets } from '../lib/api'
+import { authFetch } from '../lib/session'
 
 const POLL_INTERVAL_MS  = 2_000   // poll every 2 seconds
 const POLL_MAX_ATTEMPTS = 45      // give up after 90 seconds (45 × 2s)
@@ -21,7 +22,7 @@ async function pollForResult(jobId) {
   for (let attempt = 0; attempt < POLL_MAX_ATTEMPTS; attempt++) {
     await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS))
 
-    const res  = await fetch(`/.netlify/functions/copy-callback?jobId=${encodeURIComponent(jobId)}`)
+    const res  = await authFetch(`/.netlify/functions/copy-callback?jobId=${encodeURIComponent(jobId)}`)
     const data = await res.json()
 
     // Return the full copy payload so callers can access selectedVariation too

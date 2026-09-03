@@ -7,6 +7,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useTheme } from '../context/ThemeContext'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase, TABLE, rowToIdea, rowToEntry, ideaToRow, entryToRow } from '../lib/supabase'
+import { authFetch } from '../lib/session'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -48,7 +49,7 @@ function useClients() {
   const [clients, setClients] = useState([])
   const [loading, setLoading] = useState(true)
   useEffect(() => {
-    fetch('/.netlify/functions/clients')
+    authFetch('/.netlify/functions/clients')
       .then(r => r.json())
       .then(data => { setClients(Array.isArray(data) ? data : []); setLoading(false) })
       .catch(() => { setClients([]); setLoading(false) })

@@ -17,6 +17,7 @@ import { WF_WEEKS, wfWeek, wfWeekReady, wfBriefTemplate, wfBriefIsSeed } from '.
 import { wfTestVariations } from '../wfTestData'
 import { wfGenerateCopy } from '../../lib/api'
 import { extractWfVariations } from '../parseWfCopy'
+import { authFetch } from '../../lib/session'
 
 const POLL_INTERVAL_MS  = 2_000
 const POLL_MAX_ATTEMPTS = 60      // 120s — the workflow runs 45-50s
@@ -29,7 +30,7 @@ const POLL_MAX_ATTEMPTS = 60      // 120s — the workflow runs 45-50s
 async function pollForResult(jobId) {
   for (let i = 0; i < POLL_MAX_ATTEMPTS; i++) {
     await new Promise(r => setTimeout(r, POLL_INTERVAL_MS))
-    const res  = await fetch(`/.netlify/functions/copy-callback?jobId=${encodeURIComponent(jobId)}`)
+    const res  = await authFetch(`/.netlify/functions/copy-callback?jobId=${encodeURIComponent(jobId)}`)
     const data = await res.json()
     if (data.status === 'done')  return data.copy
     if (data.status === 'error') throw new Error(data.error || 'n8n workflow failed')

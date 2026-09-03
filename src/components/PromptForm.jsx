@@ -5,6 +5,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useCampaignStore } from '../store/campaignStore'
 import { fetchClients, uploadLogo } from '../lib/api'
+import { authFetch } from '../lib/session'
 
 export default function PromptForm({ onGenerate, dark = false }) {
   const [clients, setClients]             = useState([])
@@ -85,7 +86,7 @@ export default function PromptForm({ onGenerate, dark = false }) {
     if (!apiKey) { setTemplateName(''); return }
     setTemplateNameLoading(true)
     setTemplateName('')
-    fetch(`/.netlify/functions/fetch-template-name?templateId=${templateId}&locationId=${locationId}&apiKey=${encodeURIComponent(apiKey)}`)
+    authFetch(`/.netlify/functions/fetch-template-name?templateId=${templateId}&locationId=${locationId}&apiKey=${encodeURIComponent(apiKey)}`)
       .then(r => r.json())
       .then(d => setTemplateName(d.name || d.error || ''))
       .catch(() => setTemplateName('Could not fetch template name'))
@@ -141,7 +142,7 @@ export default function PromptForm({ onGenerate, dark = false }) {
     setAddClientError('')
     setAddingClient(true)
     try {
-      const res = await fetch('/.netlify/functions/add-client', {
+      const res = await authFetch('/.netlify/functions/add-client', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -154,7 +155,7 @@ export default function PromptForm({ onGenerate, dark = false }) {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Failed to add client')
       // Refresh client list
-      const updated = await fetch('/.netlify/functions/clients').then(r => r.json())
+      const updated = await authFetch('/.netlify/functions/clients').then(r => r.json())
       setClients(updated)
       setShowAddClient(false)
       setNewClient({ name: '', ghl_api_key: '', location_id: '', logo_url: '' })

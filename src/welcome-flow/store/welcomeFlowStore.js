@@ -25,6 +25,7 @@
 
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { authFetch } from '../../lib/session'
 
 export const WF_STATUS = {
   draft:        { label: 'Draft',        tone: 'neutral' },
@@ -52,7 +53,7 @@ export const useWelcomeFlowStore = create(
       fetchClients: async () => {
         set({ loadingClients: true, clientsError: null })
         try {
-          const res  = await fetch('/.netlify/functions/wf-clients')
+          const res  = await authFetch('/.netlify/functions/wf-clients')
           const data = await res.json()
           if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`)
           set({ clients: data.clients || [], loadingClients: false })
@@ -78,14 +79,14 @@ export const useWelcomeFlowStore = create(
 
       /** Validate a GHL location against the client database before creating. */
       lookupLocation: async (locationId) => {
-        const res  = await fetch('/.netlify/functions/wf-clients?locationId=' + encodeURIComponent(locationId))
+        const res  = await authFetch('/.netlify/functions/wf-clients?locationId=' + encodeURIComponent(locationId))
         const data = await res.json()
         if (!res.ok) throw new Error(data.error || 'Lookup failed')
         return data.match
       },
 
       addClient: async (data) => {
-        const res  = await fetch('/.netlify/functions/wf-clients', {
+        const res  = await authFetch('/.netlify/functions/wf-clients', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data),

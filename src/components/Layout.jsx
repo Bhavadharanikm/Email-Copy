@@ -6,6 +6,7 @@ import { IconDiamond, IconSun, IconMoon, IconMessageCircle, IconCalendar, IconX,
 import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
 import { submitFeedback } from '../lib/api'
+import { authFetch } from '../lib/session'
 
 const SECTIONS = [
   'Subject Line',
@@ -241,7 +242,7 @@ export default function Layout() {
 
   useEffect(() => {
     if (!showDeleteClient) return
-    fetch('/.netlify/functions/clients')
+    authFetch('/.netlify/functions/clients')
       .then(r => r.json())
       .then(data => setAllClients(Array.isArray(data) ? data : []))
       .catch(() => {})
@@ -255,7 +256,7 @@ export default function Layout() {
     setDeleteError('')
     setDeletingClient(true)
     try {
-      const res = await fetch('/.netlify/functions/delete-client', {
+      const res = await authFetch('/.netlify/functions/delete-client', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ client_name: deleteClientName }),

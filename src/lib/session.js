@@ -35,3 +35,10 @@ export function handleUnauthorized() {
   clearSession()
   if (!location.pathname.startsWith('/login')) location.assign('/login')
 }
+
+/* fetch() with the session attached. For the handful of places that call a
+   function directly instead of through lib/api.js — a raw fetch sends no
+   token and gets a 401 back. */
+export function authFetch(url, init = {}) {
+  return fetch(url, { ...init, headers: { ...(init.headers || {}), ...authHeaders() } })
+}
