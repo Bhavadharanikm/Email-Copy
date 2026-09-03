@@ -77,6 +77,12 @@ function splitVariations(text) {
   while ((m = re.exec(text)) !== null) {
     heads.push({ index: m.index, end: m.index + m[0].length, num: Number(m[1]), name: clean(m[2]) })
   }
+  /* No header at all: a single email pasted on its own. Treat the whole text
+     as variation 1 rather than returning nothing — as long as it actually
+     carries **Field** blocks, so stray prose is still rejected. */
+  if (!heads.length) {
+    return /^\*\*[^*\n]+\*\*\s*$/m.test(text) ? [{ num: 1, name: '', body: text }] : []
+  }
   return heads.map((h, i) => ({
     num:  h.num,
     name: h.name,
@@ -96,7 +102,8 @@ function parseCards(body) {
     const chunk = body.slice(h.start, i + 1 < heads.length ? heads[i + 1].index : body.length)
     const card = {}
     for (const line of chunk.split('\n')) {
-      const bm = line.match(/^\s*[-*]\s*\*\*(.+?):?\*\*:?\s*(.*)$/)
+      const bm = line.match(/^\s*[-*]\s*\*\*(.+?):?\*\*:?\s*(.*)$/)   // - **Card Name:** value
+              || line.match(/^\s*[-*]\s*([A-Za-z][A-Za-z ]{1,30}):\s*(.*)$/) // - Card Name: value
       if (!bm) continue
       const key = CARD_MAP[clean(bm[1]).toLowerCase().replace(/:$/, '')]
       if (key) card[key] = clean(bm[2])
@@ -142,6 +149,9 @@ function parseMoments(body) {
 function parseFields(body) {
   const out = {}
   const lines = body.split('\n')
+  /* Presence, not value: an intro label anywhere in the document decides what
+     "Body Block" means below (see INTRO_BODY_KEYS for the JSON equivalent). */
+  const hasIntroLabel = /^\*\*\s*intro (body|body block|line)\s*:?\*\*\s*$/im.test(body)
   let current = null
   let buffer = []
 
@@ -158,6 +168,10 @@ function parseFields(body) {
     if (head) {
       flush()
       const label = clean(head[1]).toLowerCase().replace(/:$/, '')
+      /* Older prose used "Body Block" for the intro. When the document also
+         carries an intro field, it is the closing block instead — otherwise
+         the second one silently overwrites the first. */
+      if (label === 'body block' && hasIntroLabel) { current = 'bodyBlock2'; buffer = []; continue }
       // property cards are handled separately
       current = (/^property card/.test(label) || MOMENT_LABELS.includes(label))
         ? null
