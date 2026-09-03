@@ -232,13 +232,13 @@ export default function WFBrief() {
             <option value="">Select which email this is…</option>
             {WF_WEEKS.map(w => (
               <option key={w.week} value={w.week}>
-                Week {w.week}{w.templateId ? '' : ' — template not built yet'}
+                Email {w.week}
               </option>
             ))}
           </select>
           {week && !weekReady && (
             <div style={{ fontSize: 11.5, color: '#b45309', marginTop: 6 }}>
-              Week {week} has no template yet, so it can’t be generated.
+              Email {week} has no template yet, so it can’t be generated.
             </div>
           )}
         </div>
