@@ -4,7 +4,8 @@
  * Used by the client-side html-to-image renderer so canvas captures
  * don't get tainted by cross-origin images.
  */
-export const handler = async (event) => {
+import { withAuth } from './_auth.js'
+const rawHandler = async (event) => {
   const url = event.queryStringParameters?.url
   if (!url) return { statusCode: 400, body: 'Missing url parameter' }
 
@@ -31,3 +32,5 @@ export const handler = async (event) => {
     return { statusCode: 500, body: `Proxy error: ${err.message}` }
   }
 }
+
+export const handler = withAuth(rawHandler)

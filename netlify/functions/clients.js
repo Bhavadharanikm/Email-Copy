@@ -4,10 +4,11 @@
  * Required env vars: SUPABASE_URL, SUPABASE_SERVICE_KEY
  */
 
+import { withAuth } from './_auth.js'
 const SUPABASE_URL = process.env.SUPABASE_URL
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY
 
-export const handler = async () => {
+const rawHandler = async () => {
   try {
     if (!SUPABASE_URL || !SUPABASE_KEY) throw new Error('Supabase credentials not set')
 
@@ -53,3 +54,5 @@ export const handler = async () => {
     }
   }
 }
+
+export const handler = withAuth(rawHandler)

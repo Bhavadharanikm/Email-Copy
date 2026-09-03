@@ -7,7 +7,8 @@
  * Google Chat webhook docs: https://developers.google.com/chat/how-tos/webhooks
  */
 
-export const handler = async (event) => {
+import { withAuth } from './_auth.js'
+const rawHandler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' }
   }
@@ -86,3 +87,5 @@ export const handler = async (event) => {
     }
   }
 }
+
+export const handler = withAuth(rawHandler)

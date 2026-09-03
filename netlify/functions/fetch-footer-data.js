@@ -17,6 +17,7 @@
  *   Col J: Website Link
  *   Col K: Contact Number (phone)
  */
+import { withAuth } from './_auth.js'
 import { createSign } from 'crypto'
 
 const SPREADSHEET_ID = '14HEBZ9DPckY9jJRq-DYUZYI6bz2WJHhec9LTmP8FP54'
@@ -53,7 +54,7 @@ async function getAccessToken() {
   return data.access_token
 }
 
-export const handler = async (event) => {
+const rawHandler = async (event) => {
   if (event.httpMethod !== 'GET') return { statusCode: 405, body: 'Method Not Allowed' }
 
   const { clientName } = event.queryStringParameters || {}
@@ -110,3 +111,5 @@ export const handler = async (event) => {
     return { statusCode: 500, body: JSON.stringify({ error: err.message }) }
   }
 }
+
+export const handler = withAuth(rawHandler)

@@ -11,6 +11,7 @@
  * it sends locationId alone and the key is resolved here from Email_Client_API.
  */
 
+import { withAuth } from './_auth.js'
 const GHL_BASE    = 'https://services.leadconnectorhq.com'
 const GHL_VERSION = '2021-07-28'
 
@@ -87,7 +88,7 @@ async function saveLogoUrlToSupabase(locationId, logoUrl) {
   }
 }
 
-export const handler = async (event) => {
+const rawHandler = async (event) => {
   if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' }
 
   try {
@@ -124,3 +125,5 @@ export const handler = async (event) => {
     }
   }
 }
+
+export const handler = withAuth(rawHandler)

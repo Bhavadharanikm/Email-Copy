@@ -9,6 +9,7 @@
  * Required env vars: SUPABASE_URL, SUPABASE_SERVICE_KEY
  */
 
+import { withAuth, hasCallbackSecret } from './_auth.js'
 const SUPABASE_URL = process.env.SUPABASE_URL
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY
 
@@ -26,7 +27,7 @@ function supabase(path, method = 'GET', body = null) {
   return fetch(`${SUPABASE_URL}/rest/v1/${path}`, opts).then(r => r.text().then(t => t ? JSON.parse(t) : null))
 }
 
-export const handler = async (event) => {
+const rawHandler = async (event) => {
 
   // ── POST: n8n delivers completed copy ─────────────────────────────────────
   if (event.httpMethod === 'POST') {
@@ -91,3 +92,7 @@ export const handler = async (event) => {
 
   return { statusCode: 405, body: 'Method Not Allowed' }
 }
+
+/* n8n has no session; it proves itself with x-callback-secret on POST. The
+   dashboard's GET poll carries a normal session. */
+export const handler = withAuth(rawHandler, { allow: (e) => e.httpMethod === 'POST' && hasCallbackSecret(e) })

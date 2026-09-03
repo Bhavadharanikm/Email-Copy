@@ -2,11 +2,9 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { IconDiamond, IconEye, IconEyeOff, IconArrowLeft } from '@tabler/icons-react'
-import { supabase } from '../lib/supabase'
+import { loginRequest } from '../lib/api'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
-
-const LOGIN_TABLE = 'Email Login'
 
 // Steps: 'name' → 'set-pin' (first time) | 'enter-pin' (returning)
 export default function Login() {
@@ -23,7 +21,7 @@ export default function Login() {
   const [showConf,   setShowConf]   = useState(false)
   const [error,      setError]      = useState('')
   const [loading,    setLoading]    = useState(false)
-  const [userData,   setUserData]   = useState(null)  // row from DB
+  const [userData,   setUserData]   = useState(null)  // { name } once the server knows it
 
   const bg      = dark ? '#0a0a0a'                 : '#f8fafc'
   const cardBg  = dark ? '#141414'                 : '#ffffff'
@@ -53,24 +51,14 @@ export default function Login() {
     setError('')
 
     try {
-      const { data, error: dbErr } = await supabase
-        .from(LOGIN_TABLE)
-        .select('id, Name, PIN, Role')
-        .ilike('Name', name.trim())
-        .single()
-
-      if (dbErr || !data) {
-        setError('Name not found. Please check and try again.')
-        setLoading(false)
-        return
-      }
-
-      setUserData(data)
+      /* The server answers only which screen comes next; the PIN stays there. */
+      const { step: next } = await loginRequest({ name: name.trim() })
+      setUserData({ name: name.trim() })
       setPin('')
       setPinConfirm('')
-      setStep(data.PIN === null || data.PIN === undefined ? 'set-pin' : 'enter-pin')
-    } catch {
-      setError('Something went wrong. Please try again.')
+      setStep(next)
+    } catch (err) {
+      setError(err.message || 'Something went wrong. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -85,17 +73,11 @@ export default function Login() {
     setError('')
 
     try {
-      const { error: updateErr } = await supabase
-        .from(LOGIN_TABLE)
-        .update({ PIN: Number(pin) })
-        .eq('id', userData.id)
-
-      if (updateErr) throw updateErr
-
-      login({ id: userData.id, name: userData.Name, role: userData.Role || 'Standard' })
+      const session = await loginRequest({ name: userData.name, pin, action: 'set-pin' })
+      login(session)
       navigate('/', { replace: true })
-    } catch {
-      setError('Could not save your PIN. Please try again.')
+    } catch (err) {
+      setError(err.message || 'Could not save your PIN. Please try again.')
       setLoading(false)
     }
   }
@@ -105,14 +87,17 @@ export default function Login() {
     e.preventDefault()
     if (!pin.trim()) return
     setError('')
+    setLoading(true)
 
-    if (String(userData.PIN) !== pin.trim()) {
-      setError('Incorrect PIN. Please try again.')
-      return
+    try {
+      /* The compare happens on the server; the browser never sees the PIN. */
+      const session = await loginRequest({ name: userData.name, pin: pin.trim() })
+      login(session)
+      navigate('/', { replace: true })
+    } catch (err) {
+      setError(err.message || 'Incorrect PIN. Please try again.')
+      setLoading(false)
     }
-
-    login({ id: userData.id, name: userData.Name, role: userData.Role || 'Standard' })
-    navigate('/', { replace: true })
   }
 
   function goBack() {

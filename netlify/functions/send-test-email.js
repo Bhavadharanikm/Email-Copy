@@ -18,6 +18,7 @@
  * Required env vars: SUPABASE_URL, SUPABASE_SERVICE_KEY
  */
 
+import { withAuth } from './_auth.js'
 const GHL_BASE    = 'https://services.leadconnectorhq.com'
 const GHL_VERSION = '2021-07-28'
 
@@ -33,7 +34,7 @@ const json = (statusCode, body) => ({
   body: JSON.stringify(body),
 })
 
-export const handler = async (event) => {
+const rawHandler = async (event) => {
   if (event.httpMethod !== 'POST') return json(405, { error: 'Method Not Allowed' })
 
   try {
@@ -154,3 +155,5 @@ export const handler = async (event) => {
     return json(500, { error: err.message || 'Unknown server error' })
   }
 }
+
+export const handler = withAuth(rawHandler)

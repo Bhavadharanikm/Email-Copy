@@ -3,10 +3,11 @@
  * Returns the name/title of a GHL email template by its ID.
  */
 
+import { withAuth } from './_auth.js'
 const GHL_BASE    = 'https://services.leadconnectorhq.com'
 const GHL_VERSION = '2021-07-28'
 
-export const handler = async (event) => {
+const rawHandler = async (event) => {
   if (event.httpMethod !== 'GET') {
     return { statusCode: 405, body: 'Method Not Allowed' }
   }
@@ -80,3 +81,5 @@ export const handler = async (event) => {
     }
   }
 }
+
+export const handler = withAuth(rawHandler)

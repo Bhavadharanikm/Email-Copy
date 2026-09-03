@@ -5,7 +5,8 @@
  * TODO: Wire up Google Drive API once GOOGLE_* credentials are provided.
  */
 
-export const handler = async (event) => {
+import { withAuth } from './_auth.js'
+const rawHandler = async (event) => {
   const { folderId } = event.queryStringParameters || {}
 
   if (!folderId) {
@@ -40,3 +41,5 @@ export const handler = async (event) => {
     }
   }
 }
+
+export const handler = withAuth(rawHandler)

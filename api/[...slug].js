@@ -12,6 +12,7 @@ import { handler as fetchTemplateName }  from '../netlify/functions/fetch-templa
 import { handler as generateCopy }       from '../netlify/functions/generate-copy.js'
 import { handler as getDriveImages }     from '../netlify/functions/get-drive-images.js'
 import { handler as htmlToImage }        from '../netlify/functions/html-to-image.js'
+import { handler as login }            from '../netlify/functions/login.js'
 import { handler as logToSheets }        from '../netlify/functions/log-to-sheets.js'
 import { handler as notifyChat }         from '../netlify/functions/notify-chat.js'
 import { handler as previewEmail }       from '../netlify/functions/preview-email.js'
@@ -48,6 +49,7 @@ const HANDLERS = {
   'generate-copy':       generateCopy,
   'get-drive-images':    getDriveImages,
   'html-to-image':       htmlToImage,
+  'login':               login,
   'log-to-sheets':       logToSheets,
   'notify-chat':         notifyChat,
   'preview-email':       previewEmail,

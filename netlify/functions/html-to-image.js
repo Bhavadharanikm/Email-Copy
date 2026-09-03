@@ -12,6 +12,7 @@
  * Returns: { url }
  */
 
+import { withAuth } from './_auth.js'
 const sleep = (ms) => new Promise(r => setTimeout(r, ms))
 
 const GHL_BASE    = 'https://services.leadconnectorhq.com'
@@ -111,7 +112,7 @@ async function callPuppeteer(html, width, height, locationId, ghlKey, transparen
 
 // ── Handler ───────────────────────────────────────────────────────────────
 
-export const handler = async (event) => {
+const rawHandler = async (event) => {
   if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' }
 
   try {
@@ -185,3 +186,5 @@ export const handler = async (event) => {
     return { statusCode: 500, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: err.message }) }
   }
 }
+
+export const handler = withAuth(rawHandler)

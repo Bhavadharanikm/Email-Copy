@@ -5,6 +5,7 @@
  * ?locationId=XXX&folderId=YYY → returns { images } inside that folder
  */
 
+import { withAuth } from './_auth.js'
 const GHL_BASE    = 'https://services.leadconnectorhq.com'
 const GHL_VERSION = '2021-07-28'
 const IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/gif']
@@ -40,7 +41,7 @@ async function resolveApiKey(locationId) {
   } catch { return '' }
 }
 
-export const handler = async (event) => {
+const rawHandler = async (event) => {
   if (event.httpMethod !== 'GET') return { statusCode: 405, body: 'Method Not Allowed' }
 
   const { locationId, folderId, apiKey: qApiKey } = event.queryStringParameters || {}
@@ -98,3 +99,5 @@ export const handler = async (event) => {
     return { statusCode: 500, body: JSON.stringify({ error: err.message }) }
   }
 }
+
+export const handler = withAuth(rawHandler)

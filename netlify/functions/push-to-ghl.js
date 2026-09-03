@@ -9,6 +9,7 @@
  * Required env var: GHL_API_KEY (Private Integration token)
  */
 
+import { withAuth } from './_auth.js'
 const GHL_BASE    = 'https://services.leadconnectorhq.com'
 const GHL_VERSION = '2021-07-28'
 
@@ -72,7 +73,7 @@ async function updateCustomValue(apiKey, locationId, { id, name }, value) {
 }
 
 // ── Handler ──────────────────────────────────────────────────────────────────
-export const handler = async (event) => {
+const rawHandler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' }
   }
@@ -143,3 +144,5 @@ export const handler = async (event) => {
     }
   }
 }
+
+export const handler = withAuth(rawHandler)

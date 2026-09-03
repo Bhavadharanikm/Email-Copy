@@ -10,6 +10,7 @@
  *   GOOGLE_PRIVATE_KEY            — private key from the JSON key file (with \n line breaks)
  */
 
+import { withAuth } from './_auth.js'
 import { createSign } from 'crypto'
 
 const SPREADSHEET_ID = '1jKx6btgMaXi6eoqQanuLBp-B_t_S4h3bMLQyYp56MMo'
@@ -85,7 +86,7 @@ function buildRow(clientName, locationId, variationLabel, copy) {
 }
 
 // ── Handler ──────────────────────────────────────────────────────────────────
-export const handler = async (event) => {
+const rawHandler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' }
   }
@@ -132,3 +133,5 @@ export const handler = async (event) => {
     return { statusCode: 500, body: JSON.stringify({ error: err.message }) }
   }
 }
+
+export const handler = withAuth(rawHandler)

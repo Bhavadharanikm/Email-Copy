@@ -19,10 +19,11 @@
  *   4 — Mosaic: one large left + two stacked right
  */
 
+import { withAuth } from './_auth.js'
 const OPENROUTER_BASE = 'https://openrouter.ai/api/v1'
 const MODEL           = 'anthropic/claude-3-5-haiku'
 
-export const handler = async (event) => {
+const rawHandler = async (event) => {
   if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' }
 
   try {
@@ -117,3 +118,5 @@ Respond ONLY with valid JSON in this exact shape:
     }
   }
 }
+
+export const handler = withAuth(rawHandler)

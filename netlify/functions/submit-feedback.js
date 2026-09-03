@@ -9,6 +9,7 @@
  *   FEEDBACK_DOC_ID  — the Google Doc ID to append to
  */
 
+import { withAuth } from './_auth.js'
 import { createSign } from 'crypto'
 
 async function getAccessToken() {
@@ -40,7 +41,7 @@ async function getAccessToken() {
   return data.access_token
 }
 
-export const handler = async (event) => {
+const rawHandler = async (event) => {
   if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' }
 
   const docId = process.env.FEEDBACK_DOC_ID || '13dgnHnPpGDE8BeU3od2JQq52En7jtHhgn5gVs1Qozf4'
@@ -122,3 +123,5 @@ export const handler = async (event) => {
     return { statusCode: 500, body: JSON.stringify({ error: err.message }) }
   }
 }
+
+export const handler = withAuth(rawHandler)

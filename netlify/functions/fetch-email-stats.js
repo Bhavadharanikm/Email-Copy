@@ -10,6 +10,7 @@
  * Clients with no campaigns return an empty array. Stats scope errors return zeros.
  */
 
+import { withAuth } from './_auth.js'
 import { createClient } from '@supabase/supabase-js'
 
 const GHL_BASE         = 'https://services.leadconnectorhq.com'
@@ -154,7 +155,7 @@ async function fetchClientCampaigns(client) {
   }
 }
 
-export const handler = async (event) => {
+const rawHandler = async (event) => {
   if (event.httpMethod !== 'GET') return { statusCode: 405, body: 'Method Not Allowed' }
 
   // ── API key auth ──────────────────────────────────────────────────────────
@@ -185,3 +186,6 @@ export const handler = async (event) => {
     return { statusCode: 500, body: JSON.stringify({ error: err.message }) }
   }
 }
+
+/* Public: this endpoint authenticates callers with its own x-api-key check. */
+export const handler = withAuth(rawHandler, { public: true })

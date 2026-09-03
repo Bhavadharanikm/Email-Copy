@@ -21,6 +21,7 @@
  * caller passes back the dbId it got the first time.
  */
 
+import { withAuth } from './_auth.js'
 const json = (statusCode, body) => ({
   statusCode,
   headers: { 'Content-Type': 'application/json' },
@@ -38,7 +39,7 @@ const headers = (key) => ({
   'Content-Type': 'application/json',
 })
 
-export const handler = async (event) => {
+const rawHandler = async (event) => {
   if (event.httpMethod !== 'POST') return json(405, { error: 'Method Not Allowed' })
 
   try {
@@ -130,3 +131,5 @@ export const handler = async (event) => {
     return json(500, { error: err.message })
   }
 }
+
+export const handler = withAuth(rawHandler)

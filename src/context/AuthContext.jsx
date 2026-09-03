@@ -1,24 +1,22 @@
 import { createContext, useContext, useState, useCallback } from 'react'
+import { readSession, writeSession, clearSession } from '../lib/session'
 
 const AuthContext = createContext(null)
 
-const STORAGE_KEY = 'hgm_email_user'
-
+/* `user` is the server-issued { id, name, role, isAdmin }; the token that
+   backs it lives beside it in the same stored session and is attached to
+   every API call by lib/api.js. Nothing here decides who is admin — login.js
+   does, and it is signed into the token. */
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY)
-      return saved ? JSON.parse(saved) : null
-    } catch { return null }
-  })
+  const [user, setUser] = useState(() => readSession()?.user || null)
 
-  const login = useCallback((userData) => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(userData))
-    setUser(userData)
+  const login = useCallback((session) => {
+    writeSession(session)
+    setUser(session.user)
   }, [])
 
   const logout = useCallback(() => {
-    localStorage.removeItem(STORAGE_KEY)
+    clearSession()
     setUser(null)
   }, [])
 

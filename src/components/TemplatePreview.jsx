@@ -2582,7 +2582,6 @@ const TEMPLATES = [
   { id:20, label:'🧪 Test',   build:buildTemplateTest,  adminOnly:true },
 ]
 
-const POOJA_NAME = 'Pooja'
 
 /* ─────────────────────────── component ─────────────────────────────────── */
 /**
@@ -2598,7 +2597,9 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
   const { theme } = useTheme()
   const dark = theme === 'dark'
   const { user } = useAuth()
-  const isAdmin = user?.name === POOJA_NAME
+  /* Decided by login.js from ADMIN_USERS and signed into the session token —
+     not something the browser can grant itself. */
+  const isAdmin = !!user?.isAdmin
   /* A welcome-flow email's template is decided by the week picked on the brief,
      so show that one and nothing else — offering the others would only let
      someone render a Week 2 email with Week 1's template and push it. If the

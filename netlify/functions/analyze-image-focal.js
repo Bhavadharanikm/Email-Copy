@@ -7,10 +7,11 @@
  * Returns: { focalX: 0-100, focalY: 0-100 }
  */
 
+import { withAuth } from './_auth.js'
 const OPENROUTER_BASE = 'https://openrouter.ai/api/v1'
 const MODEL           = 'anthropic/claude-3-5-haiku'
 
-export const handler = async (event) => {
+const rawHandler = async (event) => {
   if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' }
 
   try {
@@ -70,3 +71,5 @@ export const handler = async (event) => {
     return { statusCode: 200, body: JSON.stringify({ focalX: 50, focalY: 50 }) }
   }
 }
+
+export const handler = withAuth(rawHandler)

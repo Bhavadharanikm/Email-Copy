@@ -14,6 +14,7 @@
  * The GHL API key is never stored in the WF table and never sent to the browser.
  */
 
+import { withAuth } from './_auth.js'
 const json = (statusCode, body) => ({
   statusCode,
   headers: { 'Content-Type': 'application/json' },
@@ -53,7 +54,7 @@ async function resolveLocation(locationId) {
   }
 }
 
-export const handler = async (event) => {
+const rawHandler = async (event) => {
   try {
     const { url, key } = wfEnv()
     if (!url || !key) {
@@ -145,3 +146,5 @@ export const handler = async (event) => {
     return json(500, { error: err.message })
   }
 }
+
+export const handler = withAuth(rawHandler)

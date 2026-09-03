@@ -4,14 +4,24 @@
  * All API keys stay server-side — these calls go to /.netlify/functions/*
  */
 
+import { authHeaders, handleUnauthorized } from './session.js'
+
 const BASE = '/.netlify/functions'
+
+/* Every endpoint but /login requires a signed session. A 401 means the token
+   is missing, forged or expired, so the only sensible next step is the login
+   screen — do that here rather than in every caller. */
+function checkAuth(res) {
+  if (res.status === 401) { handleUnauthorized(); throw new Error('Sign in required') }
+}
 
 async function post(path, body) {
   const res  = await fetch(`${BASE}${path}`, {
     method:  'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body:    JSON.stringify(body),
   })
+  checkAuth(res)
   const text = await res.text()
   if (!text) throw new Error(`Empty response from ${path} (status ${res.status}) — check Netlify function logs`)
   let data
@@ -26,11 +36,18 @@ async function post(path, body) {
 
 async function get(path, params = {}) {
   const qs = new URLSearchParams(params).toString()
-  const res = await fetch(`${BASE}${path}${qs ? `?${qs}` : ''}`)
+  const res = await fetch(`${BASE}${path}${qs ? `?${qs}` : ''}`, { headers: authHeaders() })
+  checkAuth(res)
   const data = await res.json()
   if (!res.ok) throw new Error(data.error || `Request failed: ${res.status}`)
   return data
 }
+
+// ── Login ────────────────────────────────────────────────────────
+// The one public endpoint. Returns { step } for a name alone, or
+// { token, user } once a PIN is supplied (action:'set-pin' on first login).
+export const loginRequest = ({ name, pin, action }) =>
+  post('/login', { name, pin, action })
 
 // ── Client list ──────────────────────────────────────────────────
 export const fetchClients = () =>
@@ -122,7 +139,7 @@ async function inlineAllImages(html) {
   const cache = {}
   await Promise.all([...urls].map(async url => {
     try {
-      const res = await fetch(`/.netlify/functions/proxy-image?url=${encodeURIComponent(url)}`)
+      const res = await fetch(`/.netlify/functions/proxy-image?url=${encodeURIComponent(url)}`, { headers: authHeaders() })
       if (!res.ok) return
       const blob   = await res.blob()
       const reader = new FileReader()
@@ -197,7 +214,7 @@ export async function htmlToImageClient({ html, width, height, locationId }) {
     const base64 = dataUrl.split(',')[1]
     const res    = await fetch('/.netlify/functions/upload-screenshot', {
       method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...authHeaders() },
       body:    JSON.stringify({ base64, locationId }),
     })
     const data = await res.json()

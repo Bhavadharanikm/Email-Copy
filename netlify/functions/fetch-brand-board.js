@@ -5,6 +5,7 @@
  * Returns the default brand board's colors, fonts, and logos for a location.
  */
 
+import { withAuth } from './_auth.js'
 const GHL_BASE    = 'https://services.leadconnectorhq.com'
 const GHL_VERSION = '2023-02-21'
 
@@ -23,7 +24,7 @@ async function ghlGet(path, apiKey) {
   return res.json()
 }
 
-export const handler = async (event) => {
+const rawHandler = async (event) => {
   if (event.httpMethod !== 'GET') return { statusCode: 405, body: 'Method Not Allowed' }
 
   const { locationId, apiKey: qApiKey } = event.queryStringParameters || {}
@@ -88,3 +89,5 @@ export const handler = async (event) => {
     return { statusCode: 500, body: JSON.stringify({ error: err.message }) }
   }
 }
+
+export const handler = withAuth(rawHandler)

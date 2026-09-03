@@ -14,6 +14,7 @@
  *
  * Required env var: N8N_COPY_WEBHOOK_URL
  */
+import { withAuth } from './_auth.js'
 import { randomUUID, createSign } from 'crypto'
 
 const SPREADSHEET_ID = '14HEBZ9DPckY9jJRq-DYUZYI6bz2WJHhec9LTmP8FP54'
@@ -75,7 +76,7 @@ async function fetchBrandData(clientName) {
   }
 }
 
-export const handler = async (event) => {
+const rawHandler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' }
   }
@@ -140,3 +141,5 @@ export const handler = async (event) => {
     }
   }
 }
+
+export const handler = withAuth(rawHandler)

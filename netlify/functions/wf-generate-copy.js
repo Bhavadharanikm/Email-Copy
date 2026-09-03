@@ -26,6 +26,7 @@
  * writes can be brand-aware, matching how the weekly campaign does it.
  */
 
+import { withAuth } from './_auth.js'
 import { randomUUID, createSign } from 'crypto'
 
 const SPREADSHEET_ID = '14HEBZ9DPckY9jJRq-DYUZYI6bz2WJHhec9LTmP8FP54'
@@ -93,7 +94,7 @@ async function fetchBrandData(clientName) {
   }
 }
 
-export const handler = async (event) => {
+const rawHandler = async (event) => {
   if (event.httpMethod !== 'POST') return json(405, { error: 'Method Not Allowed' })
 
   try {
@@ -154,3 +155,5 @@ export const handler = async (event) => {
     return json(500, { error: err.message })
   }
 }
+
+export const handler = withAuth(rawHandler)
