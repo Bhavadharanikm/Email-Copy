@@ -32,31 +32,47 @@ export const wfWeek = (week) => WF_WEEKS.find(w => w.week === Number(week)) || n
 export const wfWeekReady = (week) => !!wfWeek(week)?.templateId
 
 /**
- * The lines the brief seeds for each week — labels only, no values. The writer
- * fills them in; the whole box is sent to n8n as typed.
- *
- * Each week asks for what its own template renders, so Week 1 needs the offer
- * and the stays while Week 3 needs the reviews. A week with no entry falls back
- * to the three common lines.
+ * The brief each week seeds into the prompt box — Pooja's own templates,
+ * verbatim. "Client Name" is filled from the client; "Theme" is fixed per
+ * week because it is what tells the workflow which email to write; every
+ * other line is a label the writer completes. The whole box is sent to n8n as
+ * typed, so nothing here is parsed — it is a prompt, not a form.
  */
-const WF_BRIEF_FIELDS = {
-  1: ['Theme', 'Audience', 'Promo Code', 'Discount', 'Promo Terms',
-      'Featured Stays (name + bed | bath | guests, up to 3)', 'Booking URL'],
-  2: ['Theme', 'Audience', 'Moments (one per line, in order)', 'Booking URL'],
-  3: ['Theme', 'Audience', 'Guest Reviews (quote + name, stay, month, platform)',
-      'Promo Code', 'Discount', 'Booking URL'],
-  4: ['Theme', 'Audience', 'Area Highlights (grouped: where to wander / eat / end up)',
-      'Promo Code', 'Discount', 'Booking URL'],
+const WF_BRIEF_LINES = {
+  1: ['Theme: Generate the welcome email',
+      'Audience: ',
+      'Featured Stays: '],
+  2: ['Theme: Generate the itinerary email',
+      'Audience: ',
+      'Optional: Offer \u2014 [code, discount, terms] (only if changed since the brief)'],
+  3: ['Theme: Generate the reviews email',
+      'Audience: '],
+  4: ['Theme: Generate the destination email',
+      'Audience: ',
+      'Optional: Offer \u2014 [code, discount, terms] (only if changed since the brief)'],
+  5: ['Theme: Generate the guest story email',
+      'Optional: Promo code, discount, minimum (not needed when mentioned in the email brief)',
+      'Audience: '],
+  6: ['Theme: Generate the book direct email',
+      'Audience: ',
+      'Cancellation policy applies to: '],
+  7: ['Theme: Generate the midweek email',
+      'Perk: ',
+      'Optional: Perk and code together \u2014 yes / no / not confirmed',
+      'Optional: Midweek pricing \u2014 [as documented, or none]',
+      'Audience: '],
+  8: ['Theme: Generate the decision nudge email',
+      'Audience: ',
+      'Booking page is an availability calendar: not confirmed (add if the CTA link is a Calendar Page or a simple website page)'],
 }
 
-const WF_BRIEF_FALLBACK = ['Theme', 'Audience']
+const WF_BRIEF_FALLBACK = ['Theme: ', 'Audience: ']
 
-/** The seeded brief for a week: "Client Name: X" then one blank label per line. */
+/** The seeded brief for a week: "Client Name: X" then that week's lines. */
 export const wfBriefTemplate = (clientName, week) =>
-  [`Client Name: ${clientName || ''}`,
-   ...(WF_BRIEF_FIELDS[Number(week)] || WF_BRIEF_FALLBACK).map(f => `${f}:`)].join('\n')
+  [`Client Name: ${clientName || ''}`, ...(WF_BRIEF_LINES[Number(week)] || WF_BRIEF_FALLBACK)].join('\n')
 
 /** True when the text is still an untouched seed for some week — safe to replace. */
 export const wfBriefIsSeed = (text, clientName) =>
-  !text?.trim() || Object.keys(WF_BRIEF_FIELDS).concat('x')
+  !text?.trim() || Object.keys(WF_BRIEF_LINES).concat('x')
     .some(w => wfBriefTemplate(clientName, w) === text)
