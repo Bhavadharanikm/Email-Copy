@@ -213,7 +213,7 @@ export default function Login() {
                     </button>
                     <div>
                       <h1 style={{ fontSize: 22, fontWeight: 700, color: textCol, margin: 0, letterSpacing: '-0.03em' }}>
-                        Hi, {userData?.Name}!
+                        Hi, {userData?.name}!
                       </h1>
                       <p style={{ fontSize: 13, color: subCol, margin: '4px 0 0', lineHeight: 1.5 }}>
                         Set a PIN — you'll use it every time you log in
@@ -270,7 +270,7 @@ export default function Login() {
                     </button>
                     <div>
                       <h1 style={{ fontSize: 22, fontWeight: 700, color: textCol, margin: 0, letterSpacing: '-0.03em' }}>
-                        Hi, {userData?.Name}!
+                        Hi, {userData?.name}!
                       </h1>
                       <p style={{ fontSize: 13, color: subCol, margin: '4px 0 0', lineHeight: 1.5 }}>
                         Enter your PIN to continue
