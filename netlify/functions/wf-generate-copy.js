@@ -94,6 +94,22 @@ async function fetchBrandData(clientName) {
   }
 }
 
+/* What each email in the flow is. Sent to n8n alongside the numeric week so a
+   single workflow can branch on a stable name instead of a number, and so the
+   Theme line the brief carries is also available as a field. Keep in step with
+   WF_BRIEF_LINES in src/welcome-flow/wfWeeks.js. */
+const EMAILS = {
+  1: { key: 'welcome',        theme: 'Generate the welcome email' },
+  2: { key: 'itinerary',      theme: 'Generate the itinerary email' },
+  3: { key: 'reviews',        theme: 'Generate the reviews email' },
+  4: { key: 'destination',    theme: 'Generate the destination email' },
+  5: { key: 'guest-story',    theme: 'Generate the guest story email' },
+  6: { key: 'book-direct',    theme: 'Generate the book direct email' },
+  7: { key: 'midweek',        theme: 'Generate the midweek email' },
+  8: { key: 'decision-nudge', theme: 'Generate the decision nudge email' },
+  9: { key: 'email-9',        theme: '' },
+}
+
 const rawHandler = async (event) => {
   if (event.httpMethod !== 'POST') return json(405, { error: 'Method Not Allowed' })
 
@@ -109,10 +125,12 @@ const rawHandler = async (event) => {
       return json(400, { error: `Invalid week "${week}" — expected 1-9` })
     }
 
-    const webhookUrl = process.env[`N8N_WF_WEEK${weekNum}_WEBHOOK_URL`]
+    /* A per-week URL wins when set; otherwise one workflow serves every email
+       and tells them apart by emailNumber / emailKey in the payload. */
+    const webhookUrl = process.env[`N8N_WF_WEEK${weekNum}_WEBHOOK_URL`] || process.env.N8N_WF_WEBHOOK_URL
     if (!webhookUrl) {
       return json(400, {
-        error: `No n8n webhook configured for Week ${weekNum}. Set N8N_WF_WEEK${weekNum}_WEBHOOK_URL.`,
+        error: `No n8n webhook configured for Email ${weekNum}. Set N8N_WF_WEEK${weekNum}_WEBHOOK_URL, or N8N_WF_WEBHOOK_URL for a single workflow.`,
       })
     }
 
@@ -136,6 +154,9 @@ const rawHandler = async (event) => {
         callbackUrl,
         prompt,
         week: weekNum,
+        emailNumber: weekNum,                        // same as week, named for what it is
+        emailKey:    EMAILS[weekNum]?.key   || `email-${weekNum}`,
+        emailTheme:  EMAILS[weekNum]?.theme || '',
         clientName: clientName || '',
         locationId: locationId || '',
         brandData,
