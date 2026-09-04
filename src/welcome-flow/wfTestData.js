@@ -366,9 +366,80 @@ export const WF5_TEST_VARIATIONS = [
   },
 ]
 
+/* Week 6 test copy — book direct, as the Email 6 workflow wrote it on
+   2026-09-04 (three variations, verbatim, including the markdown-style links
+   the workflow puts in the subhead and intro). */
+export const WF6_TEST_VARIATIONS = [
+  {
+    id: 1,
+    name: 'Value',
+    subjectLine:     'What booking direct actually saves you',
+    previewText:     'The direct-booking rate, plus a separate discount code inside.',
+    headlineText:    'Save up to 15% booking direct.',
+    sectionSubhead:  'Booking through [www.visitstarlight.com](https://www.visitstarlight.com) gets you our lowest direct rate, and code STAR23 is separate from that.',
+    bodyText:        'Book your stay at [www.visitstarlight.com](https://www.visitstarlight.com), and here\u2019s exactly what changes when you do.',
+    sectionHeadline: 'Three reasons to book here',
+    points: [
+      { title: 'Save up to 15%.', text: 'Booking direct through our website gets you our best available direct rate.' },
+      { title: 'Code STAR23, separately.', text: 'That\u2019s on top of the direct rate. STAR23 takes 10% off with a 2 night minimum.' },
+      { title: 'Add to your stay after booking.', text: 'Once you\u2019ve booked, you can add packages and early check-in through the guest app.' },
+    ],
+    bodyBlock2Title: 'Our cancellation policy, plainly',
+    bodyBlock2:      'Cancel 30 or more days before check-in, and you get a full refund. Cancel less than 30 days out, and you\u2019re charged 50% of your total booking amount, which covers your accommodation and any add-ons or fees on the reservation. This policy is the same whichever way you book. If you\u2019d rather talk it through, call us at 501-359-5884.',
+    closingLine:     'Code STAR23 is still active whenever you\u2019re ready. We hope to welcome you to Starlight Haven soon.',
+    ctaText:         'See the direct rate',
+    ctaUrl:          CTA_URL,
+    footerLine:      '',
+  },
+  {
+    id: 2,
+    name: 'Transparency',
+    subjectLine:     'The terms, laid out plainly',
+    previewText:     'No surprises: here\u2019s what you get and what it costs, in plain language.',
+    headlineText:    'Here\u2019s exactly what you\u2019re agreeing to.',
+    sectionSubhead:  'A full refund if you cancel 30 or more days out, and code STAR23 for 10% off with a 2 night minimum.',
+    bodyText:        'Book at [www.visitstarlight.com](https://www.visitstarlight.com), and know exactly where you stand before you do.',
+    sectionHeadline: 'Three things worth knowing',
+    points: [
+      { title: 'Code STAR23 takes 10% off.', text: 'It applies with a 2 night minimum, and it\u2019s a direct-booking code.' },
+      { title: 'Direct booking has its own rate.', text: 'You can save up to 15% booking directly through our website, separate from the code.' },
+      { title: 'You can call instead.', text: 'Call 501-359-5884, and we\u2019ll help you book the reservation directly, no website needed.' },
+    ],
+    bodyBlock2Title: 'The cancellation policy, in full',
+    bodyBlock2:      'Cancel 30 or more days before check-in, and you get every dollar back. Cancel less than 30 days out, and you\u2019re charged 50% of your total booking amount, covering your accommodation and any add-ons or fees attached to the reservation. This applies the same way no matter how you book with us. Questions before you commit? Call 501-359-5884.',
+    closingLine:     'Code STAR23 is still active whenever you\u2019re ready. We hope to welcome you to Starlight Haven soon.',
+    ctaText:         'Read the full terms',
+    ctaUrl:          CTA_URL,
+    footerLine:      '',
+  },
+  {
+    id: 3,
+    name: 'Enumeration',
+    subjectLine:     'Four things you get booking direct',
+    previewText:     'The rate, the code, the flexibility to add on, and a real person on the phone.',
+    headlineText:    'Four things you only get here.',
+    sectionSubhead:  'A direct rate up to 15% off, code STAR23 for another 10%, and a full refund window.',
+    bodyText:        'Book at [www.visitstarlight.com](https://www.visitstarlight.com), and here\u2019s the full list of what comes with it.',
+    sectionHeadline: 'Four things worth knowing',
+    points: [
+      { title: 'Up to 15% off, direct.', text: 'Booking through our website gets you our best direct rate.' },
+      { title: 'Code STAR23, separately.', text: 'That\u2019s before the code. STAR23 takes another 10% off with a 2 night minimum.' },
+      { title: 'Add on after you book.', text: 'Packages and early check-in can be added to your reservation through the guest app.' },
+      { title: 'A person on the phone.', text: 'Call 501-359-5884, and we\u2019ll walk you through the booking directly.' },
+    ],
+    bodyBlock2Title: 'And the cancellation policy',
+    bodyBlock2:      'Cancel 30 or more days before check-in, and you get a full refund. Cancel less than 30 days out, and you\u2019re charged 50% of your total booking amount, which covers your stay and any add-ons or fees on the reservation. This is the same policy however you book with us. Call 501-359-5884 if you\u2019d like to go over it first.',
+    closingLine:     'Code STAR23 is still active whenever you\u2019re ready. We hope to welcome you to Starlight Haven soon.',
+    ctaText:         'See all four benefits',
+    ctaUrl:          CTA_URL,
+    footerLine:      '',
+  },
+]
+
 export const wfTestVariations = (week) =>
   Number(week) === 2 ? WF2_TEST_VARIATIONS
   : Number(week) === 3 ? WF3_TEST_VARIATIONS
   : Number(week) === 4 ? WF4_TEST_VARIATIONS
   : Number(week) === 5 ? WF5_TEST_VARIATIONS
+  : Number(week) === 6 ? WF6_TEST_VARIATIONS
   : WF_TEST_VARIATIONS

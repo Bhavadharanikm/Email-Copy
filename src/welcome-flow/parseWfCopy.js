@@ -267,6 +267,12 @@ const JSON_KEY_MAP = {
   ctabuttontext:    'ctaText',
   footer_code_reminder: 'footerLine',
   footercodereminder:   'footerLine',
+  intro:            'bodyText',         // Email 6's intro paragraph
+  block_title:      'sectionHeadline',  // Email 6: the heading over the points
+  blocktitle:       'sectionHeadline',
+  block2_title:     'bodyBlock2Title',  // Email 6: the policy block
+  block2title:      'bodyBlock2Title',
+  block2:           'bodyBlock2',
   story_lead_in:    'bodyText',         // Email 5's intro paragraph
   storyleadin:      'bodyText',
   section_label:    'sectionEyebrow',   // Week 3's name for the chip above the reviews
@@ -309,7 +315,8 @@ const snakeToCamel = (k) => k.replace(/[_\s]+(\w)/g, (_, c) => c.toUpperCase())
 const INTRO_BODY_KEYS = ['introbodyblock', 'introbody', 'intro_body', 'intro_body_block',
                          'setupline', 'setup_line', 'setup',
                          'introline', 'intro_line',
-                         'storyleadin', 'story_lead_in']   // Email 5's intro
+                         'storyleadin', 'story_lead_in',   // Email 5's intro
+                         'intro']                          // Email 6's intro
 const BODY_BLOCK_KEYS = ['bodyblock', 'body_block']
 
 /** Pull the first ```json fenced block, or the first bare [ … ] / { … }. */

@@ -219,7 +219,43 @@ const WEEK5 = {
   ],
 }
 
-const SCHEMAS = { 1: WEEK1, 2: WEEK2, 3: WEEK3, 4: WEEK4, 5: WEEK5 }
+/* Email 6 is the book-direct case: an intro, a short numbered list of reasons,
+   the cancellation policy stated plainly, then the CTA. */
+const WEEK6 = {
+  week: 6,
+  before: [
+    { key: 'subjectLine',     label: 'Subject Line',   hint: 'One sentence. What booking direct gets them' },
+    { key: 'previewText',     label: 'Preview Text',   hint: '8\u201312 words. Supports the subject' },
+    { key: 'headlineText',    label: 'Hero Headline',  hint: 'On the hero photo. 4\u20138 words' },
+    { key: 'sectionSubhead',  label: 'Hero Subhead',   hint: 'One line under the headline: the rate and the code, plainly' },
+    { key: 'bodyText',        label: 'Intro',          hint: 'One or two sentences. Where to book and what changes when they do' },
+    { key: 'sectionHeadline', label: 'Points Title',   hint: 'The heading over the list, e.g. "Three reasons to book here"' },
+  ],
+  group: {
+    mode:      'dynamic',
+    listKey:   'points',
+    title:     'Reasons To Book Direct',
+    note:      'One short point each, in order. Three or four is usual',
+    itemLabel: 'Point',
+    addLabel:  'Add point',
+    max:       5,
+    blank:     { title: '', text: '' },
+    fields: [
+      { key: 'title', label: 'Point Title', hint: 'A few words, ends with a full stop. e.g. "Save up to 15%."' },
+      { key: 'text',  label: 'Point Text',  hint: 'One sentence explaining it' },
+    ],
+  },
+  after: [
+    { key: 'bodyBlock2Title', label: 'Policy Title',   hint: 'e.g. "Our cancellation policy, plainly"' },
+    { key: 'bodyBlock2',      label: 'Policy',         hint: 'The cancellation terms in full, plus the phone number' },
+    { key: 'closingLine',     label: 'Closing Line',   hint: '1\u20132 sentences. The code is still active' },
+    { key: 'ctaText',         label: 'CTA Button',     hint: '2\u20134 words' },
+    { key: 'ctaUrl',          label: 'CTA URL',        hint: 'Full URL with https://' },
+    { key: 'footerLine',      label: 'Code Reminder',  hint: 'Optional. Blank hides it' },
+  ],
+}
+
+const SCHEMAS = { 1: WEEK1, 2: WEEK2, 3: WEEK3, 4: WEEK4, 5: WEEK5, 6: WEEK6 }
 
 /* "guestFirstName" -> "Guest First Name"; "cta_url" -> "Cta Url". */
 const humanise = (k) => String(k)
