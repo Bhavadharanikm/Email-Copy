@@ -267,6 +267,8 @@ const JSON_KEY_MAP = {
   ctabuttontext:    'ctaText',
   footer_code_reminder: 'footerLine',
   footercodereminder:   'footerLine',
+  story_lead_in:    'bodyText',         // Email 5's intro paragraph
+  storyleadin:      'bodyText',
   section_label:    'sectionEyebrow',   // Week 3's name for the chip above the reviews
   sectionlabel:     'sectionEyebrow',
   code_reminder:    'footerLine',   // Week 2's name for the line under the button
@@ -306,7 +308,8 @@ const snakeToCamel = (k) => k.replace(/[_\s]+(\w)/g, (_, c) => c.toUpperCase())
    can legitimately send an empty intro. */
 const INTRO_BODY_KEYS = ['introbodyblock', 'introbody', 'intro_body', 'intro_body_block',
                          'setupline', 'setup_line', 'setup',
-                         'introline', 'intro_line']
+                         'introline', 'intro_line',
+                         'storyleadin', 'story_lead_in']   // Email 5's intro
 const BODY_BLOCK_KEYS = ['bodyblock', 'body_block']
 
 /** Pull the first ```json fenced block, or the first bare [ … ] / { … }. */

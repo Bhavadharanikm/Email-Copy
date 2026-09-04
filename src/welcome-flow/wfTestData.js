@@ -295,8 +295,80 @@ export const WF4_TEST_VARIATIONS = [
   },
 ]
 
+/* Week 5 test copy — the guest story, as the Email 5 workflow wrote it on
+   2026-09-04 (three variations, verbatim). One long account quoted in full;
+   the framing around it is what changes between variations. */
+const WF5_STORY = 'Our journey began at 4am in Chicago with plans to drive all day and land in Dallas. Things were going smoothly until we decided to make a pit stop in Memphis for some barbecue. We got sidetracked exploring the city and realized we were going to need a place to stay for the night. We decided we could make it to Hot Springs, which is where we stumbled upon Starlight Haven. With a quick pit stop, we embarked on our journey up a fantastic mountain road that twisted and turned until we arrived at the gates of Starlight Haven. The check-in process for these two weary travelers went off without a hitch and was extremely easy to navigate. Upon arriving at our little geodesic dome, our night quickly erupted into a flurry of unbridled excitement. We entered the dome and were immediately greeted with the luxurious scent of rich cashmere and the most darling little slice of paradise our sore eyes had ever gazed upon. We quickly fired up the grill for our steaks and threw together a salad to complete our evening. After a bottle of wine and a long soak in the preheated hot tub, we showered up and retired to the magnificent bed for a restful night\u2019s sleep under the stars. When morning came, we were greeted by a gentle sunrise through our massive panoramic window, beckoning us to start our day. We had yogurt and granola as we discussed our plans for the day ahead. We decided to continue this adventure and visit Hot Springs National Park before embarking on the remainder of our journey! Thank you for such an amazing experience.'
+
+export const WF5_TEST_VARIATIONS = [
+  {
+    id: 1,
+    name: 'The Detour That Became The Trip',
+    subjectLine:     'Dave was supposed to be in Dallas by dark',
+    previewText:     'A wrong turn toward barbecue changed the whole trip',
+    campaignEyebrow: 'A GUEST\u2019S OWN WORDS',
+    headlineText:    'The Detour Turned Out To Be The Point',
+    sectionSubhead:  'Dave wrote this after a road trip that didn\u2019t go anywhere close to plan.',
+    bodyText:        'Dave and his travel partner were supposed to be in Dallas by nightfall. Here\u2019s what happened instead, in his words.',
+    sectionEyebrow:  'What Happened Next',
+    quote:           WF5_STORY,
+    guestFirstName:  'Dave',
+    storyDate:       'May 2026',
+    attribution:     'Dave, May 2026',
+    bodyBlock2Title: 'Yours doesn\u2019t need a detour to start',
+    bodyBlock2:      'Dave never planned to stop here; he just needed a place to land. You can skip that part and just pick the dates. Code STAR23 takes 10% off any stay of two nights or more, booked direct, whenever you\u2019re ready to look.',
+    closingLine:     'Dave called it an amazing experience, and he never meant to have it. Yours can start on purpose.',
+    ctaText:         'Book This Stay',
+    ctaUrl:          CTA_URL,
+    footerLine:      'Code STAR23 is good for 10% off any stay of two nights or more when you book direct.',
+  },
+  {
+    id: 2,
+    name: 'What Was Waiting Behind The Door',
+    subjectLine:     'What Dave found on the other side of the door',
+    previewText:     'Steaks, wine, and a soak under the stars followed',
+    campaignEyebrow: 'A GUEST\u2019S OWN WORDS',
+    headlineText:    'The Night Changed The Moment They Walked In',
+    sectionSubhead:  'Dave\u2019s account of the first few minutes inside his dome, in his own words.',
+    bodyText:        'Dave had just driven all day to get somewhere else. Then he opened the door to his dome.',
+    sectionEyebrow:  'In His Words',
+    quote:           WF5_STORY,
+    guestFirstName:  'Dave',
+    storyDate:       'May 2026',
+    attribution:     'Dave, May 2026',
+    bodyBlock2Title: 'The same door is there for you',
+    bodyBlock2:      'Dave\u2019s night turned around the second he stepped inside. Every stay here comes with a private hot tub on your own deck, ready for exactly that kind of evening. Code STAR23 takes 10% off any stay of two nights or more, booked direct, whenever you want to look at dates.',
+    closingLine:     'Dave planned to be somewhere else entirely. He ended up somewhere better.',
+    ctaText:         'Book This Stay',
+    ctaUrl:          CTA_URL,
+    footerLine:      'Code STAR23 is good for 10% off any stay of two nights or more when you book direct.',
+  },
+  {
+    id: 3,
+    name: 'The Whole Letter',
+    subjectLine:     'Dave wrote us a full letter about one night',
+    previewText:     'A detour, a dome, and a thank you at the end',
+    campaignEyebrow: 'A GUEST\u2019S OWN WORDS',
+    headlineText:    'One Night Was Worth This Much Detail',
+    sectionSubhead:  'Here\u2019s the account Dave sent us, start to finish, unedited.',
+    bodyText:        'Some guests leave a star rating. Dave sent this instead.',
+    sectionEyebrow:  'The Full Account',
+    quote:           WF5_STORY,
+    guestFirstName:  'Dave',
+    storyDate:       'May 2026',
+    attribution:     'Dave, May 2026',
+    bodyBlock2Title: 'Now it\u2019s your turn to write one',
+    bodyBlock2:      'Dave didn\u2019t have to send this; he just wanted to. Every stay comes with a private hot tub on your own deck, the same one that made his night. Code STAR23 takes 10% off any stay of two nights or more, booked direct, whenever you want to look at dates.',
+    closingLine:     'Dave signed off with a thank you. That tends to happen here.',
+    ctaText:         'Book This Stay',
+    ctaUrl:          CTA_URL,
+    footerLine:      'Code STAR23 is good for 10% off any stay of two nights or more when you book direct.',
+  },
+]
+
 export const wfTestVariations = (week) =>
   Number(week) === 2 ? WF2_TEST_VARIATIONS
   : Number(week) === 3 ? WF3_TEST_VARIATIONS
   : Number(week) === 4 ? WF4_TEST_VARIATIONS
+  : Number(week) === 5 ? WF5_TEST_VARIATIONS
   : WF_TEST_VARIATIONS

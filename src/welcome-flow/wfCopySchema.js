@@ -190,7 +190,36 @@ const WEEK4 = {
   ],
 }
 
-const SCHEMAS = { 1: WEEK1, 2: WEEK2, 3: WEEK3, 4: WEEK4 }
+/* Email 5 is one guest's story told at length: a lead-in, the story itself
+   quoted in full, who told it, then the bridge back to booking. No repeated
+   block — the story is the whole middle of the email. */
+const WEEK5 = {
+  week: 5,
+  before: [
+    { key: 'subjectLine',     label: 'Subject Line',     hint: 'One sentence. Names the guest or the moment' },
+    { key: 'previewText',     label: 'Preview Text',     hint: '8\u20139 words. A hook from the story' },
+    { key: 'campaignEyebrow', label: 'Campaign Eyebrow', hint: 'Small caps above the hero, e.g. "A GUEST\u2019S OWN WORDS"' },
+    { key: 'headlineText',    label: 'Hero Headline',    hint: 'On the hero photo. 4\u20138 words' },
+    { key: 'sectionSubhead',  label: 'Hero Subhead',     hint: 'One line under the headline. Who wrote this and when' },
+    { key: 'bodyText',        label: 'Story Lead-in',    hint: 'Sets the scene in a sentence or two, then hands over to the guest' },
+    { key: 'sectionEyebrow',  label: 'Section Eyebrow',  hint: 'The small label above the story, e.g. "What Happened Next"' },
+    { key: 'quote',           label: 'The Story',        hint: 'The guest\u2019s account, verbatim. Never reworded' },
+    { key: 'guestFirstName',  label: 'Guest First Name', hint: 'First name only' },
+    { key: 'storyDate',       label: 'Story Date',       hint: 'e.g. May 2026' },
+    { key: 'attribution',     label: 'Attribution',      hint: 'The line under the story, e.g. "Dave, May 2026"' },
+  ],
+  group: null,
+  after: [
+    { key: 'bodyBlock2Title', label: 'Body Block Title', hint: 'One line over the paragraph that bridges back to booking' },
+    { key: 'bodyBlock2',      label: 'Body Block',       hint: 'The bridge back: from their story to your dates, with the code' },
+    { key: 'closingLine',     label: 'Closing Line',     hint: '1\u20132 sentences. Warm but direct' },
+    { key: 'ctaText',         label: 'CTA Button',       hint: '2\u20134 words' },
+    { key: 'ctaUrl',          label: 'CTA URL',          hint: 'Full URL with https://' },
+    { key: 'footerLine',      label: 'Code Reminder',    hint: 'What the code is worth and where to book' },
+  ],
+}
+
+const SCHEMAS = { 1: WEEK1, 2: WEEK2, 3: WEEK3, 4: WEEK4, 5: WEEK5 }
 
 /* "guestFirstName" -> "Guest First Name"; "cta_url" -> "Cta Url". */
 const humanise = (k) => String(k)
