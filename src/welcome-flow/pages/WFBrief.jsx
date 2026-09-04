@@ -15,6 +15,7 @@ import { useWelcomeFlowStore } from '../store/welcomeFlowStore'
 import { useWfTheme, WfCard, WfButton, WfInput, WfStepNav } from '../components/wfUi'
 import { WF_WEEKS, wfWeek, wfWeekReady, wfBriefTemplate, wfBriefIsSeed } from '../wfWeeks'
 import { wfTestVariations } from '../wfTestData'
+import { wfCopySchema } from '../wfCopySchema'
 import { wfGenerateCopy } from '../../lib/api'
 import { extractWfVariations } from '../parseWfCopy'
 import { authFetch } from '../../lib/session'
@@ -32,7 +33,7 @@ async function pollForResult(jobId) {
     await new Promise(r => setTimeout(r, POLL_INTERVAL_MS))
     const res  = await authFetch(`/.netlify/functions/copy-callback?jobId=${encodeURIComponent(jobId)}`)
     const data = await res.json()
-    if (data.status === 'done')  return data.copy
+    if (data.status === 'done')  return data          // { copy, emailNumber?, emailKey? }
     if (data.status === 'error') throw new Error(data.error || 'n8n workflow failed')
   }
   throw new Error('No response after 2 minutes. Check that the n8n workflow is active and posting to the callback URL.')
@@ -132,12 +133,35 @@ export default function WFBrief() {
         clientName: client.name,
         locationId: client.locationId,
       })
-      const result = await pollForResult(jobId)
+      const reply  = await pollForResult(jobId)
+      const result = reply.copy
+
+      /* n8n can say which email it wrote. If it names a different one than this
+         brief asked for, stop here — rendering Email 3 copy into an Email 1
+         template fails quietly and looks like a design bug. */
+      if (reply.emailNumber && Number(reply.emailNumber) !== Number(week)) {
+        throw new Error(`n8n returned copy for Email ${reply.emailNumber}, but this brief is Email ${week}. Check the workflow's branch for this email.`)
+      }
 
       // the workflow writes Markdown prose, so it gets parsed into fields here
       const variations = extractWfVariations(result)
       if (!variations.length) {
         throw new Error('n8n replied but no variations could be read from it. Check the workflow output format.')
+      }
+
+      /* Does the copy carry what this email's template renders? A missing
+         headline or an empty repeated block (no stays, no moments, no reviews)
+         is reported by name rather than surfacing later as a blank section. */
+      const schema  = wfCopySchema(week)
+      const missing = []
+      const first   = variations[0]
+      if (!first.headlineText) missing.push('Hero Headline')
+      if (!first.subjectLine)  missing.push('Subject Line')
+      if (schema.group && !(Array.isArray(first[schema.group.listKey]) && first[schema.group.listKey].length)) {
+        missing.push(schema.group.title)
+      }
+      if (missing.length) {
+        throw new Error(`n8n's copy for Email ${week} is missing: ${missing.join(', ')}. The workflow's output for this email does not match its fields.`)
       }
 
       updateEmail(clientId, emailId, {

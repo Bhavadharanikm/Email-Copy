@@ -36,15 +36,20 @@ const rawHandler = async (event) => {
         ? Buffer.from(event.body, 'base64').toString('utf-8')
         : event.body
       const payload = JSON.parse(rawBody)
-      const { jobId, ...copy } = payload
+      /* n8n may say which email this copy is for (emailNumber / week / emailKey).
+         Kept beside the copy, not inside it, so the dashboard can check it
+         against the brief that asked — and the parser never sees it as a field. */
+      const { jobId, emailNumber, week, emailKey, ...copy } = payload
 
       if (!jobId) {
         return { statusCode: 400, body: JSON.stringify({ error: 'jobId required' }) }
       }
 
+      const num = Number(emailNumber ?? week) || null
       await supabase('copy_jobs', 'POST', {
         job_id: jobId,
-        result: { status: 'done', copy, completedAt: Date.now() },
+        result: { status: 'done', copy, completedAt: Date.now(),
+                  ...(num ? { emailNumber: num } : {}), ...(emailKey ? { emailKey } : {}) },
       })
 
       console.log(`[copy-callback] Stored result for jobId: ${jobId}`)
