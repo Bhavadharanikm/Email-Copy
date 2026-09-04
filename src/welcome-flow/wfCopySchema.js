@@ -118,6 +118,7 @@ const WEEK3 = {
     { key: 'subjectLine',     label: 'Subject Line',     hint: 'One sentence. Names the guest or the moment' },
     { key: 'previewText',     label: 'Preview Text',     hint: 'A short fragment, verbatim from one of the reviews' },
     { key: 'headlineText',    label: 'Hero Headline',    hint: 'On the hero photo. 4–7 words, makes sense on its own' },
+    { key: 'sectionEyebrow',  label: 'Section Label',    hint: 'The small chip above the reviews. Blank reads "Testimonials"' },
     { key: 'sectionHeadline', label: 'Section Headline', hint: 'Heading above the reviews. Blank reads "Hear From Our Guests"' },
     { key: 'bodyText',        label: 'Setup Line',       hint: 'One line under that heading. Hands over to the guests instead of selling' },
   ],

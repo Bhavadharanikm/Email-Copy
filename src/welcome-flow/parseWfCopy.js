@@ -265,6 +265,8 @@ const JSON_KEY_MAP = {
   ctabuttontext:    'ctaText',
   footer_code_reminder: 'footerLine',
   footercodereminder:   'footerLine',
+  section_label:    'sectionEyebrow',   // Week 3's name for the chip above the reviews
+  sectionlabel:     'sectionEyebrow',
   code_reminder:    'footerLine',   // Week 2's name for the line under the button
   codereminder:     'footerLine',
   footer_line:      'footerLine',
