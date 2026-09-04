@@ -152,7 +152,7 @@ export default function WFBrief() {
       /* Does the copy carry what this email's template renders? A missing
          headline or an empty repeated block (no stays, no moments, no reviews)
          is reported by name rather than surfacing later as a blank section. */
-      const schema  = wfCopySchema(week)
+      const schema  = wfCopySchema(week, variations[0])
       const missing = []
       const first   = variations[0]
       if (!first.headlineText) missing.push('Hero Headline')
@@ -262,7 +262,7 @@ export default function WFBrief() {
           </select>
           {week && !weekReady && (
             <div style={{ fontSize: 11.5, color: '#b45309', marginTop: 6 }}>
-              Email {week} has no template yet, so it can’t be generated.
+              Email {week} has no email template yet — copy can be generated and edited, but not previewed or pushed.
             </div>
           )}
         </div>
@@ -306,7 +306,7 @@ export default function WFBrief() {
         </div>
 
         <WfButton
-          disabled={!promptFilled || !weekReady || generating}
+          disabled={!promptFilled || !week || generating}
           onClick={handleGenerate}
           style={{ width: '100%', justifyContent: 'center', padding: '12px 16px' }}
         >

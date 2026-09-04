@@ -436,6 +436,10 @@ function mapVariation(raw, i) {
       continue
     }
     if (lk === 'variation' || lk === 'variationnumber' || lk === 'id') continue   // handled below
+    /* A repeated block this parser has no mapping for (an email whose template
+       is not built yet). Carried through as sent, so the editor can still show
+       and edit it — dropping it would lose the workflow's copy silently. */
+    if (Array.isArray(v) && v.length && typeof v[0] === 'object') { out[snakeToCamel(k)] = v; continue }
     if ((lk === 'cta_button' || lk === 'ctabutton') && v && typeof v === 'object') {
       if (v.text) out.ctaText = String(v.text).trim()
       if (v.url)  out.ctaUrl  = cleanUrl(v.url)

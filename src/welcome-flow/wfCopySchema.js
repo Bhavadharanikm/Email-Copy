@@ -192,8 +192,52 @@ const WEEK4 = {
 
 const SCHEMAS = { 1: WEEK1, 2: WEEK2, 3: WEEK3, 4: WEEK4 }
 
-/** Weeks with no schema of their own fall back to Week 1's shape. */
-export const wfCopySchema = (week) => SCHEMAS[Number(week)] || WEEK1
+/* "guestFirstName" -> "Guest First Name"; "cta_url" -> "Cta Url". */
+const humanise = (k) => String(k)
+  .replace(/[_-]+/g, ' ')
+  .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+  .replace(/\b\w/g, c => c.toUpperCase())
+  .trim()
+
+/* Keys the parser adds for its own bookkeeping, not copy to edit. */
+const HIDDEN = new Set(['id', 'name', 'subhead', 'introCtaText'])
+
+/**
+ * An editor for an email that has no schema yet, derived from the copy itself:
+ * every string becomes a field, and the first list of objects becomes the
+ * repeated block with one field per key. Nothing the workflow sent is hidden,
+ * so the copy can be reviewed and edited before its template exists. The
+ * order follows the copy, which is the order the workflow wrote it in.
+ */
+function derivedSchema(week, sample) {
+  const before = [], after = []
+  let group = null
+  for (const [k, v] of Object.entries(sample || {})) {
+    if (HIDDEN.has(k)) continue
+    if (Array.isArray(v) && v.length && typeof v[0] === 'object' && !group) {
+      const keys = [...new Set(v.flatMap(o => Object.keys(o || {})))]
+      group = {
+        mode: 'dynamic', listKey: k, title: humanise(k),
+        note: 'Fields taken from what the workflow sent', itemLabel: 'Item', addLabel: 'Add item',
+        max: 9, blank: Object.fromEntries(keys.map(x => [x, ''])),
+        fields: keys.map(x => ({ key: x, label: humanise(x), hint: '' })),
+      }
+    } else if (typeof v === 'string' || typeof v === 'number') {
+      (group ? after : before).push({ key: k, label: humanise(k), hint: '' })
+    }
+  }
+  if (!before.length && !group && !after.length) {
+    before.push({ key: 'subjectLine', label: 'Subject Line', hint: '' }, { key: 'headlineText', label: 'Hero Headline', hint: '' })
+  }
+  return { week: Number(week), before, group, after, derived: true }
+}
+
+/**
+ * The editor schema for a week. Weeks 1-4 have one of their own; any other
+ * week gets one derived from the copy passed in, so Generate works for every
+ * email before its template is built.
+ */
+export const wfCopySchema = (week, sample) => SCHEMAS[Number(week)] || derivedSchema(week, sample)
 
 /** Every flat field of a schema, in display order — handy for validation. */
 export const wfCopyFlatFields = (week) => {

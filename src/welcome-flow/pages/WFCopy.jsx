@@ -72,9 +72,9 @@ export default function WFCopy() {
     /* A fixed group always has the same number of slots, and each slot starts
        with a suggested title. Seed them here rather than only in the display, so
        what the editor shows is what gets saved and rendered. */
-    const g = wfCopySchema(email.week).group
+    const g = wfCopySchema(email.week, email.variations?.[0] || email.copy).group
     const seed = (v) => {
-      if (g.mode !== 'fixed') return { ...v }
+      if (g?.mode !== 'fixed') return { ...v }
       const list = v[g.listKey] || []
       return { ...v, [g.listKey]: g.labels.map((lbl, i) => ({
         ...g.blank, ...(list[i] || {}),
@@ -129,12 +129,13 @@ export default function WFCopy() {
   }
 
   /* The week decides the field list: Week 1 is featured stays, Week 2 the
-     48-hour itinerary, Week 3 guest reviews. Weeks with no schema of their own
-     fall back to Week 1. */
-  const schema    = wfCopySchema(email?.week)
-  const group     = schema.group
-  const isFixed   = group.mode === 'fixed'
-  const MAX_ITEMS = isFixed ? group.labels.length : group.max
+     48-hour itinerary, Week 3 guest reviews, Week 4 area blocks. An email with
+     no schema of its own gets one derived from the copy the workflow sent, so
+     it can be reviewed and edited before its template exists. */
+  const schema    = wfCopySchema(email?.week, email?.variations?.[0] || email?.copy)
+  const group     = schema.group          // null when the copy has no repeated block
+  const isFixed   = group?.mode === 'fixed'
+  const MAX_ITEMS = !group ? 0 : isFixed ? group.labels.length : group.max
 
   const persist = (nextVars = vars, nextPicked = picked) => {
     // Section Subhead is the single source; mirror it onto subhead so any
@@ -290,8 +291,9 @@ export default function WFCopy() {
                    i === schema.before.length - 1))}
       </WfCard>
 
-      {/* the repeated block — one column per variation, since the counts can differ */}
-      <WfCard style={{ padding: 0, overflow: 'hidden', marginTop: 16 }}>
+      {/* the repeated block — one column per variation, since the counts can differ.
+          Absent when the copy has no list at all. */}
+      {group && <WfCard style={{ padding: 0, overflow: 'hidden', marginTop: 16 }}>
         <div style={{ padding: '14px 18px', borderBottom: `1px solid ${t.border}` }}>
           <div style={{ fontSize: 11.5, fontWeight: 700, color: t.text }}>
             {group.title}{' '}
@@ -359,7 +361,7 @@ export default function WFCopy() {
             )
           })}
         </div>
-      </WfCard>
+      </WfCard>}
 
       {/* everything below the repeated block */}
       <WfCard style={{ padding: 0, overflow: 'hidden', marginTop: 16 }}>
