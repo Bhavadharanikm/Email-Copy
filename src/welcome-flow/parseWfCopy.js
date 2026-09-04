@@ -261,6 +261,8 @@ const JSON_KEY_MAP = {
   subhead:          'sectionSubhead',   // Week 4's hero subhead
   bridge_back_text: 'bodyBlock2',       // Week 4's paragraph back to the stay
   bridgebacktext:   'bodyBlock2',
+  bridge_back:      'bodyBlock2',
+  bridgeback:       'bodyBlock2',
   cta_button_text:  'ctaText',
   ctabuttontext:    'ctaText',
   footer_code_reminder: 'footerLine',
@@ -358,13 +360,18 @@ function mapBlock(raw) {
   const out = { blockHeader: '', entries: '' }
   for (const [k, v] of Object.entries(raw || {})) {
     const lk = k.toLowerCase().replace(/[_\s]/g, '')
-    if (lk === 'blockheader' || lk === 'header' || lk === 'title' || lk === 'label') {
-      out.blockHeader = String(v ?? '').trim()
+    if (lk === 'blockheader' || lk === 'header' || lk === 'title' || lk === 'label'
+        || lk === 'blocktitle' || lk === 'blocklabel') {
+      const t = String(v ?? '').trim()
+      /* "1 of 3" is a position, not a heading — the workflow emits it in the
+         title slot. Dropping it leaves the header blank for the writer to fill
+         rather than printing "1 of 3" over the block. A real header wins. */
+      if (t && !/^\d+\s+of\s+\d+$/i.test(t)) out.blockHeader = t
     }
     if ((lk === 'entries' || lk === 'items') && Array.isArray(v)) {
       out.entries = v.map(e => {
         if (typeof e === 'string') return e.trim()
-        const name = String(e?.name ?? e?.title ?? '').trim()
+        const name = String(e?.name ?? e?.placeName ?? e?.title ?? '').trim()
         const detail = String(e?.detail ?? e?.description ?? e?.copy ?? '').trim()
         return name && detail ? `${name} — ${detail}` : (name || detail)
       }).filter(Boolean).join('\n')

@@ -2537,11 +2537,12 @@ function buildTemplateWeek4WF({ client, copy, images, footerData, isHeroGenerate
 
   <!-- BRIDGE BACK — the paragraph that turns the day out there back towards the
        stay, carrying the one CTA. -->
-  ${(bridgeBack || copy.ctaText) ? `<div class="w4wf-section" style="padding:4px 48px 0;background-color:${pageBg};">
+  ${(bridgeBack || copy.bodyBlock2Title || copy.ctaText) ? `<div class="w4wf-section" style="padding:4px 48px 0;background-color:${pageBg};">
     <div style="background:${cardTint};border-radius:18px;padding:24px;">
       <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
         <tr>
           <td valign="middle" style="padding-right:${blockImgs[3] ? 18 : 0}px;">
+            ${copy.bodyBlock2Title ? `<div class="wf-lora-h3" style="font-family:'Lora',Georgia,serif;font-size:24px;line-height:32px;font-weight:700;color:${secondary};margin-bottom:10px;">${copy.bodyBlock2Title}</div>` : ''}
             ${bridgeBack ? `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${textCol};">${bridgeBack}</div>` : ''}
             ${ctaButton ? `<div style="margin-top:18px;">${ctaButton}</div>` : ''}
           </td>

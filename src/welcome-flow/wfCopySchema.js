@@ -182,7 +182,8 @@ const WEEK4 = {
     ],
   },
   after: [
-    { key: 'bodyBlock2', label: 'Bridge Back',   hint: 'The paragraph that turns the day out there back towards the stay' },
+    { key: 'bodyBlock2Title', label: 'Bridge Back Title', hint: 'One line over the bridge-back paragraph, e.g. "Then there\u2019s the drive back"' },
+    { key: 'bodyBlock2',      label: 'Bridge Back',       hint: 'The paragraph that turns the day out there back towards the stay' },
     { key: 'ctaText',    label: 'CTA Button',    hint: '2–4 words. One button for the whole email' },
     { key: 'ctaUrl',     label: 'CTA URL',       hint: 'Full URL with https://' },
     { key: 'footerLine', label: 'Code Reminder', hint: 'What the code is worth and where to book' },
