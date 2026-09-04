@@ -329,6 +329,10 @@ export default function WFBrief() {
                email — the ones for the week selected above, so the copy matches
                what that week's template knows how to render */
             const testVars = wfTestVariations(week)
+            if (!testVars) {
+              setGenError(`No test copy for Email ${week} yet \u2014 generate it with n8n, or add the workflow's output as sample data.`)
+              return
+            }
             updateEmail(clientId, emailId, {
               week:              week ? Number(week) : null,
               templateId:        wfWeek(week)?.templateId ?? null,

@@ -436,10 +436,147 @@ export const WF6_TEST_VARIATIONS = [
   },
 ]
 
+/* Week 7 test copy — the midweek email. PLACEHOLDER: the Email 7 workflow has
+   not produced output yet, so this structure and copy were authored here from
+   the Email 7 brief template (perk, perk-and-code-together, midweek pricing).
+   Replace with the workflow's real output when it exists. */
+export const WF7_TEST_VARIATIONS = [
+  {
+    id: 1, name: 'The Quiet Nights',
+    subjectLine:     'The mountain is quieter Tuesday to Thursday',
+    previewText:     'Midweek stays come with a perk, and the code still applies.',
+    headlineText:    'Midweek Is When It\u2019s Really Yours.',
+    sectionSubhead:  'Fewer neighbours on the trails, a later checkout, and code STAR23 on top.',
+    bodyText:        'Weekends fill first. Midweek is when the deck, the hot tub and the trails are mostly yours \u2014 and we add a little something for coming then.',
+    sectionHeadline: 'What midweek gets you',
+    perks: [
+      { title: 'Late checkout, included.', text: 'Stay midweek and check out at 1pm instead of 11, no charge.' },
+      { title: 'Code STAR23 still applies.', text: '10% off any two-night stay, booked direct \u2014 the perk stacks on top.' },
+      { title: 'The place to yourself.', text: 'Tuesday to Thursday the property runs at roughly half of weekend occupancy.' },
+    ],
+    bodyBlock2Title: 'How to book it',
+    bodyBlock2:      'Pick a Tuesday, Wednesday or Thursday check-in, enter STAR23 at checkout, and mention the late checkout in your booking note. We\u2019ll take care of the rest.',
+    closingLine:     'Same hot tub, same stars, fewer people. That\u2019s the whole pitch.',
+    ctaText:         'See Midweek Dates',
+    ctaUrl:          CTA_URL,
+    footerLine:      'Code STAR23 is good for 10% off any stay of two nights or more when you book direct.',
+  },
+  {
+    id: 2, name: 'The Better Deal',
+    subjectLine:     'A perk you only get midweek',
+    previewText:     'Late checkout, the code, and a quieter mountain.',
+    headlineText:    'Come Midweek, Leave Later.',
+    sectionSubhead:  'Late checkout comes with any Tuesday-to-Thursday stay. Code STAR23 is separate from that.',
+    bodyText:        'Here\u2019s what changes when you book a midweek stay instead of a weekend one.',
+    sectionHeadline: 'Three midweek differences',
+    perks: [
+      { title: 'An extra two hours.', text: 'Late checkout at 1pm on midweek stays, included.' },
+      { title: 'The code, on top.', text: 'STAR23 takes 10% off two nights or more, booked direct.' },
+      { title: 'Room to breathe.', text: 'Fewer bookings midweek means more of the trails and the deck to yourself.' },
+    ],
+    bodyBlock2Title: 'Booking it',
+    bodyBlock2:      'Choose a midweek check-in, apply STAR23, and add \u201clate checkout\u201d to your booking note.',
+    closingLine:     'Midweek is the better version of the same stay.',
+    ctaText:         'Check Midweek Availability',
+    ctaUrl:          CTA_URL,
+    footerLine:      'Code STAR23 is good for 10% off any stay of two nights or more when you book direct.',
+  },
+  {
+    id: 3, name: 'The Practical One',
+    subjectLine:     'Tuesday to Thursday: what\u2019s different',
+    previewText:     'A concrete perk, the code, and how to claim both.',
+    headlineText:    'Midweek, With A Perk.',
+    sectionSubhead:  'Late checkout on midweek stays, plus code STAR23 for 10% off.',
+    bodyText:        'A short, practical note on why midweek is worth considering.',
+    sectionHeadline: 'Midweek, in three points',
+    perks: [
+      { title: 'Perk: late checkout.', text: '1pm instead of 11am, included on Tuesday-to-Thursday stays.' },
+      { title: 'Code: STAR23.', text: '10% off two nights or more when you book direct. It stacks with the perk.' },
+      { title: 'Quiet: most of it.', text: 'Midweek runs at about half of weekend occupancy.' },
+    ],
+    bodyBlock2Title: 'To claim both',
+    bodyBlock2:      'Book a midweek check-in direct, apply STAR23, and note the late checkout.',
+    closingLine:     'That\u2019s it. No fine print beyond the two-night minimum.',
+    ctaText:         'Book Midweek',
+    ctaUrl:          CTA_URL,
+    footerLine:      'Code STAR23 is good for 10% off any stay of two nights or more when you book direct.',
+  },
+]
+
+/* Week 8 test copy — the decision nudge. PLACEHOLDER: authored here from the
+   Email 8 brief template until the workflow's real output exists. */
+export const WF8_TEST_VARIATIONS = [
+  {
+    id: 1, name: 'The Calendar',
+    subjectLine:     'The dates are the only thing left to pick',
+    previewText:     'Everything else is already sorted. Here\u2019s the calendar.',
+    headlineText:    'You\u2019ve Seen Enough. Pick The Dates.',
+    sectionSubhead:  'The code is ready, the hot tub is ready. What\u2019s left is the calendar.',
+    bodyText:        'Over the last few weeks we\u2019ve shown you the stays, the area and what guests say. This one is just the next step.',
+    sectionHeadline: 'What\u2019s already decided',
+    reasons: [
+      { title: 'The code.', text: 'STAR23, 10% off two nights or more, booked direct. It\u2019s still active.' },
+      { title: 'The stay.', text: 'Domes, Treehouses or the Glamping Tent Suite \u2014 each with its own hot tub.' },
+      { title: 'The refund window.', text: 'Cancel 30 or more days out and you get every dollar back.' },
+    ],
+    bodyBlock2Title: 'The one thing left',
+    bodyBlock2:      'Open the availability calendar, find two nights that work, and enter STAR23 at checkout. That\u2019s the whole decision.',
+    closingLine:     'The dates are the only thing we can\u2019t pick for you.',
+    ctaText:         'Open The Calendar',
+    ctaUrl:          CTA_URL,
+    footerLine:      'Code STAR23 \u2014 10% off, two nights or more, booking direct.',
+  },
+  {
+    id: 2, name: 'The Gentle Push',
+    subjectLine:     'Still thinking about it?',
+    previewText:     'A short note, no pressure, and the calendar link.',
+    headlineText:    'Whenever You\u2019re Ready. Here\u2019s The Link.',
+    sectionSubhead:  'No countdown, no last chance \u2014 just the calendar and the code.',
+    bodyText:        'We won\u2019t rush you. But if the only thing between you and a stay is a calendar, here it is.',
+    sectionHeadline: 'A quick recap',
+    reasons: [
+      { title: 'Code STAR23.', text: '10% off, two nights or more, direct bookings.' },
+      { title: 'A private hot tub, every stay.', text: 'On your own deck, whichever stay you choose.' },
+      { title: 'Full refund, 30 days out.', text: 'So booking early costs you nothing if plans change.' },
+    ],
+    bodyBlock2Title: 'When you\u2019re ready',
+    bodyBlock2:      'The availability calendar shows real-time openings. Two nights, the code, done.',
+    closingLine:     'Take your time. The mountain isn\u2019t going anywhere.',
+    ctaText:         'See Availability',
+    ctaUrl:          CTA_URL,
+    footerLine:      'Code STAR23 \u2014 10% off, two nights or more, booking direct.',
+  },
+  {
+    id: 3, name: 'The Direct Ask',
+    subjectLine:     'Two nights. One code. Pick the dates.',
+    previewText:     'Everything you need to book is in this email.',
+    headlineText:    'Two Nights. One Code. Pick The Dates.',
+    sectionSubhead:  'STAR23 is still good. The calendar is one click away.',
+    bodyText:        'This is the short version of everything we\u2019ve sent.',
+    sectionHeadline: 'The short version',
+    reasons: [
+      { title: 'STAR23.', text: '10% off two nights or more, booked direct.' },
+      { title: 'Any stay.', text: 'Every one comes with a private hot tub.' },
+      { title: 'Cancel free, 30 days out.', text: 'A full refund if plans change.' },
+    ],
+    bodyBlock2Title: 'Next',
+    bodyBlock2:      'Open the calendar, choose two nights, enter the code.',
+    closingLine:     'That\u2019s all there is to it.',
+    ctaText:         'Pick Your Dates',
+    ctaUrl:          CTA_URL,
+    footerLine:      'Code STAR23 \u2014 10% off, two nights or more, booking direct.',
+  },
+]
+
 export const wfTestVariations = (week) =>
   Number(week) === 2 ? WF2_TEST_VARIATIONS
   : Number(week) === 3 ? WF3_TEST_VARIATIONS
   : Number(week) === 4 ? WF4_TEST_VARIATIONS
   : Number(week) === 5 ? WF5_TEST_VARIATIONS
   : Number(week) === 6 ? WF6_TEST_VARIATIONS
-  : WF_TEST_VARIATIONS
+  : Number(week) === 7 ? WF7_TEST_VARIATIONS
+  : Number(week) === 8 ? WF8_TEST_VARIATIONS
+  : Number(week) === 1 ? WF_TEST_VARIATIONS
+  /* No test copy for this email yet. Null, not Week 1's stays: the caller
+     says so rather than loading copy shaped for a different email. */
+  : null
