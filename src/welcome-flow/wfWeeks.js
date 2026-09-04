@@ -10,7 +10,8 @@
  * the dropdown, marked as not ready, so the flow's shape stays visible.
  *
  * Webhook URLs are deliberately NOT here. The browser only ever sends the week
- * number; the server resolves it to N8N_WF_WEEK<n>_WEBHOOK_URL so the URLs stay
+ * number; the server resolves it to N8N_WF_WEEK<n>_WEBHOOK_URL, or to the single
+ * N8N_WF_WEBHOOK_URL when one workflow serves every email, so the URLs stay
  * out of the bundle.
  */
 
