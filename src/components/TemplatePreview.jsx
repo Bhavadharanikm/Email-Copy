@@ -2858,9 +2858,17 @@ function buildTemplateWeek6WF({ client, copy, images, footerData, isHeroGenerate
   heroScale=1, heroX=0, heroY=0,
   textSize=44, textTop=34, textLeft=52,
   logoColor='original', logoTop=64, logoRight=200, logoSize=44,
-  btnImgUrl = null, introBtnImgUrl = null, iconImgUrls = [],
+  img1Scale=1, img1X=0, img1Y=0,
+  img2Scale=1, img2X=0, img2Y=0,
+  btnImgUrl = null, introBtnImgUrl = null, iconImgUrls = [], gridImgUrl = null,
 }) {
   const heroObj = images?.[0]; const heroImg = heroObj?.url || ''
+  /* Two stays, Sub 1 and Sub 2, as the pair of tilted photo cards Week 3
+     (weekly) uses. Sub 2 falls back to Sub 1 so one photo still makes a pair. */
+  const stack1 = images?.[1]?.url || ''
+  const stack2 = images?.[2]?.url || stack1
+  const stackTf1 = `translate(${img1X}px,${img1Y}px) scale(${img1Scale})`
+  const stackTf2 = `translate(${img2X}px,${img2Y}px) scale(${img2Scale})`
 
   const intro      = (copy.bodyText    || '').trim()
   const closing    = (copy.closingLine || '').replace(/\n/g, '<br>')
@@ -2942,6 +2950,8 @@ function buildTemplateWeek6WF({ client, copy, images, footerData, isHeroGenerate
     .w6wf-btn-img  { width:100%!important; max-width:100%!important; }
     .w6wf-btnwrap  { width:100%!important; }
     .w6wf-cta      { padding:12px 20px!important; }
+    .w6wf-stack     { height:290px!important; }
+    .w6wf-stackcard { height:250px!important; }
   }
 </style></head>
 <body style="margin:0;padding:32px 0 48px;background-color:#ffffff;">
@@ -2984,6 +2994,23 @@ function buildTemplateWeek6WF({ client, copy, images, footerData, isHeroGenerate
     <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;margin-top:${copy.sectionHeadline ? 4 : 0}px;">
       ${points.map(pointRow).join('')}
     </table>
+  </div>` : ''}
+
+  <!-- THE STAYS — two tilted photo cards (Week 3's element). Baked as one
+       transparent PNG when generated; the live version below mirrors its
+       geometry (600 stage, 272-wide cards at 28 and 296, tilted 3°) in
+       percentages so the fluid card still lays out at the phone's width. -->
+  ${stack1 ? `<div style="padding:30px 0 0;background-color:${pageBg};line-height:0;font-size:0;">
+    ${gridImgUrl
+      ? `<img src="${gridImgUrl}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;border:0;outline:none;"/>`
+      : `<div class="w6wf-stack" style="position:relative;width:100%;max-width:600px;height:420px;margin:0 auto;">
+      <div class="w6wf-stackcard" style="position:absolute;left:4.67%;top:24px;width:45.33%;height:372px;border-radius:20px;transform:rotate(-3deg);transform-origin:center center;box-shadow:4px 0 20px rgba(0,0,0,0.18);overflow:hidden;z-index:1;">
+        <img src="${stack1}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:${stackTf1};transform-origin:center center;"/>
+      </div>
+      <div class="w6wf-stackcard" style="position:absolute;left:49.33%;top:24px;width:45.33%;height:372px;border-radius:20px;transform:rotate(3deg);transform-origin:center center;box-shadow:-4px 0 20px rgba(0,0,0,0.18);overflow:hidden;z-index:2;">
+        <img src="${stack2}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:${stackTf2};transform-origin:center center;"/>
+      </div>
+    </div>`}
   </div>` : ''}
 
   <!-- THE FINE PRINT — eyebrow, then the policy in full -->
@@ -3185,7 +3212,7 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
       : clientFooter
     console.log('[baseHtml] tplId:', tpl?.id, 'isHeroGenerated:', isHeroGenerated, 'tplUrls:', tplUrls, 'effectiveImages[4]:', effectiveImages?.[4], 'effectiveImages[5]:', effectiveImages?.[5])
     const effectiveCopy = generatedCopy ? { ...generatedCopy, headlineText: (generatedCopy.headlineText || '').replace(/\.$/, '') } : generatedCopy
-    return tpl.build({ client:selectedClient, copy:effectiveCopy, images:effectiveImages, headerStyle, imageStyle, footerData: effectiveFooterData, isHeroGenerated, isStoryGenerated, cardsGenerated, btnImgUrl: tplUrls.btn || null, introBtnImgUrl: tplUrls.introBtn || null, cardBtnImgUrl: tplUrls.cardBtn || null, stampImgUrl: tplUrls.sec || null, pinImgUrl: tplUrls.ter || null, gridImgUrl: ((tpl?.id === 33 || tpl?.id === 35) ? tplUrls.sec : null) || null, iconImgUrls: tplUrls.icons || [], heroMobileImgUrl: tplUrls.heroMobile || null, ...editorProps })
+    return tpl.build({ client:selectedClient, copy:effectiveCopy, images:effectiveImages, headerStyle, imageStyle, footerData: effectiveFooterData, isHeroGenerated, isStoryGenerated, cardsGenerated, btnImgUrl: tplUrls.btn || null, introBtnImgUrl: tplUrls.introBtn || null, cardBtnImgUrl: tplUrls.cardBtn || null, stampImgUrl: tplUrls.sec || null, pinImgUrl: tplUrls.ter || null, gridImgUrl: ((tpl?.id === 33 || tpl?.id === 35 || tpl?.id === 36) ? tplUrls.sec : null) || null, iconImgUrls: tplUrls.icons || [], heroMobileImgUrl: tplUrls.heroMobile || null, ...editorProps })
   }, [active, selectedClient, generatedCopy, selectedImages, headerStyle, imageStyle, clientFooter, footerLogoColor, footerLogoSize, weekGenUrls, heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y])
 
   // Keep store in sync so ApprovalPanel always has the latest HTML
@@ -3778,6 +3805,23 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     const week6wfIconKeys = isWeek6WF && Array.isArray(generatedCopy?.points)
       ? wfPickIcons(generatedCopy.points.slice(0, 5))
       : []
+
+    /* Email 6's pair of tilted photo cards — Week 3 (weekly)'s geometry with
+       Email 6's inputs. 600 x 420, transparent, so the tilt and the shadows
+       sit on the page rather than on a painted rectangle. */
+    const week6wfStack2 = img2Url || img1Url
+    const week6wfStackedHtml = (isWeek6WF && img1Url) ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
+</head><body>
+<div style="position:relative;width:600px;height:420px;background:transparent;">
+  <div style="position:absolute;left:28px;top:24px;width:272px;height:372px;border-radius:20px;transform:rotate(-3deg);transform-origin:center center;box-shadow:4px 0 20px rgba(0,0,0,0.18);overflow:hidden;z-index:1;">
+    <img src="${img1Url}" style="position:absolute;top:0;left:0;width:272px;height:372px;object-fit:cover;display:block;transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/>
+  </div>
+  <div style="position:absolute;left:296px;top:24px;width:272px;height:372px;border-radius:20px;transform:rotate(3deg);transform-origin:center center;box-shadow:-4px 0 20px rgba(0,0,0,0.18);overflow:hidden;z-index:2;">
+    <img src="${week6wfStack2}" style="position:absolute;top:0;left:0;width:272px;height:372px;object-fit:cover;display:block;transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/>
+  </div>
+</div>
+</body></html>` : null
 
     const heroHtml = isWeek2
       ? week2ArchHtml(midBg, false)
@@ -4462,7 +4506,9 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </body></html>` : null
 
     const heroHeight = isWeek9 ? 720 : isWeek2 ? 580 : isWeek4WF ? 600 : isWeek2WF ? (logoTop + logoSize + 18 + 680) : isWFAny ? 772 : isWeek8v2 ? 680 : isWeek7v2 ? ((img1Url || img2Url || img3Url) ? 988 : 720) : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : isTest ? 520 : 400
-    const secondaryPromise = isWeek5WF && week5wfMosaicHtml
+    const secondaryPromise = isWeek6WF && week6wfStackedHtml
+      ? renderImage({ html: week6wfStackedHtml, width: 600, height: 420, transparent: true })
+      : isWeek5WF && week5wfMosaicHtml
       ? renderImage({ html: week5wfMosaicHtml, width: 600, height: 552, transparent: true })
       : isWeek3WF && week3wfGridHtml
       ? renderImage({ html: week3wfGridHtml, width: 600, height: 600, transparent: true })
@@ -5042,7 +5088,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
           </div>
 
           {/* Sub-image adjusters — shown for templates that have sub-images */}
-          {[10, 11, 13, 16, 17, 18, 24, 25, 31, 32, 33, 34, 35].includes(tpl?.id) && [
+          {[10, 11, 13, 16, 17, 18, 24, 25, 31, 32, 33, 34, 35, 36].includes(tpl?.id) && [
             { key: 'sub1', label: 'Sub Image 1', color: '#7c3aed', bg: dark ? 'rgba(124,58,237,0.15)' : '#f5f3ff',
               controls: [
                 { name: 'Left', min: -200, max: 200, step: 4, val: img1X,     set: setImg1X,     unit: 'px' },
