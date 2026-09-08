@@ -2584,12 +2584,22 @@ function buildTemplateWeek5WF({ client, copy, images, footerData, isHeroGenerate
   heroScale=1, heroX=0, heroY=0,
   textSize=44, textTop=34, textLeft=52,
   logoColor='original', logoTop=64, logoRight=200, logoSize=44,
+  img1Scale=1, img1X=0, img1Y=0,
+  img2Scale=1, img2X=0, img2Y=0,
+  img3Scale=1, img3X=0, img3Y=0,
   btnImgUrl = null, introBtnImgUrl = null, gridImgUrl = null,
 }) {
   const heroObj = images?.[0]; const heroImg = heroObj?.url || ''
   /* The story is text, so the sub-images make the mosaic under it: Sub 1 and
      Sub 2 side by side, Sub 3 wide beneath them. */
   const mosaic = [1, 2, 3].map(i => images?.[i]?.url || '')
+  /* The editor's Left / Top / Zoom for each mosaic photo. The bake applies the
+     same three transforms, so what is framed here is what gets baked. */
+  const mosaicTf = [
+    `translate(${img1X}px,${img1Y}px) scale(${img1Scale})`,
+    `translate(${img2X}px,${img2Y}px) scale(${img2Scale})`,
+    `translate(${img3X}px,${img3Y}px) scale(${img3Scale})`,
+  ]
 
   const leadIn     = (copy.bodyText    || '').replace(/\n/g, '<br>')
   const closing    = (copy.closingLine || '').replace(/\n/g, '<br>')
@@ -2744,12 +2754,12 @@ function buildTemplateWeek5WF({ client, copy, images, footerData, isHeroGenerate
     <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
       <tr>
         ${[0, 1].map(c => `<td width="50%" valign="top" style="width:50%;padding:${c === 0 ? '0 3px 6px 0' : '0 0 6px 3px'};line-height:0;font-size:0;">${mosaic[c]
-          ? `<div class="w5wf-mtop" style="width:100%;height:240px;overflow:hidden;border-radius:12px;"><img src="${mosaic[c]}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;border:0;outline:none;"/></div>`
+          ? `<div class="w5wf-mtop" style="width:100%;height:240px;overflow:hidden;border-radius:12px;"><img src="${mosaic[c]}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;border:0;outline:none;transform:${mosaicTf[c]};transform-origin:center center;"/></div>`
           : `<div class="w5wf-mtop" style="width:100%;height:240px;background:${pillBg};border-radius:12px;"></div>`}</td>`).join('')}
       </tr>
       <tr>
         <td colspan="2" valign="top" style="padding:0;line-height:0;font-size:0;">${mosaic[2]
-          ? `<div class="w5wf-mwide" style="width:100%;height:306px;overflow:hidden;border-radius:12px;"><img src="${mosaic[2]}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;border:0;outline:none;"/></div>`
+          ? `<div class="w5wf-mwide" style="width:100%;height:306px;overflow:hidden;border-radius:12px;"><img src="${mosaic[2]}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;border:0;outline:none;transform:${mosaicTf[2]};transform-origin:center center;"/></div>`
           : `<div class="w5wf-mwide" style="width:100%;height:306px;background:${pillBg};border-radius:12px;"></div>`}</td>
       </tr>
     </table>`}
@@ -3496,12 +3506,12 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 <table width="552" cellpadding="0" cellspacing="0" border="0" style="width:552px;border-collapse:collapse;background:transparent;">
   <tr>
     ${[img1Url, img2Url].map((u, c) => `<td width="276" valign="top" style="width:276px;padding:${c === 0 ? '0 3px 6px 0' : '0 0 6px 3px'};line-height:0;font-size:0;">
-      ${u ? `<img src="${u}" style="width:100%;height:240px;object-fit:cover;display:block;border-radius:12px;"/>` : `<div style="width:100%;height:240px;background:rgba(0,0,0,0.06);border-radius:12px;"></div>`}
+      ${u ? `<div style="width:100%;height:240px;overflow:hidden;border-radius:12px;"><img src="${u}" style="width:100%;height:100%;object-fit:cover;display:block;transform:translate(${c === 0 ? img1X : img2X}px,${c === 0 ? img1Y : img2Y}px) scale(${c === 0 ? img1Scale : img2Scale});transform-origin:center center;"/></div>` : `<div style="width:100%;height:240px;background:rgba(0,0,0,0.06);border-radius:12px;"></div>`}
     </td>`).join('')}
   </tr>
   <tr>
     <td colspan="2" style="padding:0;line-height:0;font-size:0;">
-      ${img3Url ? `<img src="${img3Url}" style="width:552px;height:306px;object-fit:cover;display:block;border-radius:12px;"/>` : `<div style="width:552px;height:306px;background:rgba(0,0,0,0.06);border-radius:12px;"></div>`}
+      ${img3Url ? `<div style="width:552px;height:306px;overflow:hidden;border-radius:12px;"><img src="${img3Url}" style="width:100%;height:100%;object-fit:cover;display:block;transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/></div>` : `<div style="width:552px;height:306px;background:rgba(0,0,0,0.06);border-radius:12px;"></div>`}
     </td>
   </tr>
 </table>
@@ -4764,7 +4774,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
           </div>
 
           {/* Sub-image adjusters — shown for templates that have sub-images */}
-          {[10, 11, 13, 16, 17, 18, 24, 25, 31, 32, 33].includes(tpl?.id) && [
+          {[10, 11, 13, 16, 17, 18, 24, 25, 31, 32, 33, 34, 35].includes(tpl?.id) && [
             { key: 'sub1', label: 'Sub Image 1', color: '#7c3aed', bg: dark ? 'rgba(124,58,237,0.15)' : '#f5f3ff',
               controls: [
                 { name: 'Left', min: -200, max: 200, step: 4, val: img1X,     set: setImg1X,     unit: 'px' },
