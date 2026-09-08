@@ -2688,10 +2688,13 @@ function buildTemplateWeek5WF({ client, copy, images, footerData, isHeroGenerate
     .w5wf-btn-img  { width:100%!important; max-width:100%!important; }
     .w5wf-btnwrap  { width:100%!important; }
     .w5wf-cta      { padding:12px 20px!important; }
-    .w5wf-cardbox  { padding:18px!important; }
-    .w5wf-mosaic   { padding-left:24px!important; padding-right:24px!important; }
-    .w5wf-mtop     { height:148px!important; }
-    .w5wf-mwide    { height:188px!important; }
+    /* The story and the mosaic pull in tighter than the text sections on a
+       phone: a 1,500-character quote in a 24+24+24 inset wraps too often. */
+    .w5wf-story    { padding-left:16px!important; padding-right:16px!important; }
+    .w5wf-cardbox  { padding:16px!important; }
+    .w5wf-mosaic   { padding-left:12px!important; padding-right:12px!important; }
+    .w5wf-mtop     { height:158px!important; }
+    .w5wf-mwide    { height:202px!important; }
     .wf-lora-h3    { font-size:20px!important; line-height:30px!important; }
   }
 </style></head>
@@ -2719,7 +2722,7 @@ function buildTemplateWeek5WF({ client, copy, images, footerData, isHeroGenerate
               ${copy.headlineText ? `<div class="w5wf-headline" style="font-family:'Lora',serif;font-size:${textSize}px;font-weight:700;text-transform:uppercase;letter-spacing:.02em;color:#ffffff;line-height:1.12;text-shadow:0 2px 20px rgba(0,0,0,.3);">${copy.headlineText}</div>` : ''}
               ${heroCta ? `<div style="margin-top:26px;">
                 <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;max-width:100%;border-collapse:separate;"><tr><td style="border:2px solid #ffffff;border-radius:999px;padding:0;">
-                  <a class="w5wf-herocta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:10px 40px;font-family:Arial,sans-serif;font-size:18px;line-height:22px;font-weight:700;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${heroCta}</a>
+                  <a class="w5wf-herocta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:10px 28px;font-family:Arial,sans-serif;font-size:18px;line-height:22px;font-weight:700;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${heroCta}</a>
                 </td></tr></table>
               </div>` : ''}
             </div>
@@ -2738,7 +2741,7 @@ function buildTemplateWeek5WF({ client, copy, images, footerData, isHeroGenerate
   </div>` : ''}
 
   <!-- THE STORY — the guest's account in full on a soft card, attribution beneath -->
-  ${story.length ? `<div class="w5wf-section" style="padding:22px 24px 0;background-color:${pageBg};">
+  ${story.length ? `<div class="w5wf-section w5wf-story" style="padding:22px 24px 0;background-color:${pageBg};">
     <div class="w5wf-cardbox" style="background-color:${cardTint};border:1px solid ${cardBorder};border-radius:16px;padding:24px;">
       ${story.map((para, i) => `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${textCol};${i ? 'margin-top:14px;' : ''}">${para}</div>`).join('')}
       ${attribution ? `<div style="font-family:Arial,sans-serif;font-size:14px;line-height:20px;color:${mutedTextCol};margin-top:16px;">&mdash; ${attribution}</div>` : ''}
@@ -3487,7 +3490,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
       <div style="position:absolute;left:${textLeft}px;right:${textLeft}px;top:${logoTop + logoSize + textTop + 170}px;text-align:center;line-height:normal;">
         <div style="font-family:'Lora',serif;font-size:${textSize}px;font-weight:700;text-transform:uppercase;letter-spacing:.02em;color:#fff;line-height:1.12;text-shadow:0 2px 20px rgba(0,0,0,.3);">${headline}</div>
         ${week1wfHeroCta ? `<div style="margin-top:26px;">
-          <span style="display:inline-block;border:2px solid #ffffff;border-radius:999px;padding:10px 40px;font-family:Arial,sans-serif;font-size:18px;line-height:22px;font-weight:700;color:#ffffff;white-space:nowrap;">${week1wfHeroCta}</span>
+          <span style="display:inline-block;border:2px solid #ffffff;border-radius:999px;padding:10px 28px;font-family:Arial,sans-serif;font-size:18px;line-height:22px;font-weight:700;color:#ffffff;white-space:nowrap;">${week1wfHeroCta}</span>
         </div>` : ''}
       </div>
     </div>
