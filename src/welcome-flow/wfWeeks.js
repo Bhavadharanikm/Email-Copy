@@ -65,6 +65,8 @@ const WF_BRIEF_LINES = {
   8: ['Theme: Generate the decision nudge email',
       'Audience: ',
       'Booking page is an availability calendar: not confirmed (add if the CTA link is a Calendar Page or a simple website page)'],
+  9: ['Theme: Generate the concierge close email',
+      'Audience: '],
 }
 
 const WF_BRIEF_FALLBACK = ['Theme: ', 'Audience: ']
