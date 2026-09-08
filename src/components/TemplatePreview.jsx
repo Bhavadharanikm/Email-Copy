@@ -3675,7 +3675,10 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
   const [weekGenTrigger,  setWeekGenTrigger]  = useState(0)
 
   const baseHtml = useMemo(() => {
-    if (!generatedCopy?.headlineText) return null
+    /* Any copy at all is enough to draw the design. Email 9 has no headline,
+       so a headline is not the test of whether there is something to show. */
+    const hasCopy = !!generatedCopy && Object.values(generatedCopy).some(v => Array.isArray(v) ? v.length > 0 : typeof v === 'string' ? v.trim() !== '' : v != null && typeof v !== 'object')
+    if (!hasCopy) return null
     if (!tpl.build) return null  // HCTI template uses image generation, not HTML build
     let effectiveImages = selectedImages
     const tplUrls = weekGenUrls[tpl?.id] || {}

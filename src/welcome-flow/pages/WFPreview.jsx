@@ -16,10 +16,11 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { IconArrowLeft } from '@tabler/icons-react'
 import { useWelcomeFlowStore } from '../store/welcomeFlowStore'
-import { wfWeek } from '../wfWeeks'
+import { wfWeek, wfWeekLabel } from '../wfWeeks'
 import { useCampaignStore } from '../../store/campaignStore'
 import { useWfTheme, WfCard, WfButton, WfStepNav } from '../components/wfUi'
 import TemplatePreview from '../../components/TemplatePreview'
+import { wfTestVariations } from '../wfTestData'
 
 export default function WFPreview() {
   const { clientId, emailId } = useParams()
@@ -39,6 +40,7 @@ export default function WFPreview() {
   const wfWeekTemplateId = wfWeek(email?.week)?.templateId ?? email?.templateId ?? null
 
   const [ready, setReady] = useState(false)
+  const [usingSample, setUsingSample] = useState(false)
   const snapshot = useRef(null)
 
   useEffect(() => {
@@ -62,6 +64,8 @@ export default function WFPreview() {
     // bake grabbed the pink fallback color instead of the real brand color, and
     // nothing ever re-baked it once the real data arrived.
     const footerStillValid = snapshot.current.selectedClient?.name === client.name
+    const hasOwnCopy = !!email.copy && Object.values(email.copy).some(v => Array.isArray(v) ? v.length > 0 : typeof v === 'string' ? v.trim() !== '' : v != null && typeof v !== 'object')
+    setUsingSample(!hasOwnCopy)
 
     useCampaignStore.setState({
       selectedClient: {
@@ -69,7 +73,9 @@ export default function WFPreview() {
         logoUrl:  client.logoUrl || '',
         ghl:      { locationId: client.locationId },
       },
-      generatedCopy:  email.copy || {},
+      /* The design should always be visible. Until this email has copy of its
+         own, the preview draws it with the email's sample copy, and says so. */
+      generatedCopy:  hasOwnCopy ? email.copy : (wfTestVariations(email.week)?.[0] || {}),
       selectedImages: email.selectedImages || [],
       clientFooter:   footerStillValid ? snapshot.current.clientFooter : null,
       renderedHtml:   email.renderedHtml || '',
@@ -79,10 +85,12 @@ export default function WFPreview() {
     setReady(true)
 
     return () => {
-      // persist whatever the preview produced, then restore the weekly state
+      // persist whatever the preview produced, then restore the weekly state.
+      // Not the HTML when it was drawn from sample copy: Approve pushes
+      // renderedHtml, and sample copy must never be what gets pushed.
       const after = useCampaignStore.getState()
       updateEmail(clientId, emailId, {
-        renderedHtml: after.renderedHtml || '',
+        ...(hasOwnCopy ? { renderedHtml: after.renderedHtml || '' } : {}),
         templateLabel: after.templateLabel || '',
       })
       if (snapshot.current) useCampaignStore.setState(snapshot.current)
@@ -138,6 +146,11 @@ export default function WFPreview() {
         </p>
       </div>
 
+      {ready && usingSample && (
+        <div style={{ fontSize: 12.5, color: '#b45309', margin: '0 0 12px' }}>
+          Showing the design with sample copy for {wfWeekLabel(email?.week)}. Generate copy on the brief to see this email with its own words.
+        </div>
+      )}
       {ready ? <TemplatePreview welcomeFlow templateId={wfWeekTemplateId} /> : (
         <WfCard style={{ padding: 40, textAlign: 'center' }}>
           <div style={{ fontSize: 13, color: t.muted }}>Loading the template…</div>
