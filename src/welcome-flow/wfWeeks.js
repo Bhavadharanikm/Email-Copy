@@ -21,7 +21,7 @@ export const WF_WEEKS = [
   { week: 3, templateId: 33 },   // Week 3 WF — guest reviews
   { week: 4, templateId: 34 },   // Week 4 WF — the local area guide
   { week: 5, templateId: 35 },   // Email 5 WF — the guest story
-  { week: 6, templateId: null },
+  { week: 6, templateId: 36 },   // Email 6 WF — book direct
   { week: 7, templateId: null },
   { week: 8, templateId: null },
   { week: 9, templateId: null },
