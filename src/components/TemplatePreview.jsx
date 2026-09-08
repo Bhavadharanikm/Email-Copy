@@ -2860,7 +2860,7 @@ function buildTemplateWeek6WF({ client, copy, images, footerData, isHeroGenerate
   logoColor='original', logoTop=64, logoRight=200, logoSize=44,
   img1Scale=1, img1X=0, img1Y=0,
   img2Scale=1, img2X=0, img2Y=0,
-  btnImgUrl = null, introBtnImgUrl = null, iconImgUrls = [], gridImgUrl = null,
+  btnImgUrl = null, introBtnImgUrl = null, iconImgUrls = [], gridImgUrl = null, heroMobileImgUrl = null,
 }) {
   const heroObj = images?.[0]; const heroImg = heroObj?.url || ''
   /* Two stays, Sub 1 and Sub 2, as the pair of tilted photo cards Week 3
@@ -2928,11 +2928,12 @@ function buildTemplateWeek6WF({ client, copy, images, footerData, isHeroGenerate
 
   /* The one CTA, in the design system's shape: 16/16, 12px top and bottom, hugging
      its label on desktop and filling the width on a phone. Black label, as Email 3. */
-  const ctaButton = copy.ctaText
-    ? (btnImgUrl
-      ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w6wf-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:100%;height:auto;display:block;margin:0 auto;border:0;outline:none;"/></a>`
-      : `<table class="w6wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w6wf-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:#1a1a1a!important;-webkit-text-fill-color:#1a1a1a;text-decoration:none!important;text-align:center;">${copy.ctaText} &rarr;</a></td></tr></table>`)
-    : ''
+  const ctaBtnHtml = (label) => btnImgUrl
+      ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w6wf-btn-img" src="${btnImgUrl}" alt="${label}" width="375" style="width:375px;max-width:100%;height:auto;display:block;margin:0 auto;border:0;outline:none;"/></a>`
+      : `<table class="w6wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w6wf-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:#1a1a1a!important;-webkit-text-fill-color:#1a1a1a;text-decoration:none!important;text-align:center;">${label} &rarr;</a></td></tr></table>`
+
+  const introCtaText = (copy.introCtaText || copy.ctaText || '').trim()
+  const ctaButton = copy.ctaText ? ctaBtnHtml(copy.ctaText) : ''
 
   return `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
@@ -2951,6 +2952,9 @@ function buildTemplateWeek6WF({ client, copy, images, footerData, isHeroGenerate
     .w6wf-btnwrap  { width:100%!important; }
     .w6wf-cta      { padding:12px 20px!important; }
     .wf-lora-h3    { font-size:20px!important; line-height:30px!important; }
+    .wf-lora-h2    { font-size:24px!important; line-height:32px!important; }
+    .w6wf-hero-desk { display:none!important; }
+    .w6wf-hero-mob  { display:block!important; }
     .w6wf-stack     { height:290px!important; }
     .w6wf-stackcard { height:250px!important; }
   }
@@ -2964,7 +2968,7 @@ function buildTemplateWeek6WF({ client, copy, images, footerData, isHeroGenerate
        centred. No pill: the email's one CTA sits under the fine print. Hero
        copy, so exempt from the design system. -->
   ${isHeroGenerated
-    ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${heroImg}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;border:0;outline:none;"/></a></div>`
+    ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img class="w6wf-hero-desk" src="${heroImg}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;border:0;outline:none;"/>${heroMobileImgUrl ? `<img class="w6wf-hero-mob" src="${heroMobileImgUrl}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:none;border:0;outline:none;"/>` : ''}</a></div>`
     : `<div style="line-height:0;font-size:0;background-color:${pageBg};">
     <div class="w6wf-hero" style="position:relative;width:100%;max-width:600px;height:772px;overflow:hidden;clip-path:polygon(0 0,100% 0,100% calc(100% - 40px),74% calc(100% - 40px),68% 100%,0 100%);">
       ${heroImg
@@ -2984,14 +2988,20 @@ function buildTemplateWeek6WF({ client, copy, images, footerData, isHeroGenerate
     </div>
   </div>`}
 
-  <!-- INTRO -->
-  ${introParas.length ? `<div class="w6wf-section" style="padding:34px 48px 0;background-color:${pageBg};">
-    ${introParas.map((para, i) => `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${textCol};${i ? 'margin-top:14px;' : ''}">${para}</div>`).join('')}
+  <!-- THE CTA UNDER THE HERO — the same button and the same label as the one
+       at the foot of the email, so the reader can act before reading on. -->
+  ${introCtaText ? `<div class="w6wf-section" style="padding:30px 48px 0;text-align:center;background-color:${pageBg};">
+    ${ctaBtnHtml(introCtaText)}
+  </div>` : ''}
+
+  <!-- INTRO — centred under the button, as Week 1 -->
+  ${introParas.length ? `<div class="w6wf-section" style="padding:22px 48px 0;background-color:${pageBg};">
+    ${introParas.map((para, i) => `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;font-style:italic;text-align:center;color:${mutedTextCol};${i ? 'margin-top:14px;' : ''}">${para}</div>`).join('')}
   </div>` : ''}
 
   <!-- THE POINTS — eyebrow, then one row per point: icon, bold title, one line -->
   ${points.length ? `<div class="w6wf-section" style="padding:30px 48px 0;background-color:${pageBg};">
-    ${copy.sectionHeadline ? eyebrow(copy.sectionHeadline) : ''}
+    ${copy.sectionHeadline ? `<div class="wf-lora-h2" style="font-family:'Lora',Georgia,serif;font-size:32px;line-height:38px;font-weight:700;color:${secondary};text-align:center;margin-bottom:6px;">${copy.sectionHeadline}</div>` : ''}
     <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;margin-top:${copy.sectionHeadline ? 4 : 0}px;">
       ${points.map(pointRow).join('')}
     </table>
@@ -3016,7 +3026,7 @@ function buildTemplateWeek6WF({ client, copy, images, footerData, isHeroGenerate
 
   <!-- THE FINE PRINT — eyebrow, then the policy in full -->
   ${(copy.bodyBlock2Title || policy) ? `<div class="w6wf-section" style="padding:30px 48px 0;background-color:${pageBg};">
-    ${copy.bodyBlock2Title ? `<div class="wf-lora-h3" style="font-family:'Lora',Georgia,serif;font-size:24px;line-height:32px;font-weight:700;color:${secondary};">${copy.bodyBlock2Title}</div>` : ''}
+    ${copy.bodyBlock2Title ? `<div class="wf-lora-h3" style="font-family:Arial,sans-serif;font-size:24px;line-height:32px;font-weight:700;color:${secondary};">${copy.bodyBlock2Title}</div>` : ''}
     ${policy ? `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${textCol};margin-top:${copy.bodyBlock2Title ? 12 : 0}px;">${policy}</div>` : ''}
   </div>` : ''}
 
@@ -3798,6 +3808,13 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
   </div>
 </div>
 </body></html>`
+
+    /* The same hero for a phone. One PNG cannot serve both widths: at 600 wide
+       it is shown at 0.65 scale on a phone, which leaves the subhead far too
+       small to read. So the phone gets its own bake with the subhead at 26/36. */
+    const week6wfHeroMobileHtml = week6wfHeroHtml.replace(
+      'font-family:Arial,sans-serif;font-size:18px;line-height:28px;color:#fff;text-shadow:0 1px 8px rgba(0,0,0,.35);margin-top:16px;',
+      'font-family:Arial,sans-serif;font-size:26px;line-height:36px;color:#fff;text-shadow:0 1px 8px rgba(0,0,0,.35);margin-top:20px;')
 
     /* Email 6's point icons: the same picker and SVGs the template draws, baked
        one per point to a 24x24 transparent PNG, since Gmail drops SVG. */
@@ -4605,7 +4622,9 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
         // wave 2 — Week 1 WF only, and only started once wave 1 has finished
         const [introBtnRes, cardBtnRes, card1Res, card2Res, card3Res, heroMobileRes, iconRes] = isWFAny
           ? await Promise.all([introBtnThunk(), cardBtnThunk(), card1Thunk(), card2Thunk(), card3Thunk(),
-              isWeek5WF ? renderImage({ html: week5wfHeroMobileHtml, width: 600, height: heroHeight, transparent: true }) : Promise.resolve(null),
+              isWeek5WF ? renderImage({ html: week5wfHeroMobileHtml, width: 600, height: heroHeight, transparent: true })
+                : isWeek6WF ? renderImage({ html: week6wfHeroMobileHtml, width: 600, height: heroHeight, transparent: true })
+                : Promise.resolve(null),
               week6wfIconKeys.length
                 ? Promise.all(week6wfIconKeys.map(key => renderImage({ html: week6wfIconHtml(key, clientFooter?.secondaryColor || clientFooter?.buttonColor || '#1a73e8'), width: 24, height: 24, transparent: true })))
                 : Promise.resolve(null)])
