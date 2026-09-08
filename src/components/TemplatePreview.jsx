@@ -2796,6 +2796,35 @@ function buildTemplateWeek5WF({ client, copy, images, footerData, isHeroGenerate
 </body></html>`
 }
 
+/* ─────────────── point icons (Email 6 and any list that wants them) ───────────────
+   Chosen by what the point says, not by its position: a refund line gets the
+   dollar-in-arrows, a code or discount the gift, a phone line the handset, and
+   so on. One picker feeds both the on-screen SVG and the baked PNG, so the
+   preview and the email cannot disagree. Stroke icons on a 24-unit grid. */
+const WF_ICON_PATHS = {
+  refund:   `<path d="M4 12a8 8 0 0 1 13.7-5.7L20 8.5M20 4v4.5h-4.5" /><path d="M20 12a8 8 0 0 1-13.7 5.7L4 15.5M4 20v-4.5h4.5" /><text x="12" y="15.4" font-family="Arial,sans-serif" font-size="9.5" font-weight="700" text-anchor="middle" stroke="none" fill="COLOUR">$</text>`,
+  gift:     `<rect x="3" y="8" width="18" height="13" rx="1.5" /><path d="M3 12h18M12 8v13" /><path d="M12 8c-2.5 0-4.5-1.3-4.5-2.9C7.5 3.9 8.6 3 9.8 3c1.6 0 2.2 2.4 2.2 5zM12 8c2.5 0 4.5-1.3 4.5-2.9C16.5 3.9 15.4 3 14.2 3 12.6 3 12 5.4 12 8z" />`,
+  phone:    `<path d="M5 3.5h4l2 5-2.5 1.5a11 11 0 0 0 5.5 5.5L15.5 13l5 2v4a2 2 0 0 1-2 2A16.5 16.5 0 0 1 3 5.5a2 2 0 0 1 2-2z" />`,
+  location: `<path d="M12 21.5s-6.5-6-6.5-11.5A6.5 6.5 0 0 1 18.5 10c0 5.5-6.5 11.5-6.5 11.5z" /><circle cx="12" cy="10" r="2.4" />`,
+  device:   `<rect x="6" y="2.5" width="12" height="19" rx="2.5" /><path d="M10 18.5h4" />`,
+  calendar: `<rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" />`,
+  check:    `<path d="M5 12.5l4.5 4.5L19 7.5" />`,
+}
+/* The order matters: a refund line often mentions booking, and a code line
+   often mentions saving, so the more specific meanings are tested first. */
+function wfIconKeyFor(title, text) {
+  const s = `${title || ''} ${text || ''}`.toLowerCase()
+  if (/\b(refund|refunds|refunded|cancel|cancell?ation|money back|every dollar)\b/.test(s)) return 'refund'
+  if (/\b(call|phone|ring|speak to|talk to|talk it through)\b/.test(s)) return 'phone'
+  if (/\b(code|discount|save|saving|savings|% off|percent off|coupon)\b/.test(s) || /\d+% ?off/.test(s)) return 'gift'
+  if (/\b(location|located|directions|address|map|minutes? from|drive from|downtown|nearby)\b/.test(s)) return 'location'
+  if (/\b(app|add[- ]ons?|packages?|extras|check[- ]in|check[- ]out|guest app)\b/.test(s)) return 'device'
+  if (/\b(dates?|calendar|availability|nights?|weekend|midweek)\b/.test(s)) return 'calendar'
+  return 'check'
+}
+const wfIconSvg = (key, colour, size = 24) =>
+  `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${colour}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block;">${(WF_ICON_PATHS[key] || WF_ICON_PATHS.check).replace(/COLOUR/g, colour)}</svg>`
+
 /* ══════════════════════════════════════════════════════════════════════════
    WF — EMAIL 6 · book direct
    Hero with the logo, headline and subhead on the photo (no pill), the intro,
@@ -2849,24 +2878,16 @@ function buildTemplateWeek6WF({ client, copy, images, footerData, isHeroGenerate
   /* Small-caps eyebrow over each section: Body small, letter-spaced, muted. */
   const eyebrow = (t) => `<div style="font-family:Arial,sans-serif;font-size:14px;line-height:20px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:${mutedTextCol};">${t}</div>`
 
-  /* One line icon per point, drawn as SVG for the live preview. Gmail drops
-     SVG and Outlook cannot draw shapes, so on Generate these are baked to
-     small transparent PNGs (iconImgUrls) and the PNG is what the email ships.
-     Assigned by position — the copy carries no icon field. */
-  const ICONS = [
-    `<path d="M4 12a8 8 0 0 1 13.7-5.7L20 8.5M20 4v4.5h-4.5" /><path d="M20 12a8 8 0 0 1-13.7 5.7L4 15.5M4 20v-4.5h4.5" />`,                 // refund / undo
-    `<path d="M3 3h8l10 10-8 8L3 11V3z" /><circle cx="8" cy="8" r="1.6" />`,                                                              // tag / code
-    `<rect x="6" y="2.5" width="12" height="19" rx="2.5" /><path d="M10 18.5h4" />`,                                                        // device / app
-    `<rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" />`,                                                 // calendar
-    `<path d="M5 12.5l4.5 4.5L19 7.5" />`,                                                                                                 // check
-  ]
-  const iconSvg = (i) => `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="${secondary}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block;">${ICONS[i % ICONS.length]}</svg>`
-  const iconCell = (i) => iconImgUrls[i]
+  /* One line icon per point, chosen from the point's own words (wfIconKeyFor)
+     and drawn as SVG for the live preview. Gmail drops SVG and Outlook cannot
+     draw shapes, so on Generate the same choice is baked to a small
+     transparent PNG (iconImgUrls) and the PNG is what the email ships. */
+  const iconCell = (p, i) => iconImgUrls[i]
     ? `<img src="${iconImgUrls[i]}" alt="" width="24" height="24" style="width:24px;height:24px;display:block;border:0;outline:none;"/>`
-    : iconSvg(i)
+    : wfIconSvg(wfIconKeyFor(p.title, p.text), secondary)
 
   const pointRow = (p, i) => `<tr>
-        <td width="24" valign="top" style="width:24px;padding:16px 0 16px;line-height:0;font-size:0;">${iconCell(i)}</td>
+        <td width="24" valign="top" style="width:24px;padding:16px 0 16px;line-height:0;font-size:0;">${iconCell(p, i)}</td>
         <td valign="top" style="padding:16px 0 16px 14px;${i < points.length - 1 ? `border-bottom:1px solid ${cardBorder};` : ''}">
           ${p.title ? `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;font-weight:700;color:${textCol};">${p.title}</div>` : ''}
           ${p.text  ? `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${mutedTextCol};${p.title ? 'margin-top:2px;' : ''}">${p.text}</div>` : ''}
@@ -2910,7 +2931,7 @@ function buildTemplateWeek6WF({ client, copy, images, footerData, isHeroGenerate
   ${isHeroGenerated
     ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${heroImg}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;border:0;outline:none;"/></a></div>`
     : `<div style="line-height:0;font-size:0;background-color:${pageBg};">
-    <div class="w6wf-hero" style="position:relative;width:100%;max-width:600px;height:772px;overflow:hidden;border-radius:0 0 20px 20px;">
+    <div class="w6wf-hero" style="position:relative;width:100%;max-width:600px;height:772px;overflow:hidden;clip-path:polygon(0 0,100% 0,100% calc(100% - 40px),74% calc(100% - 40px),68% 100%,0 100%);">
       ${heroImg
         ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
         : `<div style="width:100%;height:100%;background:${pillBg};"></div>`}
@@ -3711,7 +3732,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
 </head><body>
 <div style="width:600px;background:transparent;box-sizing:border-box;line-height:0;font-size:0;">
-  <div style="position:relative;width:600px;height:772px;overflow:hidden;border-radius:0 0 20px 20px;">
+  <div style="position:relative;width:600px;height:772px;overflow:hidden;clip-path:polygon(0 0,100% 0,100% calc(100% - 40px),74% calc(100% - 40px),68% 100%,0 100%);">
     ${heroImgUrl
       ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:600px;height:772px;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
       : `<div style="width:600px;height:772px;background:#e8eaed;"></div>`}
@@ -3726,19 +3747,13 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </div>
 </body></html>`
 
-    /* Email 6's point icons: the same SVGs the template draws, baked one per
-       point to a 24x24 transparent PNG at 2x, since Gmail drops SVG. */
-    const week6wfIconHtml = (i, colour) => {
-      const paths = [
-        `<path d="M4 12a8 8 0 0 1 13.7-5.7L20 8.5M20 4v4.5h-4.5" /><path d="M20 12a8 8 0 0 1-13.7 5.7L4 15.5M4 20v-4.5h4.5" />`,
-        `<path d="M3 3h8l10 10-8 8L3 11V3z" /><circle cx="8" cy="8" r="1.6" />`,
-        `<rect x="6" y="2.5" width="12" height="19" rx="2.5" /><path d="M10 18.5h4" />`,
-        `<rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" />`,
-        `<path d="M5 12.5l4.5 4.5L19 7.5" />`,
-      ]
-      return `<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>*{margin:0;padding:0}body{width:24px;height:24px;background:transparent;}</style></head><body><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="${colour}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block;">${paths[i % paths.length]}</svg></body></html>`
-    }
-    const week6wfIconCount = isWeek6WF ? Math.min(5, (Array.isArray(generatedCopy?.points) ? generatedCopy.points.length : 0)) : 0
+    /* Email 6's point icons: the same picker and SVGs the template draws, baked
+       one per point to a 24x24 transparent PNG, since Gmail drops SVG. */
+    const week6wfIconHtml = (key, colour) =>
+      `<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>*{margin:0;padding:0}body{width:24px;height:24px;background:transparent;}</style></head><body>${wfIconSvg(key, colour)}</body></html>`
+    const week6wfIconKeys = isWeek6WF && Array.isArray(generatedCopy?.points)
+      ? generatedCopy.points.slice(0, 5).map(p => wfIconKeyFor(p?.title, p?.text))
+      : []
 
     const heroHtml = isWeek2
       ? week2ArchHtml(midBg, false)
@@ -4520,8 +4535,8 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
         const [introBtnRes, cardBtnRes, card1Res, card2Res, card3Res, heroMobileRes, iconRes] = isWFAny
           ? await Promise.all([introBtnThunk(), cardBtnThunk(), card1Thunk(), card2Thunk(), card3Thunk(),
               isWeek5WF ? renderImage({ html: week5wfHeroMobileHtml, width: 600, height: heroHeight, transparent: true }) : Promise.resolve(null),
-              week6wfIconCount
-                ? Promise.all(Array.from({ length: week6wfIconCount }, (_, i) => renderImage({ html: week6wfIconHtml(i, clientFooter?.secondaryColor || clientFooter?.buttonColor || '#1a73e8'), width: 24, height: 24, transparent: true })))
+              week6wfIconKeys.length
+                ? Promise.all(week6wfIconKeys.map(key => renderImage({ html: week6wfIconHtml(key, clientFooter?.secondaryColor || clientFooter?.buttonColor || '#1a73e8'), width: 24, height: 24, transparent: true })))
                 : Promise.resolve(null)])
           : [null, null, null, null, null, null, null]
 
