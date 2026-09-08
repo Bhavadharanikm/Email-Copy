@@ -13,7 +13,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { IconArrowLeft, IconSparkles, IconBolt, IconPlus } from '@tabler/icons-react'
 import { useWelcomeFlowStore } from '../store/welcomeFlowStore'
 import { useWfTheme, WfCard, WfButton, WfInput, WfStepNav } from '../components/wfUi'
-import { WF_WEEKS, wfWeek, wfWeekReady, wfBriefTemplate, wfBriefIsSeed } from '../wfWeeks'
+import { WF_WEEKS, wfWeek, wfWeekReady, wfWeekLabel, wfBriefTemplate, wfBriefIsSeed } from '../wfWeeks'
 import { wfTestVariations } from '../wfTestData'
 import { wfCopySchema } from '../wfCopySchema'
 import { wfGenerateCopy } from '../../lib/api'
@@ -111,6 +111,8 @@ export default function WFBrief() {
   // any text will do — the prompt goes to n8n as typed, no required shape
   const promptFilled = prompt.trim().length > 0
   const weekReady   = wfWeekReady(week)
+  const weekInfo    = wfWeek(week)
+  const [showWhat, setShowWhat] = useState(false)
 
   const persist = () => {
     updateClient(clientId, { folderUrl, folderId })          // remember for next time
@@ -243,26 +245,56 @@ export default function WFBrief() {
             Welcome Email{' '}
             <span style={{ fontWeight: 400, color: t.muted }}>sets the template and which n8n workflow runs</span>
           </label>
-          <select
-            value={week}
-            onChange={(e) => setWeek(e.target.value)}
-            onBlur={persist}
-            style={{
-              width: '100%', padding: '11px 12px', borderRadius: 10,
-              border: `1px solid ${t.border}`, background: t.inputBg, color: t.text,
-              fontSize: 13, fontFamily: 'Inter, sans-serif', outline: 'none', cursor: 'pointer',
-            }}
-          >
-            <option value="">Select which email this is…</option>
-            {WF_WEEKS.map(w => (
-              <option key={w.week} value={w.week}>
-                Email {w.week}
-              </option>
-            ))}
-          </select>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'stretch' }}>
+            <select
+              value={week}
+              onChange={(e) => setWeek(e.target.value)}
+              onBlur={persist}
+              style={{
+                flex: 1, minWidth: 0, padding: '11px 12px', borderRadius: 10,
+                border: `1px solid ${t.border}`, background: t.inputBg, color: t.text,
+                fontSize: 13, fontFamily: 'Inter, sans-serif', outline: 'none', cursor: 'pointer',
+              }}
+            >
+              <option value="">Select which email this is…</option>
+              {WF_WEEKS.map(w => (
+                <option key={w.week} value={w.week}>
+                  {wfWeekLabel(w.week)}
+                </option>
+              ))}
+            </select>
+            {/* what this email is for — folded away until asked for, so the
+                brief stays a form rather than a briefing document */}
+            <button
+              type="button"
+              onClick={() => setShowWhat(v => !v)}
+              disabled={!weekInfo?.what}
+              title={weekInfo?.what ? `What Email ${week} does` : 'Pick an email first'}
+              aria-expanded={showWhat}
+              style={{
+                width: 38, flex: '0 0 38px', borderRadius: 10, border: `1px solid ${showWhat ? t.text : t.border}`,
+                background: showWhat ? t.text : t.inputBg, color: showWhat ? t.inputBg : t.muted,
+                fontSize: 13, fontFamily: 'Georgia, serif', fontStyle: 'italic', fontWeight: 700,
+                cursor: weekInfo?.what ? 'pointer' : 'default', opacity: weekInfo?.what ? 1 : 0.45,
+              }}
+            >
+              i
+            </button>
+          </div>
+          {showWhat && weekInfo?.what && (
+            <div style={{
+              marginTop: 8, padding: '10px 12px', borderRadius: 10,
+              background: t.inputBg, border: `1px solid ${t.border}`,
+            }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: t.muted, letterSpacing: '.04em', textTransform: 'uppercase', marginBottom: 4 }}>
+                Day {weekInfo.day} · {weekInfo.name}
+              </div>
+              <div style={{ fontSize: 12.5, lineHeight: 1.55, color: t.text }}>{weekInfo.what}</div>
+            </div>
+          )}
           {week && !weekReady && (
             <div style={{ fontSize: 11.5, color: '#b45309', marginTop: 6 }}>
-              Email {week} has no email template yet — copy can be generated and edited, but not previewed or pushed.
+              {wfWeekLabel(week)} has no email template yet — copy can be generated and edited, but not previewed or pushed.
             </div>
           )}
         </div>

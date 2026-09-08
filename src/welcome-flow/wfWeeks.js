@@ -16,16 +16,32 @@
  */
 
 export const WF_WEEKS = [
-  { week: 1, templateId: 31 },   // Week 1 WF — the real welcome-offer template
-  { week: 2, templateId: 32 },   // Week 2 WF — duplicate of Week 1 WF for now
-  { week: 3, templateId: 33 },   // Week 3 WF — guest reviews
-  { week: 4, templateId: 34 },   // Week 4 WF — the local area guide
-  { week: 5, templateId: 35 },   // Email 5 WF — the guest story
-  { week: 6, templateId: 36 },   // Email 6 WF — book direct
-  { week: 7, templateId: null },
-  { week: 8, templateId: null },
-  { week: 9, templateId: null },
+  { week: 1, templateId: 31, day: 0,  name: 'Welcome & code',
+    what: 'Hands over the code and puts the featured stays in front of the reader as cards.' },
+  { week: 2, templateId: 32, day: 1,  name: 'Itinerary',
+    what: 'Sketches a perfect 48 hours — four to six loose moments across two days, nothing over-planned.' },
+  { week: 3, templateId: 33, day: 3,  name: 'Reviews',
+    what: 'Three guest reviews, word for word. Proof rather than persuasion.' },
+  { week: 4, templateId: 34, day: 7,  name: 'Destination',
+    what: 'Makes the area the draw — three grouped blocks of places, narrowing to a single recommendation.' },
+  { week: 5, templateId: 35, day: 12, name: 'Guest story',
+    what: 'One guest\u2019s stay in their own words, start to finish.' },
+  { week: 6, templateId: 36, day: 17, name: 'Book direct',
+    what: 'The trust argument: what changes when you book with the property, and the cancellation terms in full.' },
+  { week: 7, templateId: null, day: 22, name: 'Midweek perk',
+    what: 'The one genuinely new offer in the flow — midweek nights and the perk attached to them.' },
+  { week: 8, templateId: null, day: 28, name: 'Decision nudge',
+    what: 'Shrinks the ask. Answers the objections still standing, with no deadline and no urgency.' },
+  { week: 9, templateId: null, day: 33, name: 'Concierge close',
+    what: 'Asks for a reply instead of a click. No link, signed by a person.' },
 ]
+
+/** "Email 3 · Day 3 · Reviews" — how an email is named wherever it is listed. */
+export const wfWeekLabel = (week) => {
+  const w = wfWeek(week)
+  if (!w) return `Email ${week}`
+  return `Email ${w.week}${w.day === undefined ? '' : ` \u00b7 Day ${w.day}`}${w.name ? ` \u00b7 ${w.name}` : ''}`
+}
 
 export const wfWeek = (week) => WF_WEEKS.find(w => w.week === Number(week)) || null
 
