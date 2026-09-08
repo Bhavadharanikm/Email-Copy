@@ -2704,8 +2704,8 @@ function buildTemplateWeek5WF({ client, copy, images, footerData, isHeroGenerate
               ${copy.headlineText ? `<div class="w5wf-headline" style="font-family:'Lora',serif;font-size:${textSize}px;font-weight:700;text-transform:uppercase;letter-spacing:.02em;color:#ffffff;line-height:1.12;text-shadow:0 2px 20px rgba(0,0,0,.3);">${copy.headlineText}</div>` : ''}
               ${subhead ? `<div style="font-family:Arial,sans-serif;font-size:18px;line-height:28px;color:#ffffff;text-shadow:0 1px 8px rgba(0,0,0,.35);margin-top:14px;">${subhead}</div>` : ''}
               ${heroCta ? `<div style="margin-top:26px;">
-                <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;max-width:100%;border-collapse:separate;"><tr><td style="border:3px solid #ffffff;border-radius:999px;padding:0;">
-                  <a class="w5wf-herocta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:13px 52px;font-family:Arial,sans-serif;font-size:23px;line-height:26px;font-weight:700;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${heroCta}</a>
+                <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;max-width:100%;border-collapse:separate;"><tr><td style="border:2px solid #ffffff;border-radius:999px;padding:0;">
+                  <a class="w5wf-herocta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:10px 40px;font-family:Arial,sans-serif;font-size:18px;line-height:22px;font-weight:700;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${heroCta}</a>
                 </td></tr></table>
               </div>` : ''}
             </div>
@@ -2909,7 +2909,9 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
   }, [tpl?.id])  // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Week template image generation ───────────────────────────────────────────
-  const isWeekTemplate = [10, 11, 13, 16, 17, 18, 19, 20, 23, 24, 25, 31, 32, 33].includes(tpl?.id)
+  /* Every template with a Generate Images pipeline. Emails 4 and 5 were built
+     with bakes but never added here, so their button was missing. */
+  const isWeekTemplate = [10, 11, 13, 16, 17, 18, 19, 20, 23, 24, 25, 31, 32, 33, 34, 35].includes(tpl?.id)
   const [weekGenUrls,     setWeekGenUrls]     = useState({})  // { [tplId]: { hero, sec, ter } }
   const [weekGenLoading,  setWeekGenLoading]  = useState(false)
   const [weekGenError,    setWeekGenError]    = useState(null)
@@ -3474,7 +3476,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
         <div style="font-family:'Lora',serif;font-size:${textSize}px;font-weight:700;text-transform:uppercase;letter-spacing:.02em;color:#fff;line-height:1.12;text-shadow:0 2px 20px rgba(0,0,0,.3);">${headline}</div>
         ${week5wfSubhead ? `<div style="font-family:Arial,sans-serif;font-size:18px;line-height:28px;color:#fff;text-shadow:0 1px 8px rgba(0,0,0,.35);margin-top:14px;">${week5wfSubhead}</div>` : ''}
         ${week1wfHeroCta ? `<div style="margin-top:26px;">
-          <span style="display:inline-block;border:3px solid #ffffff;border-radius:999px;padding:13px 52px;font-family:Arial,sans-serif;font-size:23px;line-height:26px;font-weight:700;color:#ffffff;white-space:nowrap;">${week1wfHeroCta}</span>
+          <span style="display:inline-block;border:2px solid #ffffff;border-radius:999px;padding:10px 40px;font-family:Arial,sans-serif;font-size:18px;line-height:22px;font-weight:700;color:#ffffff;white-space:nowrap;">${week1wfHeroCta}</span>
         </div>` : ''}
       </div>
     </div>
