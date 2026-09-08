@@ -3443,11 +3443,15 @@ function buildTemplateWeek9WF({ client, copy, images, footerData,
         </td>
       </tr>`
 
-  const ctaText = (copy.ctaText || '').trim()
+  /* The workflow leaves the CTA blank on this email, since it asks for a
+     reply. The design still carries a button, so a blank label falls back to
+     the booking one and the link to the client's site. Same fallback in the bake. */
+  const ctaText = (copy.ctaText || '').trim() || 'Book Your Stay'
+  const ctaHref = copy.ctaUrl || footerData?.websiteUrl || '#'
   const ctaButton = ctaText
     ? (btnImgUrl
-      ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w9wf-btn-img" src="${btnImgUrl}" alt="${ctaText}" width="375" style="width:375px;max-width:100%;height:auto;display:block;margin:0 auto;border:0;outline:none;"/></a>`
-      : `<table class="w9wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w9wf-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:#1a1a1a!important;-webkit-text-fill-color:#1a1a1a;text-decoration:none!important;text-align:center;">${ctaText} &rarr;</a></td></tr></table>`)
+      ? `<a href="${ctaHref}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w9wf-btn-img" src="${btnImgUrl}" alt="${ctaText}" width="375" style="width:375px;max-width:100%;height:auto;display:block;margin:0 auto;border:0;outline:none;"/></a>`
+      : `<table class="w9wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w9wf-cta" href="${ctaHref}" style="display:block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:#1a1a1a!important;-webkit-text-fill-color:#1a1a1a;text-decoration:none!important;text-align:center;">${ctaText} &rarr;</a></td></tr></table>`)
     : ''
 
   return `<!DOCTYPE html>
@@ -4556,7 +4560,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
        its full-width pill cannot alter Weeks 2, 4 and 6, which still use the
        centred inline-block version. */
     /* Email 9 asks for a reply: no CTA text means no button, not a stand-in. */
-    const week1wfMainCtaText = generatedCopy?.ctaText || (isWeek9WF ? '' : 'Book Now')
+    const week1wfMainCtaText = generatedCopy?.ctaText || (isWeek9WF ? 'Book Your Stay' : 'Book Now')
     const week1wfMainBtnHtml = isWFAny ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
 </head><body>
