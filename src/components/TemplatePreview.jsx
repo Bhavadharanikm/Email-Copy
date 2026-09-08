@@ -2915,11 +2915,11 @@ function buildTemplateWeek6WF({ client, copy, images, footerData, isHeroGenerate
      transparent PNG (iconImgUrls) and the PNG is what the email ships. */
   const iconKeys = wfPickIcons(points)
   const iconCell = (p, i) => iconImgUrls[i]
-    ? `<img src="${iconImgUrls[i]}" alt="" width="24" height="24" style="width:24px;height:24px;display:block;border:0;outline:none;"/>`
-    : wfIconSvg(iconKeys[i], secondary)
+    ? `<img src="${iconImgUrls[i]}" alt="" width="32" height="32" style="width:32px;height:32px;display:block;border:0;outline:none;"/>`
+    : wfIconSvg(iconKeys[i], secondary, 32)
 
   const pointRow = (p, i) => `<tr>
-        <td width="24" valign="top" style="width:24px;padding:16px 0 16px;line-height:0;font-size:0;">${iconCell(p, i)}</td>
+        <td width="32" valign="top" style="width:32px;padding:16px 0 16px;line-height:0;font-size:0;">${iconCell(p, i)}</td>
         <td valign="top" style="padding:16px 0 16px 14px;${i < points.length - 1 ? `border-bottom:1px solid ${cardBorder};` : ''}">
           ${p.title ? `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;font-weight:700;color:${textCol};">${p.title}</div>` : ''}
           ${p.text  ? `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${mutedTextCol};${p.title ? 'margin-top:2px;' : ''}">${p.text}</div>` : ''}
@@ -3818,7 +3818,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     /* Email 6's point icons: the same picker and SVGs the template draws, baked
        one per point to a 24x24 transparent PNG, since Gmail drops SVG. */
     const week6wfIconHtml = (key, colour) =>
-      `<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>*{margin:0;padding:0}body{width:24px;height:24px;background:transparent;}</style></head><body>${wfIconSvg(key, colour)}</body></html>`
+      `<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>*{margin:0;padding:0}body{width:32px;height:32px;background:transparent;}</style></head><body>${wfIconSvg(key, colour, 32)}</body></html>`
     const week6wfIconKeys = isWeek6WF && Array.isArray(generatedCopy?.points)
       ? wfPickIcons(generatedCopy.points.slice(0, 5))
       : []
@@ -4625,7 +4625,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
                 : isWeek6WF ? renderImage({ html: week6wfHeroMobileHtml, width: 600, height: heroHeight, transparent: true })
                 : Promise.resolve(null),
               week6wfIconKeys.length
-                ? Promise.all(week6wfIconKeys.map(key => renderImage({ html: week6wfIconHtml(key, clientFooter?.secondaryColor || clientFooter?.buttonColor || '#1a73e8'), width: 24, height: 24, transparent: true })))
+                ? Promise.all(week6wfIconKeys.map(key => renderImage({ html: week6wfIconHtml(key, clientFooter?.secondaryColor || clientFooter?.buttonColor || '#1a73e8'), width: 32, height: 32, transparent: true })))
                 : Promise.resolve(null)])
           : [null, null, null, null, null, null, null]
 
