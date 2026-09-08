@@ -2666,8 +2666,7 @@ function buildTemplateWeek5WF({ client, copy, images, footerData, isHeroGenerate
   ${SHARED_MOBILE_CSS}
   @media only screen and (max-width:600px){
     .w5wf-section  { padding-left:24px!important; padding-right:24px!important; }
-    .w5wf-hero     { height:660px!important; }
-    .w5wf-herotext { margin-top:96px!important; }
+    .w5wf-hero     { height:560px!important; }
     .w5wf-headline { font-size:32px!important; line-height:38px!important; }
     .w5wf-btn-img  { width:100%!important; max-width:100%!important; }
     .w5wf-btnwrap  { width:100%!important; }
@@ -2685,8 +2684,8 @@ function buildTemplateWeek5WF({ client, copy, images, footerData, isHeroGenerate
 <tr><td style="background-color:${pageBg};">
 
   <!-- HERO — Email 3's treatment: the full-bleed photo with everything on it.
-       Logo centred at the top, then the eyebrow, headline, subhead and the
-       outlined pill, left-aligned. Hero copy, so exempt from the design system;
+       Logo centred at the top, then the headline and the outlined pill,
+       centred. The campaign eyebrow and subhead are not shown on the hero. Hero copy, so exempt from the design system;
        the pill is Email 3's exactly, and so is the bake. -->
   ${isHeroGenerated
     ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${heroImg}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;border:0;outline:none;"/></a></div>`
@@ -2700,9 +2699,7 @@ function buildTemplateWeek5WF({ client, copy, images, footerData, isHeroGenerate
           <tr><td valign="top" align="center" style="vertical-align:top;text-align:center;padding:${logoTop}px ${textLeft}px 0;line-height:normal;">
             ${logoOverlayOnHero}
             <div class="w5wf-herotext" style="text-align:center;margin-top:${textTop + 170}px;">
-              ${copy.campaignEyebrow ? `<div style="font-family:Arial,sans-serif;font-size:12px;line-height:16px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#ffffff;text-shadow:0 1px 6px rgba(0,0,0,.4);margin-bottom:12px;">${copy.campaignEyebrow}</div>` : ''}
               ${copy.headlineText ? `<div class="w5wf-headline" style="font-family:'Lora',serif;font-size:${textSize}px;font-weight:700;text-transform:uppercase;letter-spacing:.02em;color:#ffffff;line-height:1.12;text-shadow:0 2px 20px rgba(0,0,0,.3);">${copy.headlineText}</div>` : ''}
-              ${subhead ? `<div style="font-family:Arial,sans-serif;font-size:18px;line-height:28px;color:#ffffff;text-shadow:0 1px 8px rgba(0,0,0,.35);margin-top:14px;">${subhead}</div>` : ''}
               ${heroCta ? `<div style="margin-top:26px;">
                 <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;max-width:100%;border-collapse:separate;"><tr><td style="border:2px solid #ffffff;border-radius:999px;padding:0;">
                   <a class="w5wf-herocta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:10px 40px;font-family:Arial,sans-serif;font-size:18px;line-height:22px;font-weight:700;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${heroCta}</a>
@@ -3458,8 +3455,6 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
        campaign eyebrow, headline, subhead and the pill. The text block is
        absolutely positioned here but in flow on screen, so the offset adds the
        logo's height back in — same reasoning as Email 3's bake. */
-    const week5wfEyebrow = generatedCopy?.campaignEyebrow || ''
-    const week5wfSubhead = generatedCopy?.sectionSubhead || generatedCopy?.subhead || ''
     const week5wfHeroHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <link href="https://fonts.googleapis.com/css2?family=Lora:wght@700&display=swap" rel="stylesheet"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
@@ -3472,9 +3467,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.25) 40%,rgba(0,0,0,0.45) 100%);">
       <div style="position:absolute;top:${logoTop}px;left:0;right:0;text-align:center;line-height:normal;">${week1wfLogoHtml}</div>
       <div style="position:absolute;left:${textLeft}px;right:${textLeft}px;top:${logoTop + logoSize + textTop + 170}px;text-align:center;line-height:normal;">
-        ${week5wfEyebrow ? `<div style="font-family:Arial,sans-serif;font-size:12px;line-height:16px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.4);margin-bottom:12px;">${week5wfEyebrow}</div>` : ''}
         <div style="font-family:'Lora',serif;font-size:${textSize}px;font-weight:700;text-transform:uppercase;letter-spacing:.02em;color:#fff;line-height:1.12;text-shadow:0 2px 20px rgba(0,0,0,.3);">${headline}</div>
-        ${week5wfSubhead ? `<div style="font-family:Arial,sans-serif;font-size:18px;line-height:28px;color:#fff;text-shadow:0 1px 8px rgba(0,0,0,.35);margin-top:14px;">${week5wfSubhead}</div>` : ''}
         ${week1wfHeroCta ? `<div style="margin-top:26px;">
           <span style="display:inline-block;border:2px solid #ffffff;border-radius:999px;padding:10px 40px;font-family:Arial,sans-serif;font-size:18px;line-height:22px;font-weight:700;color:#ffffff;white-space:nowrap;">${week1wfHeroCta}</span>
         </div>` : ''}
