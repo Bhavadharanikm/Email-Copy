@@ -3058,9 +3058,19 @@ function buildTemplateWeek7WF({ client, copy, images, footerData, isHeroGenerate
   logoColor='original', logoTop=40, logoSize=44,
   img1Scale=1, img1X=0, img1Y=0,
   img2Scale=1, img2X=0, img2Y=0,
+  img3Scale=1, img3X=0, img3Y=0,
+  img4Scale=1, img4X=0, img4Y=0,
   btnImgUrl = null, introBtnImgUrl = null, gridImgUrl = null,
 }) {
+  /* The header is a strip of three: the hero in the middle at full height,
+     flanked by two shorter photos that run off both edges. Sub 3 and Sub 4 are
+     the flanks; either falls back to Sub 1 and Sub 2, then to the hero, so a
+     brief with one photo still reads as the same design. */
   const heroImg = images?.[0]?.url || ''
+  const stripL  = images?.[3]?.url || images?.[1]?.url || heroImg
+  const stripR  = images?.[4]?.url || images?.[2]?.url || heroImg
+  const stripTfL = `translate(${img3X}px,${img3Y}px) scale(${img3Scale})`
+  const stripTfR = `translate(${img4X}px,${img4Y}px) scale(${img4Scale})`
   /* Sub 1 is the large circle, Sub 2 the small one behind it. Either alone
      still draws, so a half-filled brief does not leave a hole. */
   const circleA = images?.[1]?.url || ''
@@ -3134,13 +3144,24 @@ function buildTemplateWeek7WF({ client, copy, images, footerData, isHeroGenerate
     <div class="w7wf-headline" style="font-family:Arial,sans-serif;font-size:${textSize}px;line-height:44px;font-weight:700;color:${textCol};letter-spacing:-0.01em;">${copy.headlineText}</div>
   </div>` : ''}
 
-  <!-- THE PHOTO — full bleed under the headline, carrying no text at all -->
+  <!-- THE STRIP — three photos, the hero in the middle. Carries no text, so
+       once Generate Images has run it is one flat PNG and nothing can shift.
+       Laid out in percentages against a 600-wide stage so the proportions
+       hold at any width. -->
   ${heroImg ? `<div style="padding:26px 0 0;background-color:${pageBg};line-height:0;font-size:0;">
     ${isHeroGenerated
       ? `<img src="${heroImg}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;border:0;outline:none;"/>`
-      : `<div style="position:relative;width:100%;max-width:600px;height:380px;overflow:hidden;">
-          <img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>
-        </div>`}
+      : `<div style="position:relative;width:100%;max-width:600px;aspect-ratio:600/320;margin:0 auto;overflow:hidden;">
+      ${stripL ? `<div style="position:absolute;left:0;top:9.4%;width:28.33%;height:81.2%;border-radius:14px;overflow:hidden;">
+        <img src="${stripL}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;transform:${stripTfL};transform-origin:center center;"/>
+      </div>` : ''}
+      ${stripR ? `<div style="position:absolute;left:71.67%;top:9.4%;width:28.33%;height:81.2%;border-radius:14px;overflow:hidden;">
+        <img src="${stripR}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;transform:${stripTfR};transform-origin:center center;"/>
+      </div>` : ''}
+      <div style="position:absolute;left:30%;top:0;width:40%;height:100%;border-radius:14px;overflow:hidden;">
+        <img src="${heroImg}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>
+      </div>
+    </div>`}
   </div>` : ''}
 
   <!-- SUBHEAD, then the first of the two CTAs -->
@@ -3996,13 +4017,23 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 
     /* Email 7's hero is only a photo: the logo and headline live on the page,
        so there is nothing here that could drift from the on-screen version. */
+    const week7wfStripL = img3Url || img1Url || heroImgUrl
+    const week7wfStripR = img4Url || img2Url || heroImgUrl
     const week7wfHeroHtml = isWeek7WF ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:${week1wfBg};}</style>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
 </head><body>
-<div style="position:relative;width:600px;height:380px;overflow:hidden;line-height:0;font-size:0;">
-  ${heroImgUrl
-    ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:600px;height:380px;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
-    : `<div style="width:600px;height:380px;background:#e8eaed;"></div>`}
+<div style="position:relative;width:600px;height:320px;overflow:hidden;line-height:0;font-size:0;">
+  ${week7wfStripL ? `<div style="position:absolute;left:0;top:30px;width:170px;height:260px;border-radius:14px;overflow:hidden;">
+    <img src="${week7wfStripL}" style="width:100%;height:100%;object-fit:cover;display:block;transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/>
+  </div>` : ''}
+  ${week7wfStripR ? `<div style="position:absolute;left:430px;top:30px;width:170px;height:260px;border-radius:14px;overflow:hidden;">
+    <img src="${week7wfStripR}" style="width:100%;height:100%;object-fit:cover;display:block;transform:translate(${img4X}px,${img4Y}px) scale(${img4Scale});transform-origin:center center;"/>
+  </div>` : ''}
+  <div style="position:absolute;left:180px;top:0;width:240px;height:320px;border-radius:14px;overflow:hidden;">
+    ${heroImgUrl
+      ? `<img src="${heroImgUrl}" style="width:100%;height:100%;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
+      : `<div style="width:100%;height:100%;background:#e8eaed;"></div>`}
+  </div>
 </div>
 </body></html>` : null
 
@@ -4705,7 +4736,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </div>
 </body></html>` : null
 
-    const heroHeight = isWeek9 ? 720 : isWeek2 ? 580 : isWeek7WF ? 380 : isWeek4WF ? 600 : isWeek2WF ? (logoTop + logoSize + 18 + 680) : isWFAny ? 772 : isWeek8v2 ? 680 : isWeek7v2 ? ((img1Url || img2Url || img3Url) ? 988 : 720) : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : isTest ? 520 : 400
+    const heroHeight = isWeek9 ? 720 : isWeek2 ? 580 : isWeek7WF ? 320 : isWeek4WF ? 600 : isWeek2WF ? (logoTop + logoSize + 18 + 680) : isWFAny ? 772 : isWeek8v2 ? 680 : isWeek7v2 ? ((img1Url || img2Url || img3Url) ? 988 : 720) : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : isTest ? 520 : 400
     const secondaryPromise = isWeek7WF && week7wfCirclesHtml
       ? renderImage({ html: week7wfCirclesHtml, width: 600, height: 360, transparent: true })
       : isWeek6WF && week6wfStackedHtml
@@ -4797,7 +4828,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
       try {
         // wave 1 — unchanged from every other template: hero, story/stamp/pin, main CTA
         const [heroRes, secRes, terRes, btnRes] = await Promise.all([
-          renderImage({ html: heroHtmlToUse, width: 600, height: heroHeight, transparent: isWeek7v2 || isWeek3v2 || isWeek5 || isWeek6v2 || isWeek4v2b || isWeek3WF || isWeek4WF || isWeek5WF || isWeek6WF }),
+          renderImage({ html: heroHtmlToUse, width: 600, height: heroHeight, transparent: isWeek7v2 || isWeek3v2 || isWeek5 || isWeek6v2 || isWeek4v2b || isWeek3WF || isWeek4WF || isWeek5WF || isWeek6WF || isWeek7WF }),
           secondaryPromise,
           tertiaryPromise,
           buttonPromise,
@@ -5314,7 +5345,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
                 { name: 'Zoom',  min: 1,    max: 2.5, step: 0.05, val: img3Scale, set: setImg3Scale, unit: 'x', toDisplay: v => v.toFixed(2) },
               ]
             }] : []),
-            ...([13, 23, 24, 25].includes(tpl?.id) ? [{ key: 'sub4', label: 'Sub Image 4', color: '#0891b2', bg: dark ? 'rgba(8,145,178,0.15)' : '#ecfeff',
+            ...([13, 23, 24, 25, 37].includes(tpl?.id) ? [{ key: 'sub4', label: 'Sub Image 4', color: '#0891b2', bg: dark ? 'rgba(8,145,178,0.15)' : '#ecfeff',
               controls: [
                 { name: 'Left', min: -200, max: 200, step: 4, val: img4X,     set: setImg4X,     unit: 'px' },
                 { name: 'Top', min: -200, max: 200, step: 4, val: img4Y,     set: setImg4Y,     unit: 'px' },
