@@ -184,6 +184,12 @@ function buildFooter(client, footerData = null, options = {}) {
     ? `<div style="font-size:14px;color:${textCol};font-family:Arial,sans-serif;margin-bottom:${sectionGap || 16}px;line-height:${sysLh};text-align:center">${contactParts.join(`&nbsp;·&nbsp;<wbr> `)}</div>`
     : ''
 
+  /* An optional line inside the footer, above the footer paragraph — a
+     template passes its code reminder here when it belongs with the footer
+     rather than above it. Body small, centred, in the footer's own text colour. */
+  const leadLineHtml = options.leadLine
+    ? `<div style="font-size:14px;line-height:20px;color:${textCol};font-family:Arial,sans-serif;margin-bottom:${sectionGap || 16}px;text-align:center">${options.leadLine}</div>`
+    : ''
   const footerTextHtml = footerText
     ? `<div class="mobile-footer" style="font-size:${footerTextSize}px;color:#878787;font-family:Arial,sans-serif;margin-bottom:${sectionGap || 20}px;line-height:${sysLh};text-align:left">${footerText}</div>`
     : ''
@@ -197,6 +203,7 @@ function buildFooter(client, footerData = null, options = {}) {
     ${logoHtml}
     ${socialHtml}
     ${contactHtml}
+    ${leadLineHtml}
     ${footerTextHtml}
     <div style="font-size:14px;color:${linkCol};font-family:Arial,sans-serif;line-height:${sysLh};margin-top:8px;text-align:center">
       <a href="{{email.view_in_browser_url}}" style="color:${linkCol};text-decoration:underline">View in browser</a>
@@ -2760,12 +2767,9 @@ function buildTemplateWeek5WF({ client, copy, images, footerData, isHeroGenerate
   ${closing ? `<div class="w5wf-section" style="padding:16px 48px 0;background-color:${pageBg};">
     <div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${mutedTextCol};">${closing}</div>
   </div>` : ''}
-  ${ctaButton ? `<div class="w5wf-section" style="padding:22px 48px 30px;background-color:${pageBg};text-align:center;">${ctaButton}</div>` : ''}
-  ${footerLine ? `<div class="w5wf-section" style="padding:0 48px 30px;background-color:${pageBg};text-align:center;">
-    <div style="font-family:Arial,sans-serif;font-size:14px;line-height:20px;color:${faintTextCol};">${footerLine}</div>
-  </div>` : ''}
+  ${ctaButton ? `<div class="w5wf-section" style="padding:22px 48px 34px;background-color:${pageBg};text-align:center;">${ctaButton}</div>` : ''}
 
-  <div style="background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true, wfFooter: true })}</div>
+  <div style="background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true, wfFooter: true, leadLine: footerLine })}</div>
 
 </td></tr>
 </table>
