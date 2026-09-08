@@ -2587,7 +2587,7 @@ function buildTemplateWeek5WF({ client, copy, images, footerData, isHeroGenerate
   img1Scale=1, img1X=0, img1Y=0,
   img2Scale=1, img2X=0, img2Y=0,
   img3Scale=1, img3X=0, img3Y=0,
-  btnImgUrl = null, introBtnImgUrl = null, gridImgUrl = null,
+  btnImgUrl = null, introBtnImgUrl = null, gridImgUrl = null, heroMobileImgUrl = null,
 }) {
   const heroObj = images?.[0]; const heroImg = heroObj?.url || ''
   /* The story is text, so the sub-images make the mosaic under it: Sub 1 and
@@ -2684,6 +2684,10 @@ function buildTemplateWeek5WF({ client, copy, images, footerData, isHeroGenerate
   @media only screen and (max-width:600px){
     .w5wf-section  { padding-left:24px!important; padding-right:24px!important; }
     .w5wf-hero     { height:560px!important; }
+    /* The phone shows the hero baked with the bigger pill. Clients that drop
+       this block keep the desktop PNG, which is the safe fallback. */
+    .w5wf-hero-desk { display:none!important; }
+    .w5wf-hero-mob  { display:block!important; }
     .w5wf-headline { font-size:32px!important; line-height:38px!important; }
     .w5wf-btn-img  { width:100%!important; max-width:100%!important; }
     .w5wf-btnwrap  { width:100%!important; }
@@ -2708,7 +2712,10 @@ function buildTemplateWeek5WF({ client, copy, images, footerData, isHeroGenerate
        centred. The campaign eyebrow and subhead are not shown on the hero. Hero copy, so exempt from the design system;
        the pill is Email 3's exactly, and so is the bake. -->
   ${isHeroGenerated
-    ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${heroImg}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;border:0;outline:none;"/></a></div>`
+    ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;">
+        <img class="w5wf-hero-desk" src="${heroImg}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;border:0;outline:none;"/>
+        ${heroMobileImgUrl ? `<img class="w5wf-hero-mob" src="${heroMobileImgUrl}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:none;border:0;outline:none;"/>` : ''}
+      </a></div>`
     : `<div style="line-height:0;font-size:0;background-color:${pageBg};">
     <div class="w5wf-hero" style="position:relative;width:100%;max-width:600px;height:772px;overflow:hidden;border-radius:0 0 20px 20px;">
       ${heroImg
@@ -2968,7 +2975,7 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
       : clientFooter
     console.log('[baseHtml] tplId:', tpl?.id, 'isHeroGenerated:', isHeroGenerated, 'tplUrls:', tplUrls, 'effectiveImages[4]:', effectiveImages?.[4], 'effectiveImages[5]:', effectiveImages?.[5])
     const effectiveCopy = generatedCopy ? { ...generatedCopy, headlineText: (generatedCopy.headlineText || '').replace(/\.$/, '') } : generatedCopy
-    return tpl.build({ client:selectedClient, copy:effectiveCopy, images:effectiveImages, headerStyle, imageStyle, footerData: effectiveFooterData, isHeroGenerated, isStoryGenerated, cardsGenerated, btnImgUrl: tplUrls.btn || null, introBtnImgUrl: tplUrls.introBtn || null, cardBtnImgUrl: tplUrls.cardBtn || null, stampImgUrl: tplUrls.sec || null, pinImgUrl: tplUrls.ter || null, gridImgUrl: ((tpl?.id === 33 || tpl?.id === 35) ? tplUrls.sec : null) || null, ...editorProps })
+    return tpl.build({ client:selectedClient, copy:effectiveCopy, images:effectiveImages, headerStyle, imageStyle, footerData: effectiveFooterData, isHeroGenerated, isStoryGenerated, cardsGenerated, btnImgUrl: tplUrls.btn || null, introBtnImgUrl: tplUrls.introBtn || null, cardBtnImgUrl: tplUrls.cardBtn || null, stampImgUrl: tplUrls.sec || null, pinImgUrl: tplUrls.ter || null, gridImgUrl: ((tpl?.id === 33 || tpl?.id === 35) ? tplUrls.sec : null) || null, heroMobileImgUrl: tplUrls.heroMobile || null, ...editorProps })
   }, [active, selectedClient, generatedCopy, selectedImages, headerStyle, imageStyle, clientFooter, footerLogoColor, footerLogoSize, weekGenUrls, heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y])
 
   // Keep store in sync so ApprovalPanel always has the latest HTML
@@ -3497,6 +3504,14 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
   </div>
 </div>
 </body></html>`
+
+    /* The same hero baked again for phones, with a bigger pill. A phone shows
+       the hero PNG at about 0.65x, so a pill sized for desktop reads at ~12px
+       there; this copy is swapped in by the mobile rules and reads at ~17px.
+       Derived from the desktop document so nothing but the pill can differ. */
+    const week5wfHeroMobileHtml = week5wfHeroHtml
+      .replace('border:2px solid #ffffff;border-radius:999px;padding:10px 28px;font-family:Arial,sans-serif;font-size:18px;line-height:22px;',
+               'border:3px solid #ffffff;border-radius:999px;padding:14px 44px;font-family:Arial,sans-serif;font-size:26px;line-height:30px;')
 
     /* Email 5's mosaic, inset 24px a side: Sub 1 and Sub 2 at 273x240 beside
        each other, Sub 3 wide at 552x306 beneath, 6px gutters — 552 square,
@@ -4297,15 +4312,17 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
         ])
 
         // wave 2 — Week 1 WF only, and only started once wave 1 has finished
-        const [introBtnRes, cardBtnRes, card1Res, card2Res, card3Res] = isWFAny
-          ? await Promise.all([introBtnThunk(), cardBtnThunk(), card1Thunk(), card2Thunk(), card3Thunk()])
-          : [null, null, null, null, null]
+        const [introBtnRes, cardBtnRes, card1Res, card2Res, card3Res, heroMobileRes] = isWFAny
+          ? await Promise.all([introBtnThunk(), cardBtnThunk(), card1Thunk(), card2Thunk(), card3Thunk(),
+              isWeek5WF ? renderImage({ html: week5wfHeroMobileHtml, width: 600, height: heroHeight, transparent: true }) : Promise.resolve(null)])
+          : [null, null, null, null, null, null]
 
         console.log('[WeekGen] both waves resolved:', { tplId: tpl?.id, heroRes, secRes, terRes, btnRes })
         const urls = {
           hero: heroRes?.url || null, sec: secRes?.url || null, ter: terRes?.url || null, btn: btnRes?.url || null,
           introBtn: introBtnRes?.url || null, cardBtn: cardBtnRes?.url || null,
           card1: card1Res?.url || null, card2: card2Res?.url || null, card3: card3Res?.url || null,
+          heroMobile: heroMobileRes?.url || null,
         }
         console.log('[WeekGen] Calling setWeekGenUrls with:', urls)
         setWeekGenUrls(prev => {
