@@ -157,7 +157,10 @@ export default function WFBrief() {
       const schema  = wfCopySchema(week, variations[0])
       const missing = []
       const first   = variations[0]
-      if (!first.headlineText) missing.push('Hero Headline')
+      /* Email 9 has no hero, so no headline to require: only ask for what
+         this email's own schema lists. */
+      const wantsHeadline = [...(schema.before || []), ...(schema.after || [])].some(f => f.key === 'headlineText')
+      if (wantsHeadline && !first.headlineText) missing.push('Hero Headline')
       if (!first.subjectLine)  missing.push('Subject Line')
       if (schema.group && !(Array.isArray(first[schema.group.listKey]) && first[schema.group.listKey].length)) {
         missing.push(schema.group.title)
@@ -173,7 +176,7 @@ export default function WFBrief() {
         subject:           variations[0]?.subjectLine || '',
         status:            'ready',
         needsHumanReview:  !!result.needsHumanReview,
-        copywriterNotes:   result.copywriterNotes || '',
+        copywriterNotes:   result.copywriterNotes || (Array.isArray(result.reviewFlags) ? result.reviewFlags.join('\n') : ''),
       })
       navigate(`/welcome-flow/${clientId}/email/${emailId}/copy`)
     } catch (e) {

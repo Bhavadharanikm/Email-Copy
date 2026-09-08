@@ -285,6 +285,7 @@ const JSON_KEY_MAP = {
   footer_line:      'footerLine',
   pov_angle:        'name',
   povangle:         'name',
+  close:            'closingLine',   // Email 9's closing paragraph
 }
 
 const JSON_CARD_MAP = {
@@ -426,6 +427,7 @@ function mapVariation(raw, i) {
   let moments = []
   let blocks = []
   let objections = []
+  let exampleQuestions = []
   let reviews = []
   const hasIntroBody = Object.keys(raw || {}).some(k => INTRO_BODY_KEYS.includes(k.toLowerCase()))
   /* Some workflows send `heroHeadline` for the photo and a separate `headline`
@@ -449,6 +451,16 @@ function mapVariation(raw, i) {
                    .filter(o => o.objection || o.answer)
       continue
     }
+    /* Email 9's example questions: the question and the answer only, for the
+       same reason — the joined `text` and the lineNumber are not copy. */
+    if ((lk === 'examplequestions' || lk === 'example_questions') && Array.isArray(v)) {
+      exampleQuestions = v.map(q => ({ question: String(q?.question ?? '').trim(), answer: String(q?.answer ?? '').trim() }))
+                          .filter(q => q.question || q.answer)
+      continue
+    }
+    /* A flag about the signature, not a line of the email. The run-level
+       reviewFlags carry the same warning to the editor. */
+    if (lk === 'unverifiedsignature') continue
     if (lk === 'grouped_blocks' || lk === 'groupedblocks' || lk === 'blocks') {
       blocks = (Array.isArray(v) ? v : []).map(mapBlock).filter(x => x.blockHeader || x.entries)
       continue
@@ -488,6 +500,7 @@ function mapVariation(raw, i) {
     ...(moments.length ? { moments } : {}),
     ...(blocks.length ? { blocks } : {}),
     ...(objections.length ? { objections } : {}),
+    ...(exampleQuestions.length ? { exampleQuestions } : {}),
     ...(reviews.length ? { reviews } : {}),
   }
 }

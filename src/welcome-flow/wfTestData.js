@@ -565,6 +565,63 @@ export const WF8_TEST_VARIATIONS = [
   },
 ]
 
+/* Email 9 test copy — the concierge close, as the Email 9 workflow wrote it on
+   2026-09-08 (three variations, verbatim). Each example question is kept as
+   the question and its answer only; the workflow's joined `text` line and its
+   lineNumber are not copy. No CTA and no code reminder: this one asks for a
+   reply. The run flagged the signature for review since no reply owner was
+   supplied. */
+export const WF9_TEST_VARIATIONS = [
+  {
+    id: 1, name: 'Any question we can answer',
+    subjectLine:         'Any question we can answer for you?',
+    previewText:         'Reply to this one and it reaches us at the property.',
+    bodyText:            'You\u2019ve got the general picture of Starlight Haven by now: the domes, the treehouses, the tent suite, the code.\n\nWhat\u2019s usually left is something specific: which unit actually fits the two of you, how far in you\u2019ll really be, or what happens if the dates you want stop working.\n\nIf you\u2019ve got a question like that, reply to this email and ask.',
+    questionFramingLine: 'A few that come up:',
+    exampleQuestions: [
+      { question: 'Which stay fits us?', answer: 'The Deluxe Domes and Treehouses both sleep up to 4. The Glamping Tent Suite is built for 2.' },
+      { question: 'How far in are we, really?', answer: 'We\u2019re about an 8-minute drive from downtown Hot Springs, so you\u2019re close without giving up the feel of being out in the trees.' },
+      { question: 'What if our plans change?', answer: 'Cancel 30 or more days before check-in, and you get a full refund. Inside that window, it\u2019s 50% of the booking amount.' },
+    ],
+    closingLine:         'Whatever yours is, send it over. It reaches us at the property, and someone will get back to you.',
+    signature:           'Kevin, Starlight Haven Hot Springs',
+    ctaText:             '',
+    footerLine:          '',
+  },
+  {
+    id: 2, name: 'Reply here with your question',
+    subjectLine:         'Reply here with your question',
+    previewText:         'Send us what\u2019s still unclear. It goes straight to the property.',
+    bodyText:            'The easiest thing at this point is to just answer whatever\u2019s still open for you.\n\nSo, reply to this email with your question. That\u2019s the whole mechanism. It comes to us at the property, and someone reads it.\n\nThree worth knowing anyway, in case yours is one of them.',
+    questionFramingLine: 'Three worth knowing anyway:',
+    exampleQuestions: [
+      { question: 'Which stay fits us?', answer: 'The Deluxe Domes and Treehouses both sleep up to 4. The Glamping Tent Suite is built for 2.' },
+      { question: 'How far in are we, really?', answer: 'We\u2019re about an 8-minute drive from downtown Hot Springs.' },
+      { question: 'What if our plans change?', answer: 'Cancel 30 or more days out, and it\u2019s a full refund. Less than 30 days, it\u2019s 50% of the booking amount.' },
+    ],
+    closingLine:         'If yours isn\u2019t here, reply and ask. Someone at the property will get back to you.',
+    signature:           'Kevin, Starlight Haven Hot Springs',
+    ctaText:             '',
+    footerLine:          '',
+  },
+  {
+    id: 3, name: 'We\u2019d rather answer one question',
+    subjectLine:         'We\u2019d rather answer one question',
+    previewText:         'Than send you another email about the hot tub.',
+    bodyText:            'We\u2019d rather answer a question than send you another email about the hot tub.\n\nYou\u2019ve seen the stays and the code by now. If something specific is still unclear, asking us is faster than us guessing what it might be.\n\nReply to this one, and it lands with us at the property.',
+    questionFramingLine: 'Three we can answer right here:',
+    exampleQuestions: [
+      { question: 'Which stay fits us?', answer: 'The Deluxe Domes and Treehouses both sleep up to 4. The Glamping Tent Suite is built for 2.' },
+      { question: 'How far in are we, really?', answer: 'About 8 minutes from downtown Hot Springs.' },
+      { question: 'What if our plans change?', answer: 'Full refund if you cancel 30 or more days before check-in. Under that, it\u2019s 50% of the booking amount.' },
+    ],
+    closingLine:         'Anything else, just reply. Someone at the property will get back to you.',
+    signature:           'Kevin, Starlight Haven Hot Springs',
+    ctaText:             '',
+    footerLine:          '',
+  },
+]
+
 export const wfTestVariations = (week) =>
   Number(week) === 2 ? WF2_TEST_VARIATIONS
   : Number(week) === 3 ? WF3_TEST_VARIATIONS
@@ -573,6 +630,7 @@ export const wfTestVariations = (week) =>
   : Number(week) === 6 ? WF6_TEST_VARIATIONS
   : Number(week) === 7 ? WF7_TEST_VARIATIONS
   : Number(week) === 8 ? WF8_TEST_VARIATIONS
+  : Number(week) === 9 ? WF9_TEST_VARIATIONS
   : Number(week) === 1 ? WF_TEST_VARIATIONS
   /* No test copy for this email yet. Null, not Week 1's stays: the caller
      says so rather than loading copy shaped for a different email. */

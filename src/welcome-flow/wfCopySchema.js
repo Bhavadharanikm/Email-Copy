@@ -318,7 +318,41 @@ const WEEK8 = {
   ],
 }
 
-const SCHEMAS = { 1: WEEK1, 2: WEEK2, 3: WEEK3, 4: WEEK4, 5: WEEK5, 6: WEEK6, 7: WEEK7, 8: WEEK8 }
+/* Email 9 is the concierge close: a plain, signed note that asks for a reply
+   instead of a click. No hero, no headline. A short body, a framing line,
+   three example questions with their answers, the close, and the signature.
+   The CTA and code reminder are optional and usually blank. */
+const WEEK9 = {
+  week: 9,
+  before: [
+    { key: 'subjectLine',         label: 'Subject Line',  hint: 'One sentence. An invitation to ask' },
+    { key: 'previewText',         label: 'Preview Text',  hint: '8\u201312 words. Where the reply goes' },
+    { key: 'bodyText',            label: 'Body',          hint: 'Two or three short paragraphs. What is settled, what is usually still open, and the ask to reply' },
+    { key: 'questionFramingLine', label: 'Framing Line',  hint: 'The line that introduces the questions, e.g. "A few that come up:"' },
+  ],
+  group: {
+    mode:      'dynamic',
+    listKey:   'exampleQuestions',
+    title:     'Example Questions',
+    note:      'A question guests ask, then the one-line answer. Three is usual',
+    itemLabel: 'Question',
+    addLabel:  'Add question',
+    max:       5,
+    blank:     { question: '', answer: '' },
+    fields: [
+      { key: 'question', label: 'Question', hint: 'As a guest would ask it. e.g. "Which stay fits us?"' },
+      { key: 'answer',   label: 'Answer',   hint: 'One or two sentences that settle it' },
+    ],
+  },
+  after: [
+    { key: 'closingLine', label: 'Close',         hint: 'The ask again: send it over, someone at the property will reply' },
+    { key: 'signature',   label: 'Signature',     hint: 'A named person and the property, e.g. "Kevin, Starlight Haven Hot Springs"' },
+    { key: 'ctaText',     label: 'CTA Button',    hint: 'Optional. Usually blank: this email asks for a reply, not a click' },
+    { key: 'footerLine',  label: 'Code Reminder', hint: 'Optional. Blank hides it' },
+  ],
+}
+
+const SCHEMAS = { 1: WEEK1, 2: WEEK2, 3: WEEK3, 4: WEEK4, 5: WEEK5, 6: WEEK6, 7: WEEK7, 8: WEEK8, 9: WEEK9 }
 
 /* "guestFirstName" -> "Guest First Name"; "cta_url" -> "Cta Url". */
 const humanise = (k) => String(k)
