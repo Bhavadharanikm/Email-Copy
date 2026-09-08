@@ -2950,6 +2950,7 @@ function buildTemplateWeek6WF({ client, copy, images, footerData, isHeroGenerate
     .w6wf-btn-img  { width:100%!important; max-width:100%!important; }
     .w6wf-btnwrap  { width:100%!important; }
     .w6wf-cta      { padding:12px 20px!important; }
+    .wf-lora-h3    { font-size:20px!important; line-height:30px!important; }
     .w6wf-stack     { height:290px!important; }
     .w6wf-stackcard { height:250px!important; }
   }
@@ -3015,7 +3016,7 @@ function buildTemplateWeek6WF({ client, copy, images, footerData, isHeroGenerate
 
   <!-- THE FINE PRINT — eyebrow, then the policy in full -->
   ${(copy.bodyBlock2Title || policy) ? `<div class="w6wf-section" style="padding:30px 48px 0;background-color:${pageBg};">
-    ${copy.bodyBlock2Title ? eyebrow(copy.bodyBlock2Title) : ''}
+    ${copy.bodyBlock2Title ? `<div class="wf-lora-h3" style="font-family:'Lora',Georgia,serif;font-size:24px;line-height:32px;font-weight:700;color:${secondary};">${copy.bodyBlock2Title}</div>` : ''}
     ${policy ? `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${textCol};margin-top:${copy.bodyBlock2Title ? 12 : 0}px;">${policy}</div>` : ''}
   </div>` : ''}
 
