@@ -3202,10 +3202,9 @@ function buildTemplateWeek7WF({ client, copy, images, footerData, isHeroGenerate
     </div>`}
   </div>` : ''}
 
-  <!-- A RULE, THEN THE CLOSING -->
+  <!-- THE CLOSING -->
   ${closing ? `<div class="w7wf-section" style="padding:30px 48px 0;background-color:${pageBg};">
-    <div style="height:1px;background:${cardBorder};font-size:0;line-height:0;"></div>
-    <div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${mutedTextCol};margin-top:22px;">${closing}</div>
+    <div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${mutedTextCol};">${closing}</div>
   </div>` : ''}
 
   <div style="padding-top:26px;background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true, wfFooter: true, leadLine: footerLine })}</div>
