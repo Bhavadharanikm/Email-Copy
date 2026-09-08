@@ -103,7 +103,7 @@ export default function ApprovalPanel() {
       <div style={{ textAlign: 'center', padding: '48px 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
         <div style={{ fontSize: 48 }}>🔄</div>
         <p style={{ fontSize: 20, fontWeight: 700, color: dark ? 'rgba(255,255,255,0.7)' : '#374151' }}>Sent back for revision</p>
-        <p style={{ fontSize: 15, color: mutedText }}>Notes: {notes || '—'}</p>
+        <p style={{ fontSize: 15, color: mutedText }}>Notes: {notes || 'None'}</p>
         <button
           onClick={() => setApproval('pending', '')}
           style={{
@@ -139,7 +139,7 @@ export default function ApprovalPanel() {
           ].map(({ label, value }) => (
             <div key={label} style={{ display: 'flex', gap: 8 }}>
               <dt style={{ fontWeight: 600, color: dark ? 'rgba(255,255,255,0.45)' : '#6b7280', minWidth: 60 }}>{label}</dt>
-              <dd style={{ color: dark ? 'rgba(255,255,255,0.8)' : '#111827' }}>{value || '—'}</dd>
+              <dd style={{ color: dark ? 'rgba(255,255,255,0.8)' : '#111827' }}>{value || 'Not set'}</dd>
             </div>
           ))}
         </dl>

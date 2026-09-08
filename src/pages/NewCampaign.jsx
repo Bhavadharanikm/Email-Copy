@@ -197,7 +197,7 @@ export default function NewCampaign() {
       />}
       {currentStep === 4 && <StepNav step="Step 4 of 5" dark={dark}
         left={<button onClick={() => setStep(3)} className="btn-secondary" style={darkBtn(dark)}>← Back</button>}
-        right={<button onClick={handleApprovClick} style={{ ...primaryBtn(dark), display:'inline-flex', alignItems:'center', gap:6, padding:'9px 18px', borderRadius:10, fontSize:13, fontWeight:600, fontFamily:'Inter,sans-serif', cursor:'pointer' }}>Looks Good — Approve →</button>}
+        right={<button onClick={handleApprovClick} style={{ ...primaryBtn(dark), display:'inline-flex', alignItems:'center', gap:6, padding:'9px 18px', borderRadius:10, fontSize:13, fontWeight:600, fontFamily:'Inter,sans-serif', cursor:'pointer' }}>Looks Good, Approve →</button>}
       />}
       {currentStep === 5 && <StepNav step="Step 5 of 5" dark={dark}
         left={<button onClick={() => setStep(4)} className="btn-secondary" style={darkBtn(dark)}>← Back to Preview</button>}
@@ -233,7 +233,7 @@ export default function NewCampaign() {
         </>}
 
         {currentStep === 4 && <>
-          <StepHeading title1="Live" title2="Preview" sub="This is not an actual template — just a visual overview of your content." dark={dark} />
+          <StepHeading title1="Live" title2="Preview" sub="This is not an actual template, just a visual overview of your content." dark={dark} />
           <TemplatePreview pulseGenBtn={pulseGenBtn} />
           <div style={{ paddingBottom: 48 }} />
         </>}

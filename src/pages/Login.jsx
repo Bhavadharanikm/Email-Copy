@@ -216,7 +216,7 @@ export default function Login() {
                         Hi, {userData?.name}!
                       </h1>
                       <p style={{ fontSize: 13, color: subCol, margin: '4px 0 0', lineHeight: 1.5 }}>
-                        Set a PIN — you'll use it every time you log in
+                        Set a PIN. You'll use it every time you log in
                       </p>
                     </div>
                   </div>

@@ -296,7 +296,7 @@ function EntryModal({ dark, date, entry, clients, onSave, onDelete, onClose }) {
             </div>
             <div><label style={labelSty}>Changes Made By <span style={{ color: '#ef4444' }}>*</span></label>
               <select value={form.changedBy || ''} onChange={e => setForm(f => ({ ...f, changedBy: e.target.value }))} style={{ ...inputSty, cursor: 'pointer', appearance: 'none', backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center', paddingRight: 30 }}>
-                <option value="" style={{ background: bg }}>— Select —</option>
+                <option value="" style={{ background: bg }}>Select…</option>
                 {['Alicia','Charlotte','Makenna','Gillian','Chiara','Nicole','Ananya'].map(name => <option key={name} value={name} style={{ background: bg }}>{name}</option>)}
               </select>
             </div>
@@ -348,7 +348,7 @@ function DayCell({ dark, cell, entries, today, onAddClick, onEntryClick }) {
         {entries.map(entry => {
           const sc = STATUS_CONFIG[entry.status] || STATUS_CONFIG.draft
           return (
-            <button key={entry.id} onClick={() => onEntryClick(entry, cell.date)} title={`${entry.clientName} — ${entry.subject}`}
+            <button key={entry.id} onClick={() => onEntryClick(entry, cell.date)} title={`${entry.clientName}: ${entry.subject}`}
               style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '3px 7px', borderRadius: 5, background: sc.bg, border: 'none', cursor: 'pointer', textAlign: 'left', width: '100%', minWidth: 0, transition: 'opacity 0.12s' }}
               onMouseEnter={e => e.currentTarget.style.opacity = '0.75'} onMouseLeave={e => e.currentTarget.style.opacity = '1'}>
               <span style={{ width: 6, height: 6, borderRadius: '50%', background: sc.dot, flexShrink: 0 }} />
@@ -398,7 +398,7 @@ function ApproveModal({ dark, idea, onConfirm, onClose }) {
             <div style={{ fontSize: 19, fontWeight: 700, color: textCol, letterSpacing: '-0.02em' }}>Schedule this idea</div>
             <div style={{ fontSize: 13, color: subCol, marginTop: 5, maxWidth: 300 }}>
               <strong style={{ color: dark ? 'rgba(255,255,255,0.6)' : '#374151' }}>{idea.clientName || 'No client'}</strong>
-              {idea.subject ? ` — ${idea.subject}` : ''}
+              {idea.subject ? `: ${idea.subject}` : ''}
             </div>
           </div>
         </div>
@@ -500,7 +500,7 @@ function IdeaFormModal({ dark, idea, clients, onSave, onClose, approveMode = fal
               setForm(f => ({ ...f, clientName: name, brandColors: c?.brandColors || null, logoUrl: c?.logoUrl || null }))
               if (c) setSelectedClientData(c)
             }} style={{ ...inputSty, cursor: 'pointer', appearance: 'none', backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center', paddingRight: 30 }}>
-              <option value="" style={{ background: dark ? '#1e293b' : '#fff' }}>— Select client —</option>
+              <option value="" style={{ background: dark ? '#1e293b' : '#fff' }}>Select client…</option>
               <option value="All Clients" style={{ background: dark ? '#1e293b' : '#fff', fontWeight: 600 }}>All Clients</option>
               {(clients || []).map(c => <option key={c.id || c.name} value={c.name} style={{ background: dark ? '#1e293b' : '#fff' }}>{c.name}</option>)}
             </select>
@@ -544,7 +544,7 @@ function IdeaFormModal({ dark, idea, clients, onSave, onClose, approveMode = fal
             </div>
             <div><label style={labelSty}>Changes Made By <span style={{ color: '#ef4444' }}>*</span></label>
               <select value={form.changedBy || ''} onChange={e => setForm(f => ({ ...f, changedBy: e.target.value }))} style={{ ...inputSty, cursor: 'pointer', appearance: 'none', backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center', paddingRight: 30 }}>
-                <option value="" style={{ background: bg }}>— Select —</option>
+                <option value="" style={{ background: bg }}>Select…</option>
                 {['Alicia','Charlotte','Makenna','Gillian','Chiara','Nicole','Ananya'].map(name => <option key={name} value={name} style={{ background: bg }}>{name}</option>)}
               </select>
             </div>
@@ -673,7 +673,7 @@ function IdeaCard({ dark, idea, siblingDates = [], onApprove, onDecline, onUnsch
             </span>
           )}
           {idea.theme && (
-            <span style={{ fontSize: 11, color: mutedCol, fontWeight: 400 }}>{idea.theme.includes('—') ? idea.theme.split('—').slice(1).join('—').trim() : idea.theme}</span>
+            <span style={{ fontSize: 11, color: mutedCol, fontWeight: 400 }}>{idea.theme.includes('—') ? idea.theme.split('—').slice(1).join(', ').trim() : idea.theme}</span>
           )}
         </div>
 
@@ -1205,7 +1205,7 @@ export default function ContentCalendar() {
                           <span style={{ width: 9, height: 9, borderRadius: '50%', background: sc.dot, flexShrink: 0 }} />
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <span style={{ fontSize: 14, fontWeight: 600, color: textCol }}>{entry.clientName || <span style={{ color: subCol }}>No client</span>}</span>
-                            {entry.subject && <span style={{ fontSize: 13, color: subCol, marginLeft: 8 }}>— {entry.subject}</span>}
+                            {entry.subject && <span style={{ fontSize: 13, color: subCol, marginLeft: 8 }}>{entry.subject}</span>}
                           </div>
                           <span style={{ fontSize: 12, fontWeight: 700, padding: '4px 12px', borderRadius: 20, background: sc.bg, color: sc.text, flexShrink: 0 }}>{sc.label}</span>
                         </button>

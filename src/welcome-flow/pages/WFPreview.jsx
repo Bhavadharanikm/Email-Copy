@@ -134,7 +134,7 @@ export default function WFPreview() {
           Preview &amp; Generate
         </h1>
         <p style={{ fontSize: 13, color: t.muted, margin: '7px 0 0' }}>
-          Same controls as the weekly campaign — adjust the hero, generate the images, then approve.
+          Same controls as the weekly campaign. Adjust the hero, generate the images, then approve.
         </p>
       </div>
 

@@ -23,7 +23,7 @@ async function post(path, body) {
   })
   checkAuth(res)
   const text = await res.text()
-  if (!text) throw new Error(`Empty response from ${path} (status ${res.status}) — check Netlify function logs`)
+  if (!text) throw new Error(`Empty response from ${path} (status ${res.status}). Check the function logs`)
   let data
   try {
     data = JSON.parse(text)

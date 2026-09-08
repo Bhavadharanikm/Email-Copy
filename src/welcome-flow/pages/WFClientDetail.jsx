@@ -14,7 +14,7 @@ import { wfWeekLabel } from '../wfWeeks'
 const DONE = new Set(['approved', 'pushed'])
 
 function relative(iso) {
-  if (!iso) return '—'
+  if (!iso) return 'Not yet'
   const diff = Date.now() - new Date(iso).getTime()
   const day = 86400000
   if (diff < 60000)    return 'just now'

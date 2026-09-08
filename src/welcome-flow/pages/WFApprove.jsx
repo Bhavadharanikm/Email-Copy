@@ -77,7 +77,7 @@ export default function WFApprove() {
         email,
       })
       updateEmail(clientId, emailId, { dbId: res.id })
-      setDbMsg(`${res.action === 'updated' ? 'Updated' : 'Saved'} — ${res.variations} variations, ${(res.renderedBytes/1024).toFixed(1)} KB of HTML`)
+      setDbMsg(`${res.action === 'updated' ? 'Updated' : 'Saved'}: ${res.variations} variations, ${(res.renderedBytes/1024).toFixed(1)} KB of HTML`)
     } catch (e) {
       setDbErr(e.message)
     } finally {
@@ -169,7 +169,7 @@ export default function WFApprove() {
         <div style={{ textAlign: 'center', padding: '56px 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
           <div style={{ fontSize: 44 }}>🔄</div>
           <p style={{ fontSize: 19, fontWeight: 700, color: t.text }}>Sent back for revision</p>
-          <p style={{ fontSize: 13.5, color: t.muted }}>Notes: {email.reviewNotes || '—'}</p>
+          <p style={{ fontSize: 13.5, color: t.muted }}>Notes: {email.reviewNotes || 'None'}</p>
           <WfButton variant="ghost" style={{ marginTop: 6 }} onClick={() => updateEmail(clientId, emailId, { status: 'ready' })}>
             Re-open
           </WfButton>
@@ -212,7 +212,7 @@ export default function WFApprove() {
           ].map(({ label, value }) => (
             <div key={label} style={{ display: 'flex', gap: 8 }}>
               <dt style={{ fontWeight: 600, color: t.muted, minWidth: 62 }}>{label}</dt>
-              <dd style={{ color: t.text }}>{value || '—'}</dd>
+              <dd style={{ color: t.text }}>{value || 'Not set'}</dd>
             </div>
           ))}
         </dl>
@@ -221,7 +221,7 @@ export default function WFApprove() {
       {!email.renderedHtml && (
         <WfCard style={{ padding: 16, marginTop: 14, borderColor: 'rgba(180,83,9,0.35)' }}>
           <div style={{ fontSize: 12.5, color: '#b45309' }}>
-            No rendered preview yet — go back to Preview and let the template load before pushing.
+            No rendered preview yet. Go back to Preview and let the template load before pushing.
           </div>
         </WfCard>
       )}

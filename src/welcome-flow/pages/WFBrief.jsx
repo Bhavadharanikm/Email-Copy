@@ -294,7 +294,7 @@ export default function WFBrief() {
           )}
           {week && !weekReady && (
             <div style={{ fontSize: 11.5, color: '#b45309', marginTop: 6 }}>
-              {wfWeekLabel(week)} has no email template yet — copy can be generated and edited, but not previewed or pushed.
+              {wfWeekLabel(week)} has no email template yet. Copy can be generated and edited, but not previewed or pushed.
             </div>
           )}
         </div>
@@ -303,7 +303,7 @@ export default function WFBrief() {
         <div style={{ marginBottom: 18 }}>
           <label style={{ fontSize: 12, fontWeight: 700, color: t.text, display: 'block', marginBottom: 6 }}>
             GHL Folder URL{' '}
-            <span style={{ fontWeight: 400, color: t.muted }}>saved to this client — you only enter it once</span>
+            <span style={{ fontWeight: 400, color: t.muted }}>saved to this client, so you only enter it once</span>
           </label>
           <WfInput
             value={folderUrl}
@@ -333,7 +333,7 @@ export default function WFBrief() {
             }}
           />
           <div style={{ fontSize: 11.5, color: t.muted, marginTop: 6 }}>
-            Pick the week and write your prompt — any text works.
+            Pick the week and write your prompt. Any text works.
           </div>
         </div>
 
@@ -383,7 +383,7 @@ export default function WFBrief() {
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 7,
           }}
         >
-          <IconBolt size={14} stroke={2} /> Dev: Skip n8n — use test data
+          <IconBolt size={14} stroke={2} /> Dev: Skip n8n, use test data
         </button>
       </WfCard>
     </div>

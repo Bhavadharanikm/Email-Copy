@@ -27,7 +27,7 @@ export default function ReviewCampaign() {
           Shareable Review Links
         </h2>
         <p style={{ fontSize: 13, color: dark ? 'rgba(255,255,255,0.4)' : '#9ca3af', lineHeight: 1.7, marginBottom: 24 }}>
-          Coming soon — approve or reject a campaign from a link without needing to open the full studio.
+          Coming soon. Approve or reject a campaign from a link without needing to open the full studio.
         </p>
         <button
           onClick={() => navigate('/')}

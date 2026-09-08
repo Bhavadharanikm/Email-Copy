@@ -355,7 +355,7 @@ export default function WFImages() {
                     type="button"
                     onClick={() => handleImageClick(img)}
                     disabled={full}
-                    title={full ? 'All slots are full — remove one first' : img.name}
+                    title={full ? 'All slots are full, remove one first' : img.name}
                     style={{
                       position: 'relative', padding: 0, borderRadius: 10, overflow: 'hidden',
                       border: `2px solid ${on ? t.accent : t.border}`,

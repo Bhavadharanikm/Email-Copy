@@ -220,7 +220,7 @@ export default function WFCopy() {
   const fieldRow = ({ key, label, hint }, valueAt, onChangeAt, last) => (
     <div key={key} style={{ padding: '14px 18px', borderBottom: last ? 'none' : `1px solid ${t.border}` }}>
       <label style={{ fontSize: 11.5, fontWeight: 700, color: t.text, display: 'block', marginBottom: 6 }}>
-        {label}{hint && <span style={{ fontWeight: 400, color: t.muted }}> — {hint}</span>}
+        {label}{hint && <span style={{ fontWeight: 400, color: t.muted }}> · {hint}</span>}
       </label>
       <div style={COLS}>
         {vars.map((_, vi) => (
@@ -297,7 +297,7 @@ export default function WFCopy() {
         <div style={{ padding: '14px 18px', borderBottom: `1px solid ${t.border}` }}>
           <div style={{ fontSize: 11.5, fontWeight: 700, color: t.text }}>
             {group.title}{' '}
-            <span style={{ fontWeight: 400, color: t.muted }}>— {group.note}</span>
+            <span style={{ fontWeight: 400, color: t.muted }}>· {group.note}</span>
           </div>
         </div>
         <div style={{ ...COLS, padding: '14px 18px' }}>

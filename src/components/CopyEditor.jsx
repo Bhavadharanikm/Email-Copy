@@ -151,7 +151,7 @@ export default function CopyEditor() {
     return (
       <div style={{ background: outerBg, border: `1px solid ${outerBorder}`, borderRadius: 22, padding: 16, maxWidth: 1160, margin: '0 auto' }}>
         <p style={{ fontSize: 14, color: labelColor, textAlign: 'center', marginBottom: 14 }}>
-          Edit any variation — click <strong style={{ color: dark ? 'rgba(255,255,255,0.55)' : '#374151' }}>Select</strong> to use it for the next step.
+          Edit any variation, then click <strong style={{ color: dark ? 'rgba(255,255,255,0.55)' : '#374151' }}>Select</strong> to use it for the next step.
         </p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12, alignItems: 'start' }}>
           {cols.map((v, i) => {
@@ -210,7 +210,7 @@ export default function CopyEditor() {
               </>
             ) : (
               <span style={{ fontSize: 13, fontWeight: 700, color: labelColor }}>
-                V{mainIdx} — {mainCard.name}
+                V{mainIdx} · {mainCard.name}
               </span>
             )}
           </div>
@@ -280,7 +280,7 @@ export default function CopyEditor() {
           animation: 'fadeSlideIn 0.18s ease',
         }}>
           <p style={{ fontSize: 12, fontWeight: 600, color: dark ? 'rgba(255,255,255,0.35)' : '#9ca3af', textAlign: 'center', marginBottom: 12, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-            Original variations — click Select to use one
+            Original variations · click Select to use one
           </p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10, alignItems: 'start' }}>
             {originals.map((v, idx) => {

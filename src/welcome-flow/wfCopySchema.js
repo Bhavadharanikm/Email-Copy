@@ -44,16 +44,16 @@ const WEEK1 = {
     max:       3,
     blank:     { name: '', stats: '', description: '', ctaText: 'View Dates', ctaUrl: '' },
     fields: [
-      { key: 'name',        label: 'Card Name',        hint: 'Exact from the brief — never invented or shortened' },
+      { key: 'name',        label: 'Card Name',        hint: 'Exact from the brief, never invented or shortened' },
       { key: 'stats',       label: 'Card Stats',       hint: 'bed | bath | guests, in that order. Missing figure → leave blank' },
       { key: 'description', label: 'Card Description', hint: '5–8 words. What the guest does with it' },
       { key: 'ctaText',     label: 'Card CTA',         hint: '2–3 words' },
-      { key: 'ctaUrl',      label: 'Card CTA URL',     hint: 'Where this stay links to — one per stay' },
+      { key: 'ctaUrl',      label: 'Card CTA URL',     hint: 'Where this stay links to, one per stay' },
     ],
   },
   after: [
     { key: 'bodyBlock2Title', label: 'Body Block Title', hint: 'One sentence, present tense. Gentle pressure, no invented urgency' },
-    { key: 'bodyBlock2',      label: 'Body Block',       hint: 'One sentence. Real urgency only — an actual offer or availability' },
+    { key: 'bodyBlock2',      label: 'Body Block',       hint: 'One sentence. Real urgency only: an actual offer or availability' },
     { key: 'closingLine',     label: 'Closing Line',     hint: '1–2 sentences. Warm but direct' },
     { key: 'ctaText',         label: 'CTA',              hint: '2–3 words. The final push out of the email' },
     { key: 'ctaUrl',          label: 'CTA URL',          hint: 'Full URL with https://' },
@@ -95,7 +95,7 @@ const WEEK2 = {
     defaultLabels: WF2_MOMENTS,
     blank:     { label: '', momentCopy: '' },
     fields: [
-      { key: 'label',      label: 'Moment Title', hint: 'e.g. "Day One, Afternoon" — shown in the email above the copy' },
+      { key: 'label',      label: 'Moment Title', hint: 'e.g. "Day One, Afternoon", shown in the email above the copy' },
       { key: 'momentCopy', label: 'Moment Copy',  hint: '1–2 sentences. Present tense, second person' },
     ],
   },
@@ -105,7 +105,7 @@ const WEEK2 = {
     { key: 'ctaText',         label: 'CTA Button',       hint: '2–3 words. The final push out of the email' },
     { key: 'ctaUrl',          label: 'CTA URL',          hint: 'Full URL with https://' },
     { key: 'closingLine',     label: 'Closing Line',     hint: 'Carries the code and the terms. Warm but direct' },
-    { key: 'footerLine',      label: 'Code Reminder',    hint: 'Small line under the button — what the code is worth and where to book' },
+    { key: 'footerLine',      label: 'Code Reminder',    hint: 'Small line under the button: what the code is worth and where to book' },
   ],
 }
 
@@ -126,7 +126,7 @@ const WEEK3 = {
     mode:      'dynamic',
     listKey:   'reviews',
     title:     'Reviews',
-    note:      'Quoted verbatim — never tidied or shortened. How many is up to the client',
+    note:      'Quoted verbatim, never tidied or shortened. How many is up to the client',
     itemLabel: 'Review',
     addLabel:  'Add review',
     /* Capped at 3: each review takes one sub-image slot, and the picker offers
@@ -147,7 +147,7 @@ const WEEK3 = {
     { key: 'closingLine',     label: 'Closing Line',     hint: '1–2 sentences. Warm but direct' },
     { key: 'ctaText',         label: 'CTA Button',       hint: '2–4 words. One button for the whole email' },
     { key: 'ctaUrl',          label: 'CTA URL',          hint: 'Full URL with https://' },
-    { key: 'footerLine',      label: 'Footer Line',      hint: 'The code reminder — what it is worth and where to book' },
+    { key: 'footerLine',      label: 'Footer Line',      hint: 'The code reminder: what it is worth and where to book' },
   ],
 }
 
@@ -178,7 +178,7 @@ const WEEK4 = {
     blank:     { blockHeader: '', entries: '' },
     fields: [
       { key: 'blockHeader', label: 'Block Header', hint: 'A few words, small caps. e.g. "Where To Wander"' },
-      { key: 'entries',     label: 'Entries',      hint: 'One per line, written as "Name — what it is". The name comes out bold' },
+      { key: 'entries',     label: 'Entries',      hint: 'One per line, as the name then what it is, split by a dash. The name comes out bold' },
     ],
   },
   after: [

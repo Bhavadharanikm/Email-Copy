@@ -87,7 +87,7 @@ function AddClientForm({ onCancel, onSave, lookupLocation }) {
     <WfCard style={{ padding: 20, marginBottom: 22 }}>
       <div style={{ fontSize: 14, fontWeight: 700, color: t.text, marginBottom: 4 }}>Add a client</div>
       <div style={{ fontSize: 12, color: t.muted, marginBottom: 14 }}>
-        The location ID is matched against your client database — the GHL key and logo come from there.
+        The location ID is matched against your client database, and the GHL key and logo come from there.
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 12 }}>
         <div>
@@ -115,7 +115,7 @@ function AddClientForm({ onCancel, onSave, lookupLocation }) {
         </div>
         <div>
           <label style={{ fontSize: 11.5, color: t.muted, display: 'block', marginBottom: 5 }}>GHL folder URL</label>
-          <WfInput value={f.folderUrl} onChange={set('folderUrl')} placeholder="paste once — reused for every email" />
+          <WfInput value={f.folderUrl} onChange={set('folderUrl')} placeholder="paste once, reused for every email" />
         </div>
       </div>
       {error && <div style={{ fontSize: 12, color: '#dc2626', marginTop: 12 }}>{error}</div>}

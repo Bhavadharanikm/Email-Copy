@@ -53,7 +53,7 @@ export default function PromptForm({ onGenerate, dark = false }) {
   useEffect(() => {
     fetchClients()
       .then(data => {
-        if (!data.length) setClientLoadError('Sheet returned 0 clients — check the sheet has data and is shared with the service account.')
+        if (!data.length) setClientLoadError('Sheet returned 0 clients. Check the sheet has data and is shared with the service account.')
         setClients(data)
       })
       .catch(e => {
@@ -252,7 +252,7 @@ export default function PromptForm({ onGenerate, dark = false }) {
       <div>
         <label style={labelStyle}>
           GHL Folder URL{' '}
-          <span style={hintStyle}>paste the folder link — new template will be created inside it</span>
+          <span style={hintStyle}>paste the folder link, and the new template is created inside it</span>
         </label>
         <input
           type="text"
@@ -402,7 +402,7 @@ export default function PromptForm({ onGenerate, dark = false }) {
           color: dark ? 'rgba(255,255,255,0.3)' : '#9ca3af',
         }}
       >
-        ⚡ Dev: Skip n8n — use test data
+        ⚡ Dev: Skip n8n, use test data
       </button>
 
       <style>{`@keyframes spin { from { transform: rotate(0deg) } to { transform: rotate(360deg) } }`}</style>

@@ -3287,7 +3287,7 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
     setSendingTest(true)
     setTestResult(null)
     try {
-      const subject = `[TEST] ${selectedClient?.name || 'Template'} — ${tpl?.label?.replace(/^[^\w]+/, '') || 'preview'}`
+      const subject = `[TEST] ${selectedClient?.name || 'Template'}: ${tpl?.label?.replace(/^[^\w]+/, '') || 'preview'}`
       const res = await sendTestEmail({ html: baseHtml, subject })
       setTestResult({ ok: true, msg: `Sent to ${res.to}` })
     } catch (e) {
@@ -4692,7 +4692,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
   ]
 
   if (!previewHtml && !isHcti) {
-    return <p style={{ fontSize: 13, color: dark ? 'rgba(255,255,255,0.3)' : '#9ca3af', padding: '16px 0' }}>No copy generated yet — go back and generate copy first.</p>
+    return <p style={{ fontSize: 13, color: dark ? 'rgba(255,255,255,0.3)' : '#9ca3af', padding: '16px 0' }}>No copy generated yet. Go back and generate copy first.</p>
   }
 
   const isHeroHeader = visibleTemplates[active]?.label === 'Hero Header'

@@ -54,7 +54,7 @@ export default function ImagePicker() {
   useEffect(() => {
     const apiKey = selectedClient?.ghlApiKey
     if (!selectedClient) { setError('Select a client on Step 1.'); setLoading(false); return }
-    if (!locationId)     { setError('No Location ID found for this client — check the Google Sheet (Column C).'); setLoading(false); return }
+    if (!locationId)     { setError('No Location ID found for this client. Check the Google Sheet (Column C).'); setLoading(false); return }
     if (!apiKey)         { setError('No API key found for this client.'); setLoading(false); return }
     setError(null)
     setLoading(true)
