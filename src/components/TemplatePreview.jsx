@@ -2952,7 +2952,6 @@ function buildTemplateWeek6WF({ client, copy, images, footerData, isHeroGenerate
     .w6wf-btnwrap  { width:100%!important; }
     .w6wf-cta      { padding:12px 20px!important; }
     .w6wf-h3       { font-size:20px!important; line-height:30px!important; }
-    .w6wf-h2       { font-size:24px!important; line-height:32px!important; }
     .w6wf-hero-desk { display:none!important; }
     .w6wf-hero-mob  { display:block!important; }
     .w6wf-stack     { height:290px!important; }
@@ -3001,7 +3000,7 @@ function buildTemplateWeek6WF({ client, copy, images, footerData, isHeroGenerate
 
   <!-- THE POINTS — eyebrow, then one row per point: icon, bold title, one line -->
   ${points.length ? `<div class="w6wf-section" style="padding:30px 48px 0;background-color:${pageBg};">
-    ${copy.sectionHeadline ? `<div class="w6wf-h2" style="font-family:Arial,sans-serif;font-size:32px;line-height:38px;font-weight:700;color:${secondary};text-align:center;margin-bottom:6px;">${copy.sectionHeadline}</div>` : ''}
+    ${copy.sectionHeadline ? `<div class="w6wf-h3" style="font-family:Arial,sans-serif;font-size:24px;line-height:32px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:${secondary};text-align:center;margin-bottom:6px;">${copy.sectionHeadline}</div>` : ''}
     <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;margin-top:${copy.sectionHeadline ? 4 : 0}px;">
       ${points.map(pointRow).join('')}
     </table>
@@ -3026,7 +3025,7 @@ function buildTemplateWeek6WF({ client, copy, images, footerData, isHeroGenerate
 
   <!-- THE FINE PRINT — eyebrow, then the policy in full -->
   ${(copy.bodyBlock2Title || policy) ? `<div class="w6wf-section" style="padding:30px 48px 0;background-color:${pageBg};">
-    ${copy.bodyBlock2Title ? `<div class="w6wf-h3" style="font-family:Arial,sans-serif;font-size:24px;line-height:32px;font-weight:700;color:${secondary};">${copy.bodyBlock2Title}</div>` : ''}
+    ${copy.bodyBlock2Title ? `<div class="w6wf-h3" style="font-family:Arial,sans-serif;font-size:24px;line-height:32px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:${secondary};">${copy.bodyBlock2Title}</div>` : ''}
     ${policy ? `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${textCol};margin-top:${copy.bodyBlock2Title ? 12 : 0}px;">${policy}</div>` : ''}
   </div>` : ''}
 
