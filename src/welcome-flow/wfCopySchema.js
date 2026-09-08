@@ -255,7 +255,46 @@ const WEEK6 = {
   ],
 }
 
-const SCHEMAS = { 1: WEEK1, 2: WEEK2, 3: WEEK3, 4: WEEK4, 5: WEEK5, 6: WEEK6 }
+/* Email 8 is the decision nudge: a body that names the one thing left to do,
+   an objection sweep (question, then the answer), the calendar block, and a
+   phone fallback beside the CTA. */
+const WEEK8 = {
+  week: 8,
+  before: [
+    { key: 'subjectLine',     label: 'Subject Line',     hint: 'One sentence. The one thing left to decide' },
+    { key: 'previewText',     label: 'Preview Text',     hint: '8\u201312 words. Supports the subject' },
+    { key: 'campaignEyebrow', label: 'Campaign Eyebrow', hint: 'Small caps above the hero, e.g. "ONE THING LEFT"' },
+    { key: 'headlineText',    label: 'Hero Headline',    hint: 'On the hero photo. 4\u20138 words' },
+    { key: 'sectionSubhead',  label: 'Hero Subhead',     hint: 'One line under the headline' },
+    { key: 'heroCtaText',     label: 'Hero CTA',         hint: 'The pill on the hero, e.g. "Book Your Stay"' },
+    { key: 'bodyText',        label: 'Body',             hint: 'Two short paragraphs. Why now, and what booking actually commits them to' },
+  ],
+  group: {
+    mode:      'dynamic',
+    listKey:   'objections',
+    title:     'Objection Sweep',
+    note:      'A doubt phrased as a question, then the one-line answer. Three is usual',
+    itemLabel: 'Objection',
+    addLabel:  'Add objection',
+    max:       5,
+    blank:     { objection: '', answer: '' },
+    fields: [
+      { key: 'objection', label: 'Objection', hint: 'The doubt, as a question. e.g. "Plans might still move?"' },
+      { key: 'answer',    label: 'Answer',    hint: 'One sentence that settles it' },
+    ],
+  },
+  after: [
+    { key: 'bodyBlock2Title', label: 'Body Block 2 Title', hint: 'e.g. "Worst case, you move it"' },
+    { key: 'bodyBlock2',      label: 'Body Block 2',       hint: 'The calendar step, and the 30-day undo' },
+    { key: 'closingLine',     label: 'Closing Line',       hint: '1\u20132 sentences. The push to pick the dates' },
+    { key: 'contactFallback', label: 'Contact Fallback',   hint: 'The phone line, e.g. "Prefer to book by phone? Call \u2026"' },
+    { key: 'ctaText',         label: 'CTA Button',         hint: '2\u20134 words' },
+    { key: 'ctaUrl',          label: 'CTA URL',            hint: 'Full URL with https://' },
+    { key: 'footerLine',      label: 'Footer',             hint: 'The code reminder' },
+  ],
+}
+
+const SCHEMAS = { 1: WEEK1, 2: WEEK2, 3: WEEK3, 4: WEEK4, 5: WEEK5, 6: WEEK6, 8: WEEK8 }
 
 /* "guestFirstName" -> "Guest First Name"; "cta_url" -> "Cta Url". */
 const humanise = (k) => String(k)

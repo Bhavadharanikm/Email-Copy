@@ -268,6 +268,9 @@ const JSON_KEY_MAP = {
   footer_code_reminder: 'footerLine',
   footercodereminder:   'footerLine',
   intro:            'bodyText',         // Email 6's intro paragraph
+  body:             'bodyText',         // Email 8's intro paragraph
+  contact_fallback: 'contactFallback',  // Email 8's phone line
+  contactfallback:  'contactFallback',
   block_title:      'sectionHeadline',  // Email 6: the heading over the points
   blocktitle:       'sectionHeadline',
   block2_title:     'bodyBlock2Title',  // Email 6: the policy block
@@ -316,7 +319,8 @@ const INTRO_BODY_KEYS = ['introbodyblock', 'introbody', 'intro_body', 'intro_bod
                          'setupline', 'setup_line', 'setup',
                          'introline', 'intro_line',
                          'storyleadin', 'story_lead_in',   // Email 5's intro
-                         'intro']                          // Email 6's intro
+                         'intro',                          // Email 6's intro
+                         'body']                           // Email 8's intro
 const BODY_BLOCK_KEYS = ['bodyblock', 'body_block']
 
 /** Pull the first ```json fenced block, or the first bare [ … ] / { … }. */
@@ -421,6 +425,7 @@ function mapVariation(raw, i) {
   let cards = []
   let moments = []
   let blocks = []
+  let objections = []
   let reviews = []
   const hasIntroBody = Object.keys(raw || {}).some(k => INTRO_BODY_KEYS.includes(k.toLowerCase()))
   /* Some workflows send `heroHeadline` for the photo and a separate `headline`
@@ -431,6 +436,17 @@ function mapVariation(raw, i) {
     const lk = k.toLowerCase()
     if (lk === 'reviews' || lk === 'review_blocks' || lk === 'reviewblocks' || lk === 'testimonials') {
       reviews = (Array.isArray(v) ? v : []).map(mapReview).filter(r => r.quote || r.attribution || r.guestFirstName)
+      continue
+    }
+    /* A markdown dump of the whole variation the workflow includes alongside
+       the fields. Not copy — drop it, or it becomes a 2,000-character field. */
+    if (lk === 'rendered') continue
+    /* Email 8's objection sweep: keep the question and the answer only. The
+       workflow also sends them joined as `text` and a lineNumber; neither is
+       copy to edit. */
+    if (lk === 'objections' && Array.isArray(v)) {
+      objections = v.map(o => ({ objection: String(o?.objection ?? '').trim(), answer: String(o?.answer ?? '').trim() }))
+                   .filter(o => o.objection || o.answer)
       continue
     }
     if (lk === 'grouped_blocks' || lk === 'groupedblocks' || lk === 'blocks') {
@@ -471,6 +487,7 @@ function mapVariation(raw, i) {
     ...(cards.length ? { propertyCards: cards } : {}),
     ...(moments.length ? { moments } : {}),
     ...(blocks.length ? { blocks } : {}),
+    ...(objections.length ? { objections } : {}),
     ...(reviews.length ? { reviews } : {}),
   }
 }
