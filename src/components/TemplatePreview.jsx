@@ -188,7 +188,7 @@ function buildFooter(client, footerData = null, options = {}) {
      template passes its code reminder here when it belongs with the footer
      rather than above it. Body small, centred, in the footer's own text colour. */
   const leadLineHtml = options.leadLine
-    ? `<div style="font-size:14px;line-height:20px;color:${textCol};font-family:Arial,sans-serif;margin-bottom:${sectionGap || 16}px;text-align:center">${options.leadLine}</div>`
+    ? `<div style="font-size:14px;line-height:20px;font-weight:700;color:${textCol};font-family:Arial,sans-serif;margin-bottom:${sectionGap || 16}px;text-align:center">${options.leadLine}</div>`
     : ''
   const footerTextHtml = footerText
     ? `<div class="mobile-footer" style="font-size:${footerTextSize}px;color:#878787;font-family:Arial,sans-serif;margin-bottom:${sectionGap || 20}px;line-height:${sysLh};text-align:left">${footerText}</div>`
@@ -3179,7 +3179,7 @@ function buildTemplateWeek7WF({ client, copy, images, footerData, isHeroGenerate
 
   <!-- THE SECOND CASE — small label, the paragraph, then the CTA again -->
   ${(copy.bodyBlock2Title || blockParas.length) ? `<div class="w7wf-section" style="padding:30px 48px 0;background-color:${pageBg};">
-    ${copy.bodyBlock2Title ? `<div style="font-family:Arial,sans-serif;font-size:14px;line-height:20px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:${mutedTextCol};">${copy.bodyBlock2Title}</div>` : ''}
+    ${copy.bodyBlock2Title ? `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:${secondary};">${copy.bodyBlock2Title}</div>` : ''}
     ${blockParas.map((para, i) => `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${textCol};margin-top:${i || copy.bodyBlock2Title ? 14 : 0}px;">${para}</div>`).join('')}
   </div>` : ''}
   ${copy.ctaText ? `<div class="w7wf-section" style="padding:24px 48px 0;background-color:${pageBg};text-align:center;">
