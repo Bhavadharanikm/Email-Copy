@@ -20,7 +20,7 @@ export const WF_WEEKS = [
   { week: 2, templateId: 32 },   // Week 2 WF — duplicate of Week 1 WF for now
   { week: 3, templateId: 33 },   // Week 3 WF — guest reviews
   { week: 4, templateId: 34 },   // Week 4 WF — the local area guide
-  { week: 5, templateId: null },
+  { week: 5, templateId: 35 },   // Email 5 WF — the guest story
   { week: 6, templateId: null },
   { week: 7, templateId: null },
   { week: 8, templateId: null },

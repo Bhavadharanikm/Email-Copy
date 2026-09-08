@@ -2566,6 +2566,259 @@ function buildTemplateWeek4WF({ client, copy, images, footerData, isHeroGenerate
 </body></html>`
 }
 
+/* ══════════════════════════════════════════════════════════════════════════
+   WF — EMAIL 5 · the guest story
+   Step 1: an exact duplicate of Email 3 with the same Puppeteer wiring, so
+   the bakes are proven before the layout changes. Step 2 restyles it.
+   ══════════════════════════════════════════════════════════════════════════ */
+function buildTemplateWeek5WF({ client, copy, images, footerData, isHeroGenerated = false,
+  heroScale=1, heroX=0, heroY=0,
+  textSize=44, textTop=34, textLeft=52,
+  logoColor='original', logoTop=64, logoRight=200, logoSize=44,
+  btnImgUrl = null, introBtnImgUrl = null, gridImgUrl = null,
+}) {
+  const heroObj = images?.[0]; const heroImg = heroObj?.url || ''
+  /* The reviews are text only, so every sub-image goes to the photo grid below
+     them: Sub 1-4, the four cells. */
+  const gridImgs = [1,2,3,4].map(i => images?.[i]?.url || '')
+
+  const setup   = (copy.bodyText || '').replace(/\n/g, '<br>')
+  const closing    = (copy.closingLine || '').replace(/\n/g, '<br>')
+  const bodyBlock2 = (copy.bodyBlock2  || '').replace(/\n/g, '<br>')
+  const footerLine = (copy.footerLine  || '').replace(/\n/g, '<br>')
+  const logoUrl = client?.logoUrl || ''
+
+  const pageBg    = footerData?.bgColor || '#ffffff'
+  const accent    = footerData?.buttonColor || '#1a73e8'
+  const secondary = footerData?.secondaryColor || accent
+
+  const _rgb = pageBg.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i)
+  const _r = _rgb ? parseInt(_rgb[1],16) : 255
+  const _g = _rgb ? parseInt(_rgb[2],16) : 255
+  const _b = _rgb ? parseInt(_rgb[3],16) : 255
+  const _lum = (0.299*_r + 0.587*_g + 0.114*_b)/255
+  const lightBg      = _lum > 0.55
+  const textCol      = lightBg ? '#1a1a1a' : '#ffffff'
+  const mutedTextCol = lightBg ? '#595959' : '#d4d4d4'
+  const faintTextCol = lightBg ? '#8a8a8a' : '#a8a8a8'
+  const cardBorder   = lightBg ? '#e6e6e6' : '#3a3a3a'
+  const pillBg       = lightBg ? '#f1f3f4' : 'rgba(255,255,255,0.10)'
+
+  const _mix = (hex, ratio) => {
+    const m = (hex || '').match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i)
+    if (!m) return pageBg
+    const to = (a, b) => Math.round(b + (a - b) * ratio).toString(16).padStart(2, '0')
+    return `#${to(parseInt(m[1],16), _r)}${to(parseInt(m[2],16), _g)}${to(parseInt(m[3],16), _b)}`
+  }
+  const cardTint   = _mix(secondary, 0.16)
+  const avatarTint = _mix(secondary, 0.34)
+
+  const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
+  const heroLogoFilter = logoColor === 'original' ? 'brightness(0) invert(1)' : logoFilter
+  const logoOverlayOnHero = logoUrl
+    ? `<img src="${logoUrl}" alt="${client?.name||''}" style="display:inline-block;height:${logoSize}px;width:auto;max-width:100%;filter:${heroLogoFilter};"/>`
+    : `<div style="font-family:Arial,sans-serif;font-size:20px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#ffffff;text-shadow:0 1px 6px rgba(0,0,0,.4);">${client?.name||''}</div>`
+
+  /* Week 3 has no hero CTA field of its own, so the hero pill carries the
+     email's one CTA. */
+  const heroCta = copy.heroCtaText || copy.ctaText || ''
+
+  /* Week 5's headline treatment: first word italic, the middle in heavy
+     uppercase, the last word italic again — all in Lora. A two-word headline
+     drops the italic tail, a one-word headline is just the uppercase line. */
+  const hw = (copy.headlineText || '').trim().split(/\s+/).filter(Boolean)
+  const hwFirst = hw.length >= 2 ? hw[0] : ''
+  const hwLast  = hw.length >= 3 ? hw[hw.length - 1] : ''
+  const hwMain  = hw.length >= 3 ? hw.slice(1, -1).join(' ') : hw.length === 2 ? hw[1] : hw[0] || ''
+
+  const reviews = Array.isArray(copy.reviews) ? copy.reviews.filter(r => r && (r.quote || r.attribution || r.guestFirstName)) : []
+
+  /* The section names itself when the copy does not. */
+  const sectionLabel = copy.sectionEyebrow  || 'Testimonials'
+  const sectionHead  = copy.sectionHeadline || 'Hear From Our Guests'
+  /* The Body Block Title heads the photo grid — it is the one line of copy the
+     workflow writes for this part of the email, so it beats a generic default.
+     An explicit Amenities Headline still wins if one is set. */
+  const amenHead     = copy.amenitiesHeadline || copy.bodyBlock2Title || 'Enjoy property amenities'
+  const hasGrid      = gridImgs.some(Boolean)
+
+  /* Five gold stars, drawn as text rather than images: no download, no blocked
+     image, and it survives a client that strips background colours. */
+  const stars = `<div style="font-family:Arial,sans-serif;font-size:17px;line-height:1;letter-spacing:.14em;color:#f5b301;">&#9733;&#9733;&#9733;&#9733;&#9733;</div>`
+
+  /* The attribution arrives as one line — "Megan, Deluxe Dome stay, March 2026,
+     via Airbnb". The initial and the platform are read off it rather than asking
+     the workflow for separate fields, so nothing upstream has to change. */
+  const initialOf = (s) => (String(s || '').trim().match(/[A-Za-z]/) || ['?'])[0].toUpperCase()
+  /* A review arrives either as one attribution line — "Megan, Deluxe Dome stay,
+     March 2026, via Airbnb" — or as its parts. Handle both: split the line where
+     it is one, join the parts where they are separate. */
+  const platformOf = (r) => {
+    if (r.platform) return String(r.platform).trim()
+    const m = String(r.attribution || '').match(/\bvia\s+([A-Za-z][A-Za-z .&'-]*)$/)
+    return m ? m[1].trim() : ''
+  }
+  const bylineOf = (r) => {
+    const parts = [r.guestFirstName, r.stayType, r.monthYear].map(x => String(x || '').trim()).filter(Boolean)
+    if (parts.length) return parts.join(', ')
+    return String(r.attribution || '')
+      .replace(/,?\s*\bvia\s+[A-Za-z][A-Za-z .&'-]*$/, '').replace(/^[—–-]\s*/, '').trim()
+  }
+
+  /* **like this** inside a quote comes out bold. Whoever edits the copy picks
+     the words to emphasise — the template does not guess, because deciding what
+     to stress inside someone's verbatim review is an editorial call. Left
+     unmarked, the quote renders exactly as written. */
+  const emphasise = (t) => String(t || '')
+    .replace(/\*\*(.+?)\*\*/g, '<strong style="font-weight:700;">$1</strong>')
+
+  const reviewBlock = (review) => {
+    const byline   = bylineOf(review)
+    const platform = platformOf(review)
+    return `<div class="w5wf-cardbox" style="background-color:${cardTint};border:1px solid ${cardBorder};border-radius:16px;padding:18px;margin-bottom:14px;">
+      ${stars}
+      ${review.quote ? `<div style="font-family:Arial,sans-serif;font-size:16px;color:${textCol};line-height:24px;margin-top:12px;">&ldquo;${emphasise(review.quote)}&rdquo;</div>` : ''}
+      ${byline ? `<table cellpadding="0" cellspacing="0" border="0" style="margin-top:16px;border-collapse:collapse;">
+        <tr>
+          <td width="38" valign="top" style="width:38px;padding-right:10px;">
+            <table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;"><tr>
+              <td width="44" align="left" valign="top" style="width:44px;"><div style="width:44px;height:44px;border-radius:50%;background:${avatarTint};font-family:Arial,sans-serif;font-size:16px;line-height:44px;font-weight:700;color:${textCol};text-align:center;">${initialOf(byline)}</div></td>
+            </tr></table>
+          </td>
+          <td valign="middle" style="vertical-align:middle;">
+            <div style="font-family:Arial,sans-serif;font-size:14px;color:${textCol};line-height:20px;">${byline}</div>
+            <div style="font-family:Arial,sans-serif;font-size:12px;color:${faintTextCol};line-height:16px;margin-top:2px;">&#10003; Verified review${platform ? ` &middot; ${platform}` : ''}</div>
+          </td>
+        </tr>
+      </table>` : ''}
+    </div>`
+  }
+
+  return `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{margin:0;padding:0;color:#1a1a1a;}
+  table{border-collapse:collapse;}
+  .w5wf-outer { width:100%!important; max-width:600px!important; }
+  ${SHARED_MOBILE_CSS}
+  @media only screen and (max-width:600px){
+    .w5wf-section  { padding-left:24px!important; padding-right:24px!important; }
+    .w5wf-hero     { height:560px!important; }
+    /* The desktop button is deliberately narrow — 420px with a 15px label.
+       These put the phone back to full width at the old size, so nothing about
+       the mobile button changes. */
+    .w5wf-btn-img  { width:100%!important; max-width:100%!important; }
+    .w5wf-btnwrap  { max-width:100%!important; }
+    .w5wf-cta      { padding:18px 36px!important; font-size:17px!important; }
+    .w5wf-cardbox  { padding:16px!important; }
+    .wf-lora-h3    { font-size:20px!important; line-height:30px!important; }
+  }
+</style></head>
+<body style="margin:0;padding:32px 0 48px;background-color:#ffffff;">
+
+<table class="w5wf-outer" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="width:100%;max-width:600px;margin:0 auto;background-color:${pageBg};border-collapse:collapse;border-radius:20px;overflow:hidden;">
+<tr><td style="background-color:${pageBg};">
+
+  <!-- HERO — same treatment as Week 1, but the photo arches into the page:
+       large bottom corner radii instead of a straight cut. Outlook ignores
+       border-radius and simply squares it off, which is fine. -->
+  ${isHeroGenerated
+    ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${heroImg}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;border:0;outline:none;"/></a></div>`
+    : `<div style="line-height:0;font-size:0;background-color:${pageBg};">
+    <div class="w5wf-hero" style="position:relative;width:100%;max-width:600px;height:772px;overflow:hidden;border-radius:0 0 20px 20px;">
+      ${heroImg
+        ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
+        : `<div style="width:100%;height:100%;background:${pillBg};"></div>`}
+      <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.25) 40%,rgba(0,0,0,0.45) 100%);">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
+          <tr><td valign="top" align="center" style="vertical-align:top;text-align:center;padding:${logoTop}px ${textLeft}px 0;line-height:normal;">
+            ${logoOverlayOnHero}
+            ${copy.headlineText ? `<div style="text-align:left;margin-top:${textTop + 210}px;">
+              ${hwFirst ? `<div style="font-family:'Lora',serif;font-size:${Math.round(textSize * 0.8)}px;font-style:italic;font-weight:400;color:#ffffff;line-height:1;text-shadow:0 2px 12px rgba(0,0,0,.35);margin-bottom:2px;">${hwFirst}</div>` : ''}
+              <div style="font-family:'Lora',serif;font-size:${textSize}px;font-weight:700;text-transform:uppercase;color:#ffffff;line-height:1.02;text-shadow:0 2px 20px rgba(0,0,0,.3);">${hwMain}${hwLast ? ` <span style="font-family:'Lora',serif;font-style:italic;font-weight:400;text-transform:capitalize;font-size:${Math.round(textSize * 0.9)}px;">${hwLast}</span>` : ''}</div>
+            </div>` : ''}
+            ${heroCta ? `<div style="margin-top:30px;">
+              <table cellpadding="0" cellspacing="0" border="0" style="margin:0;max-width:100%;border-collapse:separate;"><tr><td style="border:3px solid #ffffff;border-radius:999px;padding:0;">
+                <a class="w5wf-herocta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:13px 52px;font-family:Arial,sans-serif;font-size:23px;line-height:26px;font-weight:700;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${heroCta}</a>
+              </td></tr></table>
+            </div>` : ''}
+          </td></tr>
+        </table>
+      </div>
+    </div>
+  </div>`}
+
+  <!-- TESTIMONIALS — chip, heading, then the setup line as the subhead -->
+  ${reviews.length ? `<div class="w5wf-section" style="padding:34px 48px 0;text-align:center;background-color:${pageBg};">
+    <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;border-collapse:separate;"><tr><td style="background:#F0F0F0;border:1px solid #DEDEDE;border-radius:999px;padding:6px 14px;">
+      <span style="font-family:Arial,sans-serif;font-size:14px;line-height:14px;font-weight:600;color:#3A3A3A;letter-spacing:.02em;">${sectionLabel}</span>
+    </td></tr></table>
+    <div class="wf-lora-h3" style="font-family:'Lora',serif;font-size:24px;line-height:32px;font-weight:700;color:${secondary};margin-top:14px;">${sectionHead}</div>
+    ${setup ? `<div class="mobile-body" style="font-family:Arial,sans-serif;font-size:15px;color:${mutedTextCol};line-height:1.6;margin-top:10px;">${setup}</div>` : ''}
+  </div>` : ''}
+
+  ${reviews.length ? `<div class="w5wf-section" style="padding:20px 24px 0;background-color:${pageBg};">
+    ${reviews.map(reviewBlock).join('')}
+  </div>` : ''}
+
+  <!-- The photo grid: a heading, then four cells. A real table rather than
+       inline-blocks — these are photos, so halving their width on a phone reads
+       fine, and Outlook handles a table correctly. -->
+  ${hasGrid ? `<!-- A rule closes off the reviews before the amenities heading opens
+       the next section. A bordered div rather than <hr>, which Outlook styles
+       on its own terms. -->
+  <div class="w5wf-section" style="padding:32px 24px 0;background-color:${pageBg};">
+    <div style="height:0;border-top:1px solid ${cardBorder};line-height:0;font-size:0;">&nbsp;</div>
+  </div>
+
+  <div class="w5wf-section" style="padding:26px 48px 0;text-align:center;background-color:${pageBg};">
+    <div class="wf-lora-h3" style="font-family:'Lora',serif;font-size:24px;line-height:32px;font-weight:700;color:${secondary};">${amenHead}</div>
+  </div>
+
+  <div style="padding:18px 0 0;background-color:${pageBg};">
+    ${gridImgUrl ? `<div style="line-height:0;font-size:0;"><img src="${gridImgUrl}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;border:0;outline:none;"/></div>` : `
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
+      ${[0, 2].map(row => `<tr>${[0, 1].map(col => {
+        const g = gridImgs[row + col]
+        /* No wrapper, no border: the grid runs edge to edge, so the outer sides
+           carry no padding and only the gutter between the cells does. */
+        const pad = col === 0 ? '0 3px 6px 0' : '0 0 6px 3px'
+        return `<td width="50%" valign="top" style="width:50%;padding:${pad};line-height:0;font-size:0;">${g
+          ? `<img src="${g}" alt="" style="width:100%;aspect-ratio:1/1;height:auto;object-fit:cover;display:block;border-radius:12px;border:0;outline:none;"/>`
+          : `<div style="width:100%;aspect-ratio:1/1;background:${pillBg};border-radius:12px;"></div>`}</td>`
+      }).join('')}</tr>`).join('')}
+    </table>`}
+  </div>` : ''}
+
+  <!-- BODY BLOCK — a title and the paragraph that follows the reviews -->
+  ${bodyBlock2 ? `<div class="w5wf-section" style="padding:26px 48px 0;background-color:${pageBg};">
+    <div class="mobile-body" style="font-family:Arial,sans-serif;font-size:15px;color:${textCol};line-height:1.7;">${bodyBlock2}</div>
+  </div>` : ''}
+
+  <!-- CLOSING LINE, then the single CTA, then the code reminder -->
+  ${closing ? `<div class="w5wf-section" style="padding:16px 48px 0;background-color:${pageBg};">
+    <div class="mobile-body" style="font-family:Arial,sans-serif;font-size:15px;color:${mutedTextCol};line-height:1.7;">${closing}</div>
+  </div>` : ''}
+
+  ${copy.ctaText ? `<div class="w5wf-section" style="padding:22px 48px 34px;background-color:${pageBg};text-align:center;">
+    ${btnImgUrl
+      ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w5wf-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="420" height="62" style="width:420px;max-width:420px;height:auto;display:block;margin:0 auto;border:0;outline:none;"/></a>`
+      : `<table class="w5wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;width:100%;max-width:420px;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w5wf-cta mobile-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:15px 30px;font-family:Arial,sans-serif;font-size:15px;font-weight:700;letter-spacing:.04em;color:#1a1a1a!important;-webkit-text-fill-color:#1a1a1a;text-decoration:none!important;text-align:center;">${copy.ctaText} &rarr;</a></td></tr></table>`}
+  </div>` : ''}
+
+  ${footerLine ? `<div class="w5wf-section" style="padding:0 48px 30px;background-color:${pageBg};text-align:center;">
+    <div style="font-family:Arial,sans-serif;font-size:13px;color:${faintTextCol};line-height:1.6;">${footerLine}</div>
+  </div>` : ''}
+
+  <div style="background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true, wfFooter: true })}</div>
+
+</td></tr>
+</table>
+</body></html>`
+}
+
 /* ─────────────────────────── registry ──────────────────────────────────── */
 const TEMPLATES = [
   { id:17, label:'✅ Week 2', build:buildTemplateWeek2v2 },
@@ -2580,6 +2833,7 @@ const TEMPLATES = [
   { id:32, label:'✅ Week 2 WF', build:buildTemplateWeek2WF, welcomeFlowOnly:true },
   { id:33, label:'✅ Week 3 WF', build:buildTemplateWeek3WF, welcomeFlowOnly:true },
   { id:34, label:'✅ Week 4 WF', build:buildTemplateWeek4WF, welcomeFlowOnly:true },
+  { id:35, label:'✅ Email 5 WF', build:buildTemplateWeek5WF, welcomeFlowOnly:true },
   { id:20, label:'🧪 Test',   build:buildTemplateTest,  adminOnly:true },
 ]
 
@@ -2695,7 +2949,7 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
     if (tpl?.id === 20) { setTextSize(38); setTextTop(32); setTextLeft(24); setLogoColor('original'); setLogoTop(24); setLogoRight(200); setLogoSize(40) }
     if (tpl?.id === 25) { setTextSize(48); setTextTop(108); setTextLeft(28); setLogoColor('white');    setLogoTop(28); setLogoRight(28);  setLogoSize(40) }
     if (tpl?.id === 23) { setTextSize(68); setTextTop(80);  setTextLeft(64); setLogoColor('white');    setLogoTop(28); setLogoRight(28);  setLogoSize(44) }
-    if (tpl?.id === 31 || tpl?.id === 32 || tpl?.id === 33) { setTextSize(44); setTextTop(34);  setTextLeft(52); setLogoColor('original'); setLogoTop(64); setLogoRight(200); setLogoSize(44) }
+    if (tpl?.id === 31 || tpl?.id === 32 || tpl?.id === 33 || tpl?.id === 35) { setTextSize(44); setTextTop(34);  setTextLeft(52); setLogoColor('original'); setLogoTop(64); setLogoRight(200); setLogoSize(44) }
   }, [tpl?.id])  // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Week template image generation ───────────────────────────────────────────
@@ -2721,7 +2975,7 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
          so swapping slot 4 would drop a composite into the fourth cell. It used
          to bake circles into that slot, so a stale one can still be sitting in
          weekGenUrls from before the grid replaced them. */
-      const usesBakedSecTer = tpl?.id !== 33
+      const usesBakedSecTer = tpl?.id !== 33 && tpl?.id !== 35
       if (usesBakedSecTer && tplUrls.sec) effectiveImages[4] = { url: tplUrls.sec, focalX: 50, focalY: 50 }
       if (usesBakedSecTer && tplUrls.ter) effectiveImages[5] = { url: tplUrls.ter, focalX: 50, focalY: 50 }
     }
@@ -2738,7 +2992,7 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
       : clientFooter
     console.log('[baseHtml] tplId:', tpl?.id, 'isHeroGenerated:', isHeroGenerated, 'tplUrls:', tplUrls, 'effectiveImages[4]:', effectiveImages?.[4], 'effectiveImages[5]:', effectiveImages?.[5])
     const effectiveCopy = generatedCopy ? { ...generatedCopy, headlineText: (generatedCopy.headlineText || '').replace(/\.$/, '') } : generatedCopy
-    return tpl.build({ client:selectedClient, copy:effectiveCopy, images:effectiveImages, headerStyle, imageStyle, footerData: effectiveFooterData, isHeroGenerated, isStoryGenerated, cardsGenerated, btnImgUrl: tplUrls.btn || null, introBtnImgUrl: tplUrls.introBtn || null, cardBtnImgUrl: tplUrls.cardBtn || null, stampImgUrl: tplUrls.sec || null, pinImgUrl: tplUrls.ter || null, gridImgUrl: (tpl?.id === 33 ? tplUrls.sec : null) || null, ...editorProps })
+    return tpl.build({ client:selectedClient, copy:effectiveCopy, images:effectiveImages, headerStyle, imageStyle, footerData: effectiveFooterData, isHeroGenerated, isStoryGenerated, cardsGenerated, btnImgUrl: tplUrls.btn || null, introBtnImgUrl: tplUrls.introBtn || null, cardBtnImgUrl: tplUrls.cardBtn || null, stampImgUrl: tplUrls.sec || null, pinImgUrl: tplUrls.ter || null, gridImgUrl: ((tpl?.id === 33 || tpl?.id === 35) ? tplUrls.sec : null) || null, ...editorProps })
   }, [active, selectedClient, generatedCopy, selectedImages, headerStyle, imageStyle, clientFooter, footerLogoColor, footerLogoSize, weekGenUrls, heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y])
 
   // Keep store in sync so ApprovalPanel always has the latest HTML
@@ -3026,12 +3280,13 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
     const isWeek1WF  = tpl?.id === 31
     const isWeek2WF  = tpl?.id === 32
     const isWeek3WF  = tpl?.id === 33
+    const isWeek5WF  = tpl?.id === 35
     const isWeek4WF  = tpl?.id === 34
     /* All three welcome templates share the hero and the buttons, so those bakes
        gate on isWFAny. Only Week 1 carries stay cards and the story circles —
        Week 2 is an itinerary and Week 3 is reviews plus a plain photo grid, and
        neither renders either — so those gate on isWFCards. */
-    const isWFAny    = isWeek1WF || isWeek2WF || isWeek3WF || isWeek4WF
+    const isWFAny    = isWeek1WF || isWeek2WF || isWeek3WF || isWeek4WF || isWeek5WF
     const isWFCards  = isWeek1WF
     const isTest     = tpl?.id === 20
     const renderLogoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
@@ -3088,7 +3343,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     const week1wfEyebrow = generatedCopy?.campaignEyebrow || ''
     /* Week 2 has no hero CTA field, so its hero pill carries the email's one
        CTA. Week 1 always has heroCtaText, so the fallback never fires there. */
-    const week1wfHeroCta = generatedCopy?.heroCtaText || ((isWeek2WF || isWeek3WF) ? (generatedCopy?.ctaText || '') : '')
+    const week1wfHeroCta = generatedCopy?.heroCtaText || ((isWeek2WF || isWeek3WF || isWeek5WF) ? (generatedCopy?.ctaText || '') : '')
     const week1wfLogoHtml = logoUrl
       ? `<img src="${logoUrl}" style="height:${logoSize}px;width:auto;display:inline-block;filter:${logoColor === 'original' ? 'brightness(0) invert(1)' : renderLogoFilter};"/>`
       : `<span style="font-family:Arial,sans-serif;font-size:20px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.4);">${selectedClient?.name || ''}</span>`
@@ -3226,7 +3481,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
        each cell shows the page through instead of a filled square — the same
        reason its hero is transparent. 600 wide, two rows of 230 plus a 6px
        gutter, which is the 466 the render is asked for. */
-    const week3wfGridHtml = (isWeek3WF && (img1Url || img2Url || img3Url || img4Url))
+    const week3wfGridHtml = ((isWeek3WF || isWeek5WF) && (img1Url || img2Url || img3Url || img4Url))
       ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
 </head><body>
@@ -3245,7 +3500,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
       ? week2ArchHtml(midBg, false)
       : isWeek4WF
       ? week4wfHeroHtml
-      : isWeek3WF
+      : (isWeek3WF || isWeek5WF)
       ? week3wfHeroHtml
       : isWeek2WF
       ? week2wfHeroHtml
@@ -3377,7 +3632,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </head><body>
 <div style="width:600px;">
   <div style="display:block;background:${w2v2AccentColor};border-radius:999px;padding:20px 24px;text-align:center;">
-    <span style="font-family:Arial,sans-serif;font-size:28px;font-weight:700;color:${isWeek3WF ? '#1a1a1a' : '#ffffff'};white-space:nowrap;">${week1wfMainCtaText} &rarr;</span>
+    <span style="font-family:Arial,sans-serif;font-size:28px;font-weight:700;color:${(isWeek3WF || isWeek5WF) ? '#1a1a1a' : '#ffffff'};white-space:nowrap;">${week1wfMainCtaText} &rarr;</span>
   </div>
 </div>
 </body></html>` : null
@@ -3920,7 +4175,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </body></html>` : null
 
     const heroHeight = isWeek9 ? 720 : isWeek2 ? 580 : isWeek4WF ? 600 : isWeek2WF ? (logoTop + logoSize + 18 + 680) : isWFAny ? 772 : isWeek8v2 ? 680 : isWeek7v2 ? ((img1Url || img2Url || img3Url) ? 988 : 720) : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : isTest ? 520 : 400
-    const secondaryPromise = isWeek3WF && week3wfGridHtml
+    const secondaryPromise = (isWeek3WF || isWeek5WF) && week3wfGridHtml
       ? renderImage({ html: week3wfGridHtml, width: 600, height: 600, transparent: true })
       : isWFCards && week1wfStoryHtml
       ? renderImage({ html: week1wfStoryHtml, width: 600, height: 360, transparent: true })
@@ -4005,7 +4260,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
       try {
         // wave 1 — unchanged from every other template: hero, story/stamp/pin, main CTA
         const [heroRes, secRes, terRes, btnRes] = await Promise.all([
-          renderImage({ html: heroHtmlToUse, width: 600, height: heroHeight, transparent: isWeek7v2 || isWeek3v2 || isWeek5 || isWeek6v2 || isWeek4v2b || isWeek3WF || isWeek4WF }),
+          renderImage({ html: heroHtmlToUse, width: 600, height: heroHeight, transparent: isWeek7v2 || isWeek3v2 || isWeek5 || isWeek6v2 || isWeek4v2b || isWeek3WF || isWeek4WF || isWeek5WF }),
           secondaryPromise,
           tertiaryPromise,
           buttonPromise,
@@ -4576,7 +4831,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
             if (tpl?.id === 18 || tpl?.id === 19) { setTextSize(38); setTextTop(32);  setTextLeft(24);  setLogoColor('original'); setLogoTop(12); setLogoRight(24);  setLogoSize(40) }
             if (tpl?.id === 24) { setTextSize(54); setTextTop(60);  setTextLeft(24);  setLogoColor('original'); setLogoTop(48); setLogoRight(200); setLogoSize(40) }
             if (tpl?.id === 23) { setTextSize(68); setTextTop(80);  setTextLeft(64);  setLogoColor('white');    setLogoTop(28); setLogoRight(28);  setLogoSize(44) }
-            if (tpl?.id === 31 || tpl?.id === 32 || tpl?.id === 33) { setTextSize(44); setTextTop(34);  setTextLeft(52);  setLogoColor('original'); setLogoTop(64); setLogoRight(200); setLogoSize(44) }
+            if (tpl?.id === 31 || tpl?.id === 32 || tpl?.id === 33 || tpl?.id === 35) { setTextSize(44); setTextTop(34);  setTextLeft(52);  setLogoColor('original'); setLogoTop(64); setLogoRight(200); setLogoSize(44) }
           }} style={{
             width: '100%', padding: '7px 0', borderRadius: 8, fontSize: 11, fontWeight: 600,
             cursor: 'pointer',
