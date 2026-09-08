@@ -3299,6 +3299,7 @@ function buildTemplateWeek8WF({ client, copy, images, footerData, isHeroGenerate
     .w8wf-btn-img  { width:100%!important; max-width:100%!important; }
     .w8wf-btnwrap  { width:100%!important; }
     .w8wf-cta      { padding:12px 20px!important; }
+    .w8wf-h3       { font-size:20px!important; line-height:30px!important; }
   }
 </style></head>
 <body style="margin:0;padding:32px 0 48px;background-color:#ffffff;">
@@ -3367,7 +3368,7 @@ function buildTemplateWeek8WF({ client, copy, images, footerData, isHeroGenerate
 
   <!-- WHERE IT STOPS BEING AN IDEA — the label, the block, the CTA again, the phone line -->
   ${(copy.bodyBlock2Title || blockParas.length) ? `<div class="w8wf-section" style="padding:26px 48px 0;background-color:${pageBg};">
-    ${copy.bodyBlock2Title ? `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:${secondary};">${copy.bodyBlock2Title}</div>` : ''}
+    ${copy.bodyBlock2Title ? `<div class="w8wf-h3" style="font-family:Arial,sans-serif;font-size:24px;line-height:32px;font-weight:700;text-transform:uppercase;color:${secondary};">${copy.bodyBlock2Title}</div>` : ''}
     ${blockParas.map((para, i) => `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${textCol};margin-top:${i || copy.bodyBlock2Title ? 14 : 0}px;">${para}</div>`).join('')}
   </div>` : ''}
   ${copy.ctaText ? `<div class="w8wf-section" style="padding:24px 48px 0;background-color:${pageBg};text-align:center;">
