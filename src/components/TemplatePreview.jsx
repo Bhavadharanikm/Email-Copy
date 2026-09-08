@@ -3385,6 +3385,147 @@ function buildTemplateWeek8WF({ client, copy, images, footerData, isHeroGenerate
 </body></html>`
 }
 
+/* ─────────────────────────── Email 9 WF — concierge close ───────────────────
+   A plain, signed note that asks for a reply instead of a click. No hero and
+   no headline: the logo on the page, the body, a framing line, then the
+   example questions as Email 8's icon rows (the question in bold, the answer
+   beneath), the close and the signature. A CTA and a code reminder render
+   only when the copy carries them, which it usually does not. Email 1's pair
+   of circles sits before the footer.                                        */
+function buildTemplateWeek9WF({ client, copy, images, footerData,
+  textSize=38,
+  logoColor='original', logoTop=40, logoSize=44,
+  img1Scale=1, img1X=0, img1Y=0,
+  img2Scale=1, img2X=0, img2Y=0,
+  btnImgUrl = null, iconImgUrls = [], gridImgUrl = null,
+}) {
+  const circleA = images?.[1]?.url || ''
+  const circleB = images?.[2]?.url || ''
+  const circleTfA = `translate(${img1X}px,${img1Y}px) scale(${img1Scale})`
+  const circleTfB = `translate(${img2X}px,${img2Y}px) scale(${img2Scale})`
+
+  const framing    = (copy.questionFramingLine || '').replace(/\n/g, '<br>')
+  const closing    = (copy.closingLine || copy.close || '').replace(/\n/g, '<br>')
+  const signature  = (copy.signature || '').replace(/\n/g, '<br>')
+  const footerLine = (copy.footerLine || '').replace(/\n/g, '<br>')
+  const logoUrl    = client?.logoUrl || ''
+  const introParas = String(copy.bodyText || '').split(/\n{2,}/).map(s => s.trim()).filter(Boolean)
+
+  /* The questions as rows the icon picker understands. Five at most. */
+  const points = (Array.isArray(copy.exampleQuestions) ? copy.exampleQuestions : [])
+    .map(q => ({ title: (q?.question || '').trim(), text: (q?.answer || '').trim() }))
+    .filter(q => q.title || q.text).slice(0, 5)
+
+  const pageBg    = footerData?.bgColor || '#ffffff'
+  const accent    = footerData?.buttonColor || '#1a73e8'
+  const secondary = footerData?.secondaryColor || accent
+  const _rgb = pageBg.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i)
+  const _lum = _rgb ? (0.299*parseInt(_rgb[1],16) + 0.587*parseInt(_rgb[2],16) + 0.114*parseInt(_rgb[3],16))/255 : 1
+  const lightBg      = _lum > 0.55
+  const textCol      = lightBg ? '#1a1a1a' : '#ffffff'
+  const mutedTextCol = lightBg ? '#595959' : '#d4d4d4'
+  const cardBorder   = lightBg ? '#e6e6e6' : '#3a3a3a'
+
+  const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
+  const logoBlock = logoUrl
+    ? `<img src="${logoUrl}" alt="${client?.name || ''}" style="height:${logoSize}px;width:auto;max-width:220px;display:inline-block;border:0;outline:none;filter:${logoFilter};"/>`
+    : `<div style="font-family:Arial,sans-serif;font-size:18px;line-height:24px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:${textCol};">${client?.name || ''}</div>`
+
+  const iconKeys = wfPickIcons(points)
+  const iconCell = (p, i) => iconImgUrls[i]
+    ? `<img src="${iconImgUrls[i]}" alt="" width="32" height="32" style="width:32px;height:32px;display:block;border:0;outline:none;"/>`
+    : wfIconSvg(iconKeys[i], secondary, 32)
+  const pointRow = (p, i) => `<tr>
+        <td width="32" valign="top" style="width:32px;padding:16px 0 16px;line-height:0;font-size:0;">${iconCell(p, i)}</td>
+        <td valign="top" style="padding:16px 0 16px 14px;${i < points.length - 1 ? `border-bottom:1px solid ${cardBorder};` : ''}">
+          ${p.title ? `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;font-weight:700;color:${textCol};">${p.title}</div>` : ''}
+          ${p.text  ? `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${mutedTextCol};${p.title ? 'margin-top:2px;' : ''}">${p.text}</div>` : ''}
+        </td>
+      </tr>`
+
+  const ctaText = (copy.ctaText || '').trim()
+  const ctaButton = ctaText
+    ? (btnImgUrl
+      ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w9wf-btn-img" src="${btnImgUrl}" alt="${ctaText}" width="375" style="width:375px;max-width:100%;height:auto;display:block;margin:0 auto;border:0;outline:none;"/></a>`
+      : `<table class="w9wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w9wf-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:#1a1a1a!important;-webkit-text-fill-color:#1a1a1a;text-decoration:none!important;text-align:center;">${ctaText} &rarr;</a></td></tr></table>`)
+    : ''
+
+  return `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{margin:0;padding:0;color:#1a1a1a;}
+  table{border-collapse:collapse;}
+  .w9wf-outer { width:100%!important; max-width:600px!important; }
+  ${SHARED_MOBILE_CSS}
+  @media only screen and (max-width:600px){
+    .w9wf-section  { padding-left:24px!important; padding-right:24px!important; }
+    .w9wf-headline { font-size:32px!important; line-height:38px!important; }
+    .w9wf-btn-img  { width:100%!important; max-width:100%!important; }
+    .w9wf-btnwrap  { width:100%!important; }
+    .w9wf-cta      { padding:12px 20px!important; }
+  }
+</style></head>
+<body style="margin:0;padding:32px 0 48px;background-color:#ffffff;">
+
+<table class="w9wf-outer" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="width:100%;max-width:600px;margin:0 auto;background-color:${pageBg};border-collapse:collapse;border-radius:20px;overflow:hidden;">
+<tr><td style="background-color:${pageBg};">
+
+  <!-- MASTHEAD — the logo alone. A headline shows only if the copy has one. -->
+  <div class="w9wf-section" style="padding:${logoTop}px 48px 0;background-color:${pageBg};text-align:center;line-height:normal;">
+    ${logoBlock}
+  </div>
+  ${copy.headlineText ? `<div class="w9wf-section" style="padding:26px 48px 0;background-color:${pageBg};">
+    <div class="w9wf-headline" style="font-family:Arial,sans-serif;font-size:${textSize}px;line-height:44px;font-weight:700;color:${textCol};letter-spacing:-0.01em;text-align:center;">${copy.headlineText}</div>
+  </div>` : ''}
+
+  <!-- BODY -->
+  ${introParas.length ? `<div class="w9wf-section" style="padding:30px 48px 0;background-color:${pageBg};">
+    ${introParas.map((para, i) => `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${textCol};${i ? 'margin-top:14px;' : ''}">${para}</div>`).join('')}
+  </div>` : ''}
+  ${framing ? `<div class="w9wf-section" style="padding:22px 48px 0;background-color:${pageBg};">
+    <div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${textCol};">${framing}</div>
+  </div>` : ''}
+
+  <!-- THE QUESTIONS — a rule, one row per question: icon, the question in bold, the answer -->
+  ${points.length ? `<div class="w9wf-section" style="padding:22px 48px 0;background-color:${pageBg};">
+    <div style="height:1px;background:${cardBorder};font-size:0;line-height:0;"></div>
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
+      ${points.map(pointRow).join('')}
+    </table>
+    <div style="height:1px;background:${cardBorder};font-size:0;line-height:0;"></div>
+  </div>` : ''}
+
+  <!-- THE CLOSE, then the signature -->
+  ${closing ? `<div class="w9wf-section" style="padding:26px 48px 0;background-color:${pageBg};">
+    <div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${textCol};">${closing}</div>
+  </div>` : ''}
+  ${signature ? `<div class="w9wf-section" style="padding:18px 48px 0;background-color:${pageBg};">
+    <div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${mutedTextCol};">${signature}</div>
+  </div>` : ''}
+  ${ctaButton ? `<div class="w9wf-section" style="padding:26px 48px 0;background-color:${pageBg};text-align:center;">${ctaButton}</div>` : ''}
+
+  <!-- THE PAIR OF CIRCLES — Email 1's element, before the footer -->
+  ${(circleA || circleB) ? `<div style="padding:34px 0 0;background-color:${pageBg};line-height:0;font-size:0;text-align:center;">
+    ${gridImgUrl
+      ? `<img src="${gridImgUrl}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;margin:0 auto;border:0;outline:none;"/>`
+      : `<div style="position:relative;width:100%;max-width:600px;aspect-ratio:600/360;margin:0 auto;">
+      ${circleB ? `<div style="position:absolute;left:10%;top:41.67%;width:33.33%;aspect-ratio:1;border-radius:50%;overflow:hidden;border:6px solid ${pageBg};">
+        <img src="${circleB}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;transform:${circleTfB};transform-origin:center center;"/>
+      </div>` : ''}
+      ${circleA ? `<div style="position:absolute;left:36.67%;top:5.56%;width:53.33%;aspect-ratio:1;border-radius:50%;overflow:hidden;border:6px solid ${pageBg};">
+        <img src="${circleA}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;transform:${circleTfA};transform-origin:center center;"/>
+      </div>` : ''}
+    </div>`}
+  </div>` : ''}
+
+  <div style="padding-top:26px;background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true, wfFooter: true, leadLine: footerLine })}</div>
+
+</td></tr>
+</table>
+</body></html>`
+}
+
 /* ─────────────────────────── registry ──────────────────────────────────── */
 const TEMPLATES = [
   { id:17, label:'✅ Week 2', build:buildTemplateWeek2v2 },
@@ -3403,6 +3544,7 @@ const TEMPLATES = [
   { id:36, label:'✅ Email 6 WF', build:buildTemplateWeek6WF, welcomeFlowOnly:true },
   { id:37, label:'✅ Email 7 WF', build:buildTemplateWeek7WF, welcomeFlowOnly:true },
   { id:38, label:'✅ Email 8 WF', build:buildTemplateWeek8WF, welcomeFlowOnly:true },
+  { id:39, label:'✅ Email 9 WF', build:buildTemplateWeek9WF, welcomeFlowOnly:true },
   { id:20, label:'🧪 Test',   build:buildTemplateTest,  adminOnly:true },
 ]
 
@@ -3475,7 +3617,7 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
   // ── Hero editor — all week templates ─────────────────────────────────────────
   /* Templates that take the editor's sliders (hero scale/offset, text size and
      position, logo). Same set as isWeekTemplate / isHeroGenerated. */
-  const isEditable = [10, 11, 13, 16, 17, 18, 19, 20, 23, 24, 25, 31, 32, 33, 34, 35, 36, 37, 38].includes(tpl?.id)
+  const isEditable = [10, 11, 13, 16, 17, 18, 19, 20, 23, 24, 25, 31, 32, 33, 34, 35, 36, 37, 38, 39].includes(tpl?.id)
   const [heroScale,   setHeroScale]   = useState(1)
   const [heroX,       setHeroX]       = useState(0)
   const [heroY,       setHeroY]       = useState(0)
@@ -3526,7 +3668,7 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
   // ── Week template image generation ───────────────────────────────────────────
   /* Every template with a Generate Images pipeline. Emails 4 and 5 were built
      with bakes but never added here, so their button was missing. */
-  const isWeekTemplate = [10, 11, 13, 16, 17, 18, 19, 20, 23, 24, 25, 31, 32, 33, 34, 35, 36, 37, 38].includes(tpl?.id)
+  const isWeekTemplate = [10, 11, 13, 16, 17, 18, 19, 20, 23, 24, 25, 31, 32, 33, 34, 35, 36, 37, 38, 39].includes(tpl?.id)
   const [weekGenUrls,     setWeekGenUrls]     = useState({})  // { [tplId]: { hero, sec, ter } }
   const [weekGenLoading,  setWeekGenLoading]  = useState(false)
   const [weekGenError,    setWeekGenError]    = useState(null)
@@ -3548,7 +3690,7 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
          so swapping slot 4 would drop a composite into the fourth cell. It used
          to bake circles into that slot, so a stale one can still be sitting in
          weekGenUrls from before the grid replaced them. */
-      const usesBakedSecTer = tpl?.id !== 32 && tpl?.id !== 33 && tpl?.id !== 35 && tpl?.id !== 36 && tpl?.id !== 37 && tpl?.id !== 38
+      const usesBakedSecTer = tpl?.id !== 32 && tpl?.id !== 33 && tpl?.id !== 35 && tpl?.id !== 36 && tpl?.id !== 37 && tpl?.id !== 38 && tpl?.id !== 39
       if (usesBakedSecTer && tplUrls.sec) effectiveImages[4] = { url: tplUrls.sec, focalX: 50, focalY: 50 }
       if (usesBakedSecTer && tplUrls.ter) effectiveImages[5] = { url: tplUrls.ter, focalX: 50, focalY: 50 }
     }
@@ -3567,7 +3709,7 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
       : clientFooter
     console.log('[baseHtml] tplId:', tpl?.id, 'isHeroGenerated:', isHeroGenerated, 'tplUrls:', tplUrls, 'effectiveImages[4]:', effectiveImages?.[4], 'effectiveImages[5]:', effectiveImages?.[5])
     const effectiveCopy = generatedCopy ? { ...generatedCopy, headlineText: (generatedCopy.headlineText || '').replace(/\.$/, '') } : generatedCopy
-    return tpl.build({ client:selectedClient, copy:effectiveCopy, images:effectiveImages, headerStyle, imageStyle, footerData: effectiveFooterData, isHeroGenerated, isStoryGenerated, cardsGenerated, btnImgUrl: tplUrls.btn || null, introBtnImgUrl: tplUrls.introBtn || null, cardBtnImgUrl: tplUrls.cardBtn || null, stampImgUrl: tplUrls.sec || null, pinImgUrl: tplUrls.ter || null, gridImgUrl: ((tpl?.id === 33 || tpl?.id === 35 || tpl?.id === 36 || tpl?.id === 37 || tpl?.id === 38) ? tplUrls.sec : null) || null, iconImgUrls: tplUrls.icons || [], heroMobileImgUrl: tplUrls.heroMobile || null, dayImgUrls: tpl?.id === 32 ? [tplUrls.sec || null, tplUrls.ter || null] : [], ...editorProps })
+    return tpl.build({ client:selectedClient, copy:effectiveCopy, images:effectiveImages, headerStyle, imageStyle, footerData: effectiveFooterData, isHeroGenerated, isStoryGenerated, cardsGenerated, btnImgUrl: tplUrls.btn || null, introBtnImgUrl: tplUrls.introBtn || null, cardBtnImgUrl: tplUrls.cardBtn || null, stampImgUrl: tplUrls.sec || null, pinImgUrl: tplUrls.ter || null, gridImgUrl: ((tpl?.id === 33 || tpl?.id === 35 || tpl?.id === 36 || tpl?.id === 37 || tpl?.id === 38 || tpl?.id === 39) ? tplUrls.sec : null) || null, iconImgUrls: tplUrls.icons || [], heroMobileImgUrl: tplUrls.heroMobile || null, dayImgUrls: tpl?.id === 32 ? [tplUrls.sec || null, tplUrls.ter || null] : [], ...editorProps })
   }, [active, selectedClient, generatedCopy, selectedImages, headerStyle, imageStyle, clientFooter, footerLogoColor, footerLogoSize, weekGenUrls, heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y])
 
   // Keep store in sync so ApprovalPanel always has the latest HTML
@@ -3859,12 +4001,13 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
     const isWeek6WF  = tpl?.id === 36
     const isWeek7WF  = tpl?.id === 37
     const isWeek8WF  = tpl?.id === 38
+    const isWeek9WF  = tpl?.id === 39
     const isWeek4WF  = tpl?.id === 34
     /* All three welcome templates share the hero and the buttons, so those bakes
        gate on isWFAny. Only Week 1 carries stay cards and the story circles —
        Week 2 is an itinerary and Week 3 is reviews plus a plain photo grid, and
        neither renders either — so those gate on isWFCards. */
-    const isWFAny    = isWeek1WF || isWeek2WF || isWeek3WF || isWeek4WF || isWeek5WF || isWeek6WF || isWeek7WF || isWeek8WF
+    const isWFAny    = isWeek1WF || isWeek2WF || isWeek3WF || isWeek4WF || isWeek5WF || isWeek6WF || isWeek7WF || isWeek8WF || isWeek9WF
     const isWFCards  = isWeek1WF
     const isTest     = tpl?.id === 20
     const renderLogoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
@@ -4176,6 +4319,8 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
       ? wfPickIcons(generatedCopy.points.slice(0, 5))
       : isWeek8WF && Array.isArray(generatedCopy?.objections)
       ? wfPickIcons(generatedCopy.objections.slice(0, 5).map(o => ({ title: o?.objection || '', text: o?.answer || '' })))
+      : isWeek9WF && Array.isArray(generatedCopy?.exampleQuestions)
+      ? wfPickIcons(generatedCopy.exampleQuestions.slice(0, 5).map(q => ({ title: q?.question || '', text: q?.answer || '' })))
       : []
 
     /* Email 6's pair of tilted photo cards — Week 3 (weekly)'s geometry with
@@ -4246,7 +4391,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </div>
 </body></html>` : null
 
-    const week8wfCirclesHtml = (isWeek8WF && (img1Url || img2Url)) ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+    const week8wfCirclesHtml = ((isWeek8WF || isWeek9WF) && (img1Url || img2Url)) ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
 </head><body>
 <div style="position:relative;width:600px;height:360px;background:transparent;">
@@ -4407,7 +4552,8 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     /* Week 1 WF's own main CTA. Kept separate from the shared Week 2 button so
        its full-width pill cannot alter Weeks 2, 4 and 6, which still use the
        centred inline-block version. */
-    const week1wfMainCtaText = generatedCopy?.ctaText || 'Book Now'
+    /* Email 9 asks for a reply: no CTA text means no button, not a stand-in. */
+    const week1wfMainCtaText = generatedCopy?.ctaText || (isWeek9WF ? '' : 'Book Now')
     const week1wfMainBtnHtml = isWFAny ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
 </head><body>
@@ -4958,7 +5104,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     const heroHeight = isWeek9 ? 720 : isWeek2 ? 580 : isWeek8WF ? 300 : isWeek7WF ? 340 : isWeek4WF ? 600 : isWeek2WF ? (logoTop + logoSize + 18 + 680) : isWFAny ? 772 : isWeek8v2 ? 680 : isWeek7v2 ? ((img1Url || img2Url || img3Url) ? 988 : 720) : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : isTest ? 520 : 400
     const secondaryPromise = isWeek2WF && img1Url
       ? renderImage({ html: week2wfDayHtml(img1Url, img1X, img1Y, img1Scale), width: 200, height: 260, transparent: true })
-      : isWeek8WF && week8wfCirclesHtml
+      : (isWeek8WF || isWeek9WF) && week8wfCirclesHtml
       ? renderImage({ html: week8wfCirclesHtml, width: 600, height: 360, transparent: true })
       : isWeek7WF && week7wfCirclesHtml
       ? renderImage({ html: week7wfCirclesHtml, width: 600, height: 360, transparent: true })
@@ -5008,7 +5154,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
           ? renderImage({ html: week4v2bStackedHtml, width: 600, height: 548, transparent: true })
           : Promise.resolve(null)
 
-    const buttonPromise = isWFAny && week1wfMainBtnHtml
+    const buttonPromise = isWFAny && week1wfMainBtnHtml && week1wfMainCtaText
       ? renderImage({ html: week1wfMainBtnHtml, width: 600, height: 88, transparent: true })
       : isWeek8v2 && w8v2ButtonHtml
       ? renderImage({ html: w8v2ButtonHtml, width: 600, height: 88, transparent: true })
@@ -5053,7 +5199,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
       try {
         // wave 1 — unchanged from every other template: hero, story/stamp/pin, main CTA
         const [heroRes, secRes, terRes, btnRes] = await Promise.all([
-          renderImage({ html: heroHtmlToUse, width: 600, height: heroHeight, transparent: isWeek7v2 || isWeek3v2 || isWeek5 || isWeek6v2 || isWeek4v2b || isWeek3WF || isWeek4WF || isWeek5WF || isWeek6WF || isWeek7WF || isWeek8WF }),
+          isWeek9WF ? Promise.resolve(null) : renderImage({ html: heroHtmlToUse, width: 600, height: heroHeight, transparent: isWeek7v2 || isWeek3v2 || isWeek5 || isWeek6v2 || isWeek4v2b || isWeek3WF || isWeek4WF || isWeek5WF || isWeek6WF || isWeek7WF || isWeek8WF }),
           secondaryPromise,
           tertiaryPromise,
           buttonPromise,
@@ -5549,7 +5695,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
           </div>
 
           {/* Sub-image adjusters — shown for templates that have sub-images */}
-          {[10, 11, 13, 16, 17, 18, 24, 25, 31, 32, 33, 34, 35, 36, 37, 38].includes(tpl?.id) && [
+          {[10, 11, 13, 16, 17, 18, 24, 25, 31, 32, 33, 34, 35, 36, 37, 38, 39].includes(tpl?.id) && [
             { key: 'sub1', label: 'Sub Image 1', color: '#7c3aed', bg: dark ? 'rgba(124,58,237,0.15)' : '#f5f3ff',
               controls: [
                 { name: 'Left', min: -200, max: 200, step: 4, val: img1X,     set: setImg1X,     unit: 'px' },
@@ -5801,12 +5947,12 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
                 </div>
                 <button
                   onClick={() => setHctiTrigger(t => t + 1)}
-                  disabled={!generatedCopy?.headlineText}
+                  disabled={!(generatedCopy?.headlineText || tpl?.id === 39)}
                   style={{
                     padding: '10px 28px', borderRadius: 8, border: 'none',
-                    cursor: generatedCopy?.headlineText ? 'pointer' : 'not-allowed',
-                    background: generatedCopy?.headlineText ? accent : (dark ? '#2a2a2a' : '#e5e7eb'),
-                    color: generatedCopy?.headlineText ? '#fff' : (dark ? '#555' : '#aaa'),
+                    cursor: (generatedCopy?.headlineText || tpl?.id === 39) ? 'pointer' : 'not-allowed',
+                    background: (generatedCopy?.headlineText || tpl?.id === 39) ? accent : (dark ? '#2a2a2a' : '#e5e7eb'),
+                    color: (generatedCopy?.headlineText || tpl?.id === 39) ? '#fff' : (dark ? '#555' : '#aaa'),
                     fontSize: 13, fontWeight: 700,
                   }}
                 >
