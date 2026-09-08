@@ -3214,6 +3214,181 @@ function buildTemplateWeek7WF({ client, copy, images, footerData, isHeroGenerate
 </body></html>`
 }
 
+/* ─────────────────────────── Email 8 WF — decision nudge ────────────────────
+   Email 6's body (icon rows, a titled block, one CTA) under Email 7's kind of
+   masthead, this time set left the way the Tripadvisor reference is: logo,
+   then a small eyebrow line, then the headline, all on the page background,
+   with the photo inset and rounded beneath. Nothing is baked onto the photo.
+
+   The list is the objection sweep: a doubt as a question, then the one line
+   that settles it, each with an icon picked from its own words. The phone
+   fallback sits under the closing CTA. Sub 1 and Sub 2 are the pair of
+   circles before the closing.                                              */
+function buildTemplateWeek8WF({ client, copy, images, footerData, isHeroGenerated = false,
+  heroScale=1, heroX=0, heroY=0,
+  textSize=38,
+  logoColor='original', logoTop=40, logoSize=44,
+  img1Scale=1, img1X=0, img1Y=0,
+  img2Scale=1, img2X=0, img2Y=0,
+  btnImgUrl = null, introBtnImgUrl = null, iconImgUrls = [], gridImgUrl = null,
+}) {
+  const heroImg = images?.[0]?.url || ''
+  const circleA = images?.[1]?.url || ''
+  const circleB = images?.[2]?.url || ''
+  const circleTfA = `translate(${img1X}px,${img1Y}px) scale(${img1Scale})`
+  const circleTfB = `translate(${img2X}px,${img2Y}px) scale(${img2Scale})`
+
+  const eyebrowText = (copy.campaignEyebrow || '').trim()
+  const subhead     = (copy.sectionSubhead || copy.subhead || '').replace(/\n/g, '<br>')
+  const closing     = (copy.closingLine || '').replace(/\n/g, '<br>')
+  const contact     = (copy.contactFallback || '').replace(/\n/g, '<br>')
+  const footerLine  = (copy.footerLine  || '').replace(/\n/g, '<br>')
+  const logoUrl     = client?.logoUrl || ''
+  const introParas  = String(copy.bodyText   || '').split(/\n{2,}/).map(s => s.trim()).filter(Boolean)
+  const blockParas  = String(copy.bodyBlock2 || '').split(/\n{2,}/).map(s => s.trim()).filter(Boolean)
+
+  /* The sweep, as rows the icon picker understands: the question is the
+     title, the answer the text. Five at most, as Email 6. */
+  const points = (Array.isArray(copy.objections) ? copy.objections : [])
+    .map(o => ({ title: (o?.objection || '').trim(), text: (o?.answer || '').trim() }))
+    .filter(o => o.title || o.text).slice(0, 5)
+
+  const pageBg    = footerData?.bgColor || '#ffffff'
+  const accent    = footerData?.buttonColor || '#1a73e8'
+  const secondary = footerData?.secondaryColor || accent
+  const _rgb = pageBg.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i)
+  const _lum = _rgb ? (0.299*parseInt(_rgb[1],16) + 0.587*parseInt(_rgb[2],16) + 0.114*parseInt(_rgb[3],16))/255 : 1
+  const lightBg      = _lum > 0.55
+  const textCol      = lightBg ? '#1a1a1a' : '#ffffff'
+  const mutedTextCol = lightBg ? '#595959' : '#d4d4d4'
+  const cardBorder   = lightBg ? '#e6e6e6' : '#3a3a3a'
+
+  const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
+  const logoBlock = logoUrl
+    ? `<img src="${logoUrl}" alt="${client?.name || ''}" style="height:${logoSize}px;width:auto;max-width:220px;display:block;border:0;outline:none;filter:${logoFilter};"/>`
+    : `<div style="font-family:Arial,sans-serif;font-size:18px;line-height:24px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:${textCol};">${client?.name || ''}</div>`
+
+  const iconKeys = wfPickIcons(points)
+  const iconCell = (p, i) => iconImgUrls[i]
+    ? `<img src="${iconImgUrls[i]}" alt="" width="32" height="32" style="width:32px;height:32px;display:block;border:0;outline:none;"/>`
+    : wfIconSvg(iconKeys[i], secondary, 32)
+  const pointRow = (p, i) => `<tr>
+        <td width="32" valign="top" style="width:32px;padding:16px 0 16px;line-height:0;font-size:0;">${iconCell(p, i)}</td>
+        <td valign="top" style="padding:16px 0 16px 14px;${i < points.length - 1 ? `border-bottom:1px solid ${cardBorder};` : ''}">
+          ${p.title ? `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;font-weight:700;color:${textCol};">${p.title}</div>` : ''}
+          ${p.text  ? `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${mutedTextCol};${p.title ? 'margin-top:2px;' : ''}">${p.text}</div>` : ''}
+        </td>
+      </tr>`
+
+  const ctaBtnHtml = (label, imgUrl) => imgUrl
+    ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w8wf-btn-img" src="${imgUrl}" alt="${label}" width="375" style="width:375px;max-width:100%;height:auto;display:block;margin:0 auto;border:0;outline:none;"/></a>`
+    : `<table class="w8wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w8wf-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:#1a1a1a!important;-webkit-text-fill-color:#1a1a1a;text-decoration:none!important;text-align:center;">${label} &rarr;</a></td></tr></table>`
+  const heroCtaText = (copy.heroCtaText || copy.introCtaText || copy.ctaText || '').trim()
+
+  return `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{margin:0;padding:0;color:#1a1a1a;}
+  table{border-collapse:collapse;}
+  .w8wf-outer { width:100%!important; max-width:600px!important; }
+  ${SHARED_MOBILE_CSS}
+  @media only screen and (max-width:600px){
+    .w8wf-section  { padding-left:24px!important; padding-right:24px!important; }
+    .w8wf-headline { font-size:32px!important; line-height:38px!important; }
+    .w8wf-btn-img  { width:100%!important; max-width:100%!important; }
+    .w8wf-btnwrap  { width:100%!important; }
+    .w8wf-cta      { padding:12px 20px!important; }
+  }
+</style></head>
+<body style="margin:0;padding:32px 0 48px;background-color:#ffffff;">
+
+<table class="w8wf-outer" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="width:100%;max-width:600px;margin:0 auto;background-color:${pageBg};border-collapse:collapse;border-radius:20px;overflow:hidden;">
+<tr><td style="background-color:${pageBg};">
+
+  <!-- MASTHEAD — logo, eyebrow line, headline, all set left on the page -->
+  <div class="w8wf-section" style="padding:${logoTop}px 48px 0;background-color:${pageBg};line-height:normal;">
+    ${logoBlock}
+  </div>
+  ${eyebrowText ? `<div class="w8wf-section" style="padding:22px 48px 0;background-color:${pageBg};">
+    <div style="font-family:Arial,sans-serif;font-size:14px;line-height:20px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:${mutedTextCol};">${eyebrowText}</div>
+  </div>` : ''}
+  ${copy.headlineText ? `<div class="w8wf-section" style="padding:${eyebrowText ? 8 : 22}px 48px 0;background-color:${pageBg};">
+    <div class="w8wf-headline" style="font-family:Arial,sans-serif;font-size:${textSize}px;line-height:44px;font-weight:700;color:${textCol};letter-spacing:-0.01em;">${copy.headlineText}</div>
+  </div>` : ''}
+
+  <!-- THE PHOTO — inset and rounded, carrying no text. One flat PNG once
+       Generate Images has run; the live version is the preview only. -->
+  ${heroImg ? `<div style="padding:24px 0 0;background-color:${pageBg};line-height:0;font-size:0;">
+    ${isHeroGenerated
+      ? `<img src="${heroImg}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;border:0;outline:none;"/>`
+      : `<div class="w8wf-section" style="padding:0 48px;">
+        <div style="position:relative;width:100%;aspect-ratio:504/300;border-radius:14px;overflow:hidden;">
+          <img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>
+        </div>
+      </div>`}
+  </div>` : ''}
+
+  <!-- SUBHEAD (when the copy has one), then the hero CTA -->
+  ${subhead ? `<div class="w8wf-section" style="padding:24px 48px 0;background-color:${pageBg};">
+    <div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${mutedTextCol};">${subhead}</div>
+  </div>` : ''}
+  ${heroCtaText ? `<div class="w8wf-section" style="padding:${subhead ? 20 : 26}px 48px 0;background-color:${pageBg};text-align:center;">
+    ${ctaBtnHtml(heroCtaText, introBtnImgUrl || btnImgUrl)}
+  </div>` : ''}
+
+  <!-- BODY -->
+  ${introParas.length ? `<div class="w8wf-section" style="padding:26px 48px 0;background-color:${pageBg};">
+    ${introParas.map((para, i) => `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${textCol};${i ? 'margin-top:14px;' : ''}">${para}</div>`).join('')}
+  </div>` : ''}
+
+  <!-- THE OBJECTION SWEEP — a rule, then one row per doubt: icon, the question in bold, the answer -->
+  ${points.length ? `<div class="w8wf-section" style="padding:26px 48px 0;background-color:${pageBg};">
+    <div style="height:1px;background:${cardBorder};font-size:0;line-height:0;"></div>
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
+      ${points.map(pointRow).join('')}
+    </table>
+    <div style="height:1px;background:${cardBorder};font-size:0;line-height:0;"></div>
+  </div>` : ''}
+
+  <!-- WHERE IT STOPS BEING AN IDEA — the label, the block, the CTA again, the phone line -->
+  ${(copy.bodyBlock2Title || blockParas.length) ? `<div class="w8wf-section" style="padding:26px 48px 0;background-color:${pageBg};">
+    ${copy.bodyBlock2Title ? `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:${secondary};">${copy.bodyBlock2Title}</div>` : ''}
+    ${blockParas.map((para, i) => `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${textCol};margin-top:${i || copy.bodyBlock2Title ? 14 : 0}px;">${para}</div>`).join('')}
+  </div>` : ''}
+  ${copy.ctaText ? `<div class="w8wf-section" style="padding:24px 48px 0;background-color:${pageBg};text-align:center;">
+    ${ctaBtnHtml(copy.ctaText, btnImgUrl)}
+  </div>` : ''}
+  ${contact ? `<div class="w8wf-section" style="padding:14px 48px 0;background-color:${pageBg};text-align:center;">
+    <div style="font-family:Arial,sans-serif;font-size:14px;line-height:20px;color:${mutedTextCol};">${contact}</div>
+  </div>` : ''}
+
+  <!-- THE PAIR OF CIRCLES — Email 1's element, as on Email 7 -->
+  ${(circleA || circleB) ? `<div style="padding:34px 0 0;background-color:${pageBg};line-height:0;font-size:0;text-align:center;">
+    ${gridImgUrl
+      ? `<img src="${gridImgUrl}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;margin:0 auto;border:0;outline:none;"/>`
+      : `<div style="position:relative;width:100%;max-width:600px;aspect-ratio:600/360;margin:0 auto;">
+      ${circleB ? `<div style="position:absolute;left:10%;top:41.67%;width:33.33%;aspect-ratio:1;border-radius:50%;overflow:hidden;border:6px solid ${pageBg};">
+        <img src="${circleB}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;transform:${circleTfB};transform-origin:center center;"/>
+      </div>` : ''}
+      ${circleA ? `<div style="position:absolute;left:36.67%;top:5.56%;width:53.33%;aspect-ratio:1;border-radius:50%;overflow:hidden;border:6px solid ${pageBg};">
+        <img src="${circleA}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;transform:${circleTfA};transform-origin:center center;"/>
+      </div>` : ''}
+    </div>`}
+  </div>` : ''}
+
+  <!-- THE CLOSING -->
+  ${closing ? `<div class="w8wf-section" style="padding:30px 48px 0;background-color:${pageBg};">
+    <div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${mutedTextCol};">${closing}</div>
+  </div>` : ''}
+
+  <div style="padding-top:26px;background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true, wfFooter: true, leadLine: footerLine })}</div>
+
+</td></tr>
+</table>
+</body></html>`
+}
+
 /* ─────────────────────────── registry ──────────────────────────────────── */
 const TEMPLATES = [
   { id:17, label:'✅ Week 2', build:buildTemplateWeek2v2 },
@@ -3231,6 +3406,7 @@ const TEMPLATES = [
   { id:35, label:'✅ Email 5 WF', build:buildTemplateWeek5WF, welcomeFlowOnly:true },
   { id:36, label:'✅ Email 6 WF', build:buildTemplateWeek6WF, welcomeFlowOnly:true },
   { id:37, label:'✅ Email 7 WF', build:buildTemplateWeek7WF, welcomeFlowOnly:true },
+  { id:38, label:'✅ Email 8 WF', build:buildTemplateWeek8WF, welcomeFlowOnly:true },
   { id:20, label:'🧪 Test',   build:buildTemplateTest,  adminOnly:true },
 ]
 
@@ -3303,7 +3479,7 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
   // ── Hero editor — all week templates ─────────────────────────────────────────
   /* Templates that take the editor's sliders (hero scale/offset, text size and
      position, logo). Same set as isWeekTemplate / isHeroGenerated. */
-  const isEditable = [10, 11, 13, 16, 17, 18, 19, 20, 23, 24, 25, 31, 32, 33, 34, 35, 36, 37].includes(tpl?.id)
+  const isEditable = [10, 11, 13, 16, 17, 18, 19, 20, 23, 24, 25, 31, 32, 33, 34, 35, 36, 37, 38].includes(tpl?.id)
   const [heroScale,   setHeroScale]   = useState(1)
   const [heroX,       setHeroX]       = useState(0)
   const [heroY,       setHeroY]       = useState(0)
@@ -3354,7 +3530,7 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
   // ── Week template image generation ───────────────────────────────────────────
   /* Every template with a Generate Images pipeline. Emails 4 and 5 were built
      with bakes but never added here, so their button was missing. */
-  const isWeekTemplate = [10, 11, 13, 16, 17, 18, 19, 20, 23, 24, 25, 31, 32, 33, 34, 35, 36, 37].includes(tpl?.id)
+  const isWeekTemplate = [10, 11, 13, 16, 17, 18, 19, 20, 23, 24, 25, 31, 32, 33, 34, 35, 36, 37, 38].includes(tpl?.id)
   const [weekGenUrls,     setWeekGenUrls]     = useState({})  // { [tplId]: { hero, sec, ter } }
   const [weekGenLoading,  setWeekGenLoading]  = useState(false)
   const [weekGenError,    setWeekGenError]    = useState(null)
@@ -3376,14 +3552,14 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
          so swapping slot 4 would drop a composite into the fourth cell. It used
          to bake circles into that slot, so a stale one can still be sitting in
          weekGenUrls from before the grid replaced them. */
-      const usesBakedSecTer = tpl?.id !== 33 && tpl?.id !== 35 && tpl?.id !== 36 && tpl?.id !== 37
+      const usesBakedSecTer = tpl?.id !== 33 && tpl?.id !== 35 && tpl?.id !== 36 && tpl?.id !== 37 && tpl?.id !== 38
       if (usesBakedSecTer && tplUrls.sec) effectiveImages[4] = { url: tplUrls.sec, focalX: 50, focalY: 50 }
       if (usesBakedSecTer && tplUrls.ter) effectiveImages[5] = { url: tplUrls.ter, focalX: 50, focalY: 50 }
     }
     const editorProps = isEditable ? { heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y } : {}
     /* Same list as isWeekTemplate — every template whose hero is baked. A template
        missing here renders its live hero over its own baked PNG: two headlines. */
-    const isHeroGenerated = [10, 11, 13, 16, 17, 18, 19, 20, 23, 24, 25, 31, 32, 33, 34, 35, 36, 37].includes(tpl?.id) && !!tplUrls.hero
+    const isHeroGenerated = [10, 11, 13, 16, 17, 18, 19, 20, 23, 24, 25, 31, 32, 33, 34, 35, 36, 37, 38].includes(tpl?.id) && !!tplUrls.hero
     // Week 1 WF bakes its two overlapping story circles into one PNG at slot 4
     const isStoryGenerated = tpl?.id === 31 && !!tplUrls.sec
     // ...and each stay photo into its own flat crop, so cardsGenerated[i] tells
@@ -3395,7 +3571,7 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
       : clientFooter
     console.log('[baseHtml] tplId:', tpl?.id, 'isHeroGenerated:', isHeroGenerated, 'tplUrls:', tplUrls, 'effectiveImages[4]:', effectiveImages?.[4], 'effectiveImages[5]:', effectiveImages?.[5])
     const effectiveCopy = generatedCopy ? { ...generatedCopy, headlineText: (generatedCopy.headlineText || '').replace(/\.$/, '') } : generatedCopy
-    return tpl.build({ client:selectedClient, copy:effectiveCopy, images:effectiveImages, headerStyle, imageStyle, footerData: effectiveFooterData, isHeroGenerated, isStoryGenerated, cardsGenerated, btnImgUrl: tplUrls.btn || null, introBtnImgUrl: tplUrls.introBtn || null, cardBtnImgUrl: tplUrls.cardBtn || null, stampImgUrl: tplUrls.sec || null, pinImgUrl: tplUrls.ter || null, gridImgUrl: ((tpl?.id === 33 || tpl?.id === 35 || tpl?.id === 36 || tpl?.id === 37) ? tplUrls.sec : null) || null, iconImgUrls: tplUrls.icons || [], heroMobileImgUrl: tplUrls.heroMobile || null, ...editorProps })
+    return tpl.build({ client:selectedClient, copy:effectiveCopy, images:effectiveImages, headerStyle, imageStyle, footerData: effectiveFooterData, isHeroGenerated, isStoryGenerated, cardsGenerated, btnImgUrl: tplUrls.btn || null, introBtnImgUrl: tplUrls.introBtn || null, cardBtnImgUrl: tplUrls.cardBtn || null, stampImgUrl: tplUrls.sec || null, pinImgUrl: tplUrls.ter || null, gridImgUrl: ((tpl?.id === 33 || tpl?.id === 35 || tpl?.id === 36 || tpl?.id === 37 || tpl?.id === 38) ? tplUrls.sec : null) || null, iconImgUrls: tplUrls.icons || [], heroMobileImgUrl: tplUrls.heroMobile || null, ...editorProps })
   }, [active, selectedClient, generatedCopy, selectedImages, headerStyle, imageStyle, clientFooter, footerLogoColor, footerLogoSize, weekGenUrls, heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y])
 
   // Keep store in sync so ApprovalPanel always has the latest HTML
@@ -3686,12 +3862,13 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
     const isWeek5WF  = tpl?.id === 35
     const isWeek6WF  = tpl?.id === 36
     const isWeek7WF  = tpl?.id === 37
+    const isWeek8WF  = tpl?.id === 38
     const isWeek4WF  = tpl?.id === 34
     /* All three welcome templates share the hero and the buttons, so those bakes
        gate on isWFAny. Only Week 1 carries stay cards and the story circles —
        Week 2 is an itinerary and Week 3 is reviews plus a plain photo grid, and
        neither renders either — so those gate on isWFCards. */
-    const isWFAny    = isWeek1WF || isWeek2WF || isWeek3WF || isWeek4WF || isWeek5WF || isWeek6WF || isWeek7WF
+    const isWFAny    = isWeek1WF || isWeek2WF || isWeek3WF || isWeek4WF || isWeek5WF || isWeek6WF || isWeek7WF || isWeek8WF
     const isWFCards  = isWeek1WF
     const isTest     = tpl?.id === 20
     const renderLogoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
@@ -3995,6 +4172,8 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
       `<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>*{margin:0;padding:0}body{width:32px;height:32px;background:transparent;}</style></head><body>${wfIconSvg(key, colour, 32)}</body></html>`
     const week6wfIconKeys = isWeek6WF && Array.isArray(generatedCopy?.points)
       ? wfPickIcons(generatedCopy.points.slice(0, 5))
+      : isWeek8WF && Array.isArray(generatedCopy?.objections)
+      ? wfPickIcons(generatedCopy.objections.slice(0, 5).map(o => ({ title: o?.objection || '', text: o?.answer || '' })))
       : []
 
     /* Email 6's pair of tilted photo cards — Week 3 (weekly)'s geometry with
@@ -4051,8 +4230,37 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </div>
 </body></html>` : null
 
+    /* Email 8's hero: the photo alone, inset 48 and rounded, on a transparent
+       ground so the page shows around it. 600 x 348 = 24 above, 300 of photo, 24 below. */
+    const week8wfHeroHtml = isWeek8WF ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
+</head><body>
+<div style="width:600px;height:300px;padding:0 48px;line-height:0;font-size:0;">
+  <div style="position:relative;width:504px;height:300px;border-radius:14px;overflow:hidden;">
+    ${heroImgUrl
+      ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:504px;height:300px;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
+      : `<div style="width:504px;height:300px;background:#e8eaed;"></div>`}
+  </div>
+</div>
+</body></html>` : null
+
+    const week8wfCirclesHtml = (isWeek8WF && (img1Url || img2Url)) ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
+</head><body>
+<div style="position:relative;width:600px;height:360px;background:transparent;">
+  ${img2Url ? `<div style="position:absolute;left:60px;top:150px;width:200px;height:200px;border-radius:50%;overflow:hidden;border:6px solid ${week1wfPageBg};">
+    <img src="${img2Url}" style="width:100%;height:100%;object-fit:cover;display:block;transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/>
+  </div>` : ''}
+  ${img1Url ? `<div style="position:absolute;left:220px;top:20px;width:320px;height:320px;border-radius:50%;overflow:hidden;border:6px solid ${week1wfPageBg};">
+    <img src="${img1Url}" style="width:100%;height:100%;object-fit:cover;display:block;transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/>
+  </div>` : ''}
+</div>
+</body></html>` : null
+
     const heroHtml = isWeek2
       ? week2ArchHtml(midBg, false)
+      : isWeek8WF
+      ? week8wfHeroHtml
       : isWeek7WF
       ? week7wfHeroHtml
       : isWeek4WF
@@ -4735,8 +4943,10 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </div>
 </body></html>` : null
 
-    const heroHeight = isWeek9 ? 720 : isWeek2 ? 580 : isWeek7WF ? 340 : isWeek4WF ? 600 : isWeek2WF ? (logoTop + logoSize + 18 + 680) : isWFAny ? 772 : isWeek8v2 ? 680 : isWeek7v2 ? ((img1Url || img2Url || img3Url) ? 988 : 720) : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : isTest ? 520 : 400
-    const secondaryPromise = isWeek7WF && week7wfCirclesHtml
+    const heroHeight = isWeek9 ? 720 : isWeek2 ? 580 : isWeek8WF ? 300 : isWeek7WF ? 340 : isWeek4WF ? 600 : isWeek2WF ? (logoTop + logoSize + 18 + 680) : isWFAny ? 772 : isWeek8v2 ? 680 : isWeek7v2 ? ((img1Url || img2Url || img3Url) ? 988 : 720) : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : isTest ? 520 : 400
+    const secondaryPromise = isWeek8WF && week8wfCirclesHtml
+      ? renderImage({ html: week8wfCirclesHtml, width: 600, height: 360, transparent: true })
+      : isWeek7WF && week7wfCirclesHtml
       ? renderImage({ html: week7wfCirclesHtml, width: 600, height: 360, transparent: true })
       : isWeek6WF && week6wfStackedHtml
       ? renderImage({ html: week6wfStackedHtml, width: 600, height: 420, transparent: true })
@@ -4827,7 +5037,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
       try {
         // wave 1 — unchanged from every other template: hero, story/stamp/pin, main CTA
         const [heroRes, secRes, terRes, btnRes] = await Promise.all([
-          renderImage({ html: heroHtmlToUse, width: 600, height: heroHeight, transparent: isWeek7v2 || isWeek3v2 || isWeek5 || isWeek6v2 || isWeek4v2b || isWeek3WF || isWeek4WF || isWeek5WF || isWeek6WF || isWeek7WF }),
+          renderImage({ html: heroHtmlToUse, width: 600, height: heroHeight, transparent: isWeek7v2 || isWeek3v2 || isWeek5 || isWeek6v2 || isWeek4v2b || isWeek3WF || isWeek4WF || isWeek5WF || isWeek6WF || isWeek7WF || isWeek8WF }),
           secondaryPromise,
           tertiaryPromise,
           buttonPromise,
@@ -5322,7 +5532,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
           </div>
 
           {/* Sub-image adjusters — shown for templates that have sub-images */}
-          {[10, 11, 13, 16, 17, 18, 24, 25, 31, 32, 33, 34, 35, 36, 37].includes(tpl?.id) && [
+          {[10, 11, 13, 16, 17, 18, 24, 25, 31, 32, 33, 34, 35, 36, 37, 38].includes(tpl?.id) && [
             { key: 'sub1', label: 'Sub Image 1', color: '#7c3aed', bg: dark ? 'rgba(124,58,237,0.15)' : '#f5f3ff',
               controls: [
                 { name: 'Left', min: -200, max: 200, step: 4, val: img1X,     set: setImg1X,     unit: 'px' },

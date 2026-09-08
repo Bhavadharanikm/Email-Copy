@@ -30,7 +30,7 @@ export const WF_WEEKS = [
     what: 'The trust argument: what changes when you book with the property, and the cancellation terms in full.' },
   { week: 7, templateId: 37, day: 22, name: 'Midweek perk',
     what: 'The one genuinely new offer in the flow: midweek nights and the perk attached to them.' },
-  { week: 8, templateId: null, day: 28, name: 'Decision nudge',
+  { week: 8, templateId: 38, day: 28, name: 'Decision nudge',
     what: 'Shrinks the ask. Answers the objections still standing, with no deadline and no urgency.' },
   { week: 9, templateId: null, day: 33, name: 'Concierge close',
     what: 'Asks for a reply instead of a click. No link, signed by a person.' },
