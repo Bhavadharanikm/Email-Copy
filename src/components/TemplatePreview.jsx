@@ -1971,7 +1971,7 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
   }
 
   const daysHtml = days.length ? `
-  <div class="w2wf-section" style="padding:26px 24px 0;background-color:${pageBg};">
+  <div class="w2wf-section" style="padding:18px 24px 0;background-color:${pageBg};">
     ${days.map(dayCard).join('')}
   </div>` : ''
 
@@ -2049,6 +2049,13 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
 
   ${days.length ? `<div class="w2wf-section" style="padding:26px 48px 0;background-color:${pageBg};">
     <div style="height:1px;background-color:${cardBorder};line-height:1px;font-size:0;">&nbsp;</div>
+  </div>` : ''}
+
+  <!-- Names the itinerary, between the rule and the first day -->
+  ${days.length ? `<div class="w2wf-section" style="padding:22px 48px 0;text-align:center;background-color:${pageBg};">
+    <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;border-collapse:separate;"><tr><td style="background:#F0F0F0;border:1px solid #DEDEDE;border-radius:999px;padding:6px 14px;">
+      <span style="font-family:Arial,sans-serif;font-size:14px;line-height:14px;font-weight:600;color:#3A3A3A;letter-spacing:.02em;">${sectionLabel}</span>
+    </td></tr></table>
   </div>` : ''}
 
   <!-- THE DAYS — one card each: the photo, the day chip, then that day's moments -->
