@@ -1975,11 +1975,11 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
     ${days.map(dayCard).join('')}
   </div>` : ''
 
-  /* The paragraph after the days, and the line the footer carries. bodyBlock2
-     is the paragraph when the copy has one, otherwise the closing line is; the
-     closing line then moves to the footer so nothing is said twice. */
-  const closingPara = bodyBlock2 || closing
-  const leadLine    = footerLine || (bodyBlock2 ? closing : '')
+  /* Three separate lines, each in its own place: the body block is the
+     paragraph after the days, the closing line follows it in the body, and
+     only the code reminder goes into the footer. */
+  const closingPara = bodyBlock2
+  const leadLine    = footerLine
 
   return `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
@@ -2064,6 +2064,11 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
   </div>` : ''}
   ${closingPara ? `<div class="w2wf-section" style="padding:${copy.bodyBlock2Title ? 12 : 26}px 48px 0;background-color:${pageBg};">
     <div style="font-family:Arial,sans-serif;font-size:16px;color:${textCol};line-height:24px;">${closingPara}</div>
+  </div>` : ''}
+
+  <!-- CLOSING LINE — its own line under the block, before the CTA -->
+  ${closing ? `<div class="w2wf-section" style="padding:${(copy.bodyBlock2Title || closingPara) ? 16 : 26}px 48px 0;background-color:${pageBg};">
+    <div style="font-family:Arial,sans-serif;font-size:16px;color:${mutedTextCol};line-height:24px;">${closing}</div>
   </div>` : ''}
 
   ${copy.ctaText ? `<div class="w2wf-section" style="padding:22px 48px 8px;background-color:${pageBg};text-align:center;">
