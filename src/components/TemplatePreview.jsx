@@ -2005,6 +2005,7 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
     .w2wf-daythumb img { max-width:100%!important; }
     .w2wf-daybox   { height:200px!important; }
     .w2wf-daycopy  { display:block!important; width:100%!important; padding:14px 4px 4px!important; }
+    .w2wf-h3       { font-size:20px!important; line-height:30px!important; }
   }
 </style></head>
 <body style="margin:0;padding:32px 0 48px;background-color:#ffffff;">
@@ -2057,7 +2058,11 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
   ${closingImg ? `<div class="w2wf-section" style="padding:26px 24px 0;background-color:${pageBg};line-height:0;font-size:0;">
     <img src="${closingImg}" alt="" width="552" style="width:100%;max-width:552px;height:auto;display:block;border-radius:16px;border:0;outline:none;"/>
   </div>` : ''}
-  ${closingPara ? `<div class="w2wf-section" style="padding:26px 48px 0;background-color:${pageBg};">
+  <!-- BODY BLOCK — its title at H3, as Emails 6 and 8, then the paragraph -->
+  ${copy.bodyBlock2Title ? `<div class="w2wf-section" style="padding:26px 48px 0;background-color:${pageBg};">
+    <div class="w2wf-h3" style="font-family:Arial,sans-serif;font-size:24px;line-height:32px;font-weight:700;text-transform:uppercase;color:${secondary};">${copy.bodyBlock2Title}</div>
+  </div>` : ''}
+  ${closingPara ? `<div class="w2wf-section" style="padding:${copy.bodyBlock2Title ? 12 : 26}px 48px 0;background-color:${pageBg};">
     <div style="font-family:Arial,sans-serif;font-size:16px;color:${textCol};line-height:24px;">${closingPara}</div>
   </div>` : ''}
 
