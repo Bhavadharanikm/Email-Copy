@@ -2625,7 +2625,23 @@ function buildTemplateWeek5WF({ client, copy, images, footerData, isHeroGenerate
      Prefer the line; build it from the parts only when it is missing. */
   const attribution = String(copy.attribution || '').trim()
     || [copy.guestFirstName, copy.stayType, copy.storyDate].map(x => String(x || '').trim()).filter(Boolean).join(', ')
-  const story = String(copy.quote || '').trim().replace(/\n/g, '<br>')
+  /* The story arrives as one unbroken block. Paragraph breaks the writer put in
+     (a blank line) are kept as written; when there are none, the account is
+     split into paragraphs of about four sentences at sentence boundaries. The
+     words are never touched — this is layout, not editing. */
+  const storyParagraphs = (() => {
+    const raw = String(copy.quote || '').trim()
+    if (!raw) return []
+    if (/\n\s*\n/.test(raw)) return raw.split(/\n\s*\n/).map(x => x.trim()).filter(Boolean)
+    const sentences = raw.match(/[^.!?]+[.!?]+["'\u201d\u2019)\]]*\s*|[^.!?]+$/g) || [raw]
+    if (sentences.length <= 5) return [raw]
+    const per = 4, out = []
+    for (let i = 0; i < sentences.length; i += per) out.push(sentences.slice(i, i + per).join('').trim())
+    /* a one-sentence tail reads as a stray line; fold it into the paragraph before */
+    if (out.length > 1 && (out[out.length - 1].match(/[.!?]/g) || []).length <= 1) out.splice(-2, 2, out.slice(-2).join(' '))
+    return out
+  })()
+  const story = storyParagraphs.map(x => x.replace(/\n/g, '<br>'))
   const hasMosaic = mosaic.some(Boolean)
 
   /* The one CTA, in the design system's shape: 16/16, 12px top and bottom, hugging
@@ -2696,9 +2712,9 @@ function buildTemplateWeek5WF({ client, copy, images, footerData, isHeroGenerate
   </div>` : ''}
 
   <!-- THE STORY — the guest's account in full on a soft card, attribution beneath -->
-  ${story ? `<div class="w5wf-section" style="padding:22px 24px 0;background-color:${pageBg};">
+  ${story.length ? `<div class="w5wf-section" style="padding:22px 24px 0;background-color:${pageBg};">
     <div class="w5wf-cardbox" style="background-color:${cardTint};border:1px solid ${cardBorder};border-radius:16px;padding:24px;">
-      <div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${textCol};">${story}</div>
+      ${story.map((para, i) => `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${textCol};${i ? 'margin-top:14px;' : ''}">${para}</div>`).join('')}
       ${attribution ? `<div style="font-family:Arial,sans-serif;font-size:14px;line-height:20px;color:${mutedTextCol};margin-top:16px;">&mdash; ${attribution}</div>` : ''}
     </div>
   </div>` : ''}
