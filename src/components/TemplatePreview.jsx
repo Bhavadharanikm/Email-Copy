@@ -3141,7 +3141,7 @@ function buildTemplateWeek7WF({ client, copy, images, footerData, isHeroGenerate
     ${logoBlock}
   </div>
   ${copy.headlineText ? `<div class="w7wf-section" style="padding:26px 48px 0;background-color:${pageBg};">
-    <div class="w7wf-headline" style="font-family:Arial,sans-serif;font-size:${textSize}px;line-height:44px;font-weight:700;color:${textCol};letter-spacing:-0.01em;">${copy.headlineText}</div>
+    <div class="w7wf-headline" style="font-family:Arial,sans-serif;font-size:${textSize}px;line-height:44px;font-weight:700;color:${textCol};letter-spacing:-0.01em;text-align:center;">${copy.headlineText}</div>
   </div>` : ''}
 
   <!-- THE STRIP — three photos, the hero in the middle. Carries no text, so
