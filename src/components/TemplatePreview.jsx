@@ -2568,8 +2568,10 @@ function buildTemplateWeek4WF({ client, copy, images, footerData, isHeroGenerate
 
 /* ══════════════════════════════════════════════════════════════════════════
    WF — EMAIL 5 · the guest story
-   Step 1: an exact duplicate of Email 3 with the same Puppeteer wiring, so
-   the bakes are proven before the layout changes. Step 2 restyles it.
+   A text-first header (logo, eyebrow, headline, subhead, button), the photo
+   below it, the guest's story in full on a card, a three-photo mosaic, then
+   the bridge back to booking. Everything below the header follows
+   DESIGN_SYSTEM.md; the headline itself is hero copy and exempt.
    ══════════════════════════════════════════════════════════════════════════ */
 function buildTemplateWeek5WF({ client, copy, images, footerData, isHeroGenerated = false,
   heroScale=1, heroX=0, heroY=0,
@@ -2578,14 +2580,15 @@ function buildTemplateWeek5WF({ client, copy, images, footerData, isHeroGenerate
   btnImgUrl = null, introBtnImgUrl = null, gridImgUrl = null,
 }) {
   const heroObj = images?.[0]; const heroImg = heroObj?.url || ''
-  /* The reviews are text only, so every sub-image goes to the photo grid below
-     them: Sub 1-4, the four cells. */
-  const gridImgs = [1,2,3,4].map(i => images?.[i]?.url || '')
+  /* The story is text, so the sub-images make the mosaic under it: Sub 1 and
+     Sub 2 side by side, Sub 3 wide beneath them. */
+  const mosaic = [1, 2, 3].map(i => images?.[i]?.url || '')
 
-  const setup   = (copy.bodyText || '').replace(/\n/g, '<br>')
+  const leadIn     = (copy.bodyText    || '').replace(/\n/g, '<br>')
   const closing    = (copy.closingLine || '').replace(/\n/g, '<br>')
   const bodyBlock2 = (copy.bodyBlock2  || '').replace(/\n/g, '<br>')
   const footerLine = (copy.footerLine  || '').replace(/\n/g, '<br>')
+  const subhead    = (copy.sectionSubhead || copy.subhead || '').replace(/\n/g, '<br>')
   const logoUrl = client?.logoUrl || ''
 
   const pageBg    = footerData?.bgColor || '#ffffff'
@@ -2610,89 +2613,28 @@ function buildTemplateWeek5WF({ client, copy, images, footerData, isHeroGenerate
     const to = (a, b) => Math.round(b + (a - b) * ratio).toString(16).padStart(2, '0')
     return `#${to(parseInt(m[1],16), _r)}${to(parseInt(m[2],16), _g)}${to(parseInt(m[3],16), _b)}`
   }
-  const cardTint   = _mix(secondary, 0.16)
-  const avatarTint = _mix(secondary, 0.34)
+  const cardTint = _mix(secondary, 0.16)
 
+  /* The header is on the page background, so the logo keeps its own colours. */
   const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
-  const heroLogoFilter = logoColor === 'original' ? 'brightness(0) invert(1)' : logoFilter
-  const logoOverlayOnHero = logoUrl
-    ? `<img src="${logoUrl}" alt="${client?.name||''}" style="display:inline-block;height:${logoSize}px;width:auto;max-width:100%;filter:${heroLogoFilter};"/>`
-    : `<div style="font-family:Arial,sans-serif;font-size:20px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#ffffff;text-shadow:0 1px 6px rgba(0,0,0,.4);">${client?.name||''}</div>`
+  const logoOnPage = logoUrl
+    ? `<img src="${logoUrl}" alt="${client?.name||''}" style="display:inline-block;height:${logoSize}px;width:auto;max-width:100%;filter:${logoFilter};"/>`
+    : `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:${textCol};">${client?.name||''}</div>`
 
-  /* Week 3 has no hero CTA field of its own, so the hero pill carries the
-     email's one CTA. */
-  const heroCta = copy.heroCtaText || copy.ctaText || ''
+  /* The attribution arrives as one line ("Dave, May 2026") or as its parts.
+     Prefer the line; build it from the parts only when it is missing. */
+  const attribution = String(copy.attribution || '').trim()
+    || [copy.guestFirstName, copy.stayType, copy.storyDate].map(x => String(x || '').trim()).filter(Boolean).join(', ')
+  const story = String(copy.quote || '').trim().replace(/\n/g, '<br>')
+  const hasMosaic = mosaic.some(Boolean)
 
-  /* Week 5's headline treatment: first word italic, the middle in heavy
-     uppercase, the last word italic again — all in Lora. A two-word headline
-     drops the italic tail, a one-word headline is just the uppercase line. */
-  const hw = (copy.headlineText || '').trim().split(/\s+/).filter(Boolean)
-  const hwFirst = hw.length >= 2 ? hw[0] : ''
-  const hwLast  = hw.length >= 3 ? hw[hw.length - 1] : ''
-  const hwMain  = hw.length >= 3 ? hw.slice(1, -1).join(' ') : hw.length === 2 ? hw[1] : hw[0] || ''
-
-  const reviews = Array.isArray(copy.reviews) ? copy.reviews.filter(r => r && (r.quote || r.attribution || r.guestFirstName)) : []
-
-  /* The section names itself when the copy does not. */
-  const sectionLabel = copy.sectionEyebrow  || 'Testimonials'
-  const sectionHead  = copy.sectionHeadline || 'Hear From Our Guests'
-  /* The Body Block Title heads the photo grid — it is the one line of copy the
-     workflow writes for this part of the email, so it beats a generic default.
-     An explicit Amenities Headline still wins if one is set. */
-  const amenHead     = copy.amenitiesHeadline || copy.bodyBlock2Title || 'Enjoy property amenities'
-  const hasGrid      = gridImgs.some(Boolean)
-
-  /* Five gold stars, drawn as text rather than images: no download, no blocked
-     image, and it survives a client that strips background colours. */
-  const stars = `<div style="font-family:Arial,sans-serif;font-size:17px;line-height:1;letter-spacing:.14em;color:#f5b301;">&#9733;&#9733;&#9733;&#9733;&#9733;</div>`
-
-  /* The attribution arrives as one line — "Megan, Deluxe Dome stay, March 2026,
-     via Airbnb". The initial and the platform are read off it rather than asking
-     the workflow for separate fields, so nothing upstream has to change. */
-  const initialOf = (s) => (String(s || '').trim().match(/[A-Za-z]/) || ['?'])[0].toUpperCase()
-  /* A review arrives either as one attribution line — "Megan, Deluxe Dome stay,
-     March 2026, via Airbnb" — or as its parts. Handle both: split the line where
-     it is one, join the parts where they are separate. */
-  const platformOf = (r) => {
-    if (r.platform) return String(r.platform).trim()
-    const m = String(r.attribution || '').match(/\bvia\s+([A-Za-z][A-Za-z .&'-]*)$/)
-    return m ? m[1].trim() : ''
-  }
-  const bylineOf = (r) => {
-    const parts = [r.guestFirstName, r.stayType, r.monthYear].map(x => String(x || '').trim()).filter(Boolean)
-    if (parts.length) return parts.join(', ')
-    return String(r.attribution || '')
-      .replace(/,?\s*\bvia\s+[A-Za-z][A-Za-z .&'-]*$/, '').replace(/^[—–-]\s*/, '').trim()
-  }
-
-  /* **like this** inside a quote comes out bold. Whoever edits the copy picks
-     the words to emphasise — the template does not guess, because deciding what
-     to stress inside someone's verbatim review is an editorial call. Left
-     unmarked, the quote renders exactly as written. */
-  const emphasise = (t) => String(t || '')
-    .replace(/\*\*(.+?)\*\*/g, '<strong style="font-weight:700;">$1</strong>')
-
-  const reviewBlock = (review) => {
-    const byline   = bylineOf(review)
-    const platform = platformOf(review)
-    return `<div class="w5wf-cardbox" style="background-color:${cardTint};border:1px solid ${cardBorder};border-radius:16px;padding:18px;margin-bottom:14px;">
-      ${stars}
-      ${review.quote ? `<div style="font-family:Arial,sans-serif;font-size:16px;color:${textCol};line-height:24px;margin-top:12px;">&ldquo;${emphasise(review.quote)}&rdquo;</div>` : ''}
-      ${byline ? `<table cellpadding="0" cellspacing="0" border="0" style="margin-top:16px;border-collapse:collapse;">
-        <tr>
-          <td width="38" valign="top" style="width:38px;padding-right:10px;">
-            <table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;"><tr>
-              <td width="44" align="left" valign="top" style="width:44px;"><div style="width:44px;height:44px;border-radius:50%;background:${avatarTint};font-family:Arial,sans-serif;font-size:16px;line-height:44px;font-weight:700;color:${textCol};text-align:center;">${initialOf(byline)}</div></td>
-            </tr></table>
-          </td>
-          <td valign="middle" style="vertical-align:middle;">
-            <div style="font-family:Arial,sans-serif;font-size:14px;color:${textCol};line-height:20px;">${byline}</div>
-            <div style="font-family:Arial,sans-serif;font-size:12px;color:${faintTextCol};line-height:16px;margin-top:2px;">&#10003; Verified review${platform ? ` &middot; ${platform}` : ''}</div>
-          </td>
-        </tr>
-      </table>` : ''}
-    </div>`
-  }
+  /* The one CTA, in the design system's shape: 16/16, 12px top and bottom, hugging
+     its label on desktop and filling the width on a phone via .w5wf-btnwrap. */
+  const ctaButton = copy.ctaText
+    ? (btnImgUrl
+      ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w5wf-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="420" height="62" style="width:420px;max-width:420px;height:auto;display:block;margin:0 auto;border:0;outline:none;"/></a>`
+      : `<table class="w5wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w5wf-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:#1a1a1a!important;-webkit-text-fill-color:#1a1a1a;text-decoration:none!important;text-align:center;">${copy.ctaText}</a></td></tr></table>`)
+    : ''
 
   return `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
@@ -2705,14 +2647,14 @@ function buildTemplateWeek5WF({ client, copy, images, footerData, isHeroGenerate
   ${SHARED_MOBILE_CSS}
   @media only screen and (max-width:600px){
     .w5wf-section  { padding-left:24px!important; padding-right:24px!important; }
-    .w5wf-hero     { height:560px!important; }
-    /* The desktop button is deliberately narrow — 420px with a 15px label.
-       These put the phone back to full width at the old size, so nothing about
-       the mobile button changes. */
+    .w5wf-hero     { height:360px!important; }
+    .w5wf-headline { font-size:32px!important; line-height:38px!important; }
     .w5wf-btn-img  { width:100%!important; max-width:100%!important; }
-    .w5wf-btnwrap  { max-width:100%!important; }
-    .w5wf-cta      { padding:18px 36px!important; font-size:17px!important; }
-    .w5wf-cardbox  { padding:16px!important; }
+    .w5wf-btnwrap  { width:100%!important; }
+    .w5wf-cta      { padding:12px 20px!important; }
+    .w5wf-cardbox  { padding:18px!important; }
+    .w5wf-mtop     { height:130px!important; }
+    .w5wf-mwide    { height:180px!important; }
     .wf-lora-h3    { font-size:20px!important; line-height:30px!important; }
   }
 </style></head>
@@ -2721,95 +2663,80 @@ function buildTemplateWeek5WF({ client, copy, images, footerData, isHeroGenerate
 <table class="w5wf-outer" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="width:100%;max-width:600px;margin:0 auto;background-color:${pageBg};border-collapse:collapse;border-radius:20px;overflow:hidden;">
 <tr><td style="background-color:${pageBg};">
 
-  <!-- HERO — same treatment as Week 1, but the photo arches into the page:
-       large bottom corner radii instead of a straight cut. Outlook ignores
-       border-radius and simply squares it off, which is fine. -->
+  <!-- HEADER — the text sits on the page background above the photo, not on it:
+       logo, the eyebrow, headline, subhead and the button, then the photo. The
+       headline is hero copy and exempt from the design system; the subhead and
+       button below it follow it (Body large 18/28, Button 16/16). -->
+  <div class="w5wf-section" style="padding:${logoTop}px 48px 0;background-color:${pageBg};line-height:normal;">
+    <div style="line-height:0;font-size:0;">${logoOnPage}</div>
+    ${copy.campaignEyebrow ? `<div style="font-family:Arial,sans-serif;font-size:12px;line-height:16px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:${mutedTextCol};margin-top:28px;">${copy.campaignEyebrow}</div>` : ''}
+    ${copy.headlineText ? `<div class="w5wf-headline" style="font-family:'Lora',serif;font-size:${textSize}px;font-weight:700;color:${textCol};line-height:1.12;margin-top:${copy.campaignEyebrow ? 10 : 28}px;">${copy.headlineText}</div>` : ''}
+    ${subhead ? `<div style="font-family:Arial,sans-serif;font-size:18px;line-height:28px;color:${mutedTextCol};margin-top:14px;">${subhead}</div>` : ''}
+    ${ctaButton ? `<div style="margin-top:22px;">${ctaButton}</div>` : ''}
+  </div>
+
+  <!-- HERO PHOTO — no text on it, so the bake is the photo alone. Fluid: max-width,
+       not width, so the card lays out at the phone's own size (CRITIQUE.md #1). -->
   ${isHeroGenerated
-    ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${heroImg}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;border:0;outline:none;"/></a></div>`
-    : `<div style="line-height:0;font-size:0;background-color:${pageBg};">
-    <div class="w5wf-hero" style="position:relative;width:100%;max-width:600px;height:772px;overflow:hidden;border-radius:0 0 20px 20px;">
+    ? `<div style="padding:26px 0 0;line-height:0;font-size:0;background-color:${pageBg};"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${heroImg}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;border:0;outline:none;"/></a></div>`
+    : `<div style="padding:26px 0 0;line-height:0;font-size:0;background-color:${pageBg};">
+    <div class="w5wf-hero" style="position:relative;width:100%;max-width:600px;height:480px;overflow:hidden;border-radius:0 0 20px 20px;">
       ${heroImg
         ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
         : `<div style="width:100%;height:100%;background:${pillBg};"></div>`}
-      <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.25) 40%,rgba(0,0,0,0.45) 100%);">
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
-          <tr><td valign="top" align="center" style="vertical-align:top;text-align:center;padding:${logoTop}px ${textLeft}px 0;line-height:normal;">
-            ${logoOverlayOnHero}
-            ${copy.headlineText ? `<div style="text-align:left;margin-top:${textTop + 210}px;">
-              ${hwFirst ? `<div style="font-family:'Lora',serif;font-size:${Math.round(textSize * 0.8)}px;font-style:italic;font-weight:400;color:#ffffff;line-height:1;text-shadow:0 2px 12px rgba(0,0,0,.35);margin-bottom:2px;">${hwFirst}</div>` : ''}
-              <div style="font-family:'Lora',serif;font-size:${textSize}px;font-weight:700;text-transform:uppercase;color:#ffffff;line-height:1.02;text-shadow:0 2px 20px rgba(0,0,0,.3);">${hwMain}${hwLast ? ` <span style="font-family:'Lora',serif;font-style:italic;font-weight:400;text-transform:capitalize;font-size:${Math.round(textSize * 0.9)}px;">${hwLast}</span>` : ''}</div>
-            </div>` : ''}
-            ${heroCta ? `<div style="margin-top:30px;">
-              <table cellpadding="0" cellspacing="0" border="0" style="margin:0;max-width:100%;border-collapse:separate;"><tr><td style="border:3px solid #ffffff;border-radius:999px;padding:0;">
-                <a class="w5wf-herocta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:13px 52px;font-family:Arial,sans-serif;font-size:23px;line-height:26px;font-weight:700;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${heroCta}</a>
-              </td></tr></table>
-            </div>` : ''}
-          </td></tr>
-        </table>
-      </div>
     </div>
   </div>`}
 
-  <!-- TESTIMONIALS — chip, heading, then the setup line as the subhead -->
-  ${reviews.length ? `<div class="w5wf-section" style="padding:34px 48px 0;text-align:center;background-color:${pageBg};">
-    <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;border-collapse:separate;"><tr><td style="background:#F0F0F0;border:1px solid #DEDEDE;border-radius:999px;padding:6px 14px;">
-      <span style="font-family:Arial,sans-serif;font-size:14px;line-height:14px;font-weight:600;color:#3A3A3A;letter-spacing:.02em;">${sectionLabel}</span>
-    </td></tr></table>
-    <div class="wf-lora-h3" style="font-family:'Lora',serif;font-size:24px;line-height:32px;font-weight:700;color:${secondary};margin-top:14px;">${sectionHead}</div>
-    ${setup ? `<div class="mobile-body" style="font-family:Arial,sans-serif;font-size:15px;color:${mutedTextCol};line-height:1.6;margin-top:10px;">${setup}</div>` : ''}
+  <!-- LEAD-IN — the chip names the section, then the line that hands over to the guest -->
+  ${(copy.sectionEyebrow || leadIn) ? `<div class="w5wf-section" style="padding:34px 48px 0;text-align:center;background-color:${pageBg};">
+    ${copy.sectionEyebrow ? `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;border-collapse:separate;"><tr><td style="background:#F0F0F0;border:1px solid #DEDEDE;border-radius:999px;padding:6px 14px;">
+      <span style="font-family:Arial,sans-serif;font-size:14px;line-height:14px;font-weight:600;color:#3A3A3A;letter-spacing:.02em;">${copy.sectionEyebrow}</span>
+    </td></tr></table>` : ''}
+    ${leadIn ? `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${mutedTextCol};margin-top:${copy.sectionEyebrow ? 16 : 0}px;">${leadIn}</div>` : ''}
   </div>` : ''}
 
-  ${reviews.length ? `<div class="w5wf-section" style="padding:20px 24px 0;background-color:${pageBg};">
-    ${reviews.map(reviewBlock).join('')}
+  <!-- THE STORY — the guest's account in full on a soft card, attribution beneath -->
+  ${story ? `<div class="w5wf-section" style="padding:22px 24px 0;background-color:${pageBg};">
+    <div class="w5wf-cardbox" style="background-color:${cardTint};border:1px solid ${cardBorder};border-radius:16px;padding:24px;">
+      <div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${textCol};">${story}</div>
+      ${attribution ? `<div style="font-family:Arial,sans-serif;font-size:14px;line-height:20px;color:${mutedTextCol};margin-top:16px;">&mdash; ${attribution}</div>` : ''}
+    </div>
   </div>` : ''}
 
-  <!-- The photo grid: a heading, then four cells. A real table rather than
-       inline-blocks — these are photos, so halving their width on a phone reads
-       fine, and Outlook handles a table correctly. -->
-  ${hasGrid ? `<!-- A rule closes off the reviews before the amenities heading opens
-       the next section. A bordered div rather than <hr>, which Outlook styles
-       on its own terms. -->
-  <div class="w5wf-section" style="padding:32px 24px 0;background-color:${pageBg};">
-    <div style="height:0;border-top:1px solid ${cardBorder};line-height:0;font-size:0;">&nbsp;</div>
-  </div>
-
-  <div class="w5wf-section" style="padding:26px 48px 0;text-align:center;background-color:${pageBg};">
-    <div class="wf-lora-h3" style="font-family:'Lora',serif;font-size:24px;line-height:32px;font-weight:700;color:${secondary};">${amenHead}</div>
-  </div>
-
-  <div style="padding:18px 0 0;background-color:${pageBg};">
+  <!-- MOSAIC — two photos side by side, one wide beneath. Baked as one PNG when
+       generated; the live table below mirrors its geometry (297+6+297 across,
+       220 over 300 down) so nothing moves when Generate Images runs. -->
+  ${hasMosaic ? `<div style="padding:26px 0 0;background-color:${pageBg};">
     ${gridImgUrl ? `<div style="line-height:0;font-size:0;"><img src="${gridImgUrl}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;border:0;outline:none;"/></div>` : `
     <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
-      ${[0, 2].map(row => `<tr>${[0, 1].map(col => {
-        const g = gridImgs[row + col]
-        /* No wrapper, no border: the grid runs edge to edge, so the outer sides
-           carry no padding and only the gutter between the cells does. */
-        const pad = col === 0 ? '0 3px 6px 0' : '0 0 6px 3px'
-        return `<td width="50%" valign="top" style="width:50%;padding:${pad};line-height:0;font-size:0;">${g
-          ? `<img src="${g}" alt="" style="width:100%;aspect-ratio:1/1;height:auto;object-fit:cover;display:block;border-radius:12px;border:0;outline:none;"/>`
-          : `<div style="width:100%;aspect-ratio:1/1;background:${pillBg};border-radius:12px;"></div>`}</td>`
-      }).join('')}</tr>`).join('')}
+      <tr>
+        ${[0, 1].map(c => `<td width="50%" valign="top" style="width:50%;padding:${c === 0 ? '0 3px 6px 0' : '0 0 6px 3px'};line-height:0;font-size:0;">${mosaic[c]
+          ? `<div class="w5wf-mtop" style="width:100%;height:220px;overflow:hidden;border-radius:12px;"><img src="${mosaic[c]}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;border:0;outline:none;"/></div>`
+          : `<div class="w5wf-mtop" style="width:100%;height:220px;background:${pillBg};border-radius:12px;"></div>`}</td>`).join('')}
+      </tr>
+      <tr>
+        <td colspan="2" valign="top" style="padding:0;line-height:0;font-size:0;">${mosaic[2]
+          ? `<div class="w5wf-mwide" style="width:100%;height:300px;overflow:hidden;border-radius:12px;"><img src="${mosaic[2]}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;border:0;outline:none;"/></div>`
+          : `<div class="w5wf-mwide" style="width:100%;height:300px;background:${pillBg};border-radius:12px;"></div>`}</td>
+      </tr>
     </table>`}
   </div>` : ''}
 
-  <!-- BODY BLOCK — a title and the paragraph that follows the reviews -->
-  ${bodyBlock2 ? `<div class="w5wf-section" style="padding:26px 48px 0;background-color:${pageBg};">
-    <div class="mobile-body" style="font-family:Arial,sans-serif;font-size:15px;color:${textCol};line-height:1.7;">${bodyBlock2}</div>
+  <!-- SECOND HEADLINE + BODY BLOCK — from their story to your dates -->
+  ${copy.bodyBlock2Title ? `<div class="w5wf-section" style="padding:32px 48px 0;text-align:center;background-color:${pageBg};">
+    <div class="wf-lora-h3" style="font-family:'Lora',serif;font-size:24px;line-height:32px;font-weight:700;color:${secondary};">${copy.bodyBlock2Title}</div>
+  </div>` : ''}
+  ${bodyBlock2 ? `<div class="w5wf-section" style="padding:14px 48px 0;background-color:${pageBg};">
+    <div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${textCol};">${bodyBlock2}</div>
   </div>` : ''}
 
-  <!-- CLOSING LINE, then the single CTA, then the code reminder -->
+  <!-- CLOSING LINE, the CTA again, then the code reminder -->
   ${closing ? `<div class="w5wf-section" style="padding:16px 48px 0;background-color:${pageBg};">
-    <div class="mobile-body" style="font-family:Arial,sans-serif;font-size:15px;color:${mutedTextCol};line-height:1.7;">${closing}</div>
+    <div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${mutedTextCol};">${closing}</div>
   </div>` : ''}
-
-  ${copy.ctaText ? `<div class="w5wf-section" style="padding:22px 48px 34px;background-color:${pageBg};text-align:center;">
-    ${btnImgUrl
-      ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w5wf-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="420" height="62" style="width:420px;max-width:420px;height:auto;display:block;margin:0 auto;border:0;outline:none;"/></a>`
-      : `<table class="w5wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;width:100%;max-width:420px;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w5wf-cta mobile-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:15px 30px;font-family:Arial,sans-serif;font-size:15px;font-weight:700;letter-spacing:.04em;color:#1a1a1a!important;-webkit-text-fill-color:#1a1a1a;text-decoration:none!important;text-align:center;">${copy.ctaText} &rarr;</a></td></tr></table>`}
-  </div>` : ''}
-
+  ${ctaButton ? `<div class="w5wf-section" style="padding:22px 48px 30px;background-color:${pageBg};text-align:center;">${ctaButton}</div>` : ''}
   ${footerLine ? `<div class="w5wf-section" style="padding:0 48px 30px;background-color:${pageBg};text-align:center;">
-    <div style="font-family:Arial,sans-serif;font-size:13px;color:${faintTextCol};line-height:1.6;">${footerLine}</div>
+    <div style="font-family:Arial,sans-serif;font-size:14px;line-height:20px;color:${faintTextCol};">${footerLine}</div>
   </div>` : ''}
 
   <div style="background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true, wfFooter: true })}</div>
@@ -3343,7 +3270,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     const week1wfEyebrow = generatedCopy?.campaignEyebrow || ''
     /* Week 2 has no hero CTA field, so its hero pill carries the email's one
        CTA. Week 1 always has heroCtaText, so the fallback never fires there. */
-    const week1wfHeroCta = generatedCopy?.heroCtaText || ((isWeek2WF || isWeek3WF || isWeek5WF) ? (generatedCopy?.ctaText || '') : '')
+    const week1wfHeroCta = generatedCopy?.heroCtaText || ((isWeek2WF || isWeek3WF) ? (generatedCopy?.ctaText || '') : '')
     const week1wfLogoHtml = logoUrl
       ? `<img src="${logoUrl}" style="height:${logoSize}px;width:auto;display:inline-block;filter:${logoColor === 'original' ? 'brightness(0) invert(1)' : renderLogoFilter};"/>`
       : `<span style="font-family:Arial,sans-serif;font-size:20px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.4);">${selectedClient?.name || ''}</span>`
@@ -3481,7 +3408,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
        each cell shows the page through instead of a filled square — the same
        reason its hero is transparent. 600 wide, two rows of 230 plus a 6px
        gutter, which is the 466 the render is asked for. */
-    const week3wfGridHtml = ((isWeek3WF || isWeek5WF) && (img1Url || img2Url || img3Url || img4Url))
+    const week3wfGridHtml = (isWeek3WF && (img1Url || img2Url || img3Url || img4Url))
       ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
 </head><body>
@@ -3496,11 +3423,47 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </body></html>`
       : null
 
+    /* Email 5's header text sits on the page, so its hero bake is the photo
+       alone: 600x480 with the bottom corners rounded, transparent so the corners
+       show the page through. Same numbers as the on-screen hero. */
+    const week5wfHeroHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
+</head><body>
+<div style="position:relative;width:600px;height:480px;overflow:hidden;border-radius:0 0 20px 20px;">
+  ${heroImgUrl
+    ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:600px;height:480px;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
+    : `<div style="width:600px;height:480px;background:#e8eaed;"></div>`}
+</div>
+</body></html>`
+
+    /* Email 5's mosaic: Sub 1 and Sub 2 at 297x220 side by side, Sub 3 wide at
+       600x300 beneath, 6px gutters, transparent for the 12px corners. 526 tall. */
+    const week5wfMosaicHtml = (isWeek5WF && (img1Url || img2Url || img3Url))
+      ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
+</head><body>
+<table width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;border-collapse:collapse;background:transparent;">
+  <tr>
+    ${[img1Url, img2Url].map((u, c) => `<td width="300" valign="top" style="width:300px;padding:${c === 0 ? '0 3px 6px 0' : '0 0 6px 3px'};line-height:0;font-size:0;">
+      ${u ? `<img src="${u}" style="width:100%;height:220px;object-fit:cover;display:block;border-radius:12px;"/>` : `<div style="width:100%;height:220px;background:rgba(0,0,0,0.06);border-radius:12px;"></div>`}
+    </td>`).join('')}
+  </tr>
+  <tr>
+    <td colspan="2" style="padding:0;line-height:0;font-size:0;">
+      ${img3Url ? `<img src="${img3Url}" style="width:600px;height:300px;object-fit:cover;display:block;border-radius:12px;"/>` : `<div style="width:600px;height:300px;background:rgba(0,0,0,0.06);border-radius:12px;"></div>`}
+    </td>
+  </tr>
+</table>
+</body></html>`
+      : null
+
     const heroHtml = isWeek2
       ? week2ArchHtml(midBg, false)
       : isWeek4WF
       ? week4wfHeroHtml
-      : (isWeek3WF || isWeek5WF)
+      : isWeek5WF
+      ? week5wfHeroHtml
+      : isWeek3WF
       ? week3wfHeroHtml
       : isWeek2WF
       ? week2wfHeroHtml
@@ -4174,8 +4137,10 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </div>
 </body></html>` : null
 
-    const heroHeight = isWeek9 ? 720 : isWeek2 ? 580 : isWeek4WF ? 600 : isWeek2WF ? (logoTop + logoSize + 18 + 680) : isWFAny ? 772 : isWeek8v2 ? 680 : isWeek7v2 ? ((img1Url || img2Url || img3Url) ? 988 : 720) : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : isTest ? 520 : 400
-    const secondaryPromise = (isWeek3WF || isWeek5WF) && week3wfGridHtml
+    const heroHeight = isWeek9 ? 720 : isWeek2 ? 580 : isWeek5WF ? 480 : isWeek4WF ? 600 : isWeek2WF ? (logoTop + logoSize + 18 + 680) : isWFAny ? 772 : isWeek8v2 ? 680 : isWeek7v2 ? ((img1Url || img2Url || img3Url) ? 988 : 720) : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : isTest ? 520 : 400
+    const secondaryPromise = isWeek5WF && week5wfMosaicHtml
+      ? renderImage({ html: week5wfMosaicHtml, width: 600, height: 526, transparent: true })
+      : isWeek3WF && week3wfGridHtml
       ? renderImage({ html: week3wfGridHtml, width: 600, height: 600, transparent: true })
       : isWFCards && week1wfStoryHtml
       ? renderImage({ html: week1wfStoryHtml, width: 600, height: 360, transparent: true })
