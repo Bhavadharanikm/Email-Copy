@@ -2797,30 +2797,52 @@ function buildTemplateWeek5WF({ client, copy, images, footerData, isHeroGenerate
 }
 
 /* ─────────────── point icons (Email 6 and any list that wants them) ───────────────
-   Chosen by what the point says, not by its position: a refund line gets the
-   dollar-in-arrows, a code or discount the gift, a phone line the handset, and
-   so on. One picker feeds both the on-screen SVG and the baked PNG, so the
-   preview and the email cannot disagree. Stroke icons on a 24-unit grid. */
+   Chosen by what each point says, and never repeated within one list: every
+   point takes its best-matching icon that no earlier point has taken. One
+   picker feeds both the on-screen SVG and the baked PNG, so the preview and
+   the email cannot disagree. Stroke icons on a 24-unit grid. */
 const WF_ICON_PATHS = {
   refund:   `<path d="M4 12a8 8 0 0 1 13.7-5.7L20 8.5M20 4v4.5h-4.5" /><path d="M20 12a8 8 0 0 1-13.7 5.7L4 15.5M4 20v-4.5h4.5" /><text x="12" y="15.4" font-family="Arial,sans-serif" font-size="9.5" font-weight="700" text-anchor="middle" stroke="none" fill="COLOUR">$</text>`,
   gift:     `<rect x="3" y="8" width="18" height="13" rx="1.5" /><path d="M3 12h18M12 8v13" /><path d="M12 8c-2.5 0-4.5-1.3-4.5-2.9C7.5 3.9 8.6 3 9.8 3c1.6 0 2.2 2.4 2.2 5zM12 8c2.5 0 4.5-1.3 4.5-2.9C16.5 3.9 15.4 3 14.2 3 12.6 3 12 5.4 12 8z" />`,
+  percent:  `<circle cx="7.5" cy="7.5" r="2.4" /><circle cx="16.5" cy="16.5" r="2.4" /><path d="M18.5 5.5l-13 13" />`,
+  tag:      `<path d="M3 3h8l10 10-8 8L3 11V3z" /><circle cx="8" cy="8" r="1.6" />`,
+  package:  `<path d="M3 8l9-4.5L21 8v9l-9 4.5L3 17V8z" /><path d="M3 8l9 4.5L21 8M12 12.5v9" />`,
+  apps:     `<rect x="3.5" y="3.5" width="7" height="7" rx="1.5" /><rect x="13.5" y="3.5" width="7" height="7" rx="1.5" /><rect x="3.5" y="13.5" width="7" height="7" rx="1.5" /><rect x="13.5" y="13.5" width="7" height="7" rx="1.5" />`,
   phone:    `<path d="M5 3.5h4l2 5-2.5 1.5a11 11 0 0 0 5.5 5.5L15.5 13l5 2v4a2 2 0 0 1-2 2A16.5 16.5 0 0 1 3 5.5a2 2 0 0 1 2-2z" />`,
   location: `<path d="M12 21.5s-6.5-6-6.5-11.5A6.5 6.5 0 0 1 18.5 10c0 5.5-6.5 11.5-6.5 11.5z" /><circle cx="12" cy="10" r="2.4" />`,
-  device:   `<rect x="6" y="2.5" width="12" height="19" rx="2.5" /><path d="M10 18.5h4" />`,
+  clock:    `<circle cx="12" cy="12" r="8.5" /><path d="M12 7v5l3.5 2" />`,
   calendar: `<rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" />`,
+  home:     `<path d="M3.5 11L12 4l8.5 7" /><path d="M6 10v10h12V10" /><path d="M10 20v-6h4v6" />`,
+  star:     `<path d="M12 3.5l2.6 5.5 6 .8-4.4 4.2 1.1 6-5.3-2.9-5.3 2.9 1.1-6L3.4 9.8l6-.8z" />`,
   check:    `<path d="M5 12.5l4.5 4.5L19 7.5" />`,
 }
-/* The order matters: a refund line often mentions booking, and a code line
-   often mentions saving, so the more specific meanings are tested first. */
-function wfIconKeyFor(title, text) {
+/* Candidates for one point, most specific first. The order of the tests
+   matters: a refund line often mentions booking, a code line often mentions
+   saving, an add-on line often mentions the app. */
+function wfIconCandidates(title, text) {
   const s = `${title || ''} ${text || ''}`.toLowerCase()
-  if (/\b(refund|refunds|refunded|cancel|cancell?ation|money back|every dollar)\b/.test(s)) return 'refund'
-  if (/\b(call|phone|ring|speak to|talk to|talk it through)\b/.test(s)) return 'phone'
-  if (/\b(code|discount|save|saving|savings|% off|percent off|coupon)\b/.test(s) || /\d+% ?off/.test(s)) return 'gift'
-  if (/\b(location|located|directions|address|map|minutes? from|drive from|downtown|nearby)\b/.test(s)) return 'location'
-  if (/\b(app|add[- ]ons?|packages?|extras|check[- ]in|check[- ]out|guest app)\b/.test(s)) return 'device'
-  if (/\b(dates?|calendar|availability|nights?|weekend|midweek)\b/.test(s)) return 'calendar'
-  return 'check'
+  if (/\b(refund|refunds|refunded|cancel|cancell?ation|money back|every dollar)\b/.test(s)) return ['refund', 'calendar', 'check']
+  if (/\b(call|phone|ring|speak to|talk to|talk it through)\b/.test(s))                      return ['phone', 'clock', 'check']
+  if (/\b(code|coupon|promo)\b/.test(s))                                                       return ['gift', 'tag', 'percent']
+  if (/\b(discount|save|saving|savings|rate|price|pricing)\b/.test(s) || /\d+ ?% ?off/.test(s)) return ['percent', 'tag', 'gift']
+  if (/\b(location|located|directions|address|map|minutes? from|drive from|downtown|nearby)\b/.test(s)) return ['location', 'home', 'check']
+  if (/\b(add[- ]ons?|packages?|extras|upgrade)\b/.test(s))                                    return ['package', 'apps', 'star']
+  if (/\b(app|guest app|online|website)\b/.test(s))                                            return ['apps', 'package', 'check']
+  if (/\b(check[- ]in|check[- ]out|early|late|hour|hours)\b/.test(s))                          return ['clock', 'calendar', 'check']
+  if (/\b(dates?|calendar|availability|nights?|weekend|midweek)\b/.test(s))                   return ['calendar', 'clock', 'check']
+  if (/\b(stay|stays|dome|treehouse|cabin|tent|deck|hot tub|property)\b/.test(s))              return ['home', 'star', 'check']
+  return ['check', 'star', 'home']
+}
+/* Icons for a whole list: each point's best candidate not already used; if
+   every candidate is taken, the first icon of the set nobody has used yet. */
+function wfPickIcons(points) {
+  const used = new Set(), out = []
+  for (const p of points || []) {
+    const cands = wfIconCandidates(p?.title, p?.text)
+    let key = cands.find(k => !used.has(k)) || Object.keys(WF_ICON_PATHS).find(k => !used.has(k)) || 'check'
+    used.add(key); out.push(key)
+  }
+  return out
 }
 const wfIconSvg = (key, colour, size = 24) =>
   `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${colour}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block;">${(WF_ICON_PATHS[key] || WF_ICON_PATHS.check).replace(/COLOUR/g, colour)}</svg>`
@@ -2878,13 +2900,15 @@ function buildTemplateWeek6WF({ client, copy, images, footerData, isHeroGenerate
   /* Small-caps eyebrow over each section: Body small, letter-spaced, muted. */
   const eyebrow = (t) => `<div style="font-family:Arial,sans-serif;font-size:14px;line-height:20px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:${mutedTextCol};">${t}</div>`
 
-  /* One line icon per point, chosen from the point's own words (wfIconKeyFor)
+  /* One line icon per point, chosen from the point's own words and never
+     repeated within the list (wfPickIcons),
      and drawn as SVG for the live preview. Gmail drops SVG and Outlook cannot
      draw shapes, so on Generate the same choice is baked to a small
      transparent PNG (iconImgUrls) and the PNG is what the email ships. */
+  const iconKeys = wfPickIcons(points)
   const iconCell = (p, i) => iconImgUrls[i]
     ? `<img src="${iconImgUrls[i]}" alt="" width="24" height="24" style="width:24px;height:24px;display:block;border:0;outline:none;"/>`
-    : wfIconSvg(wfIconKeyFor(p.title, p.text), secondary)
+    : wfIconSvg(iconKeys[i], secondary)
 
   const pointRow = (p, i) => `<tr>
         <td width="24" valign="top" style="width:24px;padding:16px 0 16px;line-height:0;font-size:0;">${iconCell(p, i)}</td>
@@ -3752,7 +3776,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     const week6wfIconHtml = (key, colour) =>
       `<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>*{margin:0;padding:0}body{width:24px;height:24px;background:transparent;}</style></head><body>${wfIconSvg(key, colour)}</body></html>`
     const week6wfIconKeys = isWeek6WF && Array.isArray(generatedCopy?.points)
-      ? generatedCopy.points.slice(0, 5).map(p => wfIconKeyFor(p?.title, p?.text))
+      ? wfPickIcons(generatedCopy.points.slice(0, 5))
       : []
 
     const heroHtml = isWeek2
