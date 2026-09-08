@@ -2652,7 +2652,7 @@ function buildTemplateWeek5WF({ client, copy, images, footerData, isHeroGenerate
   const ctaButton = copy.ctaText
     ? (btnImgUrl
       ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w5wf-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="420" height="62" style="width:420px;max-width:420px;height:auto;display:block;margin:0 auto;border:0;outline:none;"/></a>`
-      : `<table class="w5wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w5wf-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:#1a1a1a!important;-webkit-text-fill-color:#1a1a1a;text-decoration:none!important;text-align:center;">${copy.ctaText}</a></td></tr></table>`)
+      : `<table class="w5wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w5wf-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:#1a1a1a!important;-webkit-text-fill-color:#1a1a1a;text-decoration:none!important;text-align:center;">${copy.ctaText} &rarr;</a></td></tr></table>`)
     : ''
 
   return `<!DOCTYPE html>
