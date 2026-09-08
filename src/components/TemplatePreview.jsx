@@ -2099,7 +2099,7 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
   heroScale=1, heroX=0, heroY=0,
   textSize=44, textTop=34, textLeft=52,
   logoColor='original', logoTop=64, logoRight=200, logoSize=44,
-  btnImgUrl = null, introBtnImgUrl = null, gridImgUrl = null,
+  btnImgUrl = null, introBtnImgUrl = null, gridImgUrl = null, heroMobileImgUrl = null,
 }) {
   const heroObj = images?.[0]; const heroImg = heroObj?.url || ''
   /* The reviews are text only, so every sub-image goes to the photo grid below
@@ -2230,6 +2230,11 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
   @media only screen and (max-width:600px){
     .w3wf-section  { padding-left:24px!important; padding-right:24px!important; }
     .w3wf-hero     { height:560px!important; }
+    /* The phone keeps the hero pill at its former size; only desktop shrank. */
+    .w3wf-heroctabox { border-width:3px!important; }
+    .w3wf-herocta  { padding:13px 52px!important; font-size:23px!important; line-height:26px!important; }
+    .w3wf-hero-desk { display:none!important; }
+    .w3wf-hero-mob  { display:block!important; }
     /* The desktop button is deliberately narrow — 420px with a 15px label.
        These put the phone back to full width at the old size, so nothing about
        the mobile button changes. */
@@ -2249,7 +2254,7 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
        large bottom corner radii instead of a straight cut. Outlook ignores
        border-radius and simply squares it off, which is fine. -->
   ${isHeroGenerated
-    ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${heroImg}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;border:0;outline:none;"/></a></div>`
+    ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img class="w3wf-hero-desk" src="${heroImg}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;border:0;outline:none;"/>${heroMobileImgUrl ? `<img class="w3wf-hero-mob" src="${heroMobileImgUrl}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:none;border:0;outline:none;"/>` : ''}</a></div>`
     : `<div style="line-height:0;font-size:0;background-color:${pageBg};">
     <div class="w3wf-hero" style="position:relative;width:100%;max-width:600px;height:772px;overflow:hidden;border-radius:0 0 20px 20px;">
       ${heroImg
@@ -2264,8 +2269,8 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
               <div style="font-family:'Lora',serif;font-size:${textSize}px;font-weight:700;text-transform:uppercase;color:#ffffff;line-height:1.02;text-shadow:0 2px 20px rgba(0,0,0,.3);">${hwMain}${hwLast ? ` <span style="font-family:'Lora',serif;font-style:italic;font-weight:400;text-transform:capitalize;font-size:${Math.round(textSize * 0.9)}px;">${hwLast}</span>` : ''}</div>
             </div>` : ''}
             ${heroCta ? `<div style="margin-top:30px;">
-              <table cellpadding="0" cellspacing="0" border="0" style="margin:0;max-width:100%;border-collapse:separate;"><tr><td style="border:3px solid #ffffff;border-radius:999px;padding:0;">
-                <a class="w3wf-herocta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:13px 52px;font-family:Arial,sans-serif;font-size:23px;line-height:26px;font-weight:700;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${heroCta}</a>
+              <table cellpadding="0" cellspacing="0" border="0" style="margin:0;max-width:100%;border-collapse:separate;"><tr><td class="w3wf-heroctabox" style="border:2px solid #ffffff;border-radius:999px;padding:0;">
+                <a class="w3wf-herocta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:10px 28px;font-family:Arial,sans-serif;font-size:18px;line-height:22px;font-weight:700;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${heroCta}</a>
               </td></tr></table>
             </div>` : ''}
           </td></tr>
@@ -4042,13 +4047,19 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
         ${w3First ? `<div style="font-family:'Lora',serif;font-size:${Math.round(textSize * 0.8)}px;font-style:italic;font-weight:400;color:#fff;line-height:1;text-shadow:0 2px 12px rgba(0,0,0,.35);margin-bottom:2px;">${w3First}</div>` : ''}
         <div style="font-family:'Lora',serif;font-size:${textSize}px;font-weight:700;text-transform:uppercase;color:#fff;line-height:1.02;text-shadow:0 2px 20px rgba(0,0,0,.3);">${w3Main}${w3Last ? ` <span style="font-family:'Lora',serif;font-style:italic;font-weight:400;text-transform:capitalize;font-size:${Math.round(textSize * 0.9)}px;">${w3Last}</span>` : ''}</div>
         ${week1wfHeroCta ? `<div style="margin-top:26px;">
-          <span style="display:inline-block;border:3px solid #ffffff;border-radius:999px;padding:13px 52px;font-family:Arial,sans-serif;font-size:23px;line-height:26px;font-weight:700;color:#ffffff;white-space:nowrap;">${week1wfHeroCta}</span>
+          <span style="display:inline-block;border:2px solid #ffffff;border-radius:999px;padding:10px 28px;font-family:Arial,sans-serif;font-size:18px;line-height:22px;font-weight:700;color:#ffffff;white-space:nowrap;">${week1wfHeroCta}</span>
         </div>` : ''}
       </div>
     </div>
   </div>
 </div>
 </body></html>`
+
+    /* The same hero for a phone, with the pill at its former size: shown at
+       0.65 scale a 600-wide PNG made the small desktop pill hard to read. */
+    const week3wfHeroMobileHtml = week3wfHeroHtml.replace(
+      'border:2px solid #ffffff;border-radius:999px;padding:10px 28px;font-family:Arial,sans-serif;font-size:18px;line-height:22px;',
+      'border:3px solid #ffffff;border-radius:999px;padding:13px 52px;font-family:Arial,sans-serif;font-size:23px;line-height:26px;')
 
     /* Week 3's 2x2 photo grid, baked flat. Transparent, so the 12px corner on
        each cell shows the page through instead of a filled square — the same
@@ -5052,6 +5063,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
         const [introBtnRes, cardBtnRes, card1Res, card2Res, card3Res, heroMobileRes, iconRes] = isWFAny
           ? await Promise.all([introBtnThunk(), cardBtnThunk(), card1Thunk(), card2Thunk(), card3Thunk(),
               isWeek5WF ? renderImage({ html: week5wfHeroMobileHtml, width: 600, height: heroHeight, transparent: true })
+                : isWeek3WF ? renderImage({ html: week3wfHeroMobileHtml, width: 600, height: heroHeight, transparent: true })
                 : isWeek6WF ? renderImage({ html: week6wfHeroMobileHtml, width: 600, height: heroHeight, transparent: true })
                 : Promise.resolve(null),
               week6wfIconKeys.length
