@@ -2861,7 +2861,9 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
   }, [active])  // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Hero editor — all week templates ─────────────────────────────────────────
-  const isEditable = [10, 11, 13, 16, 17, 18, 19, 20, 23, 24, 25, 31, 32, 33].includes(tpl?.id)
+  /* Templates that take the editor's sliders (hero scale/offset, text size and
+     position, logo). Same set as isWeekTemplate / isHeroGenerated. */
+  const isEditable = [10, 11, 13, 16, 17, 18, 19, 20, 23, 24, 25, 31, 32, 33, 34, 35].includes(tpl?.id)
   const [heroScale,   setHeroScale]   = useState(1)
   const [heroX,       setHeroX]       = useState(0)
   const [heroY,       setHeroY]       = useState(0)
@@ -2939,7 +2941,9 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
       if (usesBakedSecTer && tplUrls.ter) effectiveImages[5] = { url: tplUrls.ter, focalX: 50, focalY: 50 }
     }
     const editorProps = isEditable ? { heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y } : {}
-    const isHeroGenerated = [10, 11, 13, 16, 17, 18, 19, 20, 23, 24, 25, 31, 32, 33].includes(tpl?.id) && !!tplUrls.hero
+    /* Same list as isWeekTemplate — every template whose hero is baked. A template
+       missing here renders its live hero over its own baked PNG: two headlines. */
+    const isHeroGenerated = [10, 11, 13, 16, 17, 18, 19, 20, 23, 24, 25, 31, 32, 33, 34, 35].includes(tpl?.id) && !!tplUrls.hero
     // Week 1 WF bakes its two overlapping story circles into one PNG at slot 4
     const isStoryGenerated = tpl?.id === 31 && !!tplUrls.sec
     // ...and each stay photo into its own flat crop, so cardsGenerated[i] tells
