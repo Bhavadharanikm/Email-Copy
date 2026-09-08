@@ -3351,19 +3351,7 @@ function buildTemplateWeek8WF({ client, copy, images, footerData, isHeroGenerate
     <div style="height:1px;background:${cardBorder};font-size:0;line-height:0;"></div>
   </div>` : ''}
 
-  <!-- WHERE IT STOPS BEING AN IDEA — the label, the block, the CTA again, the phone line -->
-  ${(copy.bodyBlock2Title || blockParas.length) ? `<div class="w8wf-section" style="padding:26px 48px 0;background-color:${pageBg};">
-    ${copy.bodyBlock2Title ? `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:${secondary};">${copy.bodyBlock2Title}</div>` : ''}
-    ${blockParas.map((para, i) => `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${textCol};margin-top:${i || copy.bodyBlock2Title ? 14 : 0}px;">${para}</div>`).join('')}
-  </div>` : ''}
-  ${copy.ctaText ? `<div class="w8wf-section" style="padding:24px 48px 0;background-color:${pageBg};text-align:center;">
-    ${ctaBtnHtml(copy.ctaText, btnImgUrl)}
-  </div>` : ''}
-  ${contact ? `<div class="w8wf-section" style="padding:14px 48px 0;background-color:${pageBg};text-align:center;">
-    <div style="font-family:Arial,sans-serif;font-size:14px;line-height:20px;color:${mutedTextCol};">${contact}</div>
-  </div>` : ''}
-
-  <!-- THE PAIR OF CIRCLES — Email 1's element, as on Email 7 -->
+  <!-- THE PAIR OF CIRCLES — Email 1's element, as on Email 7, ahead of the block and the CTA -->
   ${(circleA || circleB) ? `<div style="padding:34px 0 0;background-color:${pageBg};line-height:0;font-size:0;text-align:center;">
     ${gridImgUrl
       ? `<img src="${gridImgUrl}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;margin:0 auto;border:0;outline:none;"/>`
@@ -3375,6 +3363,18 @@ function buildTemplateWeek8WF({ client, copy, images, footerData, isHeroGenerate
         <img src="${circleA}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;transform:${circleTfA};transform-origin:center center;"/>
       </div>` : ''}
     </div>`}
+  </div>` : ''}
+
+  <!-- WHERE IT STOPS BEING AN IDEA — the label, the block, the CTA again, the phone line -->
+  ${(copy.bodyBlock2Title || blockParas.length) ? `<div class="w8wf-section" style="padding:26px 48px 0;background-color:${pageBg};">
+    ${copy.bodyBlock2Title ? `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:${secondary};">${copy.bodyBlock2Title}</div>` : ''}
+    ${blockParas.map((para, i) => `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${textCol};margin-top:${i || copy.bodyBlock2Title ? 14 : 0}px;">${para}</div>`).join('')}
+  </div>` : ''}
+  ${copy.ctaText ? `<div class="w8wf-section" style="padding:24px 48px 0;background-color:${pageBg};text-align:center;">
+    ${ctaBtnHtml(copy.ctaText, btnImgUrl)}
+  </div>` : ''}
+  ${contact ? `<div class="w8wf-section" style="padding:14px 48px 0;background-color:${pageBg};text-align:center;">
+    <div style="font-family:Arial,sans-serif;font-size:14px;line-height:20px;color:${mutedTextCol};">${contact}</div>
   </div>` : ''}
 
   <!-- THE CLOSING -->
