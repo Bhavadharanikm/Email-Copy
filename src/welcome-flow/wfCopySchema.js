@@ -255,6 +255,30 @@ const WEEK6 = {
   ],
 }
 
+/* Email 7 is the midweek email: the one new offer in the flow. A CTA sits
+   directly under the hero subhead, then the body, then a second block that
+   makes the case for doing both, and the same CTA again. No list. */
+const WEEK7 = {
+  week: 7,
+  before: [
+    { key: 'subjectLine',     label: 'Subject Line',   hint: 'One sentence. The midweek idea, put as a question or a claim' },
+    { key: 'previewText',     label: 'Preview Text',   hint: '8\u201312 words. Supports the subject' },
+    { key: 'headlineText',    label: 'Hero Headline',  hint: 'On the hero photo. 4\u20138 words' },
+    { key: 'sectionSubhead',  label: 'Hero Subhead',   hint: 'One line under the headline: who this is for and what midweek is' },
+    { key: 'introCtaText',    label: 'Hero CTA',       hint: 'The button under the subhead. 2\u20134 words' },
+    { key: 'bodyText',        label: 'Body',           hint: 'Two short paragraphs. What midweek is actually like' },
+  ],
+  group: null,
+  after: [
+    { key: 'bodyBlock2Title', label: 'Body Block Title', hint: 'e.g. "Or do both"' },
+    { key: 'bodyBlock2',      label: 'Body Block',       hint: 'The case for midweek into the weekend, with the code and the minimum' },
+    { key: 'closingLine',     label: 'Closing Line',     hint: '1\u20132 sentences. Warm, no pressure' },
+    { key: 'ctaText',         label: 'CTA Button',       hint: '2\u20134 words. Usually the same as the hero CTA' },
+    { key: 'ctaUrl',          label: 'CTA URL',          hint: 'Full URL with https://' },
+    { key: 'footerLine',      label: 'Code Reminder',    hint: 'What the code is worth and the minimum nights' },
+  ],
+}
+
 /* Email 8 is the decision nudge: a body that names the one thing left to do,
    an objection sweep (question, then the answer), the calendar block, and a
    phone fallback beside the CTA. */
@@ -294,7 +318,7 @@ const WEEK8 = {
   ],
 }
 
-const SCHEMAS = { 1: WEEK1, 2: WEEK2, 3: WEEK3, 4: WEEK4, 5: WEEK5, 6: WEEK6, 8: WEEK8 }
+const SCHEMAS = { 1: WEEK1, 2: WEEK2, 3: WEEK3, 4: WEEK4, 5: WEEK5, 6: WEEK6, 7: WEEK7, 8: WEEK8 }
 
 /* "guestFirstName" -> "Guest First Name"; "cta_url" -> "Cta Url". */
 const humanise = (k) => String(k)
