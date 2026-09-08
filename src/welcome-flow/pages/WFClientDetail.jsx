@@ -9,6 +9,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { IconArrowLeft, IconPlus, IconMail } from '@tabler/icons-react'
 import { useWelcomeFlowStore } from '../store/welcomeFlowStore'
 import { useWfTheme, WfCard, WfButton, WfStatusPill } from '../components/wfUi'
+import { wfWeekLabel } from '../wfWeeks'
 
 const DONE = new Set(['approved', 'pushed'])
 
@@ -186,10 +187,20 @@ export default function WFClientDetail() {
               <span style={{ fontSize: 12, color: t.faint, fontVariantNumeric: 'tabular-nums', width: 22, flexShrink: 0 }}>
                 {String(e.position).padStart(2, '0')}
               </span>
-              <span style={{ flex: 1, minWidth: 0, fontSize: 13.5, fontWeight: 500, color: t.text,
-                             overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {e.subject || <span style={{ color: t.faint, fontStyle: 'italic' }}>Untitled email</span>}
-              </span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13.5, fontWeight: 500, color: t.text,
+                              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {e.subject || <span style={{ color: t.faint, fontStyle: 'italic' }}>Untitled email</span>}
+                </div>
+                {/* which email of the flow this is — the row's number is only
+                    the order it was created in, which is rarely the same thing */}
+                <div style={{ fontSize: 11.5, color: t.faint, marginTop: 2,
+                              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {e.week
+                    ? wfWeekLabel(e.week)
+                    : <span style={{ fontStyle: 'italic' }}>No email picked yet</span>}
+                </div>
+              </div>
               <WfStatusPill status={e.status} />
               <span style={{ fontSize: 12, color: t.faint, width: 74, textAlign: 'right', flexShrink: 0 }}>
                 {relative(e.updatedAt)}
