@@ -1860,8 +1860,7 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
   img3Scale=1, img3X=0, img3Y=0,
   img4Scale=1, img4X=0, img4Y=0,
   img5Scale=1, img5X=0, img5Y=0,
-  btnImgUrl = null, introBtnImgUrl = null,
-  cardsGenerated = [false, false, false],
+  btnImgUrl = null, introBtnImgUrl = null, dayImgUrls = [],
 }) {
   const heroObj = images?.[0]; const heroImg = heroObj?.url || ''
   /* One photo per moment, Sub 1–5. The copy decides how many moments there are,
@@ -1922,73 +1921,65 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
 
   const moments = Array.isArray(copy.moments) ? copy.moments.filter(m => m && (m.label || m.momentCopy)) : []
 
-  /**
-   * One moment: a tinted card holding a rounded photo, the moment's own title
-   * and its copy. Full width at every count, exactly like Week 1's stay cards —
-   * Gmail strips the <style> block, so a 2-up grid would stay 2-up on a phone
-   * there. Single column is right everywhere with no stylesheet at all.
-   */
-  const momentBlock = (moment, i) => {
-    const img = momentImgs[i] || ''
-    /* A real two-cell table, not wrapping inline-blocks: the thumbnail is meant
-       to stay beside the text at every width, so there is nothing to wrap. The
-       photo cell shrinks on a phone via .w2wf-thumb instead. */
-    /* "Day One, Afternoon" splits at the first comma — the day leads, the time
-       of day sits under it small. A label with no comma leads on its own. */
-    const [dayPart, ...restParts] = String(moment.label || '').split(',')
-    const timePart = restParts.join(',').trim()
-    const THUMB = 168
-    /* The photo alternates sides so the dotted trail leaves one photo and its
-       arrowhead lands on the next. connector(i) runs left-to-right on even i,
-       so an even moment keeps its photo left and an odd one moves it right. */
-    const imgLeft = i % 2 === 0
-    const photoTd = `<td class="w2wf-thumb" width="${THUMB}" valign="middle" style="width:${THUMB}px;line-height:0;font-size:0;">
-            ${img
-              ? `<div class="w2wf-thumbbox" style="position:relative;width:100%;height:${THUMB}px;overflow:hidden;border-radius:14px;"><img src="${img}" alt="${moment.label||''}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:${momentTf[i]};transform-origin:center center;"/></div>`
-              : `<div class="w2wf-thumbbox" style="width:100%;height:${THUMB}px;background:${pillBg};border-radius:14px;"></div>`}
-          </td>`
-    const copyTd = `<td valign="middle" style="padding-${imgLeft ? 'left' : 'right'}:16px;">
-            ${dayPart ? `<div class="w2wf-day" style="font-family:Arial,sans-serif;font-size:24px;line-height:32px;font-weight:700;color:${textCol};">${dayPart.trim()}</div>` : ''}
-            ${timePart ? `<div style="font-family:Arial,sans-serif;font-size:14px;line-height:20px;letter-spacing:.08em;text-transform:uppercase;color:${mutedTextCol};margin-top:2px;">${timePart}</div>` : ''}
-            ${moment.momentCopy ? `<div style="font-family:Arial,sans-serif;font-size:16px;color:${textCol};line-height:24px;margin-top:10px;">${moment.momentCopy}</div>` : ''}
-          </td>`
-    return `<div class="w2wf-cardbox" style="padding:0;">
+  /* The itinerary reads as days, not moments: "Day One, Afternoon" and
+     "Day One, Evening" are one card. The part before the comma names the
+     day, the part after it is the moment's own title inside the card. A label
+     with no comma is a day of its own. */
+  const days = []
+  for (const m of moments) {
+    const [dayPart, ...rest] = String(m.label || '').split(',')
+    const day = dayPart.trim() || `Day ${days.length + 1}`
+    const time = rest.join(',').trim()
+    let card = days.find(dd => dd.day.toLowerCase() === day.toLowerCase())
+    if (!card) { card = { day, moments: [] }; days.push(card) }
+    card.moments.push({ time, copy: m.momentCopy || '' })
+  }
+  /* "Day One" becomes the chip's "Day 1"; anything else is shown as written. */
+  const WORDS = { one: 1, two: 2, three: 3, four: 4, five: 5 }
+  const chipText = (day) => day.replace(/\b(one|two|three|four|five)\b/i, w => WORDS[w.toLowerCase()])
+
+  /* One photo per day, Sub 1 upward; whatever slot follows the last day is the
+     photo above the closing paragraph. */
+  const dayImgs = days.map((_, i) => momentImgs[i] || '')
+  const dayTf   = days.map((_, i) => momentTf[i])
+  const closingImg = momentImgs[days.length] || ''
+
+  const THUMB_W = 200, THUMB_H = 260
+  const dayCard = (card, i) => {
+    const img = dayImgUrls[i] || ''
+    const live = dayImgs[i]
+    const photo = img
+      ? `<img src="${img}" alt="" width="${THUMB_W}" style="width:100%;max-width:${THUMB_W}px;height:auto;display:block;border:0;outline:none;"/>`
+      : live
+        ? `<div class="w2wf-daybox" style="position:relative;width:100%;height:${THUMB_H}px;overflow:hidden;border-radius:16px;"><img src="${live}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:${dayTf[i]};transform-origin:center center;"/></div>`
+        : `<div class="w2wf-daybox" style="width:100%;height:${THUMB_H}px;background:${pillBg};border-radius:16px;"></div>`
+    return `<div class="w2wf-daycard" style="background-color:${cardTint};border:1px solid ${cardBorder};border-radius:16px;padding:12px;margin-top:${i ? 14 : 0}px;">
       <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
         <tr>
-          ${imgLeft ? photoTd : copyTd}
-          ${imgLeft ? copyTd : photoTd}
+          <td class="w2wf-daythumb" width="${THUMB_W}" valign="top" style="width:${THUMB_W}px;line-height:0;font-size:0;">${photo}</td>
+          <td class="w2wf-daycopy" valign="top" style="padding:4px 4px 4px 18px;">
+            <table cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;"><tr><td style="background:#F0F0F0;border:1px solid #DEDEDE;border-radius:999px;padding:6px 14px;">
+              <span style="font-family:Arial,sans-serif;font-size:14px;line-height:14px;font-weight:600;color:#3A3A3A;letter-spacing:.02em;">${chipText(card.day)}</span>
+            </td></tr></table>
+            ${card.moments.map((m, k) => `
+            ${m.time ? `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;font-weight:700;color:${textCol};margin-top:${k ? 18 : 14}px;">${m.time}</div>` : ''}
+            ${m.copy ? `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${mutedTextCol};margin-top:${m.time ? 4 : (k ? 18 : 14)}px;">${m.copy}</div>` : ''}`).join('')}
+          </td>
         </tr>
       </table>
     </div>`
   }
 
-
-  /* A dotted trail between consecutive moments, weaving left then right so the
-     itinerary reads as one route rather than a stack of cards. Drawn as inline
-     SVG: it shows in the preview and in Apple Mail, and is simply absent in
-     Gmail and Outlook, which drop SVG — the cards still read in order there. */
-  const connector = (i) => {
-    const leftToRight = i % 2 === 0
-    const x1 = leftToRight ? 78 : 426
-    const x2 = leftToRight ? 426 : 78
-    /* Both control points are vertical from their own end — one below the
-       start, one above the finish — which makes an S: the trail drops out of
-       one card, sweeps across, and arrives pointing down into the next. A
-       horizontal first control point made it leave flat, which read as a stray
-       line rather than a route. */
-    return `<div style="line-height:0;font-size:0;text-align:center;padding:2px 0 0;">
-      <svg width="504" height="88" viewBox="0 0 504 88" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;max-width:504px;height:auto;margin:0 auto;">
-        <path d="M${x1},8 C${x1},36 ${x2},34 ${x2},62" fill="none" stroke="${secondary}" stroke-width="2" stroke-linecap="round" stroke-dasharray="2 7" opacity="0.75"/>
-        <circle cx="${x1}" cy="8" r="4.5" fill="${secondary}"/>
-        <polygon points="${x2},82 ${x2 - 8},65 ${x2 + 8},65" fill="${secondary}"/>
-      </svg>
-    </div>`
-  }
-
-  const momentsHtml = moments.length ? `
-  <div class="w2wf-section" style="padding:8px 48px 4px;background-color:${pageBg};">
-    ${moments.map((m, i) => momentBlock(m, i) + (i < moments.length - 1 ? connector(i) : '')).join('')}
+  const daysHtml = days.length ? `
+  <div class="w2wf-section" style="padding:26px 24px 0;background-color:${pageBg};">
+    ${days.map(dayCard).join('')}
   </div>` : ''
+
+  /* The paragraph after the days, and the line the footer carries. bodyBlock2
+     is the paragraph when the copy has one, otherwise the closing line is; the
+     closing line then moves to the footer so nothing is said twice. */
+  const closingPara = bodyBlock2 || closing
+  const leadLine    = footerLine || (bodyBlock2 ? closing : '')
 
   return `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
@@ -2007,13 +1998,13 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
        label on desktop; only the left/right padding differs. */
     .w2wf-btnwrap  { width:100%!important; }
     .w2wf-cta      { padding:12px 20px!important; }
-    /* A narrower thumbnail on a phone, so the text keeps a readable measure
-       beside it. Gmail strips this block, but there the card stays 504px wide
-       and 168px leaves plenty of room anyway. */
-    .w2wf-thumb    { width:112px!important; }
-    .wf-lora-h3    { font-size:20px!important; line-height:30px!important; }
-    .w2wf-thumbbox { height:112px!important; }
-    .w2wf-day      { font-size:20px!important; line-height:30px!important; }
+    /* On a phone the day photo sits above its copy rather than beside it.
+       Gmail strips this block; there the card stays 552 wide and the photo
+       keeps its 200px column, which still reads. */
+    .w2wf-daythumb { display:block!important; width:100%!important; }
+    .w2wf-daythumb img { max-width:100%!important; }
+    .w2wf-daybox   { height:200px!important; }
+    .w2wf-daycopy  { display:block!important; width:100%!important; padding:14px 4px 4px!important; }
   }
 </style></head>
 <body style="margin:0;padding:32px 0 48px;background-color:#ffffff;">
@@ -2043,8 +2034,8 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
   </div>`}
 
   <!-- INTRO LINE — sets up the itinerary, no selling -->
-  ${body ? `<div class="w2wf-section" style="padding:30px 48px 4px;background-color:${pageBg};">
-    <div style="font-family:Arial,sans-serif;font-size:18px;color:${textCol};line-height:28px;">${body}</div>
+  ${body ? `<div class="w2wf-section" style="padding:30px 48px 0;background-color:${pageBg};">
+    <div style="font-family:Arial,sans-serif;font-size:16px;color:${textCol};line-height:24px;">${body}</div>
   </div>` : ''}
 
   <!-- INTRO CTA — into the itinerary. Week 2 has no field of its own for the
@@ -2055,46 +2046,28 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
       : `<table class="w2wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w2wf-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;text-align:center;">${introCta} &rarr;</a></td></tr></table>`}
   </div>` : ''}
 
-  ${moments.length ? `<div class="w2wf-section" style="padding:22px 48px 0;background-color:${pageBg};">
+  ${days.length ? `<div class="w2wf-section" style="padding:26px 48px 0;background-color:${pageBg};">
     <div style="height:1px;background-color:${cardBorder};line-height:1px;font-size:0;">&nbsp;</div>
   </div>` : ''}
 
-  <!-- Names the itinerary, sitting between the divider and the first moment -->
-  ${moments.length ? `<div class="w2wf-section" style="padding:22px 48px 14px;text-align:center;background-color:${pageBg};">
-    <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;border-collapse:separate;"><tr><td style="background:#F0F0F0;border:1px solid #DEDEDE;border-radius:999px;padding:6px 14px;">
-      <span style="font-family:Arial,sans-serif;font-size:14px;line-height:14px;font-weight:600;color:#3A3A3A;letter-spacing:.02em;">${sectionLabel}</span>
-    </td></tr></table>
+  <!-- THE DAYS — one card each: the photo, the day chip, then that day's moments -->
+  ${daysHtml}
+
+  <!-- ONE MORE PHOTO, full width, then the paragraph that closes the itinerary -->
+  ${closingImg ? `<div class="w2wf-section" style="padding:26px 24px 0;background-color:${pageBg};line-height:0;font-size:0;">
+    <img src="${closingImg}" alt="" width="552" style="width:100%;max-width:552px;height:auto;display:block;border-radius:16px;border:0;outline:none;"/>
+  </div>` : ''}
+  ${closingPara ? `<div class="w2wf-section" style="padding:26px 48px 0;background-color:${pageBg};">
+    <div style="font-family:Arial,sans-serif;font-size:16px;color:${textCol};line-height:24px;">${closingPara}</div>
   </div>` : ''}
 
-  <!-- THE MOMENTS — one card each, however many the copy carries -->
-  ${momentsHtml}
-
-  <!-- BODY BLOCK — a title and the paragraph that closes out the itinerary -->
-  ${copy.bodyBlock2Title ? `<div class="w2wf-section" style="padding:30px 48px 0;text-align:center;background-color:${pageBg};">
-    <div class="wf-lora-h3" style="font-family:'Lora',Georgia,serif;font-size:24px;line-height:32px;font-weight:700;color:${secondary};">${copy.bodyBlock2Title}</div>
-  </div>` : ''}
-
-  ${bodyBlock2 ? `<div class="w2wf-section" style="padding:16px 48px 0;background-color:${pageBg};">
-    <div style="font-family:Arial,sans-serif;font-size:16px;color:${textCol};line-height:24px;">${bodyBlock2}</div>
-  </div>` : ''}
-
-  <!-- CLOSING LINE, then the one CTA, then the code reminder -->
-  ${closing ? `<div class="w2wf-section" style="padding:18px 48px 0;background-color:${pageBg};">
-    <div style="font-family:Arial,sans-serif;font-size:16px;color:${mutedTextCol};line-height:24px;">${closing}</div>
-  </div>` : ''}
-
-  ${copy.ctaText ? `<div class="w2wf-section" style="padding:22px 48px 34px;background-color:${pageBg};text-align:center;">
+  ${copy.ctaText ? `<div class="w2wf-section" style="padding:22px 48px 8px;background-color:${pageBg};text-align:center;">
     ${btnImgUrl
       ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w2wf-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="600" height="88" style="width:100%;max-width:600px;height:auto;display:block;margin:0 auto;border:0;outline:none;"/></a>`
       : `<table class="w2wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w2wf-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;text-align:center;">${copy.ctaText} &rarr;</a></td></tr></table>`}
   </div>` : ''}
 
-  <!-- CODE REMINDER — the small line under the button -->
-  ${footerLine ? `<div class="w2wf-section" style="padding:0 48px 30px;background-color:${pageBg};text-align:center;">
-    <div style="font-family:Arial,sans-serif;font-size:14px;color:${faintTextCol};line-height:20px;">${footerLine}</div>
-  </div>` : ''}
-
-  <div style="background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true, wfFooter: true })}</div>
+  <div style="padding-top:18px;background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true, wfFooter: true, leadLine })}</div>
 
 </td></tr>
 </table>
@@ -3553,7 +3526,7 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
          so swapping slot 4 would drop a composite into the fourth cell. It used
          to bake circles into that slot, so a stale one can still be sitting in
          weekGenUrls from before the grid replaced them. */
-      const usesBakedSecTer = tpl?.id !== 33 && tpl?.id !== 35 && tpl?.id !== 36 && tpl?.id !== 37 && tpl?.id !== 38
+      const usesBakedSecTer = tpl?.id !== 32 && tpl?.id !== 33 && tpl?.id !== 35 && tpl?.id !== 36 && tpl?.id !== 37 && tpl?.id !== 38
       if (usesBakedSecTer && tplUrls.sec) effectiveImages[4] = { url: tplUrls.sec, focalX: 50, focalY: 50 }
       if (usesBakedSecTer && tplUrls.ter) effectiveImages[5] = { url: tplUrls.ter, focalX: 50, focalY: 50 }
     }
@@ -3572,7 +3545,7 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
       : clientFooter
     console.log('[baseHtml] tplId:', tpl?.id, 'isHeroGenerated:', isHeroGenerated, 'tplUrls:', tplUrls, 'effectiveImages[4]:', effectiveImages?.[4], 'effectiveImages[5]:', effectiveImages?.[5])
     const effectiveCopy = generatedCopy ? { ...generatedCopy, headlineText: (generatedCopy.headlineText || '').replace(/\.$/, '') } : generatedCopy
-    return tpl.build({ client:selectedClient, copy:effectiveCopy, images:effectiveImages, headerStyle, imageStyle, footerData: effectiveFooterData, isHeroGenerated, isStoryGenerated, cardsGenerated, btnImgUrl: tplUrls.btn || null, introBtnImgUrl: tplUrls.introBtn || null, cardBtnImgUrl: tplUrls.cardBtn || null, stampImgUrl: tplUrls.sec || null, pinImgUrl: tplUrls.ter || null, gridImgUrl: ((tpl?.id === 33 || tpl?.id === 35 || tpl?.id === 36 || tpl?.id === 37 || tpl?.id === 38) ? tplUrls.sec : null) || null, iconImgUrls: tplUrls.icons || [], heroMobileImgUrl: tplUrls.heroMobile || null, ...editorProps })
+    return tpl.build({ client:selectedClient, copy:effectiveCopy, images:effectiveImages, headerStyle, imageStyle, footerData: effectiveFooterData, isHeroGenerated, isStoryGenerated, cardsGenerated, btnImgUrl: tplUrls.btn || null, introBtnImgUrl: tplUrls.introBtn || null, cardBtnImgUrl: tplUrls.cardBtn || null, stampImgUrl: tplUrls.sec || null, pinImgUrl: tplUrls.ter || null, gridImgUrl: ((tpl?.id === 33 || tpl?.id === 35 || tpl?.id === 36 || tpl?.id === 37 || tpl?.id === 38) ? tplUrls.sec : null) || null, iconImgUrls: tplUrls.icons || [], heroMobileImgUrl: tplUrls.heroMobile || null, dayImgUrls: tpl?.id === 32 ? [tplUrls.sec || null, tplUrls.ter || null] : [], ...editorProps })
   }, [active, selectedClient, generatedCopy, selectedImages, headerStyle, imageStyle, clientFooter, footerLogoColor, footerLogoSize, weekGenUrls, heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y])
 
   // Keep store in sync so ApprovalPanel always has the latest HTML
@@ -4257,6 +4230,16 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
   </div>` : ''}
 </div>
 </body></html>` : null
+
+    /* Email 2's day photos: Sub 1 and Sub 2 cropped to the card's 200 x 260
+       cell, corners rounded in the PNG so the crop survives Gmail. */
+    const week2wfDayHtml = (url, x, y, sc) => `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:200px;background:transparent;}</style>
+</head><body>
+<div style="position:relative;width:200px;height:260px;border-radius:16px;overflow:hidden;">
+  <img src="${url}" style="position:absolute;top:0;left:0;width:200px;height:260px;object-fit:cover;display:block;transform:translate(${x}px,${y}px) scale(${sc});transform-origin:center center;"/>
+</div>
+</body></html>`
 
     const heroHtml = isWeek2
       ? week2ArchHtml(midBg, false)
@@ -4945,7 +4928,9 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </body></html>` : null
 
     const heroHeight = isWeek9 ? 720 : isWeek2 ? 580 : isWeek8WF ? 300 : isWeek7WF ? 340 : isWeek4WF ? 600 : isWeek2WF ? (logoTop + logoSize + 18 + 680) : isWFAny ? 772 : isWeek8v2 ? 680 : isWeek7v2 ? ((img1Url || img2Url || img3Url) ? 988 : 720) : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : isTest ? 520 : 400
-    const secondaryPromise = isWeek8WF && week8wfCirclesHtml
+    const secondaryPromise = isWeek2WF && img1Url
+      ? renderImage({ html: week2wfDayHtml(img1Url, img1X, img1Y, img1Scale), width: 200, height: 260, transparent: true })
+      : isWeek8WF && week8wfCirclesHtml
       ? renderImage({ html: week8wfCirclesHtml, width: 600, height: 360, transparent: true })
       : isWeek7WF && week7wfCirclesHtml
       ? renderImage({ html: week7wfCirclesHtml, width: 600, height: 360, transparent: true })
@@ -4979,7 +4964,9 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
               ? renderImage({ html: polaroidHtml, width: 600, height: 340 })
               : Promise.resolve(null)
 
-    const tertiaryPromise = isWeek8v2 && week8v2PinHtml
+    const tertiaryPromise = isWeek2WF && img2Url
+      ? renderImage({ html: week2wfDayHtml(img2Url, img2X, img2Y, img2Scale), width: 200, height: 260, transparent: true })
+      : isWeek8v2 && week8v2PinHtml
       ? renderImage({ html: week8v2PinHtml, width: 600, height: 435, transparent: true })
       : isWeek7v2 && img4Url
       ? renderImage({ html: week7v2StampHtml, width: 400, height: 500, transparent: true })
