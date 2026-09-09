@@ -1,17 +1,29 @@
 /**
  * Welcome Flow — one client's emails.
- * Summary tiles + the email list, with a filter and a New email action.
- * No Export button (deliberately, per spec).
+ * Summary tiles, then the nine emails of the flow as fixed rows: each row IS
+ * that email. A row that has not been started yet is created for its week the
+ * moment it is opened, so Email 7 can only ever be Email 7. No Export button
+ * (deliberately, per spec).
  */
 
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { IconArrowLeft, IconPlus, IconMail } from '@tabler/icons-react'
+import { IconArrowLeft, IconMail } from '@tabler/icons-react'
 import { useWelcomeFlowStore } from '../store/welcomeFlowStore'
 import { useWfTheme, WfCard, WfButton, WfStatusPill } from '../components/wfUi'
-import { wfWeekLabel } from '../wfWeeks'
+import { WF_WEEKS, wfWeekLabel } from '../wfWeeks'
 
 const DONE = new Set(['approved', 'pushed'])
+
+/** The nine fixed rows, each paired with the email that holds its week (or
+    null when not started), then any email with no week at all, so nothing
+    stored is ever hidden. Exported for tests. */
+export function buildRows(emails) {
+  const list = emails || []
+  const fixed = WF_WEEKS.map(w => ({ week: w.week, templateId: w.templateId, email: list.find(e => e.week === w.week) || null }))
+  const weekless = list.filter(e => !e.week).map(e => ({ week: null, templateId: null, email: e }))
+  return [...fixed, ...weekless]
+}
 
 function relative(iso) {
   if (!iso) return 'Not yet'
@@ -57,14 +69,11 @@ export default function WFClientDetail() {
   const emails = getEmails(clientId)
   const c = counts(clientId)
 
-  /* Listed in flow order, Email 1 first, not in the order they were created.
-     An email whose flow position is not picked yet goes last. */
-  const byFlow = (a, b) => (a.week || 99) - (b.week || 99) || (a.position || 0) - (b.position || 0)
   const shown = useMemo(() => {
-    const list = [...emails].sort(byFlow)
-    if (filter === 'done')        return list.filter(e => DONE.has(e.status))
-    if (filter === 'in_progress') return list.filter(e => !DONE.has(e.status))
-    return list
+    const rows = buildRows(emails)
+    if (filter === 'done')        return rows.filter(r => r.email && DONE.has(r.email.status))
+    if (filter === 'in_progress') return rows.filter(r => r.email && !DONE.has(r.email.status))
+    return rows
   }, [emails, filter])
 
   if (loadingClients && !client) {
@@ -92,9 +101,17 @@ export default function WFClientDetail() {
 
   const initials = client.name.split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase()
 
-  const startNewEmail = async () => {
-    const id = await addEmail(clientId)
-    navigate(`/welcome-flow/${clientId}/email/${id}`)
+  /* Open a row. A started email opens where it left off; an unstarted one is
+     created for exactly that week first, so the brief has no week to pick. */
+  const [creating, setCreating] = useState(null)
+  const openRow = async (row) => {
+    if (row.email) return openEmail(row.email)
+    if (creating) return
+    setCreating(row.week)
+    try {
+      const id = await addEmail(clientId, { week: row.week, templateId: row.templateId })
+      navigate(`/welcome-flow/${clientId}/email/${id}`)
+    } finally { setCreating(null) }
   }
 
   return (
@@ -123,9 +140,7 @@ export default function WFClientDetail() {
             )}
           </div>
         </div>
-        <WfButton onClick={startNewEmail}>
-          <IconPlus size={15} stroke={2.4} /> New email
-        </WfButton>
+
       </div>
 
       {/* summary */}
@@ -142,7 +157,7 @@ export default function WFClientDetail() {
           <div>
             <div style={{ fontSize: 14, fontWeight: 700, color: t.text }}>Emails</div>
             <div style={{ fontSize: 12, color: t.muted, marginTop: 2 }}>
-              {emails.length} total for this client
+              {emails.filter(e => e.week).length} of {WF_WEEKS.length} started
             </div>
           </div>
           <div style={{ display: 'flex', background: t.dark ? 'rgba(255,255,255,0.05)' : '#f3f4f6', borderRadius: 9, padding: 3 }}>
@@ -166,24 +181,17 @@ export default function WFClientDetail() {
           <div style={{ padding: '52px 24px', textAlign: 'center' }}>
             <IconMail size={28} color={t.faint} stroke={1.5} />
             <div style={{ fontSize: 14, fontWeight: 600, color: t.text, marginTop: 12 }}>
-              {!loadedEmails[clientId] ? 'Loading emails…' : emails.length === 0 ? 'No emails yet' : 'Nothing in this view'}
+              {!loadedEmails[clientId] ? 'Loading emails…' : 'Nothing in this view'}
             </div>
-            <div style={{ fontSize: 12.5, color: t.muted, marginTop: 5, marginBottom: 16 }}>
-              {!loadedEmails[clientId]
-                ? 'Reading this client’s emails from the database.'
-                : emails.length === 0
-                ? 'Start the first email of this welcome flow.'
-                : 'Try a different filter.'}
+            <div style={{ fontSize: 12.5, color: t.muted, marginTop: 5 }}>
+              {!loadedEmails[clientId] ? 'Reading this client’s emails from the database.' : 'Try a different filter.'}
             </div>
-            {loadedEmails[clientId] && emails.length === 0 && (
-              <WfButton onClick={startNewEmail}><IconPlus size={15} stroke={2.4} /> New email</WfButton>
-            )}
           </div>
         ) : (
-          shown.map((e, i) => (
+          shown.map((row, i) => { const e = row.email; return (
             <div
-              key={e.id}
-              onClick={() => openEmail(e)}
+              key={row.week ? `week-${row.week}` : e.id}
+              onClick={() => openRow(row)}
               style={{
                 display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px', cursor: 'pointer',
                 borderTop: i === 0 ? 'none' : `1px solid ${t.border}`,
@@ -198,23 +206,25 @@ export default function WFClientDetail() {
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 15, fontWeight: 500, color: t.text,
                               overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {e.subject || <span style={{ color: t.faint, fontStyle: 'italic' }}>Untitled email</span>}
+                  {e
+                    ? (e.subject || <span style={{ color: t.faint, fontStyle: 'italic' }}>Untitled email</span>)
+                    : <span style={{ color: t.faint, fontStyle: 'italic' }}>{creating === row.week ? 'Starting…' : 'Not started'}</span>}
                 </div>
                 {/* which email of the flow this is — the row's number is only
                     the order it was created in, which is rarely the same thing */}
                 <div style={{ fontSize: 12.5, color: t.muted, marginTop: 3,
                               overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {e.week
-                    ? <><strong style={{ fontWeight: 700, color: t.text }}>Email {e.week}</strong>{wfWeekLabel(e.week).replace(/^Email \d+/, '')}</>
+                  {row.week
+                    ? <><strong style={{ fontWeight: 700, color: t.text }}>Email {row.week}</strong>{wfWeekLabel(row.week).replace(/^Email \d+/, '')}</>
                     : <span style={{ fontStyle: 'italic', color: t.faint }}>No email picked yet</span>}
                 </div>
               </div>
-              <WfStatusPill status={e.status} />
+              {e ? <WfStatusPill status={e.status} /> : <span style={{ fontSize: 12, color: t.faint }}>Not started</span>}
               <span style={{ fontSize: 12, color: t.faint, width: 74, textAlign: 'right', flexShrink: 0 }}>
-                {relative(e.updatedAt)}
+                {e ? relative(e.updatedAt) : ''}
               </span>
             </div>
-          ))
+          )})
         )}
       </WfCard>
     </div>

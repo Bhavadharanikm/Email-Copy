@@ -198,10 +198,11 @@ export default function WFBrief() {
   /* Start another email for the same client without going back to the client
      page first. Saves the current brief on the way out so nothing typed here
      is lost. */
-  async function startNewCampaign() {
+  /* Back to the client's nine rows. Saves the current brief on the way out so
+     nothing typed here is lost. */
+  function backToEmails() {
     persist()
-    const id = await addEmail(clientId, {})
-    navigate(`/welcome-flow/${clientId}/email/${id}`)
+    navigate(`/welcome-flow/${clientId}`)
   }
 
   return (
@@ -232,8 +233,8 @@ export default function WFBrief() {
         <p style={{ fontSize: 13, color: t.muted, margin: '7px 0 0' }}>
           Describe this email. The client is already set by the flow.
         </p>
-        <WfButton variant="ghost" style={{ marginTop: 14 }} onClick={startNewCampaign}>
-          <IconPlus size={15} stroke={2.4} /> New campaign
+        <WfButton variant="ghost" style={{ marginTop: 14 }} onClick={backToEmails}>
+          <IconArrowLeft size={15} stroke={2.4} /> All emails
         </WfButton>
       </div>
 
@@ -256,6 +257,32 @@ export default function WFBrief() {
             Welcome Email{' '}
             <span style={{ fontWeight: 400, color: t.muted }}>sets the template and which n8n workflow runs</span>
           </label>
+          {email?.week ? (
+            /* The email's place in the flow is fixed by its row on the client page:
+               Email 7 is always Email 7. Shown, never chosen here. */
+            <div style={{ display: 'flex', gap: 8, alignItems: 'stretch' }}>
+              <div style={{ flex: 1, minWidth: 0, padding: '11px 12px', borderRadius: 10, border: `1px solid ${t.border}`, background: t.inputBg, color: t.text, fontSize: 13, fontFamily: 'Inter, sans-serif' }}>
+                <strong style={{ fontWeight: 700 }}>Email {email.week}</strong>{wfWeekLabel(email.week).replace(/^Email \d+/, '')}
+              </div>
+            {/* what this email is for — folded away until asked for, so the
+                brief stays a form rather than a briefing document */}
+            <button
+              type="button"
+              onClick={() => setShowWhat(v => !v)}
+              disabled={!weekInfo?.what}
+              title={weekInfo?.what ? `What Email ${week} does` : 'Pick an email first'}
+              aria-expanded={showWhat}
+              style={{
+                width: 38, flex: '0 0 38px', borderRadius: 10, border: `1px solid ${showWhat ? t.text : t.border}`,
+                background: showWhat ? t.text : t.inputBg, color: showWhat ? t.inputBg : t.muted,
+                fontSize: 13, fontFamily: 'Georgia, serif', fontStyle: 'italic', fontWeight: 700,
+                cursor: weekInfo?.what ? 'pointer' : 'default', opacity: weekInfo?.what ? 1 : 0.45,
+              }}
+            >
+              i
+            </button>
+            </div>
+          ) : (
           <div style={{ display: 'flex', gap: 8, alignItems: 'stretch' }}>
             <select
               value={week}
@@ -292,6 +319,7 @@ export default function WFBrief() {
               i
             </button>
           </div>
+          )}
           {showWhat && weekInfo?.what && (
             <div style={{
               marginTop: 8, padding: '10px 12px', borderRadius: 10,
