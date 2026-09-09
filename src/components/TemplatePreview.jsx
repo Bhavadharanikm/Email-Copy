@@ -2446,13 +2446,13 @@ function buildTemplateWeek4WF({ client, copy, images, footerData, isHeroGenerate
   const stackOrder = (i) => [i, (i + 1) % 3, (i + 2) % 3]
   const photoHtml = (i, alt) => {
     const order = stackOrder(i).filter(k => blockImgs[k])
-    if (!order.length) return `<div style="width:100%;max-width:${STAGE_W}px;aspect-ratio:${STAGE_W}/${STAGE_H};background:${pillBg};border-radius:14px;"></div>`
-    if (cardsGenerated[i]) return `<img src="${blockImgs[i]}" alt="${alt || ''}" width="${STAGE_W}" height="${STAGE_H}" style="width:100%;max-width:${STAGE_W}px;height:auto;display:block;border:0;outline:none;"/>`
+    if (!order.length) return `<div style="width:100%;max-width:${STAGE_W}px;aspect-ratio:${STAGE_W}/${STAGE_H};margin:0 auto;background:${pillBg};border-radius:14px;"></div>`
+    if (cardsGenerated[i]) return `<img src="${blockImgs[i]}" alt="${alt || ''}" width="${STAGE_W}" height="${STAGE_H}" style="width:100%;max-width:${STAGE_W}px;height:auto;display:block;margin:0 auto;border:0;outline:none;"/>`
     const layers = order.map((k, depth) => ({ k, depth })).reverse().map(({ k, depth }) =>
       `<div style="position:absolute;left:${(depth * STEP_X / STAGE_W * 100).toFixed(2)}%;top:${(depth * STEP_Y / STAGE_H * 100).toFixed(2)}%;width:${(PRINT_W / STAGE_W * 100).toFixed(2)}%;height:${((STAGE_H - depth * STEP_H) / STAGE_H * 100).toFixed(2)}%;overflow:hidden;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,0.14);">
           <img src="${blockImgs[k]}" alt="${depth ? '' : (alt || '')}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:${blockTf[k]};transform-origin:center center;"/>
         </div>`).join('')
-    return `<div class="w4wf-fan" style="position:relative;width:100%;max-width:${STAGE_W}px;aspect-ratio:${STAGE_W}/${STAGE_H};">${layers}</div>`
+    return `<div class="w4wf-fan" style="position:relative;width:100%;max-width:${STAGE_W}px;aspect-ratio:${STAGE_W}/${STAGE_H};margin:0 auto;">${layers}</div>`
   }
 
   /* A block sits on the page itself: the fan, the block's name as the design
