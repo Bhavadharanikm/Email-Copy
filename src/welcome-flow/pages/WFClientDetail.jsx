@@ -60,6 +60,7 @@ export default function WFClientDetail() {
   const t = useWfTheme()
   const { getClient, getEmails, counts, addEmail, ensureClients, ensureEmails, loadingClients, loadedEmails } = useWelcomeFlowStore()
   const [filter, setFilter] = useState('all')
+  const [creating, setCreating] = useState(null)   // the week being created on first open, so a double click cannot make two
 
   // clients are not persisted — refetch after a reload on this deep route
   useEffect(() => { ensureClients() }, [ensureClients])
@@ -103,7 +104,6 @@ export default function WFClientDetail() {
 
   /* Open a row. A started email opens where it left off; an unstarted one is
      created for exactly that week first, so the brief has no week to pick. */
-  const [creating, setCreating] = useState(null)
   const openRow = async (row) => {
     if (row.email) return openEmail(row.email)
     if (creating) return
