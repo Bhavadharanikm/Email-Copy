@@ -3676,12 +3676,11 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
   /* Seeded from the store and mirrored back into it, so the baked PNGs outlive
      this component: the welcome flow saves them with the email and hands them
      back when it is reopened. */
-  const [weekGenUrls,     setWeekGenUrlsState] = useState(() => useCampaignStore.getState().generatedUrls || {})
-  const setWeekGenUrls = useCallback((updater) => setWeekGenUrlsState(prev => {
-    const next = typeof updater === 'function' ? updater(prev) : updater
-    useCampaignStore.setState({ generatedUrls: next })
-    return next
-  }), [])
+  const [weekGenUrls,     setWeekGenUrls]     = useState(() => useCampaignStore.getState().generatedUrls || {})
+  /* Mirrored after each change, not inside the state updater: a store write
+     during React's render phase is what its "cannot update a component while
+     rendering" warning is about. */
+  useEffect(() => { useCampaignStore.setState({ generatedUrls: weekGenUrls }) }, [weekGenUrls])
   const [weekGenLoading,  setWeekGenLoading]  = useState(false)
   const [weekGenError,    setWeekGenError]    = useState(null)
   const [weekGenTrigger,  setWeekGenTrigger]  = useState(0)
