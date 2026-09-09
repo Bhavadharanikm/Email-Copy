@@ -4566,7 +4566,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </head><body>
 <div style="width:600px;">
   <div style="display:block;background:${w2v2AccentColor};border-radius:999px;padding:20px 24px;text-align:center;">
-    <span style="font-family:Arial,sans-serif;font-size:28px;font-weight:700;color:${(isWeek3WF || isWeek5WF || isWeek6WF) ? '#1a1a1a' : '#ffffff'};white-space:nowrap;">${week1wfMainCtaText} &rarr;</span>
+    <span style="font-family:Arial,sans-serif;font-size:28px;font-weight:700;color:${(isWeek3WF || isWeek5WF || isWeek6WF || isWeek7WF || isWeek8WF || isWeek9WF) ? '#1a1a1a' : '#ffffff'};white-space:nowrap;">${week1wfMainCtaText} &rarr;</span>
   </div>
 </div>
 </body></html>` : null
@@ -4577,7 +4577,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </head><body>
 <div style="width:600px;">
   <div style="display:block;background:${w2v2AccentColor};border-radius:999px;padding:20px 24px;text-align:center;">
-    <span style="font-family:Arial,sans-serif;font-size:28px;font-weight:700;color:#ffffff;white-space:nowrap;">${week1wfIntroCtaText} &rarr;</span>
+    <span style="font-family:Arial,sans-serif;font-size:28px;font-weight:700;color:${(isWeek7WF || isWeek8WF) ? '#1a1a1a' : '#ffffff'};white-space:nowrap;">${week1wfIntroCtaText} &rarr;</span>
   </div>
 </div>
 </body></html>` : null
