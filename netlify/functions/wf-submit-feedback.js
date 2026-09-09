@@ -7,7 +7,8 @@
  *
  *   WF_FEEDBACK_SHEET_ID  — a Google Sheet: one row per note
  *                           (Date, Time, By, Client, Email, Section, Feedback)
- *   WF_FEEDBACK_DOC_ID    — or a Google Doc: appended like the weekly feedback
+ *   WF_FEEDBACK_DOC_ID    — or a Google Doc with an "Email 1" … "Email 9" heading
+ *                           each; every note is filed under its email's heading
  *
  * The sheet wins when both are set. The doc defaults to Pooja's welcome-flow
  * feedback doc, so nothing needs configuring on Vercel for the doc path.
@@ -63,29 +64,129 @@ async function appendToSheet(sheetId, row) {
   if (!res.ok) throw new Error(`Sheets append failed: ${res.status} ${(await res.text()).slice(0, 200)}`)
 }
 
-async function appendToDoc(docId, heading, body) {
-  const token = await getAccessToken('https://www.googleapis.com/auth/documents')
-  const auth  = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
+const DOC_SCOPE = 'https://www.googleapis.com/auth/documents'
+const HEADINGS  = [1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => `Email ${n}`)
 
-  const docRes = await fetch(`https://docs.googleapis.com/v1/documents/${docId}`, { headers: auth })
-  if (!docRes.ok) throw new Error(`Docs GET failed: ${docRes.status}`)
-  const doc      = await docRes.json()
-  const content  = doc.body?.content || []
-  const endIndex = content[content.length - 1]?.endIndex ?? 1
-  const insertAt = Math.max(1, endIndex - 1)
+async function docGet(docId, auth) {
+  const res = await fetch(`https://docs.googleapis.com/v1/documents/${docId}`, { headers: auth })
+  if (!res.ok) throw new Error(`Docs GET failed: ${res.status}`)
+  return res.json()
+}
 
-  const requests = [
-    { insertText: { text: `\n${heading}\n${body}\n`, location: { index: insertAt } } },
-    { updateTextStyle: {
-        range: { startIndex: insertAt + 1, endIndex: insertAt + 1 + heading.length },
-        textStyle: { bold: true }, fields: 'bold',
-    } },
-  ]
+async function docBatch(docId, auth, requests) {
   const res = await fetch(`https://docs.googleapis.com/v1/documents/${docId}:batchUpdate`, {
     method: 'POST', headers: auth, body: JSON.stringify({ requests }),
   })
   if (!res.ok) throw new Error(`Docs batchUpdate failed: ${res.status} ${(await res.text()).slice(0, 200)}`)
 }
+
+/** Every paragraph as { start, end, text, heading } in document order. */
+function paragraphsOf(doc) {
+  return (doc.body?.content || [])
+    .filter(e => e.paragraph)
+    .map(e => ({
+      start:   e.startIndex,
+      end:     e.endIndex,
+      text:    e.paragraph.elements.map(x => x.textRun?.content || '').join('').replace(/\n$/, '').trim(),
+      heading: /^HEADING_/.test(e.paragraph.paragraphStyle?.namedStyleType || ''),
+    }))
+}
+
+/** The "Email N" headings that exist, in order: [{ n, start, end }]. */
+function emailHeadings(paras) {
+  return paras
+    .map(p => ({ p, m: p.heading ? /^Email\s+([1-9])\b/i.exec(p.text) : null }))
+    .filter(x => x.m)
+    .map(x => ({ n: Number(x.m[1]), start: x.p.start, end: x.p.end }))
+}
+
+const docEnd = (doc) => {
+  const c = doc.body?.content || []
+  return c[c.length - 1]?.endIndex ?? 1
+}
+
+/**
+ * Make sure every "Email N" heading exists, in order 1..9. An empty doc gets
+ * all nine in one batch; a doc with some already gets the missing ones slotted
+ * in one at a time (each insert moves the indexes, so refetch between them).
+ */
+async function ensureHeadings(docId, auth) {
+  let doc = await docGet(docId, auth)
+  let heads = emailHeadings(paragraphsOf(doc))
+
+  if (!heads.length) {
+    const insertAt = Math.max(1, docEnd(doc) - 1)
+    const text     = HEADINGS.join('\n')
+    const requests = [{ insertText: { text, location: { index: insertAt } } }]
+    let cursor = insertAt
+    for (const h of HEADINGS) {
+      requests.push({ updateParagraphStyle: {
+        range: { startIndex: cursor, endIndex: cursor + h.length },
+        paragraphStyle: { namedStyleType: 'HEADING_1' }, fields: 'namedStyleType',
+      } })
+      cursor += h.length + 1
+    }
+    await docBatch(docId, auth, requests)
+    return docGet(docId, auth)
+  }
+
+  for (let n = 1; n <= 9; n++) {
+    if (heads.some(h => h.n === n)) continue
+    const next     = heads.find(h => h.n > n)
+    const insertAt = Math.max(1, (next ? next.start : docEnd(doc)) - 1)
+    const label    = `Email ${n}`
+    await docBatch(docId, auth, [
+      { insertText: { text: `\n${label}`, location: { index: insertAt } } },
+      { updateParagraphStyle: {
+        range: { startIndex: insertAt + 1, endIndex: insertAt + 1 + label.length },
+        paragraphStyle: { namedStyleType: 'HEADING_1' }, fields: 'namedStyleType',
+      } },
+      { updateTextStyle: {
+        range: { startIndex: insertAt + 1, endIndex: insertAt + 1 + label.length },
+        textStyle: { bold: false }, fields: 'bold',
+      } },
+    ])
+    doc   = await docGet(docId, auth)
+    heads = emailHeadings(paragraphsOf(doc))
+  }
+  return doc
+}
+
+/**
+ * File a note at the end of the "Email {week}" section: a bold title line,
+ * then the note as normal text. Exported so the placement can be exercised
+ * against a scratch doc.
+ */
+export async function placeNoteInDoc(docId, token, week, title, body) {
+  const auth  = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
+  const doc   = await ensureHeadings(docId, auth)
+  const paras = paragraphsOf(doc)
+  const heads = emailHeadings(paras)
+  const here  = heads.find(h => h.n === week)
+  if (!here) throw new Error(`Heading "Email ${week}" missing after setup`)
+
+  // The section ends where the next heading of any kind starts, or at the doc end.
+  const nextHead = paras.find(p => p.heading && p.start >= here.end)
+  const insertAt = Math.max(1, (nextHead ? nextHead.start : docEnd(doc)) - 1)
+
+  const text       = `\n${title}\n${body}`
+  const titleStart = insertAt + 1
+  const titleEnd   = titleStart + title.length
+  const bodyStart  = titleEnd + 1
+  const bodyEnd    = insertAt + text.length
+
+  await docBatch(docId, auth, [
+    { insertText: { text, location: { index: insertAt } } },
+    { updateParagraphStyle: {
+      range: { startIndex: titleStart, endIndex: bodyEnd },
+      paragraphStyle: { namedStyleType: 'NORMAL_TEXT' }, fields: 'namedStyleType',
+    } },
+    { updateTextStyle: { range: { startIndex: titleStart, endIndex: titleEnd }, textStyle: { bold: true },  fields: 'bold' } },
+    { updateTextStyle: { range: { startIndex: bodyStart,  endIndex: bodyEnd  }, textStyle: { bold: false }, fields: 'bold' } },
+  ])
+}
+
+export { getAccessToken, DOC_SCOPE }
 
 const rawHandler = async (event) => {
   if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' }
@@ -100,9 +201,13 @@ const rawHandler = async (event) => {
     const rawBody = event.isBase64Encoded
       ? Buffer.from(event.body, 'base64').toString('utf-8')
       : event.body
-    const { section, feedback, clientName, emailLabel, user } = JSON.parse(rawBody || '{}')
+    const { section, feedback, clientName, emailLabel, week: rawWeek, user } = JSON.parse(rawBody || '{}')
     if (!section || !feedback?.trim()) {
       return { statusCode: 400, body: JSON.stringify({ error: 'section and feedback are required' }) }
+    }
+    const week = Number(rawWeek)
+    if (!Number.isInteger(week) || week < 1 || week > 9) {
+      return { statusCode: 400, body: JSON.stringify({ error: 'week must be 1 to 9 so the note can be filed under its email' }) }
     }
 
     const now  = new Date()
@@ -116,8 +221,9 @@ const rawHandler = async (event) => {
     if (sheetId) {
       await appendToSheet(sheetId, [date, time, by, client, label, section, note])
     } else {
-      const heading = [label, client, section].filter(Boolean).join(' · ') + ` · ${date}${by ? ` · ${by}` : ''}`
-      await appendToDoc(docId, heading, note)
+      const title = [client, section].filter(Boolean).join(' · ') + ` · ${date}${by ? ` · ${by}` : ''}`
+      const token = await getAccessToken(DOC_SCOPE)
+      await placeNoteInDoc(docId, token, week, title, note)
     }
 
     console.log(`[wf-submit-feedback] ${label || 'no email'} / ${section} for ${client || 'unknown'}`)

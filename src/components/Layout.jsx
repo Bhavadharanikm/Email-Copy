@@ -7,7 +7,7 @@ import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
 import { submitFeedback, submitWfFeedback } from '../lib/api'
 import { useWelcomeFlowStore } from '../welcome-flow/store/welcomeFlowStore'
-import { wfWeekLabel } from '../welcome-flow/wfWeeks'
+import { wfWeekLabel, WF_WEEKS } from '../welcome-flow/wfWeeks'
 import { authFetch } from '../lib/session'
 
 const SECTIONS = [
@@ -47,8 +47,9 @@ const WF_SECTIONS = [
   'Overall Email',
 ]
 
-function FeedbackModal({ dark, onClose, sections = SECTIONS, subtitle = 'Flag a section for revision', context = null, onSubmit = null }) {
+function FeedbackModal({ dark, onClose, sections = SECTIONS, subtitle = 'Flag a section for revision', context = null, onSubmit = null, weekPicker = false }) {
   const [section,  setSection]  = useState('')
+  const [week,     setWeek]     = useState('')
   const [feedback, setFeedback] = useState('')
   const [sent,     setSent]     = useState(false)
   const [submitting, setSubmitting] = useState(false)
@@ -68,13 +69,14 @@ function FeedbackModal({ dark, onClose, sections = SECTIONS, subtitle = 'Flag a 
   async function handleSubmit(e) {
     e.preventDefault()
     if (!section || !feedback.trim()) return
+    if (weekPicker && !week) return
     setSubmitting(true)
     setError('')
     try {
-      if (onSubmit) await onSubmit({ section, feedback })
+      if (onSubmit) await onSubmit({ section, feedback, week: weekPicker ? Number(week) : undefined })
       else await submitFeedback({ section, feedback, clientName })
       setSent(true)
-      setTimeout(() => { setSent(false); setSection(''); setFeedback(''); onClose() }, 1800)
+      setTimeout(() => { setSent(false); setSection(''); setWeek(''); setFeedback(''); onClose() }, 1800)
     } catch (err) {
       setError(/not configured/i.test(err?.message || '') ? 'Feedback destination is not set up yet. Tell Pooja.' : 'Could not save feedback. Please try again.')
     } finally {
@@ -82,6 +84,7 @@ function FeedbackModal({ dark, onClose, sections = SECTIONS, subtitle = 'Flag a 
     }
   }
 
+  const ready   = !!section && !!feedback.trim() && !submitting && (!weekPicker || !!week)
   const border  = dark ? 'rgba(255,255,255,0.1)'  : '#e5e7eb'
   const bg      = dark ? '#141414'                 : '#ffffff'
   const textCol = dark ? 'rgba(255,255,255,0.85)'  : '#111827'
@@ -144,6 +147,37 @@ function FeedbackModal({ dark, onClose, sections = SECTIONS, subtitle = 'Flag a 
       ) : (
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
 
+          {/* Which email (welcome flow, when the page is not already inside one) */}
+          {weekPicker && (
+            <div>
+              <label style={{ fontSize: 11, fontWeight: 600, color: subCol, textTransform: 'uppercase', letterSpacing: '0.07em', display: 'block', marginBottom: 6 }}>
+                Email
+              </label>
+              <select
+                value={week}
+                onChange={e => setWeek(e.target.value)}
+                required
+                style={{
+                  width: '100%', padding: '9px 12px', borderRadius: 9,
+                  background: inputBg, border: `1.5px solid ${border}`,
+                  color: week ? textCol : subCol,
+                  fontSize: 13, fontFamily: 'Inter, sans-serif',
+                  outline: 'none', cursor: 'pointer',
+                  appearance: 'none',
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'right 10px center',
+                  paddingRight: 32,
+                }}
+              >
+                <option value="" disabled>Which email is this about?</option>
+                {WF_WEEKS.map(w => (
+                  <option key={w.week} value={w.week} style={{ background: bg, color: textCol }}>{wfWeekLabel(w.week)}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
           {/* Section picker */}
           <div>
             <label style={{ fontSize: 11, fontWeight: 600, color: subCol, textTransform: 'uppercase', letterSpacing: '0.07em', display: 'block', marginBottom: 6 }}>
@@ -203,17 +237,17 @@ function FeedbackModal({ dark, onClose, sections = SECTIONS, subtitle = 'Flag a 
           {/* Submit */}
           <button
             type="submit"
-            disabled={!section || !feedback.trim() || submitting}
+            disabled={!ready}
             style={{
               padding: '9px 0', borderRadius: 9, border: 'none',
-              background: section && feedback.trim() && !submitting
+              background: ready
                 ? (dark ? '#f59e0b' : '#111827')
                 : (dark ? 'rgba(255,255,255,0.06)' : '#e5e7eb'),
-              color: section && feedback.trim() && !submitting
+              color: ready
                 ? (dark ? '#111827' : '#ffffff')
                 : subCol,
               fontSize: 13, fontWeight: 700,
-              cursor: section && feedback.trim() && !submitting ? 'pointer' : 'not-allowed',
+              cursor: ready ? 'pointer' : 'not-allowed',
               transition: 'all 0.15s',
             }}
           >
@@ -275,11 +309,11 @@ export default function Layout() {
     ? [wfClient?.name, wfEmailLabel].filter(Boolean)
     : null
   const wfSubmit = inWelcomeFlow
-    ? ({ section, feedback }) => submitWfFeedback({
+    ? ({ section, feedback, week }) => submitWfFeedback({
         section, feedback,
         clientName: wfClient?.name || '',
-        emailLabel: wfEmailLabel,
-        week:       wfEmail?.week ?? null,
+        emailLabel: wfEmailLabel || (week ? wfWeekLabel(week) : ''),
+        week:       wfEmail?.week ?? week ?? null,
         user:       user?.name || '',
       })
     : null
@@ -481,6 +515,7 @@ export default function Layout() {
                     subtitle="Welcome flow · flag a part of this email"
                     context={wfContext.length ? wfContext : ['Welcome flow']}
                     onSubmit={wfSubmit}
+                    weekPicker={!wfEmail?.week}
                   />
                 : <FeedbackModal dark={dark} onClose={() => setFeedbackOpen(false)} />
               )}
