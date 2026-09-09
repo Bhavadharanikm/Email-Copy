@@ -239,3 +239,7 @@ export const fetchFooterData = ({ clientName }) =>
 // ── Feedback → Google Doc ─────────────────────────────────────────
 export const submitFeedback = ({ section, feedback, clientName }) =>
   post('/submit-feedback', { section, feedback, clientName })
+
+// ── Welcome-flow feedback → its own Sheet / Doc ──────────────────
+export const submitWfFeedback = (payload) =>
+  post('/wf-submit-feedback', payload)

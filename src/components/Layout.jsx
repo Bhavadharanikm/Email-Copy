@@ -1,11 +1,13 @@
-import { Outlet, NavLink, useNavigate } from 'react-router-dom'
+import { Outlet, NavLink, useNavigate, useLocation, matchPath } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useRef, useEffect } from 'react'
 import { useCampaignStore } from '../store/campaignStore'
 import { IconDiamond, IconSun, IconMoon, IconMessageCircle, IconCalendar, IconX, IconCheck, IconLogout } from '@tabler/icons-react'
 import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
-import { submitFeedback } from '../lib/api'
+import { submitFeedback, submitWfFeedback } from '../lib/api'
+import { useWelcomeFlowStore } from '../welcome-flow/store/welcomeFlowStore'
+import { wfWeekLabel } from '../welcome-flow/wfWeeks'
 import { authFetch } from '../lib/session'
 
 const SECTIONS = [
@@ -24,7 +26,28 @@ const SECTIONS = [
   'Overall Email',
 ]
 
-function FeedbackModal({ dark, onClose }) {
+/* Welcome-flow emails have their own parts, so the picker changes with the route. */
+const WF_SECTIONS = [
+  'Subject Line',
+  'Preview Text',
+  'Headline',
+  'Subhead',
+  'Intro',
+  'Body Block 1',
+  'Body Block 2',
+  'Body Block 3',
+  'CTA',
+  'Closing Line',
+  'Hero Image',
+  'Photos / Cards',
+  'Icons',
+  'Logo',
+  'Footer',
+  'Template / Layout',
+  'Overall Email',
+]
+
+function FeedbackModal({ dark, onClose, sections = SECTIONS, subtitle = 'Flag a section for revision', context = null, onSubmit = null }) {
   const [section,  setSection]  = useState('')
   const [feedback, setFeedback] = useState('')
   const [sent,     setSent]     = useState(false)
@@ -48,11 +71,12 @@ function FeedbackModal({ dark, onClose }) {
     setSubmitting(true)
     setError('')
     try {
-      await submitFeedback({ section, feedback, clientName })
+      if (onSubmit) await onSubmit({ section, feedback })
+      else await submitFeedback({ section, feedback, clientName })
       setSent(true)
       setTimeout(() => { setSent(false); setSection(''); setFeedback(''); onClose() }, 1800)
     } catch (err) {
-      setError('Could not save feedback. Please try again.')
+      setError(/not configured/i.test(err?.message || '') ? 'Feedback destination is not set up yet. Tell Pooja.' : 'Could not save feedback. Please try again.')
     } finally {
       setSubmitting(false)
     }
@@ -88,12 +112,27 @@ function FeedbackModal({ dark, onClose }) {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
         <div>
           <div style={{ fontSize: 14, fontWeight: 700, color: textCol, letterSpacing: '-0.01em' }}>Leave Feedback</div>
-          <div style={{ fontSize: 11, color: subCol, marginTop: 2 }}>Flag a section for revision</div>
+          <div style={{ fontSize: 11, color: subCol, marginTop: 2 }}>{subtitle}</div>
         </div>
         <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, borderRadius: 6, display: 'flex', color: subCol }}>
           <IconX size={16} stroke={2} />
         </button>
       </div>
+
+      {context && (
+        <div style={{
+          display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 14,
+        }}>
+          {context.map((c) => (
+            <span key={c} style={{
+              fontSize: 11, fontWeight: 600, padding: '4px 9px', borderRadius: 999,
+              background: dark ? 'rgba(255,255,255,0.08)' : '#f3f4f6',
+              color: dark ? 'rgba(255,255,255,0.75)' : '#374151',
+              border: `1px solid ${border}`,
+            }}>{c}</span>
+          ))}
+        </div>
+      )}
 
       {sent ? (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, padding: '20px 0' }}>
@@ -128,7 +167,7 @@ function FeedbackModal({ dark, onClose }) {
               }}
             >
               <option value="" disabled>Select a section…</option>
-              {SECTIONS.map(s => (
+              {sections.map(s => (
                 <option key={s} value={s} style={{ background: bg, color: textCol }}>{s}</option>
               ))}
             </select>
@@ -216,10 +255,34 @@ function BgShape({ className, delay = 0, width = 260, height = 55, rotate = 0, g
 export default function Layout() {
   const resetCampaign = useCampaignStore((s) => s.resetCampaign)
   const navigate = useNavigate()
+  const { pathname } = useLocation()
   const { theme, toggle } = useTheme()
   const { user, logout } = useAuth()
   const dark = theme === 'dark'
   const [feedbackOpen, setFeedbackOpen]         = useState(false)
+
+  // On welcome-flow routes the feedback modal switches to that flow's sections
+  // and writes to its own destination, tagged with the client and the email.
+  const wfMatch    = matchPath({ path: '/welcome-flow/:clientId', end: false }, pathname)
+  const wfEmailMatch = matchPath({ path: '/welcome-flow/:clientId/email/:emailId', end: false }, pathname)
+  const wfClientId = wfMatch?.params?.clientId || null
+  const wfEmailId  = wfEmailMatch?.params?.emailId || null
+  const wfClient   = useWelcomeFlowStore((s) => wfClientId ? (s.clients.find(c => c.id === wfClientId) || null) : null)
+  const wfEmail    = useWelcomeFlowStore((s) => wfClientId && wfEmailId ? ((s.emails[wfClientId] || []).find(e => e.id === wfEmailId) || null) : null)
+  const inWelcomeFlow = pathname.startsWith('/welcome-flow')
+  const wfEmailLabel  = wfEmail?.week ? wfWeekLabel(wfEmail.week) : ''
+  const wfContext     = inWelcomeFlow
+    ? [wfClient?.name, wfEmailLabel].filter(Boolean)
+    : null
+  const wfSubmit = inWelcomeFlow
+    ? ({ section, feedback }) => submitWfFeedback({
+        section, feedback,
+        clientName: wfClient?.name || '',
+        emailLabel: wfEmailLabel,
+        week:       wfEmail?.week ?? null,
+        user:       user?.name || '',
+      })
+    : null
   const [userMenuOpen, setUserMenuOpen]         = useState(false)
   const [showDeleteClient, setShowDeleteClient] = useState(false)
   const [deleteClientName, setDeleteClientName] = useState('')
@@ -410,7 +473,17 @@ export default function Layout() {
               <IconMessageCircle size={16} color={feedbackOpen ? (dark ? '#f59e0b' : '#3b82f6') : (dark ? 'rgba(255,255,255,0.7)' : '#6b7280')} stroke={1.8} />
             </button>
             <AnimatePresence>
-              {feedbackOpen && <FeedbackModal dark={dark} onClose={() => setFeedbackOpen(false)} />}
+              {feedbackOpen && (inWelcomeFlow
+                ? <FeedbackModal
+                    dark={dark}
+                    onClose={() => setFeedbackOpen(false)}
+                    sections={WF_SECTIONS}
+                    subtitle="Welcome flow · flag a part of this email"
+                    context={wfContext.length ? wfContext : ['Welcome flow']}
+                    onSubmit={wfSubmit}
+                  />
+                : <FeedbackModal dark={dark} onClose={() => setFeedbackOpen(false)} />
+              )}
             </AnimatePresence>
           </div>
 

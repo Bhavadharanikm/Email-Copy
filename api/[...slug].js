@@ -22,6 +22,7 @@ import { handler as pushToGhl }          from '../netlify/functions/push-to-ghl.
 import { handler as recommendTemplate }  from '../netlify/functions/recommend-template.js'
 import { handler as sendTestEmail }      from '../netlify/functions/send-test-email.js'
 import { handler as submitFeedback }     from '../netlify/functions/submit-feedback.js'
+import { handler as wfSubmitFeedback }   from '../netlify/functions/wf-submit-feedback.js'
 import { handler as uploadLogo }         from '../netlify/functions/upload-logo.js'
 import { handler as uploadScreenshot }   from '../netlify/functions/upload-screenshot.js'
 import { handler as wfClients }          from '../netlify/functions/wf-clients.js'
@@ -66,6 +67,7 @@ const HANDLERS = {
   'wf-generate-copy':    wfGenerateCopy,
   'wf-push-email':       wfPushEmail,
   'wf-emails':           wfEmails,
+  'wf-submit-feedback':  wfSubmitFeedback,
 }
 
 export default async function handler(req, res) {
