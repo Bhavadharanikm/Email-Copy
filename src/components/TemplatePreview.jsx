@@ -2043,7 +2043,7 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
        hero pill, so this one falls back to the email's CTA when left blank. -->
   ${introCta ? `<div class="w2wf-section" style="padding:22px 48px 0;background-color:${pageBg};text-align:center;">
     ${introBtnImgUrl
-      ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w2wf-btn-img" src="${introBtnImgUrl}" alt="${introCta}" width="600" height="88" style="width:100%;max-width:600px;height:auto;display:block;margin:0 auto;border:0;outline:none;"/></a>`
+      ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w2wf-btn-img" src="${introBtnImgUrl}" alt="${introCta}" width="375" style="width:375px;max-width:100%;height:auto;display:block;margin:0 auto;border:0;outline:none;"/></a>`
       : `<table class="w2wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w2wf-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;text-align:center;">${introCta} &rarr;</a></td></tr></table>`}
   </div>` : ''}
 
@@ -2080,7 +2080,7 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
 
   ${copy.ctaText ? `<div class="w2wf-section" style="padding:22px 48px 8px;background-color:${pageBg};text-align:center;">
     ${btnImgUrl
-      ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w2wf-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="600" height="88" style="width:100%;max-width:600px;height:auto;display:block;margin:0 auto;border:0;outline:none;"/></a>`
+      ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w2wf-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:100%;height:auto;display:block;margin:0 auto;border:0;outline:none;"/></a>`
       : `<table class="w2wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w2wf-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;text-align:center;">${copy.ctaText} &rarr;</a></td></tr></table>`}
   </div>` : ''}
 
