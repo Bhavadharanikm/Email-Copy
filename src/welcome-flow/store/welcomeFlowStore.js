@@ -29,6 +29,7 @@
 
 import { create } from 'zustand'
 import { authFetch } from '../../lib/session'
+import { wfWeek } from '../wfWeeks'
 
 /* Emails used to live only in this browser (localStorage 'welcome-flow-v1').
    Whatever is still there is pushed up to the database the first time that
@@ -68,9 +69,12 @@ export function weekTakenBy(emails, week, exceptEmailId) {
 
 /** Write one email's row. Returns the saved row id. Upserts on (client, week) when no id is known. */
 async function saveEmail(clientId, clientName, email) {
+  /* The row must always say which template its week uses, even for an email
+     created before the template existed or with the week set later. */
+  const templateId = email.templateId ?? wfWeek(email.week)?.templateId ?? null
   const res  = await authFetch('/.netlify/functions/wf-push-email', {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ clientId, clientName, position: email.position, week: email.week ?? null, dbId: email.dbId || null, email }),
+    body: JSON.stringify({ clientId, clientName, position: email.position, week: email.week ?? null, dbId: email.dbId || null, email: { ...email, templateId } }),
   })
   const body = await res.json()
   if (!res.ok) throw new Error(body.error || `Save failed (${res.status})`)

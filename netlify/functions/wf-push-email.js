@@ -56,13 +56,22 @@ const rawHandler = async (event) => {
     if (!clientId) return json(400, { error: 'clientId is required' })
     if (!email)    return json(400, { error: 'email is required' })
 
+    /* The browser sends the client's name for convenience, but may not have
+       the client list loaded yet when it saves. Never write a blank name:
+       look it up from the client row instead. */
+    let resolvedClientName = clientName || ''
+    if (!resolvedClientName) {
+      const cr = await fetch(`${url}/rest/v1/email_wf_clients?select=client_name&id=eq.${encodeURIComponent(clientId)}&limit=1`, { headers: headers(key) })
+      if (cr.ok) { const [c] = await cr.json(); resolvedClientName = c?.client_name || '' }
+    }
+
     const variations = Array.isArray(email.variations) ? email.variations : []
     const selected   = Number.isInteger(email.selectedVariation) ? email.selectedVariation : 0
     const chosen     = variations[selected] || email.copy || {}
 
     const row = {
       client_id:      clientId,
-      client_name:    clientName || '',
+      client_name:    resolvedClientName,
       position:       position ?? email.position ?? 1,
       week:           week ?? email.week ?? null,
       subject_line:   chosen.subjectLine || '',
