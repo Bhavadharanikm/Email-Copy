@@ -2413,53 +2413,47 @@ function buildTemplateWeek4WF({ client, copy, images, footerData, isHeroGenerate
     ? copy.blocks.filter(b => b && (b.blockHeader || b.entries)).slice(0, 3)
     : []
 
-  /* One entry per line, written "Name — what it is". The name comes out bold,
-     the rest regular, both on Body regular. An em dash, en dash or a plain
-     hyphen surrounded by spaces all count as the separator, because the copy
-     arrives typed by hand as often as it arrives from the workflow. */
-  const entryHtml = (line) => {
+  /* One entry per line, written "Name — what it is". The name comes out bold
+     on its own line, what it is beneath it in the muted colour, both 16/24 —
+     Email 6's rows without the icon. An em dash, en dash or a spaced hyphen
+     all count as the separator, since copy arrives typed as often as generated. */
+  const entryHtml = (line, k) => {
     const m = /^(.*?)\s+[—–-]\s+(.*)$/.exec(String(line).trim())
     const name   = m ? m[1].trim() : String(line).trim()
     const detail = m ? m[2].trim() : ''
-    return `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${textCol};margin-top:12px;"><span style="font-weight:700;">${name}</span>${detail ? ` &mdash; ${detail}` : ''}</div>`
+    return `<div style="margin-top:${k ? 16 : 14}px;">
+        <div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;font-weight:700;color:${textCol};">${name}</div>
+        ${detail ? `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${mutedTextCol};margin-top:2px;">${detail}</div>` : ''}
+      </div>`
   }
 
-  const PHOTO = 216
-  /* A real two-cell table, so the photo stays beside its text at every width;
-     the photo cell narrows on a phone rather than dropping below. */
-  const blockRow = (block, i) => {
-    const img = blockImgs[i] || ''
-    const textLeftSide = i % 2 === 0
-    const photoTd = `<td class="w4wf-photo" width="${PHOTO}" valign="middle" style="width:${PHOTO}px;line-height:0;font-size:0;">
-            <div style="background:${cardTint};border-radius:18px;padding:10px;">
-              ${img
-                ? `<div class="w4wf-inbox" style="position:relative;width:100%;height:${PHOTO - 20}px;overflow:hidden;border-radius:12px;"><img src="${img}" alt="${block.blockHeader||''}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:${blockTf[i]};transform-origin:center center;"/></div>`
-                : `<div class="w4wf-inbox" style="width:100%;height:${PHOTO - 20}px;background:${pillBg};border-radius:12px;"></div>`}
-            </div>
-          </td>`
-    const textTd = `<td valign="middle" style="padding-${textLeftSide ? 'right' : 'left'}:18px;">
-            ${block.blockHeader ? `<div style="font-family:Arial,sans-serif;font-size:14px;line-height:20px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:${secondary};">${block.blockHeader}</div>` : ''}
-            ${String(block.entries || '').split('\n').map(l => l.trim()).filter(Boolean).map(entryHtml).join('')}
-          </td>`
-    return `<div class="w4wf-row" style="padding:0 0 30px;">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
-        <tr>
-          ${textLeftSide ? textTd : photoTd}
-          ${textLeftSide ? photoTd : textTd}
-        </tr>
-      </table>
+  /* One card per block: the photo across the top at its own proportions (no
+     crop, so nothing to bake and nothing to drift), the block's name as the
+     design system's chip, then the entries. */
+  const photoHtml = (url, alt) => url
+    ? `<img src="${url}" alt="${alt || ''}" width="528" style="width:100%;max-width:528px;height:auto;display:block;border-radius:12px;border:0;outline:none;"/>`
+    : `<div style="width:100%;height:200px;background:${pillBg};border-radius:12px;"></div>`
+  const blockCard = (block, i) => `<div class="w4wf-card" style="background-color:${cardTint};border:1px solid ${cardBorder};border-radius:16px;padding:12px;margin-top:${i ? 14 : 0}px;">
+      <div style="line-height:0;font-size:0;">${photoHtml(blockImgs[i], block.blockHeader)}</div>
+      <div class="w4wf-cardbody" style="padding:16px 8px 8px;">
+        ${block.blockHeader ? `<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;"><tr><td style="background:#F0F0F0;border:1px solid #DEDEDE;border-radius:999px;padding:6px 14px;">
+          <span style="font-family:Arial,sans-serif;font-size:14px;line-height:14px;font-weight:600;color:#3A3A3A;letter-spacing:.02em;">${block.blockHeader}</span>
+        </td></tr></table>` : ''}
+        ${String(block.entries || '').split('\n').map(l => l.trim()).filter(Boolean).map(entryHtml).join('')}
+      </div>
     </div>`
-  }
 
   const blocksHtml = blocks.length ? `
-  <div class="w4wf-section" style="padding:30px 48px 0;background-color:${pageBg};">
-    ${blocks.map(blockRow).join('')}
+  <div class="w4wf-section" style="padding:30px 24px 0;background-color:${pageBg};">
+    ${blocks.map(blockCard).join('')}
   </div>` : ''
 
+  /* The one CTA, in the design system's shape: 16/16, 12px top and bottom, hugging
+     its label on desktop and filling the width on a phone. Black label, as Email 6. */
   const ctaButton = copy.ctaText
     ? (btnImgUrl
-      ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w4wf-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="600" style="width:100%;max-width:420px;height:auto;display:block;margin:0;border:0;outline:none;"/></a>`
-      : `<table class="w4wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w4wf-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;text-align:center;">${copy.ctaText}</a></td></tr></table>`)
+      ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w4wf-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:100%;height:auto;display:block;margin:0 auto;border:0;outline:none;"/></a>`
+      : `<table class="w4wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w4wf-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:#1a1a1a!important;-webkit-text-fill-color:#1a1a1a;text-decoration:none!important;text-align:center;">${copy.ctaText} &rarr;</a></td></tr></table>`)
     : ''
 
   return `<!DOCTYPE html>
@@ -2476,14 +2470,11 @@ function buildTemplateWeek4WF({ client, copy, images, footerData, isHeroGenerate
     .w4wf-hero      { height:600px!important; }
     .w4wf-herocard  { height:360px!important; }
     .w4wf-headline  { font-size:30px!important; }
-    .w4wf-btn-img  { max-width:100%!important; }
+    .w4wf-btn-img  { width:100%!important; max-width:100%!important; }
     .w4wf-btnwrap  { width:100%!important; }
     .w4wf-cta      { padding:12px 20px!important; }
-    /* A narrower photo on a phone, so the text keeps a readable measure. */
-    .w4wf-photo    { width:128px!important; }
-    .w4wf-photobox { height:128px!important; }
-    .w4wf-inbox    { height:108px!important; }
-    .wf-lora-h3    { font-size:20px!important; line-height:30px!important; }
+    .w4wf-cardbody { padding:14px 4px 4px!important; }
+    .w4wf-h3       { font-size:20px!important; line-height:30px!important; }
   }
 </style></head>
 <body style="margin:0;padding:32px 0 48px;background-color:#ffffff;">
@@ -2534,34 +2525,23 @@ function buildTemplateWeek4WF({ client, copy, images, footerData, isHeroGenerate
     </div>
   </div>`}
 
-  <!-- THE AREA BLOCKS -->
+  <!-- THE AREA BLOCKS — one card each: the photo, the block's chip, the entries -->
   ${blocksHtml}
 
-  <!-- BRIDGE BACK — the paragraph that turns the day out there back towards the
-       stay, carrying the one CTA. -->
-  ${(bridgeBack || copy.bodyBlock2Title || copy.ctaText) ? `<div class="w4wf-section" style="padding:4px 48px 0;background-color:${pageBg};">
-    <div style="background:${cardTint};border-radius:18px;padding:24px;">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
-        <tr>
-          <td valign="middle" style="padding-right:${blockImgs[3] ? 18 : 0}px;">
-            ${copy.bodyBlock2Title ? `<div class="wf-lora-h3" style="font-family:'Lora',Georgia,serif;font-size:24px;line-height:32px;font-weight:700;color:${secondary};margin-bottom:10px;">${copy.bodyBlock2Title}</div>` : ''}
-            ${bridgeBack ? `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${textCol};">${bridgeBack}</div>` : ''}
-            ${ctaButton ? `<div style="margin-top:18px;">${ctaButton}</div>` : ''}
-          </td>
-          ${blockImgs[3] ? `<td class="w4wf-photo" width="${PHOTO}" valign="middle" style="width:${PHOTO}px;line-height:0;font-size:0;">
-            <div class="w4wf-photobox" style="position:relative;width:100%;height:${PHOTO}px;overflow:hidden;border-radius:12px;"><img src="${blockImgs[3]}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:${blockTf[3]};transform-origin:center center;"/></div>
-          </td>` : ''}
-        </tr>
-      </table>
-    </div>
+  <!-- BRIDGE BACK — one more photo, then the title, the paragraph that turns the
+       day out there back towards the stay, and the one CTA -->
+  ${blockImgs[3] ? `<div class="w4wf-section" style="padding:26px 24px 0;background-color:${pageBg};line-height:0;font-size:0;">
+    <img src="${blockImgs[3]}" alt="" width="552" style="width:100%;max-width:552px;height:auto;display:block;border-radius:16px;border:0;outline:none;"/>
   </div>` : ''}
-
-  <!-- CODE REMINDER -->
-  ${footerLine ? `<div class="w4wf-section" style="padding:22px 48px 30px;background-color:${pageBg};text-align:center;">
-    <div style="font-family:Arial,sans-serif;font-size:14px;line-height:20px;color:${faintTextCol};">${footerLine}</div>
+  ${copy.bodyBlock2Title ? `<div class="w4wf-section" style="padding:26px 48px 0;background-color:${pageBg};">
+    <div class="w4wf-h3" style="font-family:Arial,sans-serif;font-size:24px;line-height:32px;font-weight:700;text-transform:uppercase;color:${secondary};">${copy.bodyBlock2Title}</div>
   </div>` : ''}
+  ${bridgeBack ? `<div class="w4wf-section" style="padding:${copy.bodyBlock2Title ? 12 : 26}px 48px 0;background-color:${pageBg};">
+    <div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${textCol};">${bridgeBack}</div>
+  </div>` : ''}
+  ${ctaButton ? `<div class="w4wf-section" style="padding:24px 48px 0;background-color:${pageBg};text-align:center;">${ctaButton}</div>` : ''}
 
-  <div style="background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true, wfFooter: true })}</div>
+  <div style="padding-top:26px;background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true, wfFooter: true, leadLine: footerLine })}</div>
 
 </td></tr>
 </table>
