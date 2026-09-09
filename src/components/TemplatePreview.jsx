@@ -2365,9 +2365,12 @@ function buildTemplateWeek4WF({ client, copy, images, footerData, isHeroGenerate
   img3Scale=1, img3X=0, img3Y=0,
   img4Scale=1, img4X=0, img4Y=0,
   btnImgUrl = null, introBtnImgUrl = null,
+  cardsGenerated = [false, false, false], isStoryGenerated = false,
 }) {
   const heroObj = images?.[0]; const heroImg = heroObj?.url || ''
-  /* One photo per block, Sub 1-3, then Sub 4 for the bridge-back card. */
+  /* One photo per block, Sub 1-3, then Sub 4 for the bridge-back card. Once
+     Generate Images has run, slots 1-3 hold the baked 528x220 crops and slot 4
+     the baked 552x240 one; cardsGenerated / isStoryGenerated say so. */
   const blockImgs = [1, 2, 3, 4].map(n => images?.[n]?.url || '')
   const blockTf = [
     `translate(${img1X}px,${img1Y}px) scale(${img1Scale})`,
@@ -2430,11 +2433,18 @@ function buildTemplateWeek4WF({ client, copy, images, footerData, isHeroGenerate
   /* One card per block: the photo across the top at its own proportions (no
      crop, so nothing to bake and nothing to drift), the block's name as the
      design system's chip, then the entries. */
-  const photoHtml = (url, alt) => url
-    ? `<img src="${url}" alt="${alt || ''}" width="528" style="width:100%;max-width:528px;height:auto;display:block;border-radius:12px;border:0;outline:none;"/>`
-    : `<div style="width:100%;height:200px;background:${pillBg};border-radius:12px;"></div>`
+  /* A short landscape band, 220 tall on desktop and 180 on a phone, whatever
+     the photo's own shape. Cropped live for the preview; once baked, the PNG
+     already is that shape and is shown plainly. */
+  const CARD_H = 220
+  const photoHtml = (i, alt) => {
+    const url = blockImgs[i]
+    if (!url) return `<div class="w4wf-photobox" style="width:100%;height:${CARD_H}px;background:${pillBg};border-radius:12px;"></div>`
+    if (cardsGenerated[i]) return `<img src="${url}" alt="${alt || ''}" width="528" height="${CARD_H}" style="width:100%;max-width:528px;height:auto;display:block;border-radius:12px;border:0;outline:none;"/>`
+    return `<div class="w4wf-photobox" style="position:relative;width:100%;height:${CARD_H}px;overflow:hidden;border-radius:12px;"><img src="${url}" alt="${alt || ''}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:${blockTf[i]};transform-origin:center center;"/></div>`
+  }
   const blockCard = (block, i) => `<div class="w4wf-card" style="background-color:${cardTint};border:1px solid ${cardBorder};border-radius:16px;padding:12px;margin-top:${i ? 14 : 0}px;">
-      <div style="line-height:0;font-size:0;">${photoHtml(blockImgs[i], block.blockHeader)}</div>
+      <div style="line-height:0;font-size:0;">${photoHtml(i, block.blockHeader)}</div>
       <div class="w4wf-cardbody" style="padding:16px 8px 8px;">
         ${block.blockHeader ? `<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;"><tr><td style="background:#F0F0F0;border:1px solid #DEDEDE;border-radius:999px;padding:6px 14px;">
           <span style="font-family:Arial,sans-serif;font-size:14px;line-height:14px;font-weight:600;color:#3A3A3A;letter-spacing:.02em;">${block.blockHeader}</span>
@@ -2474,6 +2484,8 @@ function buildTemplateWeek4WF({ client, copy, images, footerData, isHeroGenerate
     .w4wf-btnwrap  { width:100%!important; }
     .w4wf-cta      { padding:12px 20px!important; }
     .w4wf-cardbody { padding:14px 4px 4px!important; }
+    .w4wf-photobox { height:180px!important; }
+    .w4wf-bridgebox { height:200px!important; }
     .w4wf-h3       { font-size:20px!important; line-height:30px!important; }
   }
 </style></head>
@@ -2531,7 +2543,9 @@ function buildTemplateWeek4WF({ client, copy, images, footerData, isHeroGenerate
   <!-- BRIDGE BACK — one more photo, then the title, the paragraph that turns the
        day out there back towards the stay, and the one CTA -->
   ${blockImgs[3] ? `<div class="w4wf-section" style="padding:26px 24px 0;background-color:${pageBg};line-height:0;font-size:0;">
-    <img src="${blockImgs[3]}" alt="" width="552" style="width:100%;max-width:552px;height:auto;display:block;border-radius:16px;border:0;outline:none;"/>
+    ${isStoryGenerated
+      ? `<img src="${blockImgs[3]}" alt="" width="552" height="240" style="width:100%;max-width:552px;height:auto;display:block;border-radius:16px;border:0;outline:none;"/>`
+      : `<div class="w4wf-bridgebox" style="position:relative;width:100%;height:240px;overflow:hidden;border-radius:16px;"><img src="${blockImgs[3]}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:${blockTf[3]};transform-origin:center center;"/></div>`}
   </div>` : ''}
   ${copy.bodyBlock2Title ? `<div class="w4wf-section" style="padding:26px 48px 0;background-color:${pageBg};">
     <div class="w4wf-h3" style="font-family:Arial,sans-serif;font-size:24px;line-height:32px;font-weight:700;text-transform:uppercase;color:${secondary};">${copy.bodyBlock2Title}</div>
@@ -3693,11 +3707,11 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
        missing here renders its live hero over its own baked PNG: two headlines. */
     const isHeroGenerated = [10, 11, 13, 16, 17, 18, 19, 20, 23, 24, 25, 31, 32, 33, 34, 35, 36, 37, 38].includes(tpl?.id) && !!tplUrls.hero
     // Week 1 WF bakes its two overlapping story circles into one PNG at slot 4
-    const isStoryGenerated = tpl?.id === 31 && !!tplUrls.sec
+    const isStoryGenerated = (tpl?.id === 31 || tpl?.id === 34) && !!tplUrls.sec
     // ...and each stay photo into its own flat crop, so cardsGenerated[i] tells
     // the builder that images[i+1] is already cropped/zoomed and should render
     // as a plain <img> rather than re-applying position:absolute + a transform
-    const cardsGenerated = tpl?.id === 31 ? [!!tplUrls.card1, !!tplUrls.card2, !!tplUrls.card3] : [false, false, false]
+    const cardsGenerated = (tpl?.id === 31 || tpl?.id === 34) ? [!!tplUrls.card1, !!tplUrls.card2, !!tplUrls.card3] : [false, false, false]
     const effectiveFooterData = clientFooter
       ? { ...clientFooter, logoColor: footerLogoColor, footerLogoSize }
       : clientFooter
@@ -4408,6 +4422,17 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </div>
 </body></html>`
 
+    /* Email 4's photos: each block photo cropped to its 528x220 card band, the
+       bridge-back photo to 552x240, corners rounded in the PNG. Transparent
+       ground so the card tint shows around the corners. */
+    const week4wfPhotoHtml = (url, w, hgt, r, x, y, sc) => `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:${w}px;background:transparent;}</style>
+</head><body>
+<div style="position:relative;width:${w}px;height:${hgt}px;border-radius:${r}px;overflow:hidden;">
+  <img src="${url}" style="position:absolute;top:0;left:0;width:${w}px;height:${hgt}px;object-fit:cover;display:block;transform:translate(${x}px,${y}px) scale(${sc});transform-origin:center center;"/>
+</div>
+</body></html>`
+
     const heroHtml = isWeek2
       ? week2ArchHtml(midBg, false)
       : isWeek8WF
@@ -5096,7 +5121,9 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </body></html>` : null
 
     const heroHeight = isWeek9 ? 720 : isWeek2 ? 580 : isWeek8WF ? 300 : isWeek7WF ? 340 : isWeek4WF ? 600 : isWeek2WF ? (logoTop + logoSize + 18 + 680) : isWFAny ? 772 : isWeek8v2 ? 680 : isWeek7v2 ? ((img1Url || img2Url || img3Url) ? 988 : 720) : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : isTest ? 520 : 400
-    const secondaryPromise = isWeek2WF && img1Url
+    const secondaryPromise = isWeek4WF && img4Url
+      ? renderImage({ html: week4wfPhotoHtml(img4Url, 552, 240, 16, img4X, img4Y, img4Scale), width: 552, height: 240, transparent: true })
+      : isWeek2WF && img1Url
       ? renderImage({ html: week2wfDayHtml(img1Url, img1X, img1Y, img1Scale), width: 200, height: 260, transparent: true })
       : (isWeek8WF || isWeek9WF) && week8wfCirclesHtml
       ? renderImage({ html: week8wfCirclesHtml, width: 600, height: 360, transparent: true })
@@ -5177,13 +5204,19 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     const cardBtnThunk = () => isWFCards && week1wfCardBtnHtml
       ? renderImage({ html: week1wfCardBtnHtml, width: 400, height: 76, transparent: true })
       : Promise.resolve(null)
-    const card1Thunk = () => isWFCards && week1wfCard1Html
+    const card1Thunk = () => isWeek4WF && img1Url
+      ? renderImage({ html: week4wfPhotoHtml(img1Url, 528, 220, 12, img1X, img1Y, img1Scale), width: 528, height: 220, transparent: true })
+      : isWFCards && week1wfCard1Html
       ? renderImage({ html: week1wfCard1Html, width: 600, height: 320, transparent: false })
       : Promise.resolve(null)
-    const card2Thunk = () => isWFCards && week1wfCard2Html
+    const card2Thunk = () => isWeek4WF && img2Url
+      ? renderImage({ html: week4wfPhotoHtml(img2Url, 528, 220, 12, img2X, img2Y, img2Scale), width: 528, height: 220, transparent: true })
+      : isWFCards && week1wfCard2Html
       ? renderImage({ html: week1wfCard2Html, width: 600, height: 320, transparent: false })
       : Promise.resolve(null)
-    const card3Thunk = () => isWFCards && week1wfCard3Html
+    const card3Thunk = () => isWeek4WF && img3Url
+      ? renderImage({ html: week4wfPhotoHtml(img3Url, 528, 220, 12, img3X, img3Y, img3Scale), width: 528, height: 220, transparent: true })
+      : isWFCards && week1wfCard3Html
       ? renderImage({ html: week1wfCard3Html, width: 600, height: 320, transparent: false })
       : Promise.resolve(null)
 
