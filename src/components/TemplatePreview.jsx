@@ -2437,11 +2437,23 @@ function buildTemplateWeek4WF({ client, copy, images, footerData, isHeroGenerate
      the photo's own shape. Cropped live for the preview; once baked, the PNG
      already is that shape and is shown plainly. */
   const CARD_H = 220
+  /* A gallery of the three block photos on every card, fanned to the right
+     like a stack of prints, with a different one in front each time: block 1
+     leads with Sub 1, block 2 with Sub 2, block 3 with Sub 3. The two behind
+     step 32px right and 8px down and lose 16px of height each. Once baked the
+     whole stack is one PNG. Same geometry in week4wfStackHtml. */
+  const stackOrder = (i) => [i, (i + 1) % 3, (i + 2) % 3]
   const photoHtml = (i, alt) => {
-    const url = blockImgs[i]
-    if (!url) return `<div class="w4wf-photobox" style="width:100%;height:${CARD_H}px;background:${pillBg};border-radius:12px;"></div>`
-    if (cardsGenerated[i]) return `<img src="${url}" alt="${alt || ''}" width="528" height="${CARD_H}" style="width:100%;max-width:528px;height:auto;display:block;border-radius:12px;border:0;outline:none;"/>`
-    return `<div class="w4wf-photobox" style="position:relative;width:100%;height:${CARD_H}px;overflow:hidden;border-radius:12px;"><img src="${url}" alt="${alt || ''}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:${blockTf[i]};transform-origin:center center;"/></div>`
+    const order = stackOrder(i).filter(k => blockImgs[k])
+    if (!order.length) return `<div class="w4wf-photobox" style="width:100%;height:${CARD_H}px;background:${pillBg};border-radius:12px;"></div>`
+    if (cardsGenerated[i]) return `<img src="${blockImgs[i]}" alt="${alt || ''}" width="528" height="${CARD_H}" style="width:100%;max-width:528px;height:auto;display:block;border:0;outline:none;"/>`
+    /* drawn back to front so the leading photo paints last; widths in % of the
+       528 stage so the fan holds on a phone (464/528, 32/528, 64/528) */
+    const layers = order.map((k, depth) => ({ k, depth })).reverse().map(({ k, depth }) =>
+      `<div style="position:absolute;left:${(depth * 32 / 528 * 100).toFixed(2)}%;top:${depth * 8}px;width:87.88%;height:calc(100% - ${depth * 16}px);overflow:hidden;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,0.12);">
+          <img src="${blockImgs[k]}" alt="${depth ? '' : (alt || '')}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:${blockTf[k]};transform-origin:center center;"/>
+        </div>`).join('')
+    return `<div class="w4wf-photobox" style="position:relative;width:100%;height:${CARD_H}px;">${layers}</div>`
   }
   const blockCard = (block, i) => `<div class="w4wf-card" style="background-color:${cardTint};border:1px solid ${cardBorder};border-radius:16px;padding:12px;margin-top:${i ? 14 : 0}px;">
       <div style="line-height:0;font-size:0;">${photoHtml(i, block.blockHeader)}</div>
@@ -4433,6 +4445,22 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </div>
 </body></html>`
 
+    /* Email 4's card gallery: the three block photos fanned as on screen, the
+       leading one first in `order`. 528x220, transparent around the fan. */
+    const week4wfStackHtml = (order) => {
+      const urls = [img1Url, img2Url, img3Url], tf = [[img1X, img1Y, img1Scale], [img2X, img2Y, img2Scale], [img3X, img3Y, img3Scale]]
+      const present = order.filter(k => urls[k])
+      const layers = present.map((k, depth) => ({ k, depth })).reverse().map(({ k, depth }) =>
+        `<div style="position:absolute;left:${depth * 32}px;top:${depth * 8}px;width:464px;height:${220 - depth * 16}px;overflow:hidden;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,0.12);">
+    <img src="${urls[k]}" style="position:absolute;top:0;left:0;width:464px;height:${220 - depth * 16}px;object-fit:cover;display:block;transform:translate(${tf[k][0]}px,${tf[k][1]}px) scale(${tf[k][2]});transform-origin:center center;"/>
+  </div>`).join('')
+      return `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:528px;background:transparent;}</style>
+</head><body>
+<div style="position:relative;width:528px;height:220px;background:transparent;">${layers}</div>
+</body></html>`
+    }
+
     const heroHtml = isWeek2
       ? week2ArchHtml(midBg, false)
       : isWeek8WF
@@ -5205,17 +5233,17 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
       ? renderImage({ html: week1wfCardBtnHtml, width: 400, height: 76, transparent: true })
       : Promise.resolve(null)
     const card1Thunk = () => isWeek4WF && img1Url
-      ? renderImage({ html: week4wfPhotoHtml(img1Url, 528, 220, 12, img1X, img1Y, img1Scale), width: 528, height: 220, transparent: true })
+      ? renderImage({ html: week4wfStackHtml([0, 1, 2]), width: 528, height: 220, transparent: true })
       : isWFCards && week1wfCard1Html
       ? renderImage({ html: week1wfCard1Html, width: 600, height: 320, transparent: false })
       : Promise.resolve(null)
     const card2Thunk = () => isWeek4WF && img2Url
-      ? renderImage({ html: week4wfPhotoHtml(img2Url, 528, 220, 12, img2X, img2Y, img2Scale), width: 528, height: 220, transparent: true })
+      ? renderImage({ html: week4wfStackHtml([1, 2, 0]), width: 528, height: 220, transparent: true })
       : isWFCards && week1wfCard2Html
       ? renderImage({ html: week1wfCard2Html, width: 600, height: 320, transparent: false })
       : Promise.resolve(null)
     const card3Thunk = () => isWeek4WF && img3Url
-      ? renderImage({ html: week4wfPhotoHtml(img3Url, 528, 220, 12, img3X, img3Y, img3Scale), width: 528, height: 220, transparent: true })
+      ? renderImage({ html: week4wfStackHtml([2, 0, 1]), width: 528, height: 220, transparent: true })
       : isWFCards && week1wfCard3Html
       ? renderImage({ html: week1wfCard3Html, width: 600, height: 320, transparent: false })
       : Promise.resolve(null)
