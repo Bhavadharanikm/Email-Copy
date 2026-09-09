@@ -5,7 +5,11 @@
  * project — via /.netlify/functions/wf-clients. They are not persisted locally,
  * so the server is the single source of truth and stale rows cannot linger.
  *
- * EMAILS are still localStorage for now; they move to email_wf_emails next.
+ * EMAILS come from the database too — email_wf_emails, one row per client per
+ * week — via wf-emails (read) and wf-push-email (write). Every create and
+ * every change writes its row, so opening an email anywhere shows exactly what
+ * was last saved: copy, images, baked PNGs, both HTML versions, status. A
+ * re-push overwrites the whole row for that client and week.
  *
  * A client only appears here once it has been added on this page. The location_id
  * is the join key: the GHL API key and logo are resolved from the other Supabase
@@ -24,8 +28,51 @@
  */
 
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
 import { authFetch } from '../../lib/session'
+
+/* Emails used to live only in this browser (localStorage 'welcome-flow-v1').
+   Whatever is still there is pushed up to the database the first time that
+   client is opened, then the key is dropped. */
+const LEGACY_KEY = 'welcome-flow-v1'
+function takeLegacyEmails(clientId) {
+  try {
+    const raw = localStorage.getItem(LEGACY_KEY); if (!raw) return []
+    const parsed = JSON.parse(raw); const all = parsed?.state?.emails || {}
+    const mine = all[clientId] || []
+    delete all[clientId]
+    if (Object.keys(all).length) localStorage.setItem(LEGACY_KEY, JSON.stringify({ ...parsed, state: { ...parsed.state, emails: all } }))
+    else localStorage.removeItem(LEGACY_KEY)
+    return mine
+  } catch { return [] }
+}
+
+/** Write one email's row. Returns the saved row id. Upserts on (client, week) when no id is known. */
+async function saveEmail(clientId, clientName, email) {
+  const res  = await authFetch('/.netlify/functions/wf-push-email', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ clientId, clientName, position: email.position, week: email.week ?? null, dbId: email.dbId || null, email }),
+  })
+  const body = await res.json()
+  if (!res.ok) throw new Error(body.error || `Save failed (${res.status})`)
+  return body.id
+}
+
+/* Changes arrive keystroke by keystroke from the editors; one write per email
+   a moment after the last change is enough. */
+const pending = new Map()
+function scheduleSave(get, set, clientId, emailId) {
+  clearTimeout(pending.get(emailId))
+  pending.set(emailId, setTimeout(async () => {
+    pending.delete(emailId)
+    const s = get(); const email = (s.emails[clientId] || []).find(e => e.id === emailId); if (!email) return
+    const client = s.clients.find(c => c.id === clientId)
+    try {
+      const id = await saveEmail(clientId, client?.name || '', email)
+      if (id && id !== email.dbId) set(st => ({ emails: { ...st.emails, [clientId]: (st.emails[clientId] || []).map(e => e.id === emailId ? { ...e, dbId: id } : e) } }))
+      set({ saveError: null })
+    } catch (e) { console.error('[welcome-flow] save failed', e); set({ saveError: e.message }) }
+  }, 600))
+}
 
 export const WF_STATUS = {
   draft:        { label: 'Draft',        tone: 'neutral' },
@@ -42,12 +89,14 @@ const DONE = new Set(['approved', 'pushed'])
 const uid = () => `wf_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`
 
 export const useWelcomeFlowStore = create(
-  persist(
     (set, get) => ({
       clients: [],
       emails:  {},
       loadingClients: false,
       clientsError:   null,
+      loadedEmails:   {},     // { [clientId]: true } once that client's emails have come from the database
+      loadingEmails:  {},
+      saveError:      null,
 
       // ── clients: server-backed ─────────────────────────────────────────
       fetchClients: async () => {
@@ -111,50 +160,82 @@ export const useWelcomeFlowStore = create(
 
       getClient: (id) => get().clients.find(c => c.id === id) || null,
 
-      // ── emails ─────────────────────────────────────────────────────────
+      // ── emails: database-backed ─────────────────────────────────────────
       getEmails: (clientId) => get().emails[clientId] || [],
 
-      addEmail: (clientId, data = {}) => {
-        const list = get().emails[clientId] || []
-        const id = uid()
+      /** Load a client's emails from the database once; carry up anything this
+          browser still held from before, so nothing already written is lost. */
+      ensureEmails: async (clientId) => {
+        const s = get()
+        if (!clientId || s.loadedEmails[clientId] || s.loadingEmails[clientId]) return
+        set(st => ({ loadingEmails: { ...st.loadingEmails, [clientId]: true } }))
+        try {
+          const legacy = takeLegacyEmails(clientId)
+          if (legacy.length) {
+            const client = s.clients.find(c => c.id === clientId)
+            for (const e of legacy) { try { await saveEmail(clientId, client?.name || '', e) } catch (err) { console.error('[welcome-flow] legacy import failed', err) } }
+          }
+          const res  = await authFetch('/.netlify/functions/wf-emails?clientId=' + encodeURIComponent(clientId))
+          const data = await res.json()
+          if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`)
+          set(st => ({
+            emails:        { ...st.emails, [clientId]: data.emails || [] },
+            loadedEmails:  { ...st.loadedEmails, [clientId]: true },
+            loadingEmails: { ...st.loadingEmails, [clientId]: false },
+          }))
+        } catch (e) {
+          console.error('[welcome-flow] load emails failed', e)
+          set(st => ({ loadingEmails: { ...st.loadingEmails, [clientId]: false }, saveError: e.message }))
+        }
+      },
+
+      /** Create an email: the row is written first so its id is the database's. */
+      addEmail: async (clientId, data = {}) => {
+        const s = get()
+        const list = s.emails[clientId] || []
         const now = new Date().toISOString()
-        set((s) => ({
-          emails: {
-            ...s.emails,
-            [clientId]: [...list, {
-              id,
-              position:       list.length + 1,
-              subject:        data.subject || '',
-              status:         'draft',
-              templateId:     data.templateId ?? null,
-              copy:           data.copy || {},
-              selectedImages: [],
-              generatedUrls:  {},
-              renderedHtml:   '',
-              createdAt:      now,
-              updatedAt:      now,
-            }],
-          },
-        }))
+        const draft = {
+          position:       list.length + 1,
+          week:           data.week ?? null,
+          subject:        data.subject || '',
+          status:         'draft',
+          templateId:     data.templateId ?? null,
+          brief:          data.brief || '',
+          copy:           data.copy || {},
+          variations:     [],
+          selectedVariation: 0,
+          selectedImages: [],
+          generatedUrls:  {},
+          renderedHtml:   '',
+          createdAt:      now,
+          updatedAt:      now,
+        }
+        const client = s.clients.find(c => c.id === clientId)
+        const id = await saveEmail(clientId, client?.name || '', draft)
+        set((st) => ({ emails: { ...st.emails, [clientId]: [...(st.emails[clientId] || []), { ...draft, id, dbId: id }] } }))
         return id
       },
 
-      updateEmail: (clientId, emailId, patch) => set((s) => ({
-        emails: {
-          ...s.emails,
-          [clientId]: (s.emails[clientId] || []).map(e =>
-            e.id === emailId
-              ? {
-                  ...e,
-                  ...patch,
-                  // editing something already pushed means GHL is now stale
-                  status: (e.status === 'pushed' && !patch.status) ? 'needs_update' : (patch.status || e.status),
-                  updatedAt: new Date().toISOString(),
-                }
-              : e
-          ),
-        },
-      })),
+      /** Change an email: shown at once, written to the database a moment later. */
+      updateEmail: (clientId, emailId, patch) => {
+        set((s) => ({
+          emails: {
+            ...s.emails,
+            [clientId]: (s.emails[clientId] || []).map(e =>
+              e.id === emailId
+                ? {
+                    ...e,
+                    ...patch,
+                    // editing something already pushed means GHL is now stale
+                    status: (e.status === 'pushed' && !patch.status) ? 'needs_update' : (patch.status || e.status),
+                    updatedAt: new Date().toISOString(),
+                  }
+                : e
+            ),
+          },
+        }))
+        scheduleSave(get, set, clientId, emailId)
+      },
 
       removeEmail: (clientId, emailId) => set((s) => ({
         emails: {
@@ -175,11 +256,5 @@ export const useWelcomeFlowStore = create(
           lastActive: list.reduce((a, e) => (e.updatedAt > a ? e.updatedAt : a), ''),
         }
       },
-    }),
-    {
-      name: 'welcome-flow-v1',
-      // clients are server-backed; only emails persist locally
-      partialize: (s) => ({ emails: s.emails }),
-    }
-  )
+    })
 )

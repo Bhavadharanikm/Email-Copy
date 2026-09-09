@@ -136,11 +136,14 @@ function AddClientForm({ onCancel, onSave, lookupLocation }) {
 export default function WFClients() {
   const navigate = useNavigate()
   const t = useWfTheme()
-  const { clients, addClient, counts, fetchClients, lookupLocation, loadingClients, clientsError } = useWelcomeFlowStore()
+  const { clients, addClient, counts, ensureEmails, fetchClients, lookupLocation, loadingClients, clientsError } = useWelcomeFlowStore()
   const [q, setQ] = useState('')
   const [adding, setAdding] = useState(false)
 
   useEffect(() => { fetchClients() }, [fetchClients])
+  /* The Done / In progress counts on the cards come from each client's emails,
+     which live in the database, so load them for every client shown. */
+  useEffect(() => { clients.forEach(c => ensureEmails(c.id)) }, [clients, ensureEmails])
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase()
     if (!needle) return clients

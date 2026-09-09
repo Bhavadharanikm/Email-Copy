@@ -32,10 +32,11 @@ export default function WFImages() {
   const { clientId, emailId } = useParams()
   const navigate = useNavigate()
   const t = useWfTheme()
-  const { getClient, getEmails, updateEmail, updateClient, ensureClients, loadingClients } = useWelcomeFlowStore()
+  const { getClient, getEmails, updateEmail, updateClient, ensureClients, ensureEmails, loadingClients, loadedEmails } = useWelcomeFlowStore()
 
   // clients are not persisted — refetch after a reload on this deep route
   useEffect(() => { ensureClients() }, [ensureClients])
+  useEffect(() => { ensureEmails(clientId) }, [ensureEmails, clientId])
 
   const client = getClient(clientId)
   const email  = (getEmails(clientId) || []).find(e => e.id === emailId)
@@ -131,7 +132,9 @@ export default function WFImages() {
     }
   }
 
-  if (loadingClients && !client) {
+  /* Still fetching: the client list, or this client's emails from the database.
+     Not the 'not found' screen — that is only right once loading has finished. */
+  if ((loadingClients && !client) || (client && !email && !loadedEmails[clientId])) {
     return (
       <div style={{ maxWidth: 820, margin: '0 auto', padding: '32px 24px' }}>
         <WfCard style={{ padding: 40, textAlign: 'center' }}>

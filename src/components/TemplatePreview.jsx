@@ -3673,7 +3673,15 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
   /* Every template with a Generate Images pipeline. Emails 4 and 5 were built
      with bakes but never added here, so their button was missing. */
   const isWeekTemplate = [10, 11, 13, 16, 17, 18, 19, 20, 23, 24, 25, 31, 32, 33, 34, 35, 36, 37, 38, 39].includes(tpl?.id)
-  const [weekGenUrls,     setWeekGenUrls]     = useState({})  // { [tplId]: { hero, sec, ter } }
+  /* Seeded from the store and mirrored back into it, so the baked PNGs outlive
+     this component: the welcome flow saves them with the email and hands them
+     back when it is reopened. */
+  const [weekGenUrls,     setWeekGenUrlsState] = useState(() => useCampaignStore.getState().generatedUrls || {})
+  const setWeekGenUrls = useCallback((updater) => setWeekGenUrlsState(prev => {
+    const next = typeof updater === 'function' ? updater(prev) : updater
+    useCampaignStore.setState({ generatedUrls: next })
+    return next
+  }), [])
   const [weekGenLoading,  setWeekGenLoading]  = useState(false)
   const [weekGenError,    setWeekGenError]    = useState(null)
   const [weekGenTrigger,  setWeekGenTrigger]  = useState(0)

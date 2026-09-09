@@ -22,9 +22,10 @@ export default function WFApprove() {
   const { clientId, emailId } = useParams()
   const navigate = useNavigate()
   const t = useWfTheme()
-  const { getClient, getEmails, updateEmail, ensureClients, loadingClients } = useWelcomeFlowStore()
+  const { getClient, getEmails, updateEmail, ensureClients, ensureEmails, loadingClients, loadedEmails } = useWelcomeFlowStore()
 
   useEffect(() => { ensureClients() }, [ensureClients])
+  useEffect(() => { ensureEmails(clientId) }, [ensureEmails, clientId])
 
   const client = getClient(clientId)
   const email  = (getEmails(clientId) || []).find(e => e.id === emailId)
@@ -38,7 +39,9 @@ export default function WFApprove() {
   const [done, setDone]       = useState(false)
   const [previewUrl, setPreviewUrl] = useState('')
 
-  if (loadingClients && !client) {
+  /* Still fetching: the client list, or this client's emails from the database.
+     Not the 'not found' screen — that is only right once loading has finished. */
+  if ((loadingClients && !client) || (client && !email && !loadedEmails[clientId])) {
     return (
       <div style={{ maxWidth: 820, margin: '0 auto', padding: '32px 24px' }}>
         <WfCard style={{ padding: 40, textAlign: 'center' }}>

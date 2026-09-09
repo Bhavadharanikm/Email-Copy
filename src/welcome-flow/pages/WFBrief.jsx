@@ -49,10 +49,11 @@ export default function WFBrief() {
   const { clientId, emailId } = useParams()
   const navigate = useNavigate()
   const t = useWfTheme()
-  const { getClient, getEmails, updateClient, updateEmail, addEmail, ensureClients, loadingClients } = useWelcomeFlowStore()
+  const { getClient, getEmails, updateClient, updateEmail, addEmail, ensureClients, ensureEmails, loadingClients, loadedEmails } = useWelcomeFlowStore()
 
   // clients are not persisted — refetch after a reload on this deep route
   useEffect(() => { ensureClients() }, [ensureClients])
+  useEffect(() => { ensureEmails(clientId) }, [ensureEmails, clientId])
 
   const client = getClient(clientId)
   const email  = (getEmails(clientId) || []).find(e => e.id === emailId)
@@ -84,7 +85,9 @@ export default function WFBrief() {
     setWeek(String(email.week || email.position || ''))
   }, [email?.id])   // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (loadingClients && !client) {
+  /* Still fetching: the client list, or this client's emails from the database.
+     Not the 'not found' screen — that is only right once loading has finished. */
+  if ((loadingClients && !client) || (client && !email && !loadedEmails[clientId])) {
     return (
       <div style={{ maxWidth: 820, margin: '0 auto', padding: '32px 24px' }}>
         <WfCard style={{ padding: 40, textAlign: 'center' }}>
@@ -190,9 +193,9 @@ export default function WFBrief() {
   /* Start another email for the same client without going back to the client
      page first. Saves the current brief on the way out so nothing typed here
      is lost. */
-  function startNewCampaign() {
+  async function startNewCampaign() {
     persist()
-    const id = addEmail(clientId, {})
+    const id = await addEmail(clientId, {})
     navigate(`/welcome-flow/${clientId}/email/${id}`)
   }
 

@@ -26,10 +26,11 @@ export default function WFPreview() {
   const { clientId, emailId } = useParams()
   const navigate = useNavigate()
   const t = useWfTheme()
-  const { getClient, getEmails, updateEmail, ensureClients, loadingClients } = useWelcomeFlowStore()
+  const { getClient, getEmails, updateEmail, ensureClients, ensureEmails, loadingClients, loadedEmails } = useWelcomeFlowStore()
 
   // clients are not persisted — refetch after a reload on this deep route
   useEffect(() => { ensureClients() }, [ensureClients])
+  useEffect(() => { ensureEmails(clientId) }, [ensureEmails, clientId])
 
   /* Resolve the template from the week rather than trusting the id stored on
      the email: the brief only writes templateId when copy is generated, so an
@@ -54,6 +55,7 @@ export default function WFPreview() {
       selectedImages: store.selectedImages,
       clientFooter:   store.clientFooter,
       renderedHtml:   store.renderedHtml,
+      generatedUrls:  store.generatedUrls,
       imageGenHtml:   store.imageGenHtml,
       locationId:     store.locationId,
     }
@@ -79,6 +81,7 @@ export default function WFPreview() {
       selectedImages: email.selectedImages || [],
       clientFooter:   footerStillValid ? snapshot.current.clientFooter : null,
       renderedHtml:   email.renderedHtml || '',
+      generatedUrls:  email.generatedUrls || {},
       imageGenHtml:   '',
       locationId:     client.locationId || '',
     })
@@ -90,14 +93,16 @@ export default function WFPreview() {
       // renderedHtml, and sample copy must never be what gets pushed.
       const after = useCampaignStore.getState()
       updateEmail(clientId, emailId, {
-        ...(hasOwnCopy ? { renderedHtml: after.renderedHtml || '' } : {}),
+        ...(hasOwnCopy ? { renderedHtml: after.renderedHtml || '', generatedUrls: after.generatedUrls || {} } : {}),
         templateLabel: after.templateLabel || '',
       })
       if (snapshot.current) useCampaignStore.setState(snapshot.current)
     }
   }, [client?.id, email?.id])   // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (loadingClients && !client) {
+  /* Still fetching: the client list, or this client's emails from the database.
+     Not the 'not found' screen — that is only right once loading has finished. */
+  if ((loadingClients && !client) || (client && !email && !loadedEmails[clientId])) {
     return (
       <div style={{ maxWidth: 820, margin: '0 auto', padding: '32px 24px' }}>
         <WfCard style={{ padding: 40, textAlign: 'center' }}>

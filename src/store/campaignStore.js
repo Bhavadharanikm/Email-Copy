@@ -55,6 +55,7 @@ const INITIAL_STATE = {
 
   // Step 5 — rendered HTML
   renderedHtml:   '',
+  generatedUrls:  {},   // { [templateId]: { hero, sec, ter, btn, ... } } — the baked PNGs, kept so an email reopens with them
   imageGenHtml:   '',   // html2image.net assembled email — persists across nav
 
   // Step 6 — approval

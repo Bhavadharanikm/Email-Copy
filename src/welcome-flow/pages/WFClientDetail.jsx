@@ -46,11 +46,12 @@ export default function WFClientDetail() {
     navigate(`/welcome-flow/${clientId}/email/${e.id}${hasCopy ? '/copy' : ''}`)
   }
   const t = useWfTheme()
-  const { getClient, getEmails, counts, addEmail, ensureClients, loadingClients } = useWelcomeFlowStore()
+  const { getClient, getEmails, counts, addEmail, ensureClients, ensureEmails, loadingClients, loadedEmails } = useWelcomeFlowStore()
   const [filter, setFilter] = useState('all')
 
   // clients are not persisted — refetch after a reload on this deep route
   useEffect(() => { ensureClients() }, [ensureClients])
+  useEffect(() => { ensureEmails(clientId) }, [ensureEmails, clientId])
 
   const client = getClient(clientId)
   const emails = getEmails(clientId)
@@ -91,8 +92,8 @@ export default function WFClientDetail() {
 
   const initials = client.name.split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase()
 
-  const startNewEmail = () => {
-    const id = addEmail(clientId)
+  const startNewEmail = async () => {
+    const id = await addEmail(clientId)
     navigate(`/welcome-flow/${clientId}/email/${id}`)
   }
 
@@ -165,14 +166,16 @@ export default function WFClientDetail() {
           <div style={{ padding: '52px 24px', textAlign: 'center' }}>
             <IconMail size={28} color={t.faint} stroke={1.5} />
             <div style={{ fontSize: 14, fontWeight: 600, color: t.text, marginTop: 12 }}>
-              {emails.length === 0 ? 'No emails yet' : 'Nothing in this view'}
+              {!loadedEmails[clientId] ? 'Loading emails…' : emails.length === 0 ? 'No emails yet' : 'Nothing in this view'}
             </div>
             <div style={{ fontSize: 12.5, color: t.muted, marginTop: 5, marginBottom: 16 }}>
-              {emails.length === 0
+              {!loadedEmails[clientId]
+                ? 'Reading this client’s emails from the database.'
+                : emails.length === 0
                 ? 'Start the first email of this welcome flow.'
                 : 'Try a different filter.'}
             </div>
-            {emails.length === 0 && (
+            {loadedEmails[clientId] && emails.length === 0 && (
               <WfButton onClick={startNewEmail}><IconPlus size={15} stroke={2.4} /> New email</WfButton>
             )}
           </div>
