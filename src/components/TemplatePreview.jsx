@@ -1673,7 +1673,9 @@ function buildTemplateWeek1WF({ client, copy, images, footerData, isHeroGenerate
 
   /* The logo now sits on the photo, so it defaults to white rather than to the
      brand's own colours — a dark logo would disappear against a dark image. */
-  const heroLogoFilter = logoColor === 'original' ? 'brightness(0) invert(1)' : logoFilter
+  /* The picker means what it says on the hero too: Original is the logo file's
+     own colours, White and Black are the filters. Same rule in the bake. */
+  const heroLogoFilter = logoFilter
   const logoOverlayOnHero = logoUrl
     ? `<img src="${logoUrl}" alt="${client?.name||''}" style="display:inline-block;height:${logoSize}px;width:auto;max-width:100%;filter:${heroLogoFilter};"/>`
     : `<div style="font-family:Arial,sans-serif;font-size:20px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#ffffff;text-shadow:0 1px 6px rgba(0,0,0,.4);">${client?.name||''}</div>`
@@ -2139,7 +2141,9 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
   const avatarTint = _mix(secondary, 0.34)
 
   const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
-  const heroLogoFilter = logoColor === 'original' ? 'brightness(0) invert(1)' : logoFilter
+  /* The picker means what it says on the hero too: Original is the logo file's
+     own colours, White and Black are the filters. Same rule in the bake. */
+  const heroLogoFilter = logoFilter
   const logoOverlayOnHero = logoUrl
     ? `<img src="${logoUrl}" alt="${client?.name||''}" style="display:inline-block;height:${logoSize}px;width:auto;max-width:100%;filter:${heroLogoFilter};"/>`
     : `<div style="font-family:Arial,sans-serif;font-size:20px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#ffffff;text-shadow:0 1px 6px rgba(0,0,0,.4);">${client?.name||''}</div>`
@@ -2640,7 +2644,9 @@ function buildTemplateWeek5WF({ client, copy, images, footerData, isHeroGenerate
 
   /* Everything sits on the photo, as in Email 3, so the logo is forced white. */
   const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
-  const heroLogoFilter = logoColor === 'original' ? 'brightness(0) invert(1)' : logoFilter
+  /* The picker means what it says on the hero too: Original is the logo file's
+     own colours, White and Black are the filters. Same rule in the bake. */
+  const heroLogoFilter = logoFilter
   const logoOverlayOnHero = logoUrl
     ? `<img src="${logoUrl}" alt="${client?.name||''}" style="display:inline-block;height:${logoSize}px;width:auto;max-width:100%;filter:${heroLogoFilter};"/>`
     : `<div style="font-family:Arial,sans-serif;font-size:20px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#ffffff;text-shadow:0 1px 6px rgba(0,0,0,.4);">${client?.name||''}</div>`
@@ -2925,7 +2931,9 @@ function buildTemplateWeek6WF({ client, copy, images, footerData, isHeroGenerate
 
   /* Everything on the hero sits on the photo, so the logo is forced white. */
   const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
-  const heroLogoFilter = logoColor === 'original' ? 'brightness(0) invert(1)' : logoFilter
+  /* The picker means what it says on the hero too: Original is the logo file's
+     own colours, White and Black are the filters. Same rule in the bake. */
+  const heroLogoFilter = logoFilter
   const logoOverlayOnHero = logoUrl
     ? `<img src="${logoUrl}" alt="${client?.name||''}" style="display:inline-block;height:${logoSize}px;width:auto;max-width:100%;filter:${heroLogoFilter};"/>`
     : `<div style="font-family:Arial,sans-serif;font-size:20px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#ffffff;text-shadow:0 1px 6px rgba(0,0,0,.4);">${client?.name||''}</div>`
@@ -4119,7 +4127,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
        CTA. Week 1 always has heroCtaText, so the fallback never fires there. */
     const week1wfHeroCta = generatedCopy?.heroCtaText || ((isWeek2WF || isWeek3WF || isWeek5WF || isWeek6WF) ? (generatedCopy?.ctaText || '') : '')
     const week1wfLogoHtml = logoUrl
-      ? `<img src="${logoUrl}" style="height:${logoSize}px;width:auto;display:inline-block;filter:${logoColor === 'original' ? 'brightness(0) invert(1)' : renderLogoFilter};"/>`
+      ? `<img src="${logoUrl}" style="height:${logoSize}px;width:auto;display:inline-block;filter:${renderLogoFilter};"/>`
       : `<span style="font-family:Arial,sans-serif;font-size:20px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.4);">${selectedClient?.name || ''}</span>`
     const week1wfHeroHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <link href="https://fonts.googleapis.com/css2?family=Lora:wght@700&display=swap" rel="stylesheet"/>
