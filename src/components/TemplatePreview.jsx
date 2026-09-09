@@ -2436,28 +2436,30 @@ function buildTemplateWeek4WF({ client, copy, images, footerData, isHeroGenerate
   /* A short landscape band, 220 tall on desktop and 180 on a phone, whatever
      the photo's own shape. Cropped live for the preview; once baked, the PNG
      already is that shape and is shown plainly. */
-  const CARD_H = 220
-  /* A gallery of the three block photos on every card, fanned to the right
-     like a stack of prints, with a different one in front each time: block 1
-     leads with Sub 1, block 2 with Sub 2, block 3 with Sub 3. The two behind
-     step 32px right and 8px down and lose 16px of height each. Once baked the
-     whole stack is one PNG. Same geometry in week4wfStackHtml. */
+  /* Each block opens with the three block photos as upright prints fanned to
+     the right, a different one in front each time: block 1 leads with Sub 1,
+     block 2 with Sub 2, block 3 with Sub 3. Front print 340x380; the two behind
+     step 44px right and 10px down and lose 20px of height each, so the stage
+     is 428x380. Sized in percentages of that stage so it scales on a phone.
+     Once baked, the whole fan is one PNG. Same numbers in week4wfStackHtml. */
+  const STAGE_W = 428, STAGE_H = 380, PRINT_W = 340, STEP_X = 44, STEP_Y = 10, STEP_H = 20
   const stackOrder = (i) => [i, (i + 1) % 3, (i + 2) % 3]
   const photoHtml = (i, alt) => {
     const order = stackOrder(i).filter(k => blockImgs[k])
-    if (!order.length) return `<div class="w4wf-photobox" style="width:100%;height:${CARD_H}px;background:${pillBg};border-radius:12px;"></div>`
-    if (cardsGenerated[i]) return `<img src="${blockImgs[i]}" alt="${alt || ''}" width="528" height="${CARD_H}" style="width:100%;max-width:528px;height:auto;display:block;border:0;outline:none;"/>`
-    /* drawn back to front so the leading photo paints last; widths in % of the
-       528 stage so the fan holds on a phone (464/528, 32/528, 64/528) */
+    if (!order.length) return `<div style="width:100%;max-width:${STAGE_W}px;aspect-ratio:${STAGE_W}/${STAGE_H};background:${pillBg};border-radius:14px;"></div>`
+    if (cardsGenerated[i]) return `<img src="${blockImgs[i]}" alt="${alt || ''}" width="${STAGE_W}" height="${STAGE_H}" style="width:100%;max-width:${STAGE_W}px;height:auto;display:block;border:0;outline:none;"/>`
     const layers = order.map((k, depth) => ({ k, depth })).reverse().map(({ k, depth }) =>
-      `<div style="position:absolute;left:${(depth * 32 / 528 * 100).toFixed(2)}%;top:${depth * 8}px;width:87.88%;height:calc(100% - ${depth * 16}px);overflow:hidden;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,0.12);">
+      `<div style="position:absolute;left:${(depth * STEP_X / STAGE_W * 100).toFixed(2)}%;top:${(depth * STEP_Y / STAGE_H * 100).toFixed(2)}%;width:${(PRINT_W / STAGE_W * 100).toFixed(2)}%;height:${((STAGE_H - depth * STEP_H) / STAGE_H * 100).toFixed(2)}%;overflow:hidden;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,0.14);">
           <img src="${blockImgs[k]}" alt="${depth ? '' : (alt || '')}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:${blockTf[k]};transform-origin:center center;"/>
         </div>`).join('')
-    return `<div class="w4wf-photobox" style="position:relative;width:100%;height:${CARD_H}px;">${layers}</div>`
+    return `<div class="w4wf-fan" style="position:relative;width:100%;max-width:${STAGE_W}px;aspect-ratio:${STAGE_W}/${STAGE_H};">${layers}</div>`
   }
-  const blockCard = (block, i) => `<div class="w4wf-card" style="background-color:${cardTint};border:1px solid ${cardBorder};border-radius:16px;padding:12px;margin-top:${i ? 14 : 0}px;">
+
+  /* A block sits on the page itself: the fan, the block's name as the design
+     system's chip, then the entries as a bold name with its line beneath. */
+  const blockCard = (block, i) => `<div class="w4wf-block" style="padding-top:${i ? 40 : 0}px;">
       <div style="line-height:0;font-size:0;">${photoHtml(i, block.blockHeader)}</div>
-      <div class="w4wf-cardbody" style="padding:16px 8px 8px;">
+      <div style="padding-top:20px;">
         ${block.blockHeader ? `<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;"><tr><td style="background:#F0F0F0;border:1px solid #DEDEDE;border-radius:999px;padding:6px 14px;">
           <span style="font-family:Arial,sans-serif;font-size:14px;line-height:14px;font-weight:600;color:#3A3A3A;letter-spacing:.02em;">${block.blockHeader}</span>
         </td></tr></table>` : ''}
@@ -2466,7 +2468,7 @@ function buildTemplateWeek4WF({ client, copy, images, footerData, isHeroGenerate
     </div>`
 
   const blocksHtml = blocks.length ? `
-  <div class="w4wf-section" style="padding:30px 24px 0;background-color:${pageBg};">
+  <div class="w4wf-section" style="padding:34px 48px 0;background-color:${pageBg};">
     ${blocks.map(blockCard).join('')}
   </div>` : ''
 
@@ -2495,8 +2497,6 @@ function buildTemplateWeek4WF({ client, copy, images, footerData, isHeroGenerate
     .w4wf-btn-img  { width:100%!important; max-width:100%!important; }
     .w4wf-btnwrap  { width:100%!important; }
     .w4wf-cta      { padding:12px 20px!important; }
-    .w4wf-cardbody { padding:14px 4px 4px!important; }
-    .w4wf-photobox { height:180px!important; }
     .w4wf-bridgebox { height:200px!important; }
     .w4wf-h3       { font-size:20px!important; line-height:30px!important; }
   }
@@ -4451,13 +4451,13 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
       const urls = [img1Url, img2Url, img3Url], tf = [[img1X, img1Y, img1Scale], [img2X, img2Y, img2Scale], [img3X, img3Y, img3Scale]]
       const present = order.filter(k => urls[k])
       const layers = present.map((k, depth) => ({ k, depth })).reverse().map(({ k, depth }) =>
-        `<div style="position:absolute;left:${depth * 32}px;top:${depth * 8}px;width:464px;height:${220 - depth * 16}px;overflow:hidden;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,0.12);">
-    <img src="${urls[k]}" style="position:absolute;top:0;left:0;width:464px;height:${220 - depth * 16}px;object-fit:cover;display:block;transform:translate(${tf[k][0]}px,${tf[k][1]}px) scale(${tf[k][2]});transform-origin:center center;"/>
+        `<div style="position:absolute;left:${depth * 44}px;top:${depth * 10}px;width:340px;height:${380 - depth * 20}px;overflow:hidden;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,0.14);">
+    <img src="${urls[k]}" style="position:absolute;top:0;left:0;width:340px;height:${380 - depth * 20}px;object-fit:cover;display:block;transform:translate(${tf[k][0]}px,${tf[k][1]}px) scale(${tf[k][2]});transform-origin:center center;"/>
   </div>`).join('')
       return `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{width:528px;background:transparent;}</style>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:428px;background:transparent;}</style>
 </head><body>
-<div style="position:relative;width:528px;height:220px;background:transparent;">${layers}</div>
+<div style="position:relative;width:428px;height:380px;background:transparent;">${layers}</div>
 </body></html>`
     }
 
@@ -5233,17 +5233,17 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
       ? renderImage({ html: week1wfCardBtnHtml, width: 400, height: 76, transparent: true })
       : Promise.resolve(null)
     const card1Thunk = () => isWeek4WF && img1Url
-      ? renderImage({ html: week4wfStackHtml([0, 1, 2]), width: 528, height: 220, transparent: true })
+      ? renderImage({ html: week4wfStackHtml([0, 1, 2]), width: 428, height: 380, transparent: true })
       : isWFCards && week1wfCard1Html
       ? renderImage({ html: week1wfCard1Html, width: 600, height: 320, transparent: false })
       : Promise.resolve(null)
     const card2Thunk = () => isWeek4WF && img2Url
-      ? renderImage({ html: week4wfStackHtml([1, 2, 0]), width: 528, height: 220, transparent: true })
+      ? renderImage({ html: week4wfStackHtml([1, 2, 0]), width: 428, height: 380, transparent: true })
       : isWFCards && week1wfCard2Html
       ? renderImage({ html: week1wfCard2Html, width: 600, height: 320, transparent: false })
       : Promise.resolve(null)
     const card3Thunk = () => isWeek4WF && img3Url
-      ? renderImage({ html: week4wfStackHtml([2, 0, 1]), width: 528, height: 220, transparent: true })
+      ? renderImage({ html: week4wfStackHtml([2, 0, 1]), width: 428, height: 380, transparent: true })
       : isWFCards && week1wfCard3Html
       ? renderImage({ html: week1wfCard3Html, width: 600, height: 320, transparent: false })
       : Promise.resolve(null)
