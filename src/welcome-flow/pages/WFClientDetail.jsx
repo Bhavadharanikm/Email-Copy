@@ -56,10 +56,14 @@ export default function WFClientDetail() {
   const emails = getEmails(clientId)
   const c = counts(clientId)
 
+  /* Listed in flow order, Email 1 first, not in the order they were created.
+     An email whose flow position is not picked yet goes last. */
+  const byFlow = (a, b) => (a.week || 99) - (b.week || 99) || (a.position || 0) - (b.position || 0)
   const shown = useMemo(() => {
-    if (filter === 'done')        return emails.filter(e => DONE.has(e.status))
-    if (filter === 'in_progress') return emails.filter(e => !DONE.has(e.status))
-    return emails
+    const list = [...emails].sort(byFlow)
+    if (filter === 'done')        return list.filter(e => DONE.has(e.status))
+    if (filter === 'in_progress') return list.filter(e => !DONE.has(e.status))
+    return list
   }, [emails, filter])
 
   if (loadingClients && !client) {
@@ -184,21 +188,22 @@ export default function WFClientDetail() {
               onMouseEnter={ev => ev.currentTarget.style.background = t.dark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.015)'}
               onMouseLeave={ev => ev.currentTarget.style.background = 'transparent'}
             >
+              {/* the row's place in this list, now that the list runs in flow order */}
               <span style={{ fontSize: 12, color: t.faint, fontVariantNumeric: 'tabular-nums', width: 22, flexShrink: 0 }}>
-                {String(e.position).padStart(2, '0')}
+                {String(i + 1).padStart(2, '0')}
               </span>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 13.5, fontWeight: 500, color: t.text,
+                <div style={{ fontSize: 15, fontWeight: 500, color: t.text,
                               overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {e.subject || <span style={{ color: t.faint, fontStyle: 'italic' }}>Untitled email</span>}
                 </div>
                 {/* which email of the flow this is — the row's number is only
                     the order it was created in, which is rarely the same thing */}
-                <div style={{ fontSize: 11.5, color: t.faint, marginTop: 2,
+                <div style={{ fontSize: 12.5, color: t.muted, marginTop: 3,
                               overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {e.week
-                    ? wfWeekLabel(e.week)
-                    : <span style={{ fontStyle: 'italic' }}>No email picked yet</span>}
+                    ? <><strong style={{ fontWeight: 700, color: t.text }}>Email {e.week}</strong>{wfWeekLabel(e.week).replace(/^Email \d+/, '')}</>
+                    : <span style={{ fontStyle: 'italic', color: t.faint }}>No email picked yet</span>}
                 </div>
               </div>
               <WfStatusPill status={e.status} />
