@@ -1794,8 +1794,8 @@ function buildTemplateWeek1WF({ client, copy, images, footerData, isHeroGenerate
 
   <!-- SECTION EYEBROW PILL -->
   ${copy.sectionEyebrow ? `<div class="w1wf-section" style="padding:26px 48px 0;text-align:center;background-color:${pageBg};">
-    <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${pillBg};border-radius:999px;padding:5px 14px;">
-      <span style="font-family:Arial,sans-serif;font-size:12px;font-weight:600;color:${mutedTextCol};letter-spacing:.02em;">${copy.sectionEyebrow}</span>
+    <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;border-collapse:separate;"><tr><td style="background:#F0F0F0;border:1px solid #DEDEDE;border-radius:999px;padding:6px 14px;">
+      <span style="font-family:Arial,sans-serif;font-size:14px;line-height:14px;font-weight:600;color:#3A3A3A;letter-spacing:.02em;">${copy.sectionEyebrow}</span>
     </td></tr></table>
   </div>` : ''}
 
