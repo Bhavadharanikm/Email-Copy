@@ -2438,11 +2438,12 @@ function buildTemplateWeek4WF({ client, copy, images, footerData, isHeroGenerate
      already is that shape and is shown plainly. */
   /* Each block opens with the three block photos as upright prints fanned to
      the right, a different one in front each time: block 1 leads with Sub 1,
-     block 2 with Sub 2, block 3 with Sub 3. Front print 340x380; the two behind
-     step 44px right and 10px down and lose 20px of height each, so the stage
-     is 428x380. Sized in percentages of that stage so it scales on a phone.
+     block 2 with Sub 2, block 3 with Sub 3. Front print 260x340, a clear
+     portrait; the two behind step 40px right and 10px down and lose 20px of
+     height each, so the stage is 340x340. Sized in percentages of that stage
+     so it scales on a phone.
      Once baked, the whole fan is one PNG. Same numbers in week4wfStackHtml. */
-  const STAGE_W = 428, STAGE_H = 380, PRINT_W = 340, STEP_X = 44, STEP_Y = 10, STEP_H = 20
+  const STAGE_W = 340, STAGE_H = 340, PRINT_W = 260, STEP_X = 40, STEP_Y = 10, STEP_H = 20
   const stackOrder = (i) => [i, (i + 1) % 3, (i + 2) % 3]
   const photoHtml = (i, alt) => {
     const order = stackOrder(i).filter(k => blockImgs[k])
@@ -4446,18 +4447,18 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </body></html>`
 
     /* Email 4's card gallery: the three block photos fanned as on screen, the
-       leading one first in `order`. 528x220, transparent around the fan. */
+       leading one first in `order`. 340x340, transparent around the fan. */
     const week4wfStackHtml = (order) => {
       const urls = [img1Url, img2Url, img3Url], tf = [[img1X, img1Y, img1Scale], [img2X, img2Y, img2Scale], [img3X, img3Y, img3Scale]]
       const present = order.filter(k => urls[k])
       const layers = present.map((k, depth) => ({ k, depth })).reverse().map(({ k, depth }) =>
-        `<div style="position:absolute;left:${depth * 44}px;top:${depth * 10}px;width:340px;height:${380 - depth * 20}px;overflow:hidden;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,0.14);">
-    <img src="${urls[k]}" style="position:absolute;top:0;left:0;width:340px;height:${380 - depth * 20}px;object-fit:cover;display:block;transform:translate(${tf[k][0]}px,${tf[k][1]}px) scale(${tf[k][2]});transform-origin:center center;"/>
+        `<div style="position:absolute;left:${depth * 40}px;top:${depth * 10}px;width:260px;height:${340 - depth * 20}px;overflow:hidden;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,0.14);">
+    <img src="${urls[k]}" style="position:absolute;top:0;left:0;width:260px;height:${340 - depth * 20}px;object-fit:cover;display:block;transform:translate(${tf[k][0]}px,${tf[k][1]}px) scale(${tf[k][2]});transform-origin:center center;"/>
   </div>`).join('')
       return `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{width:428px;background:transparent;}</style>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:340px;background:transparent;}</style>
 </head><body>
-<div style="position:relative;width:428px;height:380px;background:transparent;">${layers}</div>
+<div style="position:relative;width:340px;height:340px;background:transparent;">${layers}</div>
 </body></html>`
     }
 
@@ -5233,17 +5234,17 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
       ? renderImage({ html: week1wfCardBtnHtml, width: 400, height: 76, transparent: true })
       : Promise.resolve(null)
     const card1Thunk = () => isWeek4WF && img1Url
-      ? renderImage({ html: week4wfStackHtml([0, 1, 2]), width: 428, height: 380, transparent: true })
+      ? renderImage({ html: week4wfStackHtml([0, 1, 2]), width: 340, height: 340, transparent: true })
       : isWFCards && week1wfCard1Html
       ? renderImage({ html: week1wfCard1Html, width: 600, height: 320, transparent: false })
       : Promise.resolve(null)
     const card2Thunk = () => isWeek4WF && img2Url
-      ? renderImage({ html: week4wfStackHtml([1, 2, 0]), width: 428, height: 380, transparent: true })
+      ? renderImage({ html: week4wfStackHtml([1, 2, 0]), width: 340, height: 340, transparent: true })
       : isWFCards && week1wfCard2Html
       ? renderImage({ html: week1wfCard2Html, width: 600, height: 320, transparent: false })
       : Promise.resolve(null)
     const card3Thunk = () => isWeek4WF && img3Url
-      ? renderImage({ html: week4wfStackHtml([2, 0, 1]), width: 428, height: 380, transparent: true })
+      ? renderImage({ html: week4wfStackHtml([2, 0, 1]), width: 340, height: 340, transparent: true })
       : isWFCards && week1wfCard3Html
       ? renderImage({ html: week1wfCard3Html, width: 600, height: 320, transparent: false })
       : Promise.resolve(null)
