@@ -162,6 +162,7 @@ export default function WFImages() {
   return (
     <div style={{ maxWidth: 1120, margin: '0 auto', padding: '28px 24px 64px' }}>
       <WfStepNav
+        email={email} step={3}
         backLabel="Copy"
         onBack={() => navigate(`/welcome-flow/${clientId}/email/${emailId}/copy`)}
         nextLabel={slots[0] ? 'Next: Preview' : 'Pick a hero image'}
@@ -170,14 +171,6 @@ export default function WFImages() {
       />
 
       <div style={{ textAlign: 'center', marginBottom: 24 }}>
-        <div style={{
-          display: 'inline-flex', alignItems: 'center', gap: 7, padding: '5px 13px', borderRadius: 999,
-          background: t.dark ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.72)',
-          border: `1px solid ${t.border}`, fontSize: 11, fontWeight: 600,
-          letterSpacing: '0.1em', textTransform: 'uppercase', color: t.muted, marginBottom: 12,
-        }}>
-          Email {String(email.position).padStart(2, '0')} · Step 3 of 5
-        </div>
         <h1 style={{ fontSize: 30, fontWeight: 700, letterSpacing: '-0.02em', margin: 0, color: t.text }}>
           Pick Your Images
         </h1>

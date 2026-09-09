@@ -6,6 +6,7 @@
 
 import { useTheme } from '../../context/ThemeContext'
 import { WF_STATUS } from '../store/welcomeFlowStore'
+import { wfWeekLabel } from '../wfWeeks'
 
 export function useWfTheme() {
   const { theme } = useTheme()
@@ -104,20 +105,51 @@ export function WfStatusPill({ status }) {
 }
 
 /**
- * Back / Next row pinned above the step content, same shape as the Weekly Email
- * Campaign's steps. Next is omitted when a step has nowhere to go yet.
+ * Back / step chip / Next, one bar at the top of every step of an email.
+ *
+ * It sits in the same place on every page whatever the page holds: the bar
+ * breaks out of the page's own column to span the window, sticks to the top
+ * as the page scrolls, and lays its three parts on a fixed grid, so the chip
+ * is always dead centre and Back and Next always sit at the same edges. The
+ * chip names the email by its place in the flow (Email 6 · Step 2 of 5), not
+ * by the order it was created in. Next is omitted when a step has nowhere
+ * to go yet.
  */
-export function WfStepNav({ backLabel = 'Back', onBack, nextLabel, onNext, nextDisabled = false }) {
+export function WfStepNav({ backLabel = 'Back', onBack, nextLabel, onNext, nextDisabled = false, email = null, step = null, totalSteps = 5 }) {
   const t = useWfTheme()
+  const emailName = email?.week ? wfWeekLabel(email.week).split(' · ')[0] : (email?.position ? `Email ${String(email.position).padStart(2, '0')}` : '')
+  const chip = step ? `${emailName ? emailName + ' · ' : ''}Step ${step} of ${totalSteps}` : ''
   return (
     <div style={{
-      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      gap: 12, marginBottom: 18,
+      position: 'sticky', top: 0, zIndex: 20,
+      width: '100vw', marginLeft: 'calc(50% - 50vw)', marginBottom: 18,
+      background: t.dark ? 'rgba(11, 18, 32, 0.88)' : 'rgba(246, 248, 251, 0.88)',
+      backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
+      borderBottom: `1px solid ${t.border}`,
     }}>
-      <WfButton variant="ghost" onClick={onBack}>&larr; {backLabel}</WfButton>
-      {onNext
-        ? <WfButton onClick={onNext} disabled={nextDisabled}>{nextLabel} &rarr;</WfButton>
-        : <span />}
+      <div style={{
+        maxWidth: 1500, margin: '0 auto', padding: '12px 24px',
+        display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', gap: 12,
+      }}>
+        <div style={{ justifySelf: 'start' }}>
+          <WfButton variant="ghost" onClick={onBack}>&larr; {backLabel}</WfButton>
+        </div>
+        <div style={{ justifySelf: 'center', minHeight: 26, display: 'flex', alignItems: 'center' }}>
+          {chip && (
+            <span style={{
+              display: 'inline-flex', alignItems: 'center', padding: '5px 13px', borderRadius: 999,
+              background: t.dark ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.72)',
+              border: `1px solid ${t.border}`, fontSize: 11, fontWeight: 600,
+              letterSpacing: '0.1em', textTransform: 'uppercase', color: t.muted, whiteSpace: 'nowrap',
+            }}>{chip}</span>
+          )}
+        </div>
+        <div style={{ justifySelf: 'end' }}>
+          {onNext
+            ? <WfButton onClick={onNext} disabled={nextDisabled}>{nextLabel} &rarr;</WfButton>
+            : <span />}
+        </div>
+      </div>
     </div>
   )
 }
