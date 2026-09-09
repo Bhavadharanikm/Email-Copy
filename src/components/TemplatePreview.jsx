@@ -2843,6 +2843,30 @@ function wfPickIcons(points) {
   }
   return out
 }
+/* Every image in a welcome flow email is a link to the CTA, as in the weekly
+   emails. Applied to the finished HTML rather than inside each template: an
+   <img> not already inside an <a> is wrapped in one. The wrapper is inline
+   and carries no size of its own, so nothing moves — an absolutely positioned
+   photo stays positioned by its box, a block image stays a block. Images that
+   a template already linked (heroes, buttons) are left as they are. */
+function linkAllImages(html, href) {
+  if (!html || !href) return html
+  const out = []; let depth = 0, i = 0
+  const tag = /<\/?a\b[^>]*>|<img\b[^>]*>/gi
+  let m
+  while ((m = tag.exec(html))) {
+    const t = m[0]
+    if (/^<a\b/i.test(t)) { depth++; continue }
+    if (/^<\/a/i.test(t)) { depth = Math.max(0, depth - 1); continue }
+    if (depth === 0) {
+      out.push(html.slice(i, m.index), `<a href="${href}" style="text-decoration:none;border:none;outline:none;">`, t, '</a>')
+      i = m.index + t.length
+    }
+  }
+  out.push(html.slice(i))
+  return out.join('')
+}
+
 const wfIconSvg = (key, colour, size = 24) =>
   `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${colour}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block;">${(WF_ICON_PATHS[key] || WF_ICON_PATHS.check).replace(/COLOUR/g, colour)}</svg>`
 
@@ -3544,15 +3568,15 @@ const TEMPLATES = [
   { id:23, label:'✅ Week 9', build:buildTemplateWeek9, adminOnly:true },
   { id:24, label:'✅ Week 7',   build:buildTemplateWeek7v2 },
   { id:25, label:'✅ Week 8',   build:buildTemplateWeek8v2 },
-  { id:31, label:'✅ Week 1 WF', build:buildTemplateWeek1WF, welcomeFlowOnly:true },
-  { id:32, label:'✅ Week 2 WF', build:buildTemplateWeek2WF, welcomeFlowOnly:true },
-  { id:33, label:'✅ Week 3 WF', build:buildTemplateWeek3WF, welcomeFlowOnly:true },
-  { id:34, label:'✅ Week 4 WF', build:buildTemplateWeek4WF, welcomeFlowOnly:true },
-  { id:35, label:'✅ Email 5 WF', build:buildTemplateWeek5WF, welcomeFlowOnly:true },
-  { id:36, label:'✅ Email 6 WF', build:buildTemplateWeek6WF, welcomeFlowOnly:true },
-  { id:37, label:'✅ Email 7 WF', build:buildTemplateWeek7WF, welcomeFlowOnly:true },
-  { id:38, label:'✅ Email 8 WF', build:buildTemplateWeek8WF, welcomeFlowOnly:true },
-  { id:39, label:'✅ Email 9 WF', build:buildTemplateWeek9WF, welcomeFlowOnly:true },
+  { id:31, label:'✅ Week 1 WF', build:(a) => linkAllImages(buildTemplateWeek1WF(a), a?.copy?.ctaUrl || a?.footerData?.websiteUrl || '#'), welcomeFlowOnly:true },
+  { id:32, label:'✅ Week 2 WF', build:(a) => linkAllImages(buildTemplateWeek2WF(a), a?.copy?.ctaUrl || a?.footerData?.websiteUrl || '#'), welcomeFlowOnly:true },
+  { id:33, label:'✅ Week 3 WF', build:(a) => linkAllImages(buildTemplateWeek3WF(a), a?.copy?.ctaUrl || a?.footerData?.websiteUrl || '#'), welcomeFlowOnly:true },
+  { id:34, label:'✅ Week 4 WF', build:(a) => linkAllImages(buildTemplateWeek4WF(a), a?.copy?.ctaUrl || a?.footerData?.websiteUrl || '#'), welcomeFlowOnly:true },
+  { id:35, label:'✅ Email 5 WF', build:(a) => linkAllImages(buildTemplateWeek5WF(a), a?.copy?.ctaUrl || a?.footerData?.websiteUrl || '#'), welcomeFlowOnly:true },
+  { id:36, label:'✅ Email 6 WF', build:(a) => linkAllImages(buildTemplateWeek6WF(a), a?.copy?.ctaUrl || a?.footerData?.websiteUrl || '#'), welcomeFlowOnly:true },
+  { id:37, label:'✅ Email 7 WF', build:(a) => linkAllImages(buildTemplateWeek7WF(a), a?.copy?.ctaUrl || a?.footerData?.websiteUrl || '#'), welcomeFlowOnly:true },
+  { id:38, label:'✅ Email 8 WF', build:(a) => linkAllImages(buildTemplateWeek8WF(a), a?.copy?.ctaUrl || a?.footerData?.websiteUrl || '#'), welcomeFlowOnly:true },
+  { id:39, label:'✅ Email 9 WF', build:(a) => linkAllImages(buildTemplateWeek9WF(a), a?.copy?.ctaUrl || a?.footerData?.websiteUrl || '#'), welcomeFlowOnly:true },
   { id:20, label:'🧪 Test',   build:buildTemplateTest,  adminOnly:true },
 ]
 
