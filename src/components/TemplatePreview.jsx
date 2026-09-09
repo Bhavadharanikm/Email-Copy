@@ -1737,7 +1737,8 @@ function buildTemplateWeek1WF({ client, copy, images, footerData, isHeroGenerate
     .w1wf-btn-img  { width:100%!important; max-width:100%!important; }
     /* SHARED_MOBILE_CSS gives .mobile-cta 80px side padding, which a fluid card
        cannot absorb — this rule comes later, so it wins. */
-    .w1wf-cta      { padding:18px 36px!important; }
+    .w1wf-btnwrap  { width:100%!important; }
+    .w1wf-cta      { display:block!important; padding:12px 20px!important; font-size:16px!important; line-height:16px!important; }
     /* cards are full width at every count, so nothing needs stacking here */
     .w1wf-cardbox    { padding:14px!important; }
   }
@@ -1780,8 +1781,8 @@ function buildTemplateWeek1WF({ client, copy, images, footerData, isHeroGenerate
   <!-- INTRO CTA — pill button under the intro line, sends the reader to the stays -->
   ${copy.introCtaText ? `<div class="w1wf-section" style="padding:22px 48px 4px;text-align:center;background-color:${pageBg};">${introBtnImgUrl
     ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w1wf-btn-img" src="${introBtnImgUrl}" alt="${copy.introCtaText}" width="375" style="width:375px;max-width:100%;display:block;margin:0 auto;border:0;outline:none;"/></a>`
-    : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;max-width:100%;"><tr><td style="background:${accent};border-radius:999px;">
-        <a class="w1wf-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;">${copy.introCtaText} &rarr;</a>
+    : `<table class="w1wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;max-width:100%;"><tr><td align="center" style="background:${accent};border-radius:999px;">
+        <a class="w1wf-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;">${copy.introCtaText} &rarr;</a>
       </td></tr></table>`
   }</div>` : ''}
 
@@ -1837,7 +1838,7 @@ function buildTemplateWeek1WF({ client, copy, images, footerData, isHeroGenerate
   <!-- CTA -->
   ${copy.ctaText ? `<div class="w1wf-section" style="padding:22px 48px 34px;text-align:center;background-color:${pageBg};">${btnImgUrl
     ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w1wf-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:100%;display:block;margin:0 auto;border:0;outline:none;"/></a>`
-    : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;max-width:100%;"><tr><td style="background:${accent};border-radius:999px;"><a class="w1wf-cta mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;">${copy.ctaText} &rarr;</a></td></tr></table>`
+    : `<table class="w1wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;max-width:100%;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w1wf-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;">${copy.ctaText} &rarr;</a></td></tr></table>`
   }</div>` : ''}
 
   <div style="background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true, wfFooter: true })}</div>
@@ -3259,7 +3260,7 @@ function buildTemplateWeek8WF({ client, copy, images, footerData, isHeroGenerate
   logoColor='original', logoTop=40, logoSize=44,
   img1Scale=1, img1X=0, img1Y=0,
   img2Scale=1, img2X=0, img2Y=0,
-  btnImgUrl = null, introBtnImgUrl = null, iconImgUrls = [], gridImgUrl = null,
+  btnImgUrl = null, introBtnImgUrl = null, iconImgUrls = [], gridImgUrl = null, heroMobileImgUrl = null,
 }) {
   const heroImg = images?.[0]?.url || ''
   const circleA = images?.[1]?.url || ''
@@ -3328,6 +3329,10 @@ function buildTemplateWeek8WF({ client, copy, images, footerData, isHeroGenerate
     .w8wf-btn-img  { width:100%!important; max-width:100%!important; }
     .w8wf-btnwrap  { width:100%!important; }
     .w8wf-cta      { padding:12px 20px!important; }
+    /* On a phone the photo is square: the live crop and the phone bake alike. */
+    .w8wf-herobox  { aspect-ratio:1/1!important; }
+    .w8wf-hero-desk { display:none!important; }
+    .w8wf-hero-mob  { display:block!important; }
     .w8wf-h3       { font-size:20px!important; line-height:30px!important; }
   }
 </style></head>
@@ -3351,9 +3356,9 @@ function buildTemplateWeek8WF({ client, copy, images, footerData, isHeroGenerate
        Generate Images has run; the live version is the preview only. -->
   ${heroImg ? `<div style="padding:24px 0 0;background-color:${pageBg};line-height:0;font-size:0;">
     ${isHeroGenerated
-      ? `<img src="${heroImg}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;border:0;outline:none;"/>`
+      ? `<img class="w8wf-hero-desk" src="${heroImg}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;border:0;outline:none;"/>${heroMobileImgUrl ? `<img class="w8wf-hero-mob" src="${heroMobileImgUrl}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:none;border:0;outline:none;"/>` : ''}`
       : `<div class="w8wf-section" style="padding:0 48px;">
-        <div style="position:relative;width:100%;aspect-ratio:504/300;border-radius:14px;overflow:hidden;">
+        <div class="w8wf-herobox" style="position:relative;width:100%;aspect-ratio:504/300;border-radius:14px;overflow:hidden;">
           <img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>
         </div>
       </div>`}
@@ -4439,6 +4444,14 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </div>
 </body></html>` : null
 
+    /* The same photo square for the phone: 504x504 inset 48 on a 600x504 canvas,
+       swapped in by the phone media query, so a phone reader gets a 1:1 crop. */
+    const week8wfHeroMobileHtml = isWeek8WF ? week8wfHeroHtml
+      .replace('<div style="width:600px;height:300px;padding:0 48px;line-height:0;font-size:0;">', '<div style="width:600px;height:504px;padding:0 48px;line-height:0;font-size:0;">')
+      .replace('width:504px;height:300px;border-radius:14px;', 'width:504px;height:504px;border-radius:14px;')
+      .replace('width:504px;height:300px;object-fit:cover;', 'width:504px;height:504px;object-fit:cover;')
+      .replace('width:504px;height:300px;background:#e8eaed;', 'width:504px;height:504px;background:#e8eaed;') : null
+
     const week8wfCirclesHtml = ((isWeek8WF || isWeek9WF) && (img1Url || img2Url)) ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
 </head><body>
@@ -5293,6 +5306,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
           ? await Promise.all([introBtnThunk(), cardBtnThunk(), card1Thunk(), card2Thunk(), card3Thunk(),
               isWeek5WF ? renderImage({ html: week5wfHeroMobileHtml, width: 600, height: heroHeight, transparent: true })
                 : isWeek3WF ? renderImage({ html: week3wfHeroMobileHtml, width: 600, height: heroHeight, transparent: true })
+                : isWeek8WF ? renderImage({ html: week8wfHeroMobileHtml, width: 600, height: 504, transparent: true })
                 : isWeek6WF ? renderImage({ html: week6wfHeroMobileHtml, width: 600, height: heroHeight, transparent: true })
                 : Promise.resolve(null),
               week6wfIconKeys.length
