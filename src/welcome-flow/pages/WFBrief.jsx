@@ -11,7 +11,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { IconArrowLeft, IconSparkles, IconBolt, IconPlus } from '@tabler/icons-react'
-import { useWelcomeFlowStore } from '../store/welcomeFlowStore'
+import { useWelcomeFlowStore, weekTakenBy } from '../store/welcomeFlowStore'
 import { useWfTheme, WfCard, WfButton, WfInput, WfStepNav } from '../components/wfUi'
 import { WF_WEEKS, wfWeek, wfWeekReady, wfWeekLabel, wfBriefTemplate, wfBriefIsSeed } from '../wfWeeks'
 import { wfTestVariations } from '../wfTestData'
@@ -115,14 +115,19 @@ export default function WFBrief() {
   const promptFilled = prompt.trim().length > 0
   const weekReady   = wfWeekReady(week)
   const weekInfo    = wfWeek(week)
+  /* One row per client per week in the database, so one email per week here:
+     a week another email of this client already holds cannot be chosen twice. */
+  const clientEmails = getEmails(clientId)
+  const weekTaken    = weekTakenBy(clientEmails, week, emailId)
+  const takenWeeks   = new Set(clientEmails.filter(e => e.id !== emailId && e.week).map(e => e.week))
   const [showWhat, setShowWhat] = useState(false)
 
   const persist = () => {
     updateClient(clientId, { folderUrl, folderId })          // remember for next time
     updateEmail(clientId, emailId, {
       brief: prompt, folderUrl, folderId,
-      week:       week ? Number(week) : null,
-      templateId: wfWeek(week)?.templateId ?? null,
+      /* a taken week is not written: the existing email keeps it */
+      ...(weekTaken ? {} : { week: week ? Number(week) : null, templateId: wfWeek(week)?.templateId ?? null }),
     })
   }
 
@@ -264,8 +269,8 @@ export default function WFBrief() {
             >
               <option value="">Select which email this is…</option>
               {WF_WEEKS.map(w => (
-                <option key={w.week} value={w.week}>
-                  {wfWeekLabel(w.week)}
+                <option key={w.week} value={w.week} disabled={takenWeeks.has(w.week)}>
+                  {wfWeekLabel(w.week)}{takenWeeks.has(w.week) ? ' · already created' : ''}
                 </option>
               ))}
             </select>
@@ -298,7 +303,16 @@ export default function WFBrief() {
               <div style={{ fontSize: 12.5, lineHeight: 1.55, color: t.text }}>{weekInfo.what}</div>
             </div>
           )}
-          {week && !weekReady && (
+          {weekTaken && (
+            <div style={{ fontSize: 11.5, color: '#b45309', marginTop: 6 }}>
+              {wfWeekLabel(week)} already exists for this client, so it cannot be created twice.{' '}
+              <button type="button" onClick={() => navigate(`/welcome-flow/${clientId}/email/${weekTaken.id}`)}
+                style={{ background: 'none', border: 'none', padding: 0, color: '#b45309', fontWeight: 700, textDecoration: 'underline', cursor: 'pointer', fontSize: 11.5 }}>
+                Open that email
+              </button>
+            </div>
+          )}
+          {week && !weekReady && !weekTaken && (
             <div style={{ fontSize: 11.5, color: '#b45309', marginTop: 6 }}>
               {wfWeekLabel(week)} has no email template yet. Copy can be generated and edited, but not previewed or pushed.
             </div>

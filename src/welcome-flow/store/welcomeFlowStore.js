@@ -34,16 +34,36 @@ import { authFetch } from '../../lib/session'
    Whatever is still there is pushed up to the database the first time that
    client is opened, then the key is dropped. */
 const LEGACY_KEY = 'welcome-flow-v1'
-function takeLegacyEmails(clientId) {
+function peekLegacyEmails(clientId) {
+  try { const parsed = JSON.parse(localStorage.getItem(LEGACY_KEY) || 'null'); return parsed?.state?.emails?.[clientId] || [] } catch { return [] }
+}
+function dropLegacyEmails(clientId) {
   try {
-    const raw = localStorage.getItem(LEGACY_KEY); if (!raw) return []
-    const parsed = JSON.parse(raw); const all = parsed?.state?.emails || {}
-    const mine = all[clientId] || []
+    const parsed = JSON.parse(localStorage.getItem(LEGACY_KEY) || 'null'); const all = parsed?.state?.emails || {}
     delete all[clientId]
     if (Object.keys(all).length) localStorage.setItem(LEGACY_KEY, JSON.stringify({ ...parsed, state: { ...parsed.state, emails: all } }))
     else localStorage.removeItem(LEGACY_KEY)
-    return mine
-  } catch { return [] }
+  } catch { /* nothing to drop */ }
+}
+
+/** Which of a browser's old copies to carry up. The database wins: a copy whose
+    week already has a row is skipped, never written over it. What is imported
+    goes up without its old ids, so it lands as a fresh row. Exported for tests. */
+export function pickLegacyToImport(legacy, existing) {
+  const taken = new Set((existing || []).map(e => e.week).filter(w => w != null))
+  const imports = [], skipped = []
+  for (const e of legacy || []) {
+    if (e.week != null && taken.has(e.week)) { skipped.push(e); continue }
+    const { id: _id, dbId: _dbId, ...rest } = e
+    imports.push(rest)
+  }
+  return { imports, skipped }
+}
+
+/** The email of this client that already holds a week, if any (another email, not this one). */
+export function weekTakenBy(emails, week, exceptEmailId) {
+  const w = Number(week); if (!w) return null
+  return (emails || []).find(e => e.week === w && e.id !== exceptEmailId) || null
 }
 
 /** Write one email's row. Returns the saved row id. Upserts on (client, week) when no id is known. */
@@ -170,16 +190,29 @@ export const useWelcomeFlowStore = create(
         if (!clientId || s.loadedEmails[clientId] || s.loadingEmails[clientId]) return
         set(st => ({ loadingEmails: { ...st.loadingEmails, [clientId]: true } }))
         try {
-          const legacy = takeLegacyEmails(clientId)
-          if (legacy.length) {
-            const client = s.clients.find(c => c.id === clientId)
-            for (const e of legacy) { try { await saveEmail(clientId, client?.name || '', e) } catch (err) { console.error('[welcome-flow] legacy import failed', err) } }
+          const load = async () => {
+            const res  = await authFetch('/.netlify/functions/wf-emails?clientId=' + encodeURIComponent(clientId))
+            const data = await res.json()
+            if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`)
+            return data.emails || []
           }
-          const res  = await authFetch('/.netlify/functions/wf-emails?clientId=' + encodeURIComponent(clientId))
-          const data = await res.json()
-          if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`)
+          let rows = await load()
+          /* Old copies this browser still holds: carry up the ones whose week is
+             free, leave the rest (the database already has that week), then
+             drop the old store. Written only after the decision, so a failure
+             keeps the copy for next time. */
+          const legacy = peekLegacyEmails(clientId)
+          if (legacy.length) {
+            const { imports, skipped } = pickLegacyToImport(legacy, rows)
+            const client = s.clients.find(c => c.id === clientId)
+            let failed = 0
+            for (const e of imports) { try { await saveEmail(clientId, client?.name || '', e) } catch (err) { failed++; console.error('[welcome-flow] legacy import failed', err) } }
+            if (skipped.length) console.info(`[welcome-flow] ${skipped.length} old browser cop${skipped.length === 1 ? 'y' : 'ies'} skipped: the database already has that week`)
+            if (!failed) dropLegacyEmails(clientId)
+            if (imports.length > failed) rows = await load()
+          }
           set(st => ({
-            emails:        { ...st.emails, [clientId]: data.emails || [] },
+            emails:        { ...st.emails, [clientId]: rows },
             loadedEmails:  { ...st.loadedEmails, [clientId]: true },
             loadingEmails: { ...st.loadingEmails, [clientId]: false },
           }))
