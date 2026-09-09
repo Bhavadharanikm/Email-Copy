@@ -2492,7 +2492,7 @@ function buildTemplateWeek4WF({ client, copy, images, footerData, isHeroGenerate
   ${SHARED_MOBILE_CSS}
   @media only screen and (max-width:600px){
     .w4wf-section  { padding-left:24px!important; padding-right:24px!important; }
-    .w4wf-hero      { height:600px!important; }
+    .w4wf-hero      { height:404px!important; }
     .w4wf-herocard  { height:360px!important; }
     .w4wf-headline  { font-size:30px!important; }
     .w4wf-btn-img  { width:100%!important; max-width:100%!important; }
@@ -2518,14 +2518,14 @@ function buildTemplateWeek4WF({ client, copy, images, footerData, isHeroGenerate
   </div>
 
   <!-- HERO: Week 6's treatment. A blurred, darkened copy of the photo makes
-       the backdrop, a sharp framed card sits on it, and the subhead and the
-       outlined button sit over the backdrop below the card. Laid out in flow
-       rather than with fixed top offsets so it stays fluid — see
+       the backdrop and a sharp framed card sits on it; the backdrop ends with
+       the card. The subhead and the CTA sit on the page beneath. Laid out in
+       flow rather than with fixed top offsets so it stays fluid — see
        CRITIQUE.md #1. Hero, so the serif and its sizes are exempt. -->
   ${isHeroGenerated
     ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${heroImg}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;border:0;"/></a></div>`
     : `<div style="line-height:0;font-size:0;background-color:${pageBg};">
-    <div class="w4wf-hero" style="position:relative;width:100%;max-width:600px;height:740px;margin:0 auto;overflow:hidden;">
+    <div class="w4wf-hero" style="position:relative;width:100%;max-width:600px;height:524px;margin:0 auto;overflow:hidden;">
       ${heroImg
         ? `<img src="${heroImg}" alt="" style="position:absolute;top:-30px;left:-30px;width:calc(100% + 60px);height:calc(100% + 60px);object-fit:cover;object-position:calc(50% + ${heroX}px) calc(50% + ${heroY}px);filter:blur(36px) saturate(1.4) brightness(0.82);transform:scale(${Math.max(1.12, heroScale)});display:block;"/>`
         : `<div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(160deg,#7ab5d8,#6ba87a);"></div>`}
@@ -2537,18 +2537,15 @@ function buildTemplateWeek4WF({ client, copy, images, footerData, isHeroGenerate
             <div class="w4wf-headline" style="font-family:'Lora',Georgia,serif;font-size:${textSize}px;font-weight:700;color:#ffffff;line-height:1.08;text-shadow:0 2px 16px rgba(0,0,0,.3);">${copy.headlineText||''}</div>
           </div>
         </div>
-        ${subhead ? `<div style="padding:26px 16px 0;text-align:center;line-height:normal;">
-          <div style="font-family:'Lora',Georgia,serif;font-size:17px;font-style:italic;line-height:1.6;color:#ffffff;text-shadow:0 1px 8px rgba(0,0,0,.25);">${subhead}</div>
-        </div>` : ''}
-        ${copy.ctaText ? `<div style="padding:20px 0 0;text-align:center;line-height:normal;">
-          <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto;display:inline-table;"><tr><td style="background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.85);border-radius:100px;">
-            <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:14px 44px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;letter-spacing:.03em;white-space:nowrap;">${copy.ctaText}</a>
-          </td></tr></table>
-          <div style="margin-top:14px;line-height:0;font-size:0;"><div style="display:inline-block;width:1px;height:28px;background:rgba(255,255,255,0.65);"></div></div>
-        </div>` : ''}
       </div>
     </div>
   </div>`}
+
+  <!-- UNDER THE HERO — the subhead, then the CTA, on the page -->
+  ${subhead ? `<div class="w4wf-section" style="padding:26px 48px 0;background-color:${pageBg};text-align:center;">
+    <div style="font-family:'Lora',Georgia,serif;font-size:18px;line-height:28px;font-style:italic;color:${mutedTextCol};">${subhead}</div>
+  </div>` : ''}
+  ${ctaButton ? `<div class="w4wf-section" style="padding:22px 48px 0;background-color:${pageBg};text-align:center;">${ctaButton}</div>` : ''}
 
   <!-- THE AREA BLOCKS — one card each: the photo, the block's chip, the entries -->
   ${blocksHtml}
@@ -4160,9 +4157,9 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
 </head><body>
-<div style="position:relative;width:600px;height:740px;overflow:hidden;">
+<div style="position:relative;width:600px;height:524px;overflow:hidden;">
   ${heroImgUrl
-    ? `<img src="${heroImgUrl}" style="position:absolute;top:-30px;left:-30px;width:660px;height:800px;object-fit:cover;object-position:calc(50% + ${heroX}px) calc(50% + ${heroY}px);filter:blur(36px) saturate(1.4) brightness(0.82);transform:scale(${Math.max(1.12, heroScale)});display:block;"/>`
+    ? `<img src="${heroImgUrl}" style="position:absolute;top:-30px;left:-30px;width:660px;height:584px;object-fit:cover;object-position:calc(50% + ${heroX}px) calc(50% + ${heroY}px);filter:blur(36px) saturate(1.4) brightness(0.82);transform:scale(${Math.max(1.12, heroScale)});display:block;"/>`
     : `<div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(160deg,#7ab5d8,#6ba87a);"></div>`}
   <div style="position:relative;padding:22px 28px 0;line-height:normal;font-size:initial;">
     <div style="position:relative;width:544px;height:480px;overflow:hidden;border-radius:20px;box-shadow:0 6px 40px rgba(0,0,0,0.3);border:2px solid rgba(255,255,255,0.55);">
@@ -4172,15 +4169,6 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
         <div style="font-family:'Lora',Georgia,serif;font-size:${textSize}px;font-weight:700;color:#ffffff;line-height:1.08;text-shadow:0 2px 16px rgba(0,0,0,.3);">${headline}</div>
       </div>
     </div>
-    ${week4wfSubhead ? `<div style="padding:26px 16px 0;text-align:center;line-height:normal;">
-      <div style="font-family:'Lora',Georgia,serif;font-size:17px;font-style:italic;line-height:1.6;color:#ffffff;text-shadow:0 1px 8px rgba(0,0,0,.25);">${week4wfSubhead}</div>
-    </div>` : ''}
-    ${week4wfCta ? `<div style="padding:20px 0 0;text-align:center;line-height:normal;">
-      <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto;display:inline-table;"><tr><td style="background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.85);border-radius:100px;">
-        <span style="display:inline-block;padding:14px 44px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#ffffff;letter-spacing:.03em;white-space:nowrap;">${week4wfCta}</span>
-      </td></tr></table>
-      <div style="margin-top:14px;line-height:0;font-size:0;"><div style="display:inline-block;width:1px;height:28px;background:rgba(255,255,255,0.65);"></div></div>
-    </div>` : ''}
   </div>
 </div>
 </body></html>`
@@ -5149,7 +5137,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </div>
 </body></html>` : null
 
-    const heroHeight = isWeek9 ? 720 : isWeek2 ? 580 : isWeek8WF ? 300 : isWeek7WF ? 340 : isWeek4WF ? 600 : isWeek2WF ? (logoTop + logoSize + 18 + 680) : isWFAny ? 772 : isWeek8v2 ? 680 : isWeek7v2 ? ((img1Url || img2Url || img3Url) ? 988 : 720) : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : isTest ? 520 : 400
+    const heroHeight = isWeek9 ? 720 : isWeek2 ? 580 : isWeek8WF ? 300 : isWeek7WF ? 340 : isWeek4WF ? 524 : isWeek2WF ? (logoTop + logoSize + 18 + 680) : isWFAny ? 772 : isWeek8v2 ? 680 : isWeek7v2 ? ((img1Url || img2Url || img3Url) ? 988 : 720) : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : isTest ? 520 : 400
     const secondaryPromise = isWeek4WF && img4Url
       ? renderImage({ html: week4wfPhotoHtml(img4Url, 552, 240, 16, img4X, img4Y, img4Scale), width: 552, height: 240, transparent: true })
       : isWeek2WF && img1Url
