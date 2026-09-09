@@ -2550,17 +2550,20 @@ function buildTemplateWeek4WF({ client, copy, images, footerData, isHeroGenerate
   <!-- THE AREA BLOCKS — one card each: the photo, the block's chip, the entries -->
   ${blocksHtml}
 
-  <!-- BRIDGE BACK — one more photo, then the title, the paragraph that turns the
-       day out there back towards the stay, and the one CTA -->
-  ${blockImgs[3] ? `<div class="w4wf-section" style="padding:26px 24px 0;background-color:${pageBg};line-height:0;font-size:0;">
-    ${isStoryGenerated
-      ? `<img src="${blockImgs[3]}" alt="" width="552" height="240" style="width:100%;max-width:552px;height:auto;display:block;border-radius:16px;border:0;outline:none;"/>`
-      : `<div class="w4wf-bridgebox" style="position:relative;width:100%;height:240px;overflow:hidden;border-radius:16px;"><img src="${blockImgs[3]}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:${blockTf[3]};transform-origin:center center;"/></div>`}
+  <!-- BRIDGE BACK — a rule, the title, one more photo, the paragraph that turns
+       the day out there back towards the stay, and the one CTA -->
+  ${(blockImgs[3] || copy.bodyBlock2Title || bridgeBack) ? `<div class="w4wf-section" style="padding:34px 48px 0;background-color:${pageBg};">
+    <div style="height:1px;background:${cardBorder};font-size:0;line-height:0;"></div>
   </div>` : ''}
   ${copy.bodyBlock2Title ? `<div class="w4wf-section" style="padding:26px 48px 0;background-color:${pageBg};">
     <div class="w4wf-h3" style="font-family:Arial,sans-serif;font-size:24px;line-height:32px;font-weight:700;text-transform:uppercase;color:${secondary};">${copy.bodyBlock2Title}</div>
   </div>` : ''}
-  ${bridgeBack ? `<div class="w4wf-section" style="padding:${copy.bodyBlock2Title ? 12 : 26}px 48px 0;background-color:${pageBg};">
+  ${blockImgs[3] ? `<div class="w4wf-section" style="padding:${copy.bodyBlock2Title ? 18 : 26}px 24px 0;background-color:${pageBg};line-height:0;font-size:0;">
+    ${isStoryGenerated
+      ? `<img src="${blockImgs[3]}" alt="" width="552" height="240" style="width:100%;max-width:552px;height:auto;display:block;border-radius:16px;border:0;outline:none;"/>`
+      : `<div class="w4wf-bridgebox" style="position:relative;width:100%;height:240px;overflow:hidden;border-radius:16px;"><img src="${blockImgs[3]}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:${blockTf[3]};transform-origin:center center;"/></div>`}
+  </div>` : ''}
+  ${bridgeBack ? `<div class="w4wf-section" style="padding:22px 48px 0;background-color:${pageBg};">
     <div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${textCol};">${bridgeBack}</div>
   </div>` : ''}
   ${ctaButton ? `<div class="w4wf-section" style="padding:24px 48px 0;background-color:${pageBg};text-align:center;">${ctaButton}</div>` : ''}
