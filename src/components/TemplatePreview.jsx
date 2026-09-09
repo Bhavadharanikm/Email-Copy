@@ -187,8 +187,14 @@ function buildFooter(client, footerData = null, options = {}) {
   /* An optional line inside the footer, above the footer paragraph — a
      template passes its code reminder here when it belongs with the footer
      rather than above it. Body small, centred, in the footer's own text colour. */
+  /* The workflow writes the booking link as markdown: [www.site.com](https://…).
+     In the email that has to be a real link, in the footer's own colour. */
+  const leadLineText = String(options.leadLine || '').replace(
+    /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
+    (_, label, url) => `<a href="${url}" style="color:${textCol};text-decoration:underline;">${label}</a>`,
+  )
   const leadLineHtml = options.leadLine
-    ? `<div style="font-size:14px;line-height:20px;font-weight:700;color:${textCol};font-family:Arial,sans-serif;margin-bottom:${sectionGap || 16}px;text-align:center">${options.leadLine}</div>`
+    ? `<div style="font-size:14px;line-height:20px;font-weight:700;color:${textCol};font-family:Arial,sans-serif;margin-bottom:${sectionGap || 16}px;text-align:center">${leadLineText}</div>`
     : ''
   const footerTextHtml = footerText
     ? `<div class="mobile-footer" style="font-size:${footerTextSize}px;color:#878787;font-family:Arial,sans-serif;margin-bottom:${sectionGap || 20}px;line-height:${sysLh};text-align:left">${footerText}</div>`
@@ -1879,6 +1885,7 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
 
   const body    = (copy.bodyText || '').replace(/\n/g, '<br>')
   const closing    = (copy.closingLine || '').replace(/\n/g, '<br>')
+  const bodyBlock1 = (copy.bodyBlock1  || '').replace(/\n/g, '<br>')
   const bodyBlock2 = (copy.bodyBlock2  || '').replace(/\n/g, '<br>')
   const footerLine = (copy.footerLine  || '').replace(/\n/g, '<br>')
   const logoUrl = client?.logoUrl || ''
@@ -2048,6 +2055,14 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
     ${introBtnImgUrl
       ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w2wf-btn-img" src="${introBtnImgUrl}" alt="${introCta}" width="375" style="width:375px;max-width:100%;height:auto;display:block;margin:0 auto;border:0;outline:none;"/></a>`
       : `<table class="w2wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w2wf-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;text-align:center;">${introCta} &rarr;</a></td></tr></table>`}
+  </div>` : ''}
+
+  <!-- BODY BLOCK 1 — sets up the itinerary, before the rule and the days -->
+  ${copy.bodyBlock1Title ? `<div class="w2wf-section" style="padding:26px 48px 0;background-color:${pageBg};">
+    <div class="w2wf-h3" style="font-family:Arial,sans-serif;font-size:24px;line-height:32px;font-weight:700;text-transform:uppercase;color:${secondary};">${copy.bodyBlock1Title}</div>
+  </div>` : ''}
+  ${bodyBlock1 ? `<div class="w2wf-section" style="padding:${copy.bodyBlock1Title ? 12 : 26}px 48px 0;background-color:${pageBg};">
+    <div style="font-family:Arial,sans-serif;font-size:16px;color:${textCol};line-height:24px;">${bodyBlock1}</div>
   </div>` : ''}
 
   ${days.length ? `<div class="w2wf-section" style="padding:26px 48px 0;background-color:${pageBg};">

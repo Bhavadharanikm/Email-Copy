@@ -119,6 +119,8 @@ export const WF2_TEST_VARIATIONS = [
     headlineText: 'Two days. One hot tub under the stars.',
     bodyText:     'You don\'t need a plan to enjoy this place. But if you like knowing what\'s ahead, here\'s the shape of a good 48 hours.',
     introCtaText: 'See The Itinerary',
+    bodyBlock1Title: 'THE SHAPE OF IT',
+    bodyBlock1:      "This is the slow read of the opening. None of it is required, and none of it is timed. It's mostly what the property does to your pace once you stop pushing against it.",
     moments: [
       { label: 'Day One, Afternoon', momentCopy: 'Unpack, then don\'t. The hot tub is already warm and waiting on the deck.' },
       { label: 'Day One, Evening', momentCopy: 'Fire up the grill. Eat outside, then get in the hot tub and stay there longer than you meant to.' },
@@ -137,6 +139,8 @@ export const WF2_TEST_VARIATIONS = [
     headlineText: 'Forty-eight hours, already sorted',
     bodyText:     'No itinerary required. But if you want one, this is how we would spend it.',
     introCtaText: 'Start Here',
+    bodyBlock1Title: 'THE FULL VERSION',
+    bodyBlock1:      "This one moves. The deck, the trails, and the kitchen all get used, and the park gets an afternoon. Take it as written, or keep half of it back for later.",
     moments: [
       { label: 'Day One, Afternoon', momentCopy: 'Unpack, then don\'t. The hot tub is already warm and waiting on the deck.' },
       { label: 'Day One, Evening', momentCopy: 'Fire up the grill. Eat outside, then get in the hot tub and stay there longer than you meant to.' },
@@ -155,6 +159,8 @@ export const WF2_TEST_VARIATIONS = [
     headlineText: 'Slow down for two days',
     bodyText:     'Here is the shape of a weekend where nobody checks their phone.',
     introCtaText: 'See The Plan',
+    bodyBlock1Title: 'NO PLANNING REQUIRED',
+    bodyBlock1:      "Everything below is optional. It's less an itinerary than a list of things already there and waiting, whether you reach them on the first day or the fourth.",
     moments: [
       { label: 'Day One, Afternoon', momentCopy: 'Unpack, then don\'t. The hot tub is already warm and waiting on the deck.' },
       { label: 'Day One, Evening', momentCopy: 'Fire up the grill. Eat outside, then get in the hot tub and stay there longer than you meant to.' },

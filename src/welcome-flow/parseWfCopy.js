@@ -246,6 +246,14 @@ const JSON_KEY_MAP = {
   ctatext:          'ctaText',
   ctaurl:           'ctaUrl',
   introline:        'bodyText',     // Week 2's name for the intro paragraph
+  bodyblocktitle1:  'bodyBlock1Title',  // Email 2: the block before the days
+  bodyblock1title:  'bodyBlock1Title',
+  body_block_title_1: 'bodyBlock1Title',
+  body_block_1:     'bodyBlock1',
+  bodyblocktitle2:  'bodyBlock2Title',  // Email 2: the block after the days
+  bodyblock2title:  'bodyBlock2Title',
+  body_block_title_2: 'bodyBlock2Title',
+  body_block_2:     'bodyBlock2',
   intro_line:       'bodyText',
   ctabutton:        'ctaText',      // Week 2's name for the bottom CTA
   cta_button:       'ctaText',

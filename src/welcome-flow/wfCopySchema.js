@@ -79,6 +79,8 @@ const WEEK2 = {
     { key: 'headlineText', label: 'Headline',     hint: '4–7 words. Must make sense on its own' },
     { key: 'bodyText',     label: 'Intro Line',   hint: '1–2 sentences. Sets up the itinerary without selling' },
     { key: 'introCtaText', label: 'Intro CTA',    hint: '2–3 words. Button under the intro line, into the itinerary. Falls back to the CTA Button' },
+    { key: 'bodyBlock1Title', label: 'Body Block 1 Title', hint: 'One line above the paragraph that sets up the itinerary, e.g. "The shape of it"' },
+    { key: 'bodyBlock1',      label: 'Body Block 1',       hint: 'The paragraph before the days: what the two days are like, without selling' },
     { key: 'sectionEyebrow', label: 'Section Eyebrow', hint: 'Small label above the itinerary. Left blank it reads "Your Itinerary"' },
   ],
   group: {
@@ -100,8 +102,8 @@ const WEEK2 = {
     ],
   },
   after: [
-    { key: 'bodyBlock2Title', label: 'Body Block Title', hint: 'One line above the paragraph that closes out the itinerary' },
-    { key: 'bodyBlock2',      label: 'Body Block',       hint: 'The paragraph after the moments, before the closing line' },
+    { key: 'bodyBlock2Title', label: 'Body Block 2 Title', hint: 'One line above the paragraph that closes out the itinerary' },
+    { key: 'bodyBlock2',      label: 'Body Block 2',       hint: 'The paragraph after the moments, before the closing line' },
     { key: 'ctaText',         label: 'CTA Button',       hint: '2–3 words. The final push out of the email' },
     { key: 'ctaUrl',          label: 'CTA URL',          hint: 'Full URL with https://' },
     { key: 'closingLine',     label: 'Closing Line',     hint: 'Carries the code and the terms. Warm but direct' },
