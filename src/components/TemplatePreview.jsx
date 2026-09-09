@@ -1706,9 +1706,9 @@ function buildTemplateWeek1WF({ client, copy, images, footerData, isHeroGenerate
         ${card.ctaText ? `<div style="margin-top:14px;">${cardBtnImgUrl
           // baked at 400×76 — width and height attributes both set (not just
           // CSS), since Outlook's Word engine ignores CSS width on <img>
-          ? `<a href="${card.ctaUrl||copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img src="${cardBtnImgUrl}" alt="${card.ctaText}" width="200" height="38" style="width:200px;height:38px;max-width:100%;display:block;border:0;outline:none;"/></a>`
+          ? `<a href="${card.ctaUrl||copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img src="${cardBtnImgUrl}" alt="${card.ctaText}" width="240" height="40" style="width:240px;height:40px;max-width:100%;display:block;border:0;outline:none;"/></a>`
           : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0;max-width:100%;"><tr><td style="background:${accent};border-radius:999px;">
-              <a class="w1wf-cardcta" href="${card.ctaUrl||copy.ctaUrl||'#'}" style="display:inline-block;padding:14px 30px;font-family:Arial,sans-serif;font-size:15px;font-weight:700;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;">${card.ctaText} &rarr;</a>
+              <a class="w1wf-cardcta" href="${card.ctaUrl||copy.ctaUrl||'#'}" style="display:inline-block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;">${card.ctaText} &rarr;</a>
             </td></tr></table>`
         }</div>` : ''}
       </div>
@@ -4654,11 +4654,11 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     // image serves all three cards — same idea as Week 2 reusing one button PNG
     const week1wfCardCtaText = generatedCopy?.propertyCards?.[0]?.ctaText || ''
     const week1wfCardBtnHtml = (isWFCards && week1wfCardCtaText) ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{width:400px;background:transparent;}</style>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:480px;background:transparent;}</style>
 </head><body>
-<div style="width:400px;text-align:left;">
-  <div style="display:inline-block;background:${w2v2AccentColor};border-radius:999px;padding:17px 60px;">
-    <span style="font-family:Arial,sans-serif;font-size:24px;font-weight:700;color:#ffffff;white-space:nowrap;">${week1wfCardCtaText} &rarr;</span>
+<div style="width:480px;text-align:left;line-height:0;font-size:0;">
+  <div style="display:inline-block;background:${w2v2AccentColor};border-radius:999px;padding:24px 80px;line-height:0;">
+    <span style="display:inline-block;font-family:Arial,sans-serif;font-size:32px;line-height:32px;font-weight:700;color:#ffffff;white-space:nowrap;">${week1wfCardCtaText} &rarr;</span>
   </div>
 </div>
 </body></html>` : null
@@ -5258,7 +5258,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
       ? renderImage({ html: week1wfIntroBtnHtml, width: 600, height: 88, transparent: true })
       : Promise.resolve(null)
     const cardBtnThunk = () => isWFCards && week1wfCardBtnHtml
-      ? renderImage({ html: week1wfCardBtnHtml, width: 400, height: 76, transparent: true })
+      ? renderImage({ html: week1wfCardBtnHtml, width: 480, height: 80, transparent: true })
       : Promise.resolve(null)
     const card1Thunk = () => isWeek4WF && img1Url
       ? renderImage({ html: week4wfStackHtml([0, 1, 2]), width: 340, height: 340, transparent: true })
