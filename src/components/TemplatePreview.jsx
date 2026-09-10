@@ -108,6 +108,17 @@ function divOn(hex) {
 // Generates a branded footer block for every template.
 // footerData comes from the brand board Google Sheet (fetch-footer-data endpoint).
 // Falls back gracefully when footerData is null or fields are empty.
+/* Welcome-flow buttons sit on the brand board's button colour, which can be
+   anything from cream to navy. The label follows the button: dark text on a
+   light fill, white on a dark one, the same rule live and in the bake. */
+function wfButtonText(color) {
+  const m = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(String(color || '').trim())
+  if (!m) return '#ffffff'
+  let h = m[1]; if (h.length === 3) h = h.split('').map(c => c + c).join('')
+  const r = parseInt(h.slice(0, 2), 16), g = parseInt(h.slice(2, 4), 16), b = parseInt(h.slice(4, 6), 16)
+  return (0.299 * r + 0.587 * g + 0.114 * b) > 150 ? '#1a1a1a' : '#ffffff'
+}
+
 function buildFooter(client, footerData = null, options = {}) {
   const fd          = footerData || {}
   const bgRaw       = options.bgOverride || fd.bgColor || options.defaultBg  || '#1c1c1c'
@@ -1648,6 +1659,7 @@ function buildTemplateWeek1WF({ client, copy, images, footerData, isHeroGenerate
   // this design sits on white unless the brand board says otherwise
   const pageBg    = footerData?.bgColor || '#ffffff'
   const accent    = footerData?.buttonColor || '#1a73e8'
+  const btnText  = wfButtonText(accent)
   const secondary = footerData?.secondaryColor || accent
 
   const _rgb = pageBg.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i)
@@ -1716,7 +1728,7 @@ function buildTemplateWeek1WF({ client, copy, images, footerData, isHeroGenerate
           // CSS), since Outlook's Word engine ignores CSS width on <img>
           ? `<a href="${card.ctaUrl||copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img src="${cardBtnImgUrl}" alt="${card.ctaText}" width="240" height="40" style="width:240px;height:40px;max-width:100%;display:block;border:0;outline:none;"/></a>`
           : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0;max-width:100%;"><tr><td style="background:${accent};border-radius:999px;">
-              <a class="w1wf-cardcta" href="${card.ctaUrl||copy.ctaUrl||'#'}" style="display:inline-block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;">${card.ctaText} &rarr;</a>
+              <a class="w1wf-cardcta" href="${card.ctaUrl||copy.ctaUrl||'#'}" style="display:inline-block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;color:${btnText}!important;-webkit-text-fill-color:${btnText};text-decoration:none!important;">${card.ctaText} &rarr;</a>
             </td></tr></table>`
         }</div>` : ''}
       </div>
@@ -1790,7 +1802,7 @@ function buildTemplateWeek1WF({ client, copy, images, footerData, isHeroGenerate
   ${copy.introCtaText ? `<div class="w1wf-section" style="padding:22px 48px 4px;text-align:center;background-color:${pageBg};">${introBtnImgUrl
     ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w1wf-btn-img" src="${introBtnImgUrl}" alt="${copy.introCtaText}" width="375" style="width:375px;max-width:100%;display:block;margin:0 auto;border:0;outline:none;"/></a>`
     : `<table class="w1wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;max-width:100%;"><tr><td align="center" style="background:${accent};border-radius:999px;">
-        <a class="w1wf-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;">${copy.introCtaText} &rarr;</a>
+        <a class="w1wf-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:${btnText}!important;-webkit-text-fill-color:${btnText};text-decoration:none!important;">${copy.introCtaText} &rarr;</a>
       </td></tr></table>`
   }</div>` : ''}
 
@@ -1846,7 +1858,7 @@ function buildTemplateWeek1WF({ client, copy, images, footerData, isHeroGenerate
   <!-- CTA -->
   ${copy.ctaText ? `<div class="w1wf-section" style="padding:22px 48px 34px;text-align:center;background-color:${pageBg};">${btnImgUrl
     ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w1wf-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:100%;display:block;margin:0 auto;border:0;outline:none;"/></a>`
-    : `<table class="w1wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;max-width:100%;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w1wf-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;">${copy.ctaText} &rarr;</a></td></tr></table>`
+    : `<table class="w1wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;max-width:100%;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w1wf-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:${btnText}!important;-webkit-text-fill-color:${btnText};text-decoration:none!important;">${copy.ctaText} &rarr;</a></td></tr></table>`
   }</div>` : ''}
 
   <div style="background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true, wfFooter: true })}</div>
@@ -1892,6 +1904,7 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
 
   const pageBg    = footerData?.bgColor || '#ffffff'
   const accent    = footerData?.buttonColor || '#1a73e8'
+  const btnText  = wfButtonText(accent)
   const secondary = footerData?.secondaryColor || accent
 
   const _rgb = pageBg.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i)
@@ -2054,7 +2067,7 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
   ${introCta ? `<div class="w2wf-section" style="padding:22px 48px 0;background-color:${pageBg};text-align:center;">
     ${introBtnImgUrl
       ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w2wf-btn-img" src="${introBtnImgUrl}" alt="${introCta}" width="375" style="width:375px;max-width:100%;height:auto;display:block;margin:0 auto;border:0;outline:none;"/></a>`
-      : `<table class="w2wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w2wf-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;text-align:center;">${introCta} &rarr;</a></td></tr></table>`}
+      : `<table class="w2wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w2wf-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:${btnText}!important;-webkit-text-fill-color:${btnText};text-decoration:none!important;text-align:center;">${introCta} &rarr;</a></td></tr></table>`}
   </div>` : ''}
 
   <!-- BODY BLOCK 1 — sets up the itinerary, before the rule and the days -->
@@ -2099,7 +2112,7 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
   ${copy.ctaText ? `<div class="w2wf-section" style="padding:22px 48px 8px;background-color:${pageBg};text-align:center;">
     ${btnImgUrl
       ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w2wf-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:100%;height:auto;display:block;margin:0 auto;border:0;outline:none;"/></a>`
-      : `<table class="w2wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w2wf-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;text-align:center;">${copy.ctaText} &rarr;</a></td></tr></table>`}
+      : `<table class="w2wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w2wf-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:${btnText}!important;-webkit-text-fill-color:${btnText};text-decoration:none!important;text-align:center;">${copy.ctaText} &rarr;</a></td></tr></table>`}
   </div>` : ''}
 
   <div style="padding-top:18px;background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true, wfFooter: true, leadLine })}</div>
@@ -2132,6 +2145,7 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
 
   const pageBg    = footerData?.bgColor || '#ffffff'
   const accent    = footerData?.buttonColor || '#1a73e8'
+  const btnText  = wfButtonText(accent)
   const secondary = footerData?.secondaryColor || accent
 
   const _rgb = pageBg.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i)
@@ -2354,7 +2368,7 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
   ${copy.ctaText ? `<div class="w3wf-section" style="padding:22px 48px 34px;background-color:${pageBg};text-align:center;">
     ${btnImgUrl
       ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w3wf-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="420" height="62" style="width:420px;max-width:420px;height:auto;display:block;margin:0 auto;border:0;outline:none;"/></a>`
-      : `<table class="w3wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;width:100%;max-width:420px;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w3wf-cta mobile-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:15px 30px;font-family:Arial,sans-serif;font-size:15px;font-weight:700;letter-spacing:.04em;color:#1a1a1a!important;-webkit-text-fill-color:#1a1a1a;text-decoration:none!important;text-align:center;">${copy.ctaText} &rarr;</a></td></tr></table>`}
+      : `<table class="w3wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;width:100%;max-width:420px;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w3wf-cta mobile-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:15px 30px;font-family:Arial,sans-serif;font-size:15px;font-weight:700;letter-spacing:.04em;color:${btnText}!important;-webkit-text-fill-color:${btnText};text-decoration:none!important;text-align:center;">${copy.ctaText} &rarr;</a></td></tr></table>`}
   </div>` : ''}
 
   ${footerLine ? `<div class="w3wf-section" style="padding:0 48px 30px;background-color:${pageBg};text-align:center;">
@@ -2401,6 +2415,7 @@ function buildTemplateWeek4WF({ client, copy, images, footerData, isHeroGenerate
 
   const pageBg    = footerData?.bgColor || '#ffffff'
   const accent    = footerData?.buttonColor || '#1a73e8'
+  const btnText  = wfButtonText(accent)
   const secondary = footerData?.secondaryColor || accent
 
   const hex = String(pageBg).replace('#', '')
@@ -2498,7 +2513,7 @@ function buildTemplateWeek4WF({ client, copy, images, footerData, isHeroGenerate
   const ctaButton = copy.ctaText
     ? (btnImgUrl
       ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w4wf-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:100%;height:auto;display:block;margin:0 auto;border:0;outline:none;"/></a>`
-      : `<table class="w4wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w4wf-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:#1a1a1a!important;-webkit-text-fill-color:#1a1a1a;text-decoration:none!important;text-align:center;">${copy.ctaText} &rarr;</a></td></tr></table>`)
+      : `<table class="w4wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w4wf-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:${btnText}!important;-webkit-text-fill-color:${btnText};text-decoration:none!important;text-align:center;">${copy.ctaText} &rarr;</a></td></tr></table>`)
     : ''
 
   return `<!DOCTYPE html>
@@ -2635,6 +2650,7 @@ function buildTemplateWeek5WF({ client, copy, images, footerData, isHeroGenerate
 
   const pageBg    = footerData?.bgColor || '#ffffff'
   const accent    = footerData?.buttonColor || '#1a73e8'
+  const btnText  = wfButtonText(accent)
   const secondary = footerData?.secondaryColor || accent
 
   const _rgb = pageBg.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i)
@@ -2696,7 +2712,7 @@ function buildTemplateWeek5WF({ client, copy, images, footerData, isHeroGenerate
   const ctaButton = copy.ctaText
     ? (btnImgUrl
       ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w5wf-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:100%;height:auto;display:block;margin:0 auto;border:0;outline:none;"/></a>`
-      : `<table class="w5wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w5wf-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:#1a1a1a!important;-webkit-text-fill-color:#1a1a1a;text-decoration:none!important;text-align:center;">${copy.ctaText} &rarr;</a></td></tr></table>`)
+      : `<table class="w5wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w5wf-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:${btnText}!important;-webkit-text-fill-color:${btnText};text-decoration:none!important;text-align:center;">${copy.ctaText} &rarr;</a></td></tr></table>`)
     : ''
 
   return `<!DOCTYPE html>
@@ -2930,6 +2946,7 @@ function buildTemplateWeek6WF({ client, copy, images, footerData, isHeroGenerate
 
   const pageBg    = footerData?.bgColor || '#ffffff'
   const accent    = footerData?.buttonColor || '#1a73e8'
+  const btnText  = wfButtonText(accent)
   const secondary = footerData?.secondaryColor || accent
 
   const _rgb = pageBg.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i)
@@ -2983,7 +3000,7 @@ function buildTemplateWeek6WF({ client, copy, images, footerData, isHeroGenerate
      its label on desktop and filling the width on a phone. Black label, as Email 3. */
   const ctaBtnHtml = (label) => btnImgUrl
       ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w6wf-btn-img" src="${btnImgUrl}" alt="${label}" width="375" style="width:375px;max-width:100%;height:auto;display:block;margin:0 auto;border:0;outline:none;"/></a>`
-      : `<table class="w6wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w6wf-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:#1a1a1a!important;-webkit-text-fill-color:#1a1a1a;text-decoration:none!important;text-align:center;">${label} &rarr;</a></td></tr></table>`
+      : `<table class="w6wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w6wf-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:${btnText}!important;-webkit-text-fill-color:${btnText};text-decoration:none!important;text-align:center;">${label} &rarr;</a></td></tr></table>`
 
   const introCtaText = (copy.introCtaText || copy.ctaText || '').trim()
   const ctaButton = copy.ctaText ? ctaBtnHtml(copy.ctaText) : ''
@@ -3141,6 +3158,7 @@ function buildTemplateWeek7WF({ client, copy, images, footerData, isHeroGenerate
 
   const pageBg    = footerData?.bgColor || '#ffffff'
   const accent    = footerData?.buttonColor || '#1a73e8'
+  const btnText  = wfButtonText(accent)
   const secondary = footerData?.secondaryColor || accent
 
   const _rgb = pageBg.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i)
@@ -3163,7 +3181,7 @@ function buildTemplateWeek7WF({ client, copy, images, footerData, isHeroGenerate
      desktop, filling the width on a phone. */
   const ctaBtnHtml = (label, imgUrl) => imgUrl
     ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w7wf-btn-img" src="${imgUrl}" alt="${label}" width="375" style="width:375px;max-width:100%;height:auto;display:block;margin:0 auto;border:0;outline:none;"/></a>`
-    : `<table class="w7wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w7wf-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:#1a1a1a!important;-webkit-text-fill-color:#1a1a1a;text-decoration:none!important;text-align:center;">${label} &rarr;</a></td></tr></table>`
+    : `<table class="w7wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w7wf-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:${btnText}!important;-webkit-text-fill-color:${btnText};text-decoration:none!important;text-align:center;">${label} &rarr;</a></td></tr></table>`
 
   const introCtaText = (copy.introCtaText || copy.ctaText || '').trim()
 
@@ -3308,6 +3326,7 @@ function buildTemplateWeek8WF({ client, copy, images, footerData, isHeroGenerate
 
   const pageBg    = footerData?.bgColor || '#ffffff'
   const accent    = footerData?.buttonColor || '#1a73e8'
+  const btnText  = wfButtonText(accent)
   const secondary = footerData?.secondaryColor || accent
   const _rgb = pageBg.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i)
   const _lum = _rgb ? (0.299*parseInt(_rgb[1],16) + 0.587*parseInt(_rgb[2],16) + 0.114*parseInt(_rgb[3],16))/255 : 1
@@ -3335,7 +3354,7 @@ function buildTemplateWeek8WF({ client, copy, images, footerData, isHeroGenerate
 
   const ctaBtnHtml = (label, imgUrl) => imgUrl
     ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w8wf-btn-img" src="${imgUrl}" alt="${label}" width="375" style="width:375px;max-width:100%;height:auto;display:block;margin:0 auto;border:0;outline:none;"/></a>`
-    : `<table class="w8wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w8wf-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:#1a1a1a!important;-webkit-text-fill-color:#1a1a1a;text-decoration:none!important;text-align:center;">${label} &rarr;</a></td></tr></table>`
+    : `<table class="w8wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w8wf-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:${btnText}!important;-webkit-text-fill-color:${btnText};text-decoration:none!important;text-align:center;">${label} &rarr;</a></td></tr></table>`
   const heroCtaText = (copy.heroCtaText || copy.introCtaText || copy.ctaText || '').trim()
 
   return `<!DOCTYPE html>
@@ -3480,6 +3499,7 @@ function buildTemplateWeek9WF({ client, copy, images, footerData,
 
   const pageBg    = footerData?.bgColor || '#ffffff'
   const accent    = footerData?.buttonColor || '#1a73e8'
+  const btnText  = wfButtonText(accent)
   const secondary = footerData?.secondaryColor || accent
   const _rgb = pageBg.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i)
   const _lum = _rgb ? (0.299*parseInt(_rgb[1],16) + 0.587*parseInt(_rgb[2],16) + 0.114*parseInt(_rgb[3],16))/255 : 1
@@ -3513,7 +3533,7 @@ function buildTemplateWeek9WF({ client, copy, images, footerData,
   const ctaButton = ctaText
     ? (btnImgUrl
       ? `<a href="${ctaHref}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w9wf-btn-img" src="${btnImgUrl}" alt="${ctaText}" width="375" style="width:375px;max-width:100%;height:auto;display:block;margin:0 auto;border:0;outline:none;"/></a>`
-      : `<table class="w9wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w9wf-cta" href="${ctaHref}" style="display:block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:#1a1a1a!important;-webkit-text-fill-color:#1a1a1a;text-decoration:none!important;text-align:center;">${ctaText} &rarr;</a></td></tr></table>`)
+      : `<table class="w9wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w9wf-cta" href="${ctaHref}" style="display:block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:${btnText}!important;-webkit-text-fill-color:${btnText};text-decoration:none!important;text-align:center;">${ctaText} &rarr;</a></td></tr></table>`)
     : ''
 
   return `<!DOCTYPE html>
@@ -4670,7 +4690,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </head><body>
 <div style="width:600px;">
   <div style="display:block;background:${w2v2AccentColor};border-radius:999px;padding:23px 24px;text-align:center;">
-    <span style="font-family:Arial,sans-serif;font-size:28px;font-weight:700;color:${(isWeek3WF || isWeek5WF || isWeek6WF || isWeek7WF || isWeek8WF || isWeek9WF) ? '#1a1a1a' : '#ffffff'};white-space:nowrap;">${week1wfMainCtaText} &rarr;</span>
+    <span style="font-family:Arial,sans-serif;font-size:28px;font-weight:700;color:${wfButtonText(w2v2AccentColor)};white-space:nowrap;">${week1wfMainCtaText} &rarr;</span>
   </div>
 </div>
 </body></html>` : null
@@ -4681,7 +4701,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </head><body>
 <div style="width:600px;">
   <div style="display:block;background:${w2v2AccentColor};border-radius:999px;padding:23px 24px;text-align:center;">
-    <span style="font-family:Arial,sans-serif;font-size:28px;font-weight:700;color:${(isWeek7WF || isWeek8WF) ? '#1a1a1a' : '#ffffff'};white-space:nowrap;">${week1wfIntroCtaText} &rarr;</span>
+    <span style="font-family:Arial,sans-serif;font-size:28px;font-weight:700;color:${wfButtonText(w2v2AccentColor)};white-space:nowrap;">${week1wfIntroCtaText} &rarr;</span>
   </div>
 </div>
 </body></html>` : null
@@ -4694,7 +4714,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </head><body>
 <div style="width:480px;text-align:left;line-height:0;font-size:0;">
   <div style="display:inline-block;background:${w2v2AccentColor};border-radius:999px;padding:24px 80px;line-height:0;">
-    <span style="display:inline-block;font-family:Arial,sans-serif;font-size:32px;line-height:32px;font-weight:700;color:#ffffff;white-space:nowrap;">${week1wfCardCtaText} &rarr;</span>
+    <span style="display:inline-block;font-family:Arial,sans-serif;font-size:32px;line-height:32px;font-weight:700;color:${wfButtonText(w2v2AccentColor)};white-space:nowrap;">${week1wfCardCtaText} &rarr;</span>
   </div>
 </div>
 </body></html>` : null
