@@ -364,7 +364,7 @@ function buildTemplateWeek2v2({ client, copy, images, footerData, isHeroGenerate
   <!-- CTA -->
   ${copy.ctaText ? `<div class="w2-section" style="padding:24px 48px 28px;text-align:center;background-color:${pageBg};">${btnImgUrl
     ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w2-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:375px;display:block;margin:0 auto;border:0;outline:none;"/></a>`
-    : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accent};border-radius:999px;"><a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`
+    : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accent};border-radius:999px;"><a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${copy.ctaText}</a></td></tr></table>`
   }</div>` : ''}
 
   <!-- LONG IMAGE (img1): transparent PNG above body text -->
@@ -2599,7 +2599,7 @@ function buildTemplateWeek4WF({ client, copy, images, footerData, isHeroGenerate
           <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto;display:inline-table;"><tr><td style="background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.85);border-radius:100px;">
             <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:14px 44px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;letter-spacing:.03em;white-space:nowrap;">${copy.ctaText} &rarr;</a>
           </td></tr></table>
-          <div style="margin-top:14px;line-height:0;font-size:0;"><div style="display:inline-block;width:1px;height:28px;background:rgba(255,255,255,0.65);"></div></div>
+          <div style="margin-top:10px;line-height:0;font-size:0;text-align:center;"><div style="display:inline-block;width:1px;height:28px;background:rgba(255,255,255,0.65);vertical-align:top;"></div><div style="width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:6px solid rgba(255,255,255,0.65);margin:0 auto;"></div></div>
         </div>` : ''}
       </div>
     </div>
@@ -4260,7 +4260,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
       : 0
     const week4wfHeroH = 22 + 480
       + (week4wfSubhead ? 26 + week4wfSubLines * 28 : 0)
-      + (week4wfCta ? 20 + 50 + 14 + 28 : 0)
+      + (week4wfCta ? 20 + 50 + 10 + 28 + 6 : 0)
       + 10
 
     const week4wfHeroHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
@@ -4286,7 +4286,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
       <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto;display:inline-table;"><tr><td style="background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.85);border-radius:100px;">
         <span style="display:inline-block;padding:14px 44px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#ffffff;letter-spacing:.03em;white-space:nowrap;">${week4wfCta}</span>
       </td></tr></table>
-      <div style="margin-top:14px;line-height:0;font-size:0;"><div style="display:inline-block;width:1px;height:28px;background:rgba(255,255,255,0.65);"></div></div>
+      <div style="margin-top:10px;line-height:0;font-size:0;text-align:center;"><div style="display:inline-block;width:1px;height:28px;background:rgba(255,255,255,0.65);vertical-align:top;"></div><div style="width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:6px solid rgba(255,255,255,0.65);margin:0 auto;"></div></div>
     </div>` : ''}
   </div>
 </div>
