@@ -2293,8 +2293,8 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
        These put the phone back to full width at the old size, so nothing about
        the mobile button changes. */
     .w3wf-btn-img  { width:100%!important; max-width:100%!important; }
-    .w3wf-btnwrap  { max-width:100%!important; }
-    .w3wf-cta      { padding:18px 36px!important; font-size:17px!important; }
+    .w3wf-btnwrap  { width:100%!important; }
+    .w3wf-cta      { padding:12px 20px!important; }
     .w3wf-cardbox  { padding:16px!important; }
     .wf-lora-h3    { font-size:20px!important; line-height:30px!important; }
   }
@@ -2388,7 +2388,7 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
   ${copy.ctaText ? `<div class="w3wf-section" style="padding:22px 48px 34px;background-color:${pageBg};text-align:center;">
     ${btnImgUrl
       ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w3wf-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="343" style="width:343px;max-width:100%;height:auto;display:block;margin:0 auto;border:0;outline:none;"/></a>`
-      : `<table class="w3wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;width:100%;max-width:420px;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w3wf-cta mobile-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:15px 30px;font-family:Arial,sans-serif;font-size:15px;font-weight:700;letter-spacing:.04em;color:${btnText}!important;-webkit-text-fill-color:${btnText};text-decoration:none!important;text-align:center;">${copy.ctaText} &rarr;</a></td></tr></table>`}
+      : `<table class="w3wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w3wf-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:${btnText}!important;-webkit-text-fill-color:${btnText};text-decoration:none!important;text-align:center;">${copy.ctaText} &rarr;</a></td></tr></table>`}
   </div>` : ''}
 
   ${footerLine ? `<div class="w3wf-section" style="padding:0 48px 30px;background-color:${pageBg};text-align:center;">
