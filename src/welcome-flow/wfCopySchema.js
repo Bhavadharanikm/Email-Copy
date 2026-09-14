@@ -81,7 +81,6 @@ const WEEK2 = {
     { key: 'introCtaText', label: 'Intro CTA',    hint: '2–3 words. Button under the intro line, into the itinerary. Falls back to the CTA Button' },
     { key: 'bodyBlock1Title', label: 'Body Block 1 Title', hint: 'One line above the paragraph that sets up the itinerary, e.g. "The shape of it"' },
     { key: 'bodyBlock1',      label: 'Body Block 1',       hint: 'The paragraph before the days: what the two days are like, without selling' },
-    { key: 'sectionEyebrow', label: 'Section Eyebrow', hint: 'Small label above the itinerary. Left blank it reads "Your Itinerary"' },
   ],
   group: {
     mode:      'dynamic',

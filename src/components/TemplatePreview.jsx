@@ -1938,9 +1938,6 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
     : `<div style="font-family:Arial,sans-serif;font-size:16px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:${textCol};">${client?.name||''}</div>`
 
   const introCta = copy.introCtaText || ''
-  /* Names the block below the divider. Defaults rather than disappearing, since
-     the itinerary always needs a label even if the copy does not supply one. */
-  const sectionLabel = copy.sectionEyebrow || 'Your Itinerary'
 
   const moments = Array.isArray(copy.moments) ? copy.moments.filter(m => m && (m.label || m.momentCopy)) : []
 
@@ -2070,23 +2067,17 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
       : `<table class="w2wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w2wf-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:${btnText}!important;-webkit-text-fill-color:${btnText};text-decoration:none!important;text-align:center;">${introCta} &rarr;</a></td></tr></table>`}
   </div>` : ''}
 
-  <!-- BODY BLOCK 1 — sets up the itinerary, before the rule and the days -->
-  ${copy.bodyBlock1Title ? `<div class="w2wf-section" style="padding:26px 48px 0;background-color:${pageBg};">
-    <div class="w2wf-h3" style="font-family:Arial,sans-serif;font-size:24px;line-height:32px;font-weight:700;text-transform:uppercase;color:${secondary};">${copy.bodyBlock1Title}</div>
-  </div>` : ''}
-  ${bodyBlock1 ? `<div class="w2wf-section" style="padding:${copy.bodyBlock1Title ? 12 : 26}px 48px 0;background-color:${pageBg};">
-    <div style="font-family:Arial,sans-serif;font-size:16px;color:${textCol};line-height:24px;">${bodyBlock1}</div>
-  </div>` : ''}
 
   ${days.length ? `<div class="w2wf-section" style="padding:26px 48px 0;background-color:${pageBg};">
     <div style="height:1px;background-color:${cardBorder};line-height:1px;font-size:0;">&nbsp;</div>
   </div>` : ''}
 
-  <!-- Names the itinerary, between the rule and the first day -->
-  ${days.length ? `<div class="w2wf-section" style="padding:22px 48px 0;text-align:center;background-color:${pageBg};">
-    <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;border-collapse:separate;"><tr><td style="background:#F0F0F0;border:1px solid #DEDEDE;border-radius:999px;padding:6px 14px;">
-      <span style="font-family:Arial,sans-serif;font-size:14px;line-height:14px;font-weight:600;color:#3A3A3A;letter-spacing:.02em;">${sectionLabel}</span>
-    </td></tr></table>
+  <!-- BODY BLOCK 1 — between the rule and the first day, where the chip was -->
+  ${copy.bodyBlock1Title ? `<div class="w2wf-section" style="padding:26px 48px 0;background-color:${pageBg};">
+    <div class="w2wf-h3" style="font-family:Arial,sans-serif;font-size:24px;line-height:32px;font-weight:700;text-transform:uppercase;color:${secondary};">${copy.bodyBlock1Title}</div>
+  </div>` : ''}
+  ${bodyBlock1 ? `<div class="w2wf-section" style="padding:${copy.bodyBlock1Title ? 12 : 26}px 48px 0;background-color:${pageBg};">
+    <div style="font-family:Arial,sans-serif;font-size:16px;color:${textCol};line-height:24px;">${bodyBlock1}</div>
   </div>` : ''}
 
   <!-- THE DAYS — one card each: the photo, the day chip, then that day's moments -->
