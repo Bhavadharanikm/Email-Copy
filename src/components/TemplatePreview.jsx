@@ -2515,8 +2515,8 @@ function buildTemplateWeek4WF({ client, copy, images, footerData, isHeroGenerate
      system's chip, then the entries as a bold name with its line beneath. */
   const blockCard = (block, i) => `<div class="w4wf-block" style="padding-top:${i ? 40 : 0}px;">
       <div style="line-height:0;font-size:0;">${photoHtml(i, block.blockHeader)}</div>
-      <div style="padding-top:16px;">
-        ${block.blockHeader ? `<div class="w4wf-h3" style="font-family:'Lora',Georgia,'Times New Roman',serif;font-size:26px;line-height:32px;font-weight:700;color:${secondary};">${block.blockHeader}</div>` : ''}
+      <div style="padding-top:24px;">
+        ${block.blockHeader ? `<div class="w4wf-h3" style="font-family:'Lora',Georgia,'Times New Roman',serif;font-size:24px;line-height:32px;font-weight:700;color:${secondary};">${block.blockHeader}</div>` : ''}
         ${String(block.entries || '').split('\n').map(l => l.trim()).filter(Boolean).map(entryHtml).join('')}
       </div>
     </div>`
@@ -2552,7 +2552,7 @@ function buildTemplateWeek4WF({ client, copy, images, footerData, isHeroGenerate
     .w4wf-btnwrap  { width:100%!important; }
     .w4wf-cta      { padding:12px 20px!important; }
     .w4wf-bridgebox { height:200px!important; }
-    .w4wf-h3       { font-size:22px!important; line-height:30px!important; }
+    .w4wf-h3       { font-size:20px!important; line-height:30px!important; }
   }
 </style></head>
 <body style="margin:0;padding:32px 0 48px;background-color:#ffffff;">
@@ -2612,7 +2612,7 @@ function buildTemplateWeek4WF({ client, copy, images, footerData, isHeroGenerate
     <div style="height:1px;background:${cardBorder};font-size:0;line-height:0;"></div>
   </div>` : ''}
   ${copy.bodyBlock2Title ? `<div class="w4wf-section" style="padding:26px 48px 0;background-color:${pageBg};">
-    <div class="w4wf-h3" style="font-family:'Lora',Georgia,'Times New Roman',serif;font-size:26px;line-height:32px;font-weight:700;color:${secondary};">${copy.bodyBlock2Title}</div>
+    <div class="w4wf-h3" style="font-family:'Lora',Georgia,'Times New Roman',serif;font-size:24px;line-height:32px;font-weight:700;color:${secondary};">${copy.bodyBlock2Title}</div>
   </div>` : ''}
   ${blockImgs[3] ? `<div class="w4wf-section" style="padding:${copy.bodyBlock2Title ? 18 : 26}px 24px 0;background-color:${pageBg};line-height:0;font-size:0;">
     ${isStoryGenerated
