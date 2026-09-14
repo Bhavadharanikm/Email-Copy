@@ -3663,7 +3663,13 @@ const TEMPLATES = [
  * the weekly ones. Everything else — Puppeteer generation, the edit controls,
  * zoom, mobile view — is shared, so both workflows behave identically.
  */
-export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = false, templateId = null }) {
+export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = false, templateId = null,
+  /* bakedImages false draws the design from the photos themselves rather than
+     the generated PNGs, so the welcome flow can offer the editable preview
+     beside the rendered one. allowGenerate hides the Generate Images button
+     on the rendered view, where the point is to keep the bakes there are.
+     Both default to the weekly campaign's behaviour, which is unchanged. */
+  bakedImages = true, allowGenerate = true }) {
   const [active, setActive]         = useState(0)
   const [zoom,   setZoom]           = useState(1)
   const [mobileView, setMobileView] = useState(false)
@@ -3795,7 +3801,7 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
     if (!hasCopy) return null
     if (!tpl.build) return null  // HCTI template uses image generation, not HTML build
     let effectiveImages = selectedImages
-    const tplUrls = weekGenUrls[tpl?.id] || {}
+    const tplUrls = (bakedImages ? weekGenUrls[tpl?.id] : null) || {}
     if (isWeekTemplate && (tplUrls.hero || tplUrls.sec || tplUrls.ter || tplUrls.card1 || tplUrls.card2 || tplUrls.card3)) {
       effectiveImages = [...(selectedImages || [])]
       if (tplUrls.hero)  effectiveImages[0] = { url: tplUrls.hero,  focalX: 50, focalY: 50 }
@@ -3827,7 +3833,7 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
     console.log('[baseHtml] tplId:', tpl?.id, 'isHeroGenerated:', isHeroGenerated, 'tplUrls:', tplUrls, 'effectiveImages[4]:', effectiveImages?.[4], 'effectiveImages[5]:', effectiveImages?.[5])
     const effectiveCopy = generatedCopy ? { ...generatedCopy, headlineText: (generatedCopy.headlineText || '').replace(/\.$/, '') } : generatedCopy
     return tpl.build({ client:selectedClient, copy:effectiveCopy, images:effectiveImages, headerStyle, imageStyle, footerData: effectiveFooterData, isHeroGenerated, isStoryGenerated, cardsGenerated, btnImgUrl: tplUrls.btn || null, introBtnImgUrl: tplUrls.introBtn || null, cardBtnImgUrl: tplUrls.cardBtn || null, stampImgUrl: tplUrls.sec || null, pinImgUrl: tplUrls.ter || null, gridImgUrl: ((tpl?.id === 33 || tpl?.id === 35 || tpl?.id === 36 || tpl?.id === 37 || tpl?.id === 38 || tpl?.id === 39) ? tplUrls.sec : null) || null, iconImgUrls: tplUrls.icons || [], heroMobileImgUrl: tplUrls.heroMobile || null, dayImgUrls: tpl?.id === 32 ? [tplUrls.sec || null, tplUrls.ter || null] : [], ...editorProps })
-  }, [active, selectedClient, generatedCopy, selectedImages, headerStyle, imageStyle, clientFooter, footerLogoColor, footerLogoSize, weekGenUrls, heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y])
+  }, [active, selectedClient, generatedCopy, selectedImages, headerStyle, imageStyle, clientFooter, footerLogoColor, footerLogoSize, weekGenUrls, bakedImages, heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y])
 
   // Keep store in sync so ApprovalPanel always has the latest HTML
   useEffect(() => {
@@ -5505,7 +5511,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
       </div>
 
       {/* Generate Images button — all week templates */}
-      {isWeekTemplate && (
+      {isWeekTemplate && allowGenerate && (
         <>
         <style>{`
           @keyframes hb-pulse {
@@ -6179,7 +6185,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
                 position: 'relative',
               }}>
                 <iframe
-                  key={`${active}-mobile-${weekGenUrls[tpl?.id]?.hero || 'none'}`}
+                  key={`${active}-mobile-${weekGenUrls[tpl?.id]?.hero || 'none'}-${bakedImages ? 'baked' : 'live'}`}
                   title="Email Preview Mobile"
                   srcDoc={previewHtml}
                   style={{
@@ -6203,7 +6209,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
         ) : (
           <iframe
             ref={iframeRef}
-            key={`${active}-${weekGenUrls[tpl?.id]?.hero || 'none'}`}
+            key={`${active}-${weekGenUrls[tpl?.id]?.hero || 'none'}-${bakedImages ? 'baked' : 'live'}`}
             title="Email Preview"
             style={{ width: '100%', height: 860, border: 'none', display: 'block' }}
             sandbox="allow-same-origin"

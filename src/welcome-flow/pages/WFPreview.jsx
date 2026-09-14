@@ -44,6 +44,33 @@ export default function WFPreview() {
   const [usingSample, setUsingSample] = useState(false)
   const snapshot = useRef(null)
 
+  /* Two ways to look at a generated email. 'preview' draws it from the photos
+     themselves, so the hero can be re-cropped and the images generated again.
+     'rendered' draws it with the PNGs already baked and sitting in the client's
+     media library, which is what Approve pushes. Copy edits show in both. */
+  const [mode, setMode] = useState('preview')
+  const genUrls = useCampaignStore(st => st.generatedUrls)
+  const bakedForThis = genUrls?.[wfWeekTemplateId] || null
+  const hasBaked = !!bakedForThis && Object.values(bakedForThis).some(Boolean)
+
+  /* The cleanup below runs from an effect that cannot see later renders, so the
+     two things it has to know are kept in refs. */
+  const modeRef = useRef(mode)
+  const hasBakedRef = useRef(hasBaked)
+  useEffect(() => { modeRef.current = mode }, [mode])
+  useEffect(() => { hasBakedRef.current = hasBaked }, [hasBaked])
+
+  /* Pressing Generate should show what it produced. The baked set changing
+     after the page has settled means a fresh render just landed, so switch to
+     it; the set arriving at open time is just the email's own history. */
+  const bakedSig = JSON.stringify(bakedForThis || {})
+  const openedWith = useRef(null)
+  useEffect(() => {
+    if (!ready) return
+    if (openedWith.current === null) { openedWith.current = bakedSig; return }
+    if (bakedSig !== openedWith.current) { openedWith.current = bakedSig; setMode('rendered') }
+  }, [ready, bakedSig])
+
   useEffect(() => {
     if (!client || !email) return
     const store = useCampaignStore.getState()
@@ -92,8 +119,13 @@ export default function WFPreview() {
       // Not the HTML when it was drawn from sample copy: Approve pushes
       // renderedHtml, and sample copy must never be what gets pushed.
       const after = useCampaignStore.getState()
+      /* The preview view renders from the raw photos, so its HTML is not what
+         should ever reach a client. Keep the stored HTML only when it was drawn
+         with the bakes, or when this email has none to lose. */
+      const htmlIsPushable = modeRef.current === 'rendered' || !hasBakedRef.current
       updateEmail(clientId, emailId, {
-        ...(hasOwnCopy ? { renderedHtml: after.renderedHtml || '', generatedUrls: after.generatedUrls || {} } : {}),
+        ...(hasOwnCopy && htmlIsPushable ? { renderedHtml: after.renderedHtml || '' } : {}),
+        ...(hasOwnCopy ? { generatedUrls: after.generatedUrls || {} } : {}),
         templateLabel: after.templateLabel || '',
       })
       if (snapshot.current) useCampaignStore.setState(snapshot.current)
@@ -149,7 +181,46 @@ export default function WFPreview() {
           Showing the design with sample copy for {wfWeekLabel(email?.week)}. Generate copy on the brief to see this email with its own words.
         </div>
       )}
-      {ready ? <TemplatePreview welcomeFlow templateId={wfWeekTemplateId} /> : (
+      {ready && hasBaked && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '0 0 14px' }}>
+          <div style={{ display: 'inline-flex', padding: 3, borderRadius: 10, background: t.inputBg, border: `1px solid ${t.border}` }}>
+            {[
+              ['preview',  'Preview',  'Drawn from the photos. Re-crop and generate again'],
+              ['rendered', 'Rendered', 'The generated images, exactly as Approve will push them'],
+            ].map(([id, label, hint]) => (
+              <button
+                key={id}
+                onClick={() => setMode(id)}
+                title={hint}
+                style={{
+                  padding: '6px 16px', borderRadius: 8, border: 'none', cursor: 'pointer',
+                  fontFamily: 'Inter, sans-serif', fontSize: 12.5, fontWeight: 700,
+                  background: mode === id ? t.cardBg : 'transparent',
+                  color: mode === id ? t.text : t.muted,
+                  boxShadow: mode === id ? '0 1px 4px rgba(0,0,0,0.12)' : 'none',
+                  transition: 'all 0.15s',
+                }}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <span style={{ fontSize: 12, color: t.muted }}>
+            {mode === 'preview'
+              ? 'Showing the live design. Generate images to bake it again.'
+              : 'Showing the generated images. Edit the copy and they stay as they are.'}
+          </span>
+        </div>
+      )}
+
+      {ready ? (
+        <TemplatePreview
+          welcomeFlow
+          templateId={wfWeekTemplateId}
+          bakedImages={mode === 'rendered'}
+          allowGenerate={mode === 'preview'}
+        />
+      ) : (
         <WfCard style={{ padding: 40, textAlign: 'center' }}>
           <div style={{ fontSize: 13, color: t.muted }}>Loading the template…</div>
         </WfCard>
