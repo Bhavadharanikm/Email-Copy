@@ -8,7 +8,8 @@
  *   2. Puppeteer (local Chromium, omitBackground → upload to GHL Media Library)
  *   3. html2image.net (last resort; transparency not guaranteed)
  *
- * Body: { html, width?, height?, locationId?, transparent? }
+ * Body: { html, width?, height?, locationId?, apiKey?, transparent? }
+ * The key is optional: with only a locationId the server resolves it.
  * Returns: { url }
  */
 
@@ -17,6 +18,27 @@ const sleep = (ms) => new Promise(r => setTimeout(r, ms))
 
 const GHL_BASE    = 'https://services.leadconnectorhq.com'
 const GHL_VERSION = '2021-07-28'
+
+/**
+ * Look up a location's own GHL key, the same way fetch-ghl-images does. The
+ * welcome flow never holds the key in the browser, so it sends only the
+ * location; without this the upload tiers both refuse to start and every bake
+ * falls through to html2image.net, whose links expire after a few days.
+ */
+async function resolveApiKey(locationId) {
+  const url = process.env.SUPABASE_URL
+  const key = process.env.SUPABASE_SERVICE_KEY
+  if (!locationId || !url || !key) return ''
+  try {
+    const res = await fetch(
+      `${url}/rest/v1/Email_Client_API?select=ghl_api_key&location_id=eq.${encodeURIComponent(locationId)}&limit=1`,
+      { headers: { apikey: key, Authorization: `Bearer ${key}` } }
+    )
+    if (!res.ok) return ''
+    const [row] = await res.json()
+    return row?.ghl_api_key || ''
+  } catch { return '' }
+}
 
 // ── html2image.net ────────────────────────────────────────────────────────
 
@@ -119,6 +141,13 @@ const rawHandler = async (event) => {
     const { html, width = 600, height = 580, locationId, apiKey, transparent } = JSON.parse(event.body || '{}')
     if (!html) throw new Error('html is required')
 
+    /* The caller's key when it has one (the weekly flow), otherwise the
+       location's own key off the server (the welcome flow). Either way the two
+       upload tiers get what they need and the PNG lands in the client's GHL
+       media library rather than on a temporary host. */
+    const ghlKey = apiKey || await resolveApiKey(locationId) || process.env.GHL_API_KEY || ''
+    if (!ghlKey) console.warn('[html-to-image] no GHL key for location', locationId || '(none)', '— uploads will be skipped')
+
     // ── 1. VPS screenshot server (primary — much faster than local Puppeteer) ──
     // Most week-template renders are transparent, so if the VPS cannot do
     // omitBackground they would all fall through to slow local Puppeteer. Set
@@ -131,7 +160,7 @@ const rawHandler = async (event) => {
         const vpsRes = await fetch(VPS_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ html, width, height, locationId, ghlApiKey: apiKey, transparent: !!transparent }),
+          body: JSON.stringify({ html, width, height, locationId, ghlApiKey: ghlKey, transparent: !!transparent }),
           signal: AbortSignal.timeout(10_000),
         })
         const vpsData = await vpsRes.json()
@@ -145,7 +174,7 @@ const rawHandler = async (event) => {
 
     // ── 2. Local Puppeteer (always used for transparent renders) ────────────
     try {
-      const url = await callPuppeteer(html, width, height, locationId, apiKey || process.env.GHL_API_KEY, transparent)
+      const url = await callPuppeteer(html, width, height, locationId, ghlKey, transparent)
       console.log('[html-to-image] Puppeteer OK (transparent:', !!transparent, '):', url)
       return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) }
     } catch (puppeteerErr) {
