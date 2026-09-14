@@ -2699,8 +2699,9 @@ function buildTemplateWeek5WF({ client, copy, images, footerData, isHeroGenerate
   const logoOverlayOnHero = logoUrl
     ? `<img src="${logoUrl}" alt="${client?.name||''}" style="display:inline-block;height:${logoSize}px;width:auto;max-width:100%;filter:${heroLogoFilter};"/>`
     : `<div style="font-family:Arial,sans-serif;font-size:20px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#ffffff;text-shadow:0 1px 6px rgba(0,0,0,.4);">${client?.name||''}</div>`
-  /* Email 5 has no hero CTA field of its own; the pill carries the email's one CTA. */
-  const heroCta = copy.heroCtaText || copy.ctaText || ''
+  /* Email 5 carries no button on the hero photo (removed 2026-09-14); its one
+     CTA is the button at the end of the email. */
+  const heroCta = ''
 
   /* The attribution arrives as one line ("Dave, May 2026") or as its parts.
      Prefer the line; build it from the parts only when it is missing. */
@@ -4178,7 +4179,8 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     const week1wfEyebrow = generatedCopy?.campaignEyebrow || ''
     /* Week 2 has no hero CTA field, so its hero pill carries the email's one
        CTA. Week 1 always has heroCtaText, so the fallback never fires there. */
-    const week1wfHeroCta = generatedCopy?.heroCtaText || ((isWeek2WF || isWeek3WF || isWeek5WF || isWeek6WF) ? (generatedCopy?.ctaText || '') : '')
+    /* Email 5's hero has no pill, so its bake gets none whatever the copy carries. */
+    const week1wfHeroCta = isWeek5WF ? '' : (generatedCopy?.heroCtaText || ((isWeek2WF || isWeek3WF || isWeek6WF) ? (generatedCopy?.ctaText || '') : ''))
     const week1wfLogoHtml = logoUrl
       ? `<img src="${logoUrl}" style="height:${logoSize}px;width:auto;display:inline-block;filter:${renderLogoFilter};"/>`
       : `<span style="font-family:Arial,sans-serif;font-size:20px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.4);">${selectedClient?.name || ''}</span>`
