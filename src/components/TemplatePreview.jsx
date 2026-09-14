@@ -2516,9 +2516,7 @@ function buildTemplateWeek4WF({ client, copy, images, footerData, isHeroGenerate
   const blockCard = (block, i) => `<div class="w4wf-block" style="padding-top:${i ? 40 : 0}px;">
       <div style="line-height:0;font-size:0;">${photoHtml(i, block.blockHeader)}</div>
       <div style="padding-top:20px;">
-        ${block.blockHeader ? `<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;"><tr><td style="background:#F0F0F0;border:1px solid #DEDEDE;border-radius:999px;padding:6px 14px;">
-          <span style="font-family:Arial,sans-serif;font-size:14px;line-height:14px;font-weight:600;color:#3A3A3A;letter-spacing:.02em;">${block.blockHeader}</span>
-        </td></tr></table>` : ''}
+        ${block.blockHeader ? `<div class="w4wf-h3" style="font-family:Arial,sans-serif;font-size:24px;line-height:32px;font-weight:700;text-transform:uppercase;color:${secondary};">${block.blockHeader}</div>` : ''}
         ${String(block.entries || '').split('\n').map(l => l.trim()).filter(Boolean).map(entryHtml).join('')}
       </div>
     </div>`
