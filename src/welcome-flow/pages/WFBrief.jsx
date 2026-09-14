@@ -64,6 +64,11 @@ export default function WFBrief() {
   const [generating, setGenerating] = useState(false)
   const [genError, setGenError]     = useState('')
   const [elapsed, setElapsed]       = useState(0)
+  /* Must be declared here with the rest. Below the loading and not-found
+     returns it would be a hook the first render never reaches, and React
+     throws "rendered more hooks than during the previous render" the moment
+     the client and email arrive — a blank page on every reload of this route. */
+  const [showWhat, setShowWhat] = useState(false)
 
   useEffect(() => {
     if (!client) return
@@ -120,7 +125,6 @@ export default function WFBrief() {
   const clientEmails = getEmails(clientId)
   const weekTaken    = weekTakenBy(clientEmails, week, emailId)
   const takenWeeks   = new Set(clientEmails.filter(e => e.id !== emailId && e.week).map(e => e.week))
-  const [showWhat, setShowWhat] = useState(false)
 
   const persist = () => {
     updateClient(clientId, { folderUrl, folderId })          // remember for next time
