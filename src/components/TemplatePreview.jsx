@@ -111,6 +111,30 @@ function divOn(hex) {
 /* Welcome-flow buttons sit on the brand board's button colour, which can be
    anything from cream to navy. The label follows the button: dark text on a
    light fill, white on a dark one, the same rule live and in the bake. */
+/* Email 2's day card puts the photo beside the copy. The copy's height depends
+   on how much the writer wrote, so the photo has to follow it or the card ends
+   up with a short picture next to a long paragraph. This estimates the copy
+   column's height from the text, and the photo is baked to match.
+
+   Desktop numbers: the card is 552 wide with 12px padding, the photo column is
+   200, and the copy cell adds 18 left and 4 right, leaving 306px of text. Arial
+   at 16px averages a little over half its size per character, and wrapping
+   wastes a few more, so ~36 characters land on a line. */
+const W2_DAY_COPY_W   = 306
+const W2_DAY_CHARS_LN = 36
+const W2_DAY_MIN_H    = 260
+const W2_DAY_MAX_H    = 560
+
+function week2DayPhotoHeight(card) {
+  const lines = (text) => Math.max(1, Math.ceil(String(text || '').length / W2_DAY_CHARS_LN))
+  let h = 4 + 28 + 4                                   // cell padding, then the day chip
+  ;(card?.moments || []).forEach((m, k) => {
+    if (m.time) h += (k ? 18 : 14) + 24                // the moment's own title
+    if (m.copy) h += (m.time ? 4 : (k ? 18 : 14)) + lines(m.copy) * 24
+  })
+  return Math.round(Math.min(W2_DAY_MAX_H, Math.max(W2_DAY_MIN_H, h)))
+}
+
 function wfButtonText(color) {
   const m = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(String(color || '').trim())
   if (!m) return '#ffffff'
@@ -1964,8 +1988,10 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
   const dayTf   = days.map((_, i) => momentTf[i])
   const closingImg = momentImgs[days.length] || ''
 
-  const THUMB_W = 200, THUMB_H = 260
+  const THUMB_W = 200
   const dayCard = (card, i) => {
+    /* The photo is as tall as this day's copy, both live and in the bake. */
+    const THUMB_H = week2DayPhotoHeight(card)
     const img = dayImgUrls[i] || ''
     const live = dayImgs[i]
     const photo = img
@@ -2022,7 +2048,10 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
        Gmail strips this block; there the card stays 552 wide and the photo
        keeps its 200px column, which still reads. */
     .w2wf-daythumb { display:block!important; width:100%!important; }
-    .w2wf-daythumb img { max-width:100%!important; }
+    /* The desktop photo is baked as tall as that day's copy, which would make
+       it enormous once it goes full width here. Holding the old 200x260 shape
+       keeps the phone looking as it always did, however tall the bake is. */
+    .w2wf-daythumb img { max-width:100%!important; aspect-ratio:200/260!important; object-fit:cover!important; height:auto!important; }
     .w2wf-daybox   { height:200px!important; }
     .w2wf-daycopy  { display:block!important; width:100%!important; padding:14px 4px 4px!important; }
     .w2wf-h3       { font-size:20px!important; line-height:30px!important; }
@@ -4501,13 +4530,29 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 
     /* Email 2's day photos: Sub 1 and Sub 2 cropped to the card's 200 x 260
        cell, corners rounded in the PNG so the crop survives Gmail. */
-    const week2wfDayHtml = (url, x, y, sc) => `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+    /* One per day, as tall as that day's copy so the two columns finish level. */
+    const week2wfDayHtml = (url, x, y, sc, h) => `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:200px;background:transparent;}</style>
 </head><body>
-<div style="position:relative;width:200px;height:260px;border-radius:16px;overflow:hidden;">
-  <img src="${url}" style="position:absolute;top:0;left:0;width:200px;height:260px;object-fit:cover;display:block;transform:translate(${x}px,${y}px) scale(${sc});transform-origin:center center;"/>
+<div style="position:relative;width:200px;height:${h}px;border-radius:16px;overflow:hidden;">
+  <img src="${url}" style="position:absolute;top:0;left:0;width:200px;height:${h}px;object-fit:cover;display:block;transform:translate(${x}px,${y}px) scale(${sc});transform-origin:center center;"/>
 </div>
 </body></html>`
+
+    /* The same day grouping the template does, so the two agree on the heights. */
+    const week2wfDayHeights = (() => {
+      if (!isWeek2WF) return []
+      const ms = Array.isArray(generatedCopy?.moments) ? generatedCopy.moments.filter(m => m && (m.label || m.momentCopy)) : []
+      const cards = []
+      for (const m of ms) {
+        const [dayPart, ...rest] = String(m.label || '').split(',')
+        const day = dayPart.trim() || `Day ${cards.length + 1}`
+        let card = cards.find(dd => dd.day.toLowerCase() === day.toLowerCase())
+        if (!card) { card = { day, moments: [] }; cards.push(card) }
+        card.moments.push({ time: rest.join(',').trim(), copy: m.momentCopy || '' })
+      }
+      return cards.map(week2DayPhotoHeight)
+    })()
 
     /* Email 4's photos: each block photo cropped to its 528x220 card band, the
        bridge-back photo to 552x240, corners rounded in the PNG. Transparent
@@ -5227,7 +5272,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     const secondaryPromise = isWeek4WF && img4Url
       ? renderImage({ html: week4wfPhotoHtml(img4Url, 552, 240, 16, img4X, img4Y, img4Scale), width: 552, height: 240, transparent: true })
       : isWeek2WF && img1Url
-      ? renderImage({ html: week2wfDayHtml(img1Url, img1X, img1Y, img1Scale), width: 200, height: 260, transparent: true })
+      ? renderImage({ html: week2wfDayHtml(img1Url, img1X, img1Y, img1Scale, week2wfDayHeights[0] || W2_DAY_MIN_H), width: 200, height: week2wfDayHeights[0] || W2_DAY_MIN_H, transparent: true })
       : (isWeek8WF || isWeek9WF) && week8wfCirclesHtml
       ? renderImage({ html: week8wfCirclesHtml, width: 600, height: 360, transparent: true })
       : isWeek7WF && week7wfCirclesHtml
@@ -5263,7 +5308,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
               : Promise.resolve(null)
 
     const tertiaryPromise = isWeek2WF && img2Url
-      ? renderImage({ html: week2wfDayHtml(img2Url, img2X, img2Y, img2Scale), width: 200, height: 260, transparent: true })
+      ? renderImage({ html: week2wfDayHtml(img2Url, img2X, img2Y, img2Scale, week2wfDayHeights[1] || W2_DAY_MIN_H), width: 200, height: week2wfDayHeights[1] || W2_DAY_MIN_H, transparent: true })
       : isWeek8v2 && week8v2PinHtml
       ? renderImage({ html: week8v2PinHtml, width: 600, height: 435, transparent: true })
       : isWeek7v2 && img4Url
