@@ -3267,13 +3267,10 @@ function buildTemplateWeek7WF({ client, copy, images, footerData, isHeroGenerate
     ${introParas.map((para, i) => `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${textCol};${i ? 'margin-top:14px;' : ''}">${para}</div>`).join('')}
   </div>` : ''}
 
-  <!-- THE SECOND CASE — small label, the paragraph, then the CTA again -->
+  <!-- THE SECOND CASE — small label, then the paragraph -->
   ${(copy.bodyBlock2Title || blockParas.length) ? `<div class="w7wf-section" style="padding:30px 48px 0;background-color:${pageBg};">
     ${copy.bodyBlock2Title ? `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:${secondary};">${copy.bodyBlock2Title}</div>` : ''}
     ${blockParas.map((para, i) => `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${textCol};margin-top:${i || copy.bodyBlock2Title ? 14 : 0}px;">${para}</div>`).join('')}
-  </div>` : ''}
-  ${copy.ctaText ? `<div class="w7wf-section" style="padding:24px 48px 0;background-color:${pageBg};text-align:center;">
-    ${ctaBtnHtml(copy.ctaText, btnImgUrl)}
   </div>` : ''}
 
   <!-- THE PAIR OF CIRCLES — Email 1's element. Sized in percentages against a
@@ -3295,6 +3292,11 @@ function buildTemplateWeek7WF({ client, copy, images, footerData, isHeroGenerate
   <!-- THE CLOSING -->
   ${closing ? `<div class="w7wf-section" style="padding:30px 48px 0;background-color:${pageBg};">
     <div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${mutedTextCol};">${closing}</div>
+  </div>` : ''}
+
+  <!-- THE CTA — last, under the closing line, after the circles -->
+  ${copy.ctaText ? `<div class="w7wf-section" style="padding:24px 48px 0;background-color:${pageBg};text-align:center;">
+    ${ctaBtnHtml(copy.ctaText, btnImgUrl)}
   </div>` : ''}
 
   <div style="padding-top:26px;background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true, wfFooter: true, leadLine: footerLine })}</div>
