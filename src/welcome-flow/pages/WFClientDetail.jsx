@@ -58,7 +58,7 @@ export default function WFClientDetail() {
     navigate(`/welcome-flow/${clientId}/email/${e.id}${hasCopy ? '/copy' : ''}`)
   }
   const t = useWfTheme()
-  const { getClient, getEmails, counts, addEmail, ensureClients, ensureEmails, loadingClients, loadedEmails } = useWelcomeFlowStore()
+  const { getClient, getEmails, counts, addEmail, ensureClients, ensureEmails, loadingClients, clientsLoaded, loadedEmails } = useWelcomeFlowStore()
   const [filter, setFilter] = useState('all')
   const [creating, setCreating] = useState(null)   // the week being created on first open, so a double click cannot make two
 
@@ -77,7 +77,7 @@ export default function WFClientDetail() {
     return rows
   }, [emails, filter])
 
-  if (loadingClients && !client) {
+  if (!clientsLoaded || loadingClients) {
     return (
       <div style={{ maxWidth: 1180, margin: '0 auto', padding: '32px 24px' }}>
         <WfCard style={{ padding: 40, textAlign: 'center' }}>

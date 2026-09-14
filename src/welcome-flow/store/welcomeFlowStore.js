@@ -117,6 +117,11 @@ export const useWelcomeFlowStore = create(
       clients: [],
       emails:  {},
       loadingClients: false,
+      /* False until the first client fetch has settled. A reload starts with an
+         empty store and loadingClients still false, so without this the deep
+         pages read "no such client" in that first frame and show the not-found
+         screen before anything has been asked for. */
+      clientsLoaded:  false,
       clientsError:   null,
       loadedEmails:   {},     // { [clientId]: true } once that client's emails have come from the database
       loadingEmails:  {},
@@ -129,9 +134,9 @@ export const useWelcomeFlowStore = create(
           const res  = await authFetch('/.netlify/functions/wf-clients')
           const data = await res.json()
           if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`)
-          set({ clients: data.clients || [], loadingClients: false })
+          set({ clients: data.clients || [], loadingClients: false, clientsLoaded: true })
         } catch (e) {
-          set({ clientsError: e.message, loadingClients: false })
+          set({ clientsError: e.message, loadingClients: false, clientsLoaded: true })
         }
       },
 

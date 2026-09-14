@@ -26,7 +26,7 @@ export default function WFPreview() {
   const { clientId, emailId } = useParams()
   const navigate = useNavigate()
   const t = useWfTheme()
-  const { getClient, getEmails, updateEmail, ensureClients, ensureEmails, loadingClients, loadedEmails } = useWelcomeFlowStore()
+  const { getClient, getEmails, updateEmail, ensureClients, ensureEmails, loadingClients, clientsLoaded, loadedEmails } = useWelcomeFlowStore()
 
   // clients are not persisted — refetch after a reload on this deep route
   useEffect(() => { ensureClients() }, [ensureClients])
@@ -102,7 +102,7 @@ export default function WFPreview() {
 
   /* Still fetching: the client list, or this client's emails from the database.
      Not the 'not found' screen — that is only right once loading has finished. */
-  if ((loadingClients && !client) || (client && !email && !loadedEmails[clientId])) {
+  if (!clientsLoaded || loadingClients || (client && !email && !loadedEmails[clientId])) {
     return (
       <div style={{ maxWidth: 820, margin: '0 auto', padding: '32px 24px' }}>
         <WfCard style={{ padding: 40, textAlign: 'center' }}>
