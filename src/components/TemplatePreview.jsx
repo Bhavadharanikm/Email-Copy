@@ -2597,7 +2597,7 @@ function buildTemplateWeek4WF({ client, copy, images, footerData, isHeroGenerate
         </div>` : ''}
         ${copy.ctaText ? `<div style="padding:20px 0 0;text-align:center;line-height:normal;">
           <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto;display:inline-table;"><tr><td style="background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.85);border-radius:100px;">
-            <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:14px 44px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;letter-spacing:.03em;white-space:nowrap;">${copy.ctaText}</a>
+            <a href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:14px 44px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;letter-spacing:.03em;white-space:nowrap;">${copy.ctaText} &rarr;</a>
           </td></tr></table>
           <div style="margin-top:14px;line-height:0;font-size:0;"><div style="display:inline-block;width:1px;height:28px;background:rgba(255,255,255,0.65);"></div></div>
         </div>` : ''}
@@ -4251,11 +4251,23 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
        Generate Images runs. */
     const week4wfSubhead = generatedCopy?.sectionSubhead || generatedCopy?.subhead || ''
     const week4wfCta     = generatedCopy?.ctaText || ''
+    /* The hero is as tall as its content: the photo card, then the subhead, which
+       wraps, then the button and its little drop line. It used to be baked at a
+       fixed 600, which sliced the button in half whenever the subhead ran on.
+       The subhead sits in 512px of Lora italic at 17px, about 70 chars a line. */
+    const week4wfSubLines = week4wfSubhead
+      ? Math.max(1, Math.ceil(String(week4wfSubhead).length / 70))
+      : 0
+    const week4wfHeroH = 22 + 480
+      + (week4wfSubhead ? 26 + week4wfSubLines * 28 : 0)
+      + (week4wfCta ? 20 + 50 + 14 + 28 : 0)
+      + 10
+
     const week4wfHeroHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
 </head><body>
-<div style="position:relative;width:600px;height:740px;overflow:hidden;">
+<div style="position:relative;width:600px;height:${week4wfHeroH}px;overflow:hidden;">
   ${heroImgUrl
     ? `<img src="${heroImgUrl}" style="position:absolute;top:-30px;left:-30px;width:660px;height:800px;object-fit:cover;object-position:calc(50% + ${heroX}px) calc(50% + ${heroY}px);filter:blur(36px) saturate(1.4) brightness(0.82);transform:scale(${Math.max(1.12, heroScale)});display:block;"/>`
     : `<div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(160deg,#7ab5d8,#6ba87a);"></div>`}
@@ -5268,7 +5280,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </div>
 </body></html>` : null
 
-    const heroHeight = isWeek9 ? 720 : isWeek2 ? 580 : isWeek8WF ? 300 : isWeek7WF ? 340 : isWeek4WF ? 600 : isWeek2WF ? (logoTop + logoSize + 18 + 680) : isWFAny ? 772 : isWeek8v2 ? 680 : isWeek7v2 ? ((img1Url || img2Url || img3Url) ? 988 : 720) : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : isTest ? 520 : 400
+    const heroHeight = isWeek9 ? 720 : isWeek2 ? 580 : isWeek8WF ? 300 : isWeek7WF ? 340 : isWeek4WF ? week4wfHeroH : isWeek2WF ? (logoTop + logoSize + 18 + 680) : isWFAny ? 772 : isWeek8v2 ? 680 : isWeek7v2 ? ((img1Url || img2Url || img3Url) ? 988 : 720) : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : isTest ? 520 : 400
     const secondaryPromise = isWeek4WF && img4Url
       ? renderImage({ html: week4wfPhotoHtml(img4Url, 552, 240, 16, img4X, img4Y, img4Scale), width: 552, height: 240, transparent: true })
       : isWeek2WF && img1Url
