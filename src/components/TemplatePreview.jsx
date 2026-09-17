@@ -2545,6 +2545,7 @@ function buildTemplateWeek4WF({ client, copy, images, footerData, isHeroGenerate
   ${SHARED_MOBILE_CSS}
   @media only screen and (max-width:600px){
     .w4wf-section  { padding-left:24px!important; padding-right:24px!important; }
+    .w4wf-hero      { height:600px!important; }
     .w4wf-herocard  { height:360px!important; }
     .w4wf-headline  { font-size:30px!important; }
     .w4wf-btn-img  { width:100%!important; max-width:100%!important; }
@@ -2559,6 +2560,18 @@ function buildTemplateWeek4WF({ client, copy, images, footerData, isHeroGenerate
 <table class="w4wf-outer" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="width:100%;max-width:600px;margin:0 auto;background-color:${pageBg};border-collapse:collapse;border-radius:20px;overflow:hidden;">
 <tr><td style="background-color:${pageBg};">
 
+  <!-- TOP BAR: the logo, and the CTA repeated as a plain link. Baked into the
+       hero PNG, band and all, so once that exists this one would be a second
+       copy of it. -->
+  ${isHeroGenerated ? '' : `<div class="w4wf-section" style="padding:${logoTop}px 48px 18px;background-color:${pageBg};line-height:normal;">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
+      <tr>
+        <td valign="middle" align="left" style="line-height:0;font-size:0;">${logoOnPage}</td>
+        ${copy.ctaText ? `<td valign="middle" align="right"><a href="${copy.ctaUrl||'#'}" style="font-family:Arial,sans-serif;font-size:14px;line-height:20px;font-weight:700;color:${textCol};text-decoration:underline;">${copy.ctaText} &rsaquo;</a></td>` : ''}
+      </tr>
+    </table>
+  </div>`}
+
   <!-- HERO: Week 6's treatment. A blurred, darkened copy of the photo makes
        the backdrop, a sharp framed card sits on it, and the subhead and the
        outlined button sit over the backdrop below the card. Laid out in flow
@@ -2567,19 +2580,11 @@ function buildTemplateWeek4WF({ client, copy, images, footerData, isHeroGenerate
   ${isHeroGenerated
     ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${heroImg}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;border:0;"/></a></div>`
     : `<div style="line-height:0;font-size:0;background-color:${pageBg};">
-    <div class="w4wf-hero" style="position:relative;width:100%;max-width:600px;margin:0 auto;overflow:hidden;">
+    <div class="w4wf-hero" style="position:relative;width:100%;max-width:600px;height:740px;margin:0 auto;overflow:hidden;">
       ${heroImg
         ? `<img src="${heroImg}" alt="" style="position:absolute;top:-30px;left:-30px;width:calc(100% + 60px);height:calc(100% + 60px);object-fit:cover;object-position:calc(50% + ${heroX}px) calc(50% + ${heroY}px);filter:blur(36px) saturate(1.4) brightness(0.82);transform:scale(${Math.max(1.12, heroScale)});display:block;"/>`
         : `<div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(160deg,#7ab5d8,#6ba87a);"></div>`}
-      <div style="position:relative;padding:0 28px 0;line-height:normal;font-size:initial;">
-        <!-- TOP BAR — on the blurred backdrop, so the colour above the photo is
-             the photo's own rather than a flat band butting up against it -->
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
-          <tr>
-            <td valign="middle" align="left" style="padding:22px 0 18px;line-height:0;font-size:0;">${logoOnPage}</td>
-            ${copy.ctaText ? `<td valign="middle" align="right" style="padding:22px 0 18px;"><a href="${copy.ctaUrl||'#'}" style="font-family:Arial,sans-serif;font-size:14px;line-height:20px;font-weight:700;color:#ffffff;text-decoration:underline;text-shadow:0 1px 6px rgba(0,0,0,.35);">${copy.ctaText} &rsaquo;</a></td>` : ''}
-          </tr>
-        </table>
+      <div style="position:relative;padding:22px 28px 0;line-height:normal;font-size:initial;">
         <div class="w4wf-herocard" style="position:relative;width:100%;height:480px;overflow:hidden;border-radius:20px;box-shadow:0 6px 40px rgba(0,0,0,0.3);border:2px solid rgba(255,255,255,0.55);">
           ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>` : ''}
           <div style="position:absolute;top:0;left:0;right:0;height:72%;background:linear-gradient(to bottom,rgba(0,0,0,0.52) 0%,rgba(0,0,0,0.16) 65%,rgba(0,0,0,0) 100%);"></div>
@@ -4259,33 +4264,46 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     /* The hero is as tall as its content: the photo card, then the subhead, which
        wraps, then the button and its little drop line. It used to be baked at a
        fixed 600, which sliced the button in half whenever the subhead ran on.
-       The subhead sits in 512px of Lora italic at 17px, about 70 chars a line.
-       The top bar is inside the blurred area now, so its 22 + logo + 18 counts. */
+       The subhead sits in 512px of Lora italic at 17px, about 70 chars a line. */
+    /* The band above the hero keeps its own background and its dark-on-light
+       text; it is only baked into the same PNG so the two arrive as one piece
+       with no seam between them. Same luminance rule as the template. */
+    const week4wfBandBg  = clientFooter?.bgColor || '#ffffff'
+    const week4wfBandHex = String(week4wfBandBg).replace('#', '')
+    const week4wfBandLum = week4wfBandHex.length >= 6
+      ? (0.299 * parseInt(week4wfBandHex.slice(0,2),16) + 0.587 * parseInt(week4wfBandHex.slice(2,4),16) + 0.114 * parseInt(week4wfBandHex.slice(4,6),16))
+      : 255
+    const week4wfBandText = week4wfBandLum > 160 ? '#1a1a1a' : '#ffffff'
+    const week4wfBandH    = logoTop + Math.max(logoSize, 20) + 18
+
     const week4wfSubLines = week4wfSubhead
       ? Math.max(1, Math.ceil(String(week4wfSubhead).length / 70))
       : 0
-    const week4wfHeroH = 22 + logoSize + 18 + 480
+    const week4wfBlurH = 22 + 480
       + (week4wfSubhead ? 26 + week4wfSubLines * 28 : 0)
       + (week4wfCta ? 20 + 50 + 10 + 28 + 6 : 0)
       + 10
+    const week4wfHeroH = week4wfBandH + week4wfBlurH
 
     const week4wfHeroHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
 </head><body>
-<div style="position:relative;width:600px;height:${week4wfHeroH}px;overflow:hidden;">
+<div style="width:600px;height:${week4wfBandH}px;background:${week4wfBandBg};padding:${logoTop}px 48px 18px;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
+    <tr>
+      <td valign="middle" align="left" style="line-height:0;font-size:0;">${logoUrl
+        ? `<img src="${logoUrl}" alt="" style="display:inline-block;height:${logoSize}px;width:auto;filter:${renderLogoFilter};"/>`
+        : `<span style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:${week4wfBandText};">${clientName}</span>`}</td>
+      ${week4wfCta ? `<td valign="middle" align="right"><span style="font-family:Arial,sans-serif;font-size:14px;line-height:20px;font-weight:700;color:${week4wfBandText};text-decoration:underline;">${week4wfCta} &rsaquo;</span></td>` : ''}
+    </tr>
+  </table>
+</div>
+<div style="position:relative;width:600px;height:${week4wfBlurH}px;overflow:hidden;">
   ${heroImgUrl
-    ? `<img src="${heroImgUrl}" style="position:absolute;top:-30px;left:-30px;width:660px;height:${week4wfHeroH + 60}px;object-fit:cover;object-position:calc(50% + ${heroX}px) calc(50% + ${heroY}px);filter:blur(36px) saturate(1.4) brightness(0.82);transform:scale(${Math.max(1.12, heroScale)});display:block;"/>`
+    ? `<img src="${heroImgUrl}" style="position:absolute;top:-30px;left:-30px;width:660px;height:${week4wfBlurH + 60}px;object-fit:cover;object-position:calc(50% + ${heroX}px) calc(50% + ${heroY}px);filter:blur(36px) saturate(1.4) brightness(0.82);transform:scale(${Math.max(1.12, heroScale)});display:block;"/>`
     : `<div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(160deg,#7ab5d8,#6ba87a);"></div>`}
-  <div style="position:relative;padding:0 28px 0;line-height:normal;font-size:initial;">
-    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
-      <tr>
-        <td valign="middle" align="left" style="padding:22px 0 18px;line-height:0;font-size:0;">${logoUrl
-          ? `<img src="${logoUrl}" alt="" style="display:inline-block;height:${logoSize}px;width:auto;filter:${renderLogoFilter};"/>`
-          : `<span style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#ffffff;">${clientName}</span>`}</td>
-        ${week4wfCta ? `<td valign="middle" align="right" style="padding:22px 0 18px;"><span style="font-family:Arial,sans-serif;font-size:14px;line-height:20px;font-weight:700;color:#ffffff;text-decoration:underline;text-shadow:0 1px 6px rgba(0,0,0,.35);">${week4wfCta} &rsaquo;</span></td>` : ''}
-      </tr>
-    </table>
+  <div style="position:relative;padding:22px 28px 0;line-height:normal;font-size:initial;">
     <div style="position:relative;width:544px;height:480px;overflow:hidden;border-radius:20px;box-shadow:0 6px 40px rgba(0,0,0,0.3);border:2px solid rgba(255,255,255,0.55);">
       ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;top:${Math.min(0,Math.max(480*(1-heroScale),-(480*(heroScale-1)/2)+heroY))}px;left:${Math.min(0,Math.max(544*(1-heroScale),-(544*(heroScale-1)/2)+heroX))}px;width:${544*heroScale}px;height:${480*heroScale}px;object-fit:cover;display:block;"/>` : ''}
       <div style="position:absolute;top:0;left:0;right:0;height:72%;background:linear-gradient(to bottom,rgba(0,0,0,0.52) 0%,rgba(0,0,0,0.16) 65%,rgba(0,0,0,0) 100%);"></div>
