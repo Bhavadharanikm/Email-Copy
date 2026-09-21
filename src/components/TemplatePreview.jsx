@@ -1905,7 +1905,7 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
   img3Scale=1, img3X=0, img3Y=0,
   img4Scale=1, img4X=0, img4Y=0,
   img5Scale=1, img5X=0, img5Y=0,
-  btnImgUrl = null, introBtnImgUrl = null, dayImgUrls = [],
+  btnImgUrl = null, introBtnImgUrl = null, dayImgUrls = [], dayImgMobUrls = [],
 }) {
   const heroObj = images?.[0]; const heroImg = heroObj?.url || ''
   /* One photo per moment, Sub 1–5. The copy decides how many moments there are,
@@ -1994,8 +1994,14 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
     const THUMB_H = week2DayPhotoHeight(card)
     const img = dayImgUrls[i] || ''
     const live = dayImgs[i]
+    const mob = dayImgMobUrls[i] || ''
+    /* Beside the copy the photo matches its height; above the copy on a phone
+       it has no reason to, so a square crop takes over there. Swapped by
+       display rather than by CSS cropping, which phone mail clients honour. */
     const photo = img
-      ? `<img src="${img}" alt="" width="${THUMB_W}" style="width:100%;max-width:${THUMB_W}px;height:auto;display:block;border:0;outline:none;"/>`
+      ? `<img class="${mob ? 'w2wf-thumb-desk' : ''}" src="${img}" alt="" width="${THUMB_W}" style="width:100%;max-width:${THUMB_W}px;height:auto;display:block;border:0;outline:none;"/>${mob
+          ? `<img class="w2wf-thumb-mob" src="${mob}" alt="" width="${THUMB_W}" style="display:none;width:100%;max-width:100%;height:auto;border:0;outline:none;"/>`
+          : ''}`
       : live
         ? `<div class="w2wf-daybox" style="position:relative;width:100%;height:${THUMB_H}px;overflow:hidden;border-radius:16px;"><img src="${live}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:${dayTf[i]};transform-origin:center center;"/></div>`
         : `<div class="w2wf-daybox" style="width:100%;height:${THUMB_H}px;background:${pillBg};border-radius:16px;"></div>`
@@ -2051,8 +2057,13 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
     /* The desktop photo is baked as tall as that day's copy, which would make
        it enormous once it goes full width here. Holding the old 200x260 shape
        keeps the phone looking as it always did, however tall the bake is. */
-    .w2wf-daythumb img { max-width:100%!important; aspect-ratio:200/260!important; object-fit:cover!important; height:auto!important; }
-    .w2wf-daybox   { height:200px!important; }
+    .w2wf-daythumb img { max-width:100%!important; height:auto!important; }
+    /* The square crop takes the phone. The wide one only carries the -desk
+       class when a square one exists, so it is never hidden with nothing behind it. */
+    .w2wf-thumb-desk { display:none!important; }
+    .w2wf-thumb-mob  { display:block!important; }
+    /* The unbaked preview box turns square on a phone for the same reason. */
+    .w2wf-daybox   { height:auto!important; aspect-ratio:1/1!important; }
     .w2wf-daycopy  { display:block!important; width:100%!important; padding:14px 4px 4px!important; }
     .w2wf-h3       { font-size:20px!important; line-height:30px!important; }
   }
@@ -3834,7 +3845,7 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
       : clientFooter
     console.log('[baseHtml] tplId:', tpl?.id, 'isHeroGenerated:', isHeroGenerated, 'tplUrls:', tplUrls, 'effectiveImages[4]:', effectiveImages?.[4], 'effectiveImages[5]:', effectiveImages?.[5])
     const effectiveCopy = generatedCopy ? { ...generatedCopy, headlineText: (generatedCopy.headlineText || '').replace(/\.$/, '') } : generatedCopy
-    return tpl.build({ client:selectedClient, copy:effectiveCopy, images:effectiveImages, headerStyle, imageStyle, footerData: effectiveFooterData, isHeroGenerated, isStoryGenerated, cardsGenerated, btnImgUrl: tplUrls.btn || null, introBtnImgUrl: tplUrls.introBtn || null, cardBtnImgUrl: tplUrls.cardBtn || null, stampImgUrl: tplUrls.sec || null, pinImgUrl: tplUrls.ter || null, gridImgUrl: ((tpl?.id === 33 || tpl?.id === 35 || tpl?.id === 36 || tpl?.id === 37 || tpl?.id === 38 || tpl?.id === 39) ? tplUrls.sec : null) || null, iconImgUrls: tplUrls.icons || [], heroMobileImgUrl: tplUrls.heroMobile || null, dayImgUrls: tpl?.id === 32 ? [tplUrls.sec || null, tplUrls.ter || null] : [], ...editorProps })
+    return tpl.build({ client:selectedClient, copy:effectiveCopy, images:effectiveImages, headerStyle, imageStyle, footerData: effectiveFooterData, isHeroGenerated, isStoryGenerated, cardsGenerated, btnImgUrl: tplUrls.btn || null, introBtnImgUrl: tplUrls.introBtn || null, cardBtnImgUrl: tplUrls.cardBtn || null, stampImgUrl: tplUrls.sec || null, pinImgUrl: tplUrls.ter || null, gridImgUrl: ((tpl?.id === 33 || tpl?.id === 35 || tpl?.id === 36 || tpl?.id === 37 || tpl?.id === 38 || tpl?.id === 39) ? tplUrls.sec : null) || null, iconImgUrls: tplUrls.icons || [], heroMobileImgUrl: tplUrls.heroMobile || null, dayImgUrls: tpl?.id === 32 ? [tplUrls.sec || null, tplUrls.ter || null] : [], dayImgMobUrls: tpl?.id === 32 ? [tplUrls.card1 || null, tplUrls.card2 || null] : [], ...editorProps })
   }, [active, selectedClient, generatedCopy, selectedImages, headerStyle, imageStyle, clientFooter, footerLogoColor, footerLogoSize, weekGenUrls, bakedImages, heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y])
 
   // Keep store in sync so ApprovalPanel always has the latest HTML
@@ -4575,11 +4586,11 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     /* Email 2's day photos: Sub 1 and Sub 2 cropped to the card's 200 x 260
        cell, corners rounded in the PNG so the crop survives Gmail. */
     /* One per day, as tall as that day's copy so the two columns finish level. */
-    const week2wfDayHtml = (url, x, y, sc, h) => `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{width:200px;background:transparent;}</style>
+    const week2wfDayHtml = (url, x, y, sc, h, w = 200) => `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:${w}px;background:transparent;}</style>
 </head><body>
-<div style="position:relative;width:200px;height:${h}px;border-radius:16px;overflow:hidden;">
-  <img src="${url}" style="position:absolute;top:0;left:0;width:200px;height:${h}px;object-fit:cover;display:block;transform:translate(${x}px,${y}px) scale(${sc});transform-origin:center center;"/>
+<div style="position:relative;width:${w}px;height:${h}px;border-radius:16px;overflow:hidden;">
+  <img src="${url}" style="position:absolute;top:0;left:0;width:${w}px;height:${h}px;object-fit:cover;display:block;transform:translate(${x}px,${y}px) scale(${sc});transform-origin:center center;"/>
 </div>
 </body></html>`
 
@@ -5396,12 +5407,20 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     const cardBtnThunk = () => isWFCards && week1wfCardBtnHtml
       ? renderImage({ html: week1wfCardBtnHtml, width: 480, height: 80, transparent: true })
       : Promise.resolve(null)
-    const card1Thunk = () => isWeek4WF && img1Url
+    /* On a phone the photo is not beside the copy, so it has no reason to be as
+       tall as it. A square crop of the same photo goes in card1/card2 and the
+       phone shows that instead. */
+    const W2_MOB = 600
+    const card1Thunk = () => isWeek2WF && img1Url
+      ? renderImage({ html: week2wfDayHtml(img1Url, img1X, img1Y, img1Scale, W2_MOB, W2_MOB), width: W2_MOB, height: W2_MOB, transparent: true })
+      : isWeek4WF && img1Url
       ? renderImage({ html: week4wfStackHtml([0, 1, 2]), width: 340, height: 340, transparent: true })
       : isWFCards && week1wfCard1Html
       ? renderImage({ html: week1wfCard1Html, width: 600, height: 320, transparent: false })
       : Promise.resolve(null)
-    const card2Thunk = () => isWeek4WF && img2Url
+    const card2Thunk = () => isWeek2WF && img2Url
+      ? renderImage({ html: week2wfDayHtml(img2Url, img2X, img2Y, img2Scale, W2_MOB, W2_MOB), width: W2_MOB, height: W2_MOB, transparent: true })
+      : isWeek4WF && img2Url
       ? renderImage({ html: week4wfStackHtml([1, 2, 0]), width: 340, height: 340, transparent: true })
       : isWFCards && week1wfCard2Html
       ? renderImage({ html: week1wfCard2Html, width: 600, height: 320, transparent: false })
