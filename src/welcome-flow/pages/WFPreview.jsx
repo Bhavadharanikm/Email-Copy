@@ -182,7 +182,7 @@ export default function WFPreview() {
         </div>
       )}
       {ready && hasBaked && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '0 0 14px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 10, margin: '0 0 14px' }}>
           <div style={{ display: 'inline-flex', padding: 3, borderRadius: 10, background: t.inputBg, border: `1px solid ${t.border}` }}>
             {[
               ['preview',  'Preview',  'Drawn from the photos. Re-crop and generate again'],

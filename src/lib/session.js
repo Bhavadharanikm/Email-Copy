@@ -42,7 +42,16 @@ export function handleUnauthorized() {
 
 /* fetch() with the session attached. For the handful of places that call a
    function directly instead of through lib/api.js — a raw fetch sends no
-   token and gets a 401 back. */
-export function authFetch(url, init = {}) {
-  return fetch(url, { ...init, headers: { ...(init.headers || {}), ...authHeaders() } })
+   token and gets a 401 back.
+
+   A 401 is handled here the way lib/api.js handles it, because the whole
+   welcome flow goes through this one. Without it a token the server will not
+   take leaves the app reading "that email no longer exists" for good, with no
+   way back to the sign-in screen. A Google session can be ended on the server
+   while the token in this browser still looks unexpired, so this is not only
+   about tokens running out. */
+export async function authFetch(url, init = {}) {
+  const res = await fetch(url, { ...init, headers: { ...(init.headers || {}), ...authHeaders() } })
+  if (res.status === 401) handleUnauthorized()
+  return res
 }

@@ -125,7 +125,6 @@ export function WfStepNav({ backLabel = 'Back', onBack, nextLabel, onNext, nextD
       width: '100vw', marginLeft: 'calc(50% - 50vw)', marginBottom: 18,
       background: t.dark ? 'rgba(11, 18, 32, 0.88)' : 'rgba(246, 248, 251, 0.88)',
       backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
-      borderBottom: `1px solid ${t.border}`,
     }}>
       <div style={{
         maxWidth: 1500, margin: '0 auto', padding: '12px 24px',
