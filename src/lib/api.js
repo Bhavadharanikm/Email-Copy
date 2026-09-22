@@ -45,9 +45,6 @@ async function get(path, params = {}) {
 
 // ── Login ────────────────────────────────────────────────────────
 // The one public endpoint. Returns { step } for a name alone, or
-// { token, user } once a PIN is supplied (action:'set-pin' on first login).
-export const loginRequest = ({ name, pin, action }) =>
-  post('/login', { name, pin, action })
 
 // ── Client list ──────────────────────────────────────────────────
 export const fetchClients = () =>

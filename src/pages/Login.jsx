@@ -1,125 +1,44 @@
+/**
+ * Login — one way in: the company Google account.
+ *
+ * The session comes from the Supabase project the video analyser uses, so the
+ * same account opens both tools and there is one place to grant and revoke.
+ * AuthContext picks the session up and sends the app on; this page only starts
+ * the trip to Google and shows anything that came back wrong.
+ */
 import { useState } from 'react'
-import { googleAuthReady, startGoogleSignIn, ALLOWED_DOMAIN } from '../lib/authGoogle'
-import { useNavigate } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
-import { IconDiamond, IconEye, IconEyeOff, IconArrowLeft } from '@tabler/icons-react'
-import { loginRequest } from '../lib/api'
+import { motion } from 'framer-motion'
+import { IconDiamond } from '@tabler/icons-react'
+import { googleAuthReady, startGoogleSignIn } from '../lib/authGoogle'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
 
-// Steps: 'name' → 'set-pin' (first time) | 'enter-pin' (returning)
 export default function Login() {
-  const { login, googleError }  = useAuth()
-  const { theme }  = useTheme()
-  const navigate   = useNavigate()
+  const { googleError } = useAuth()
+  const { theme } = useTheme()
   const dark = theme === 'dark'
 
-  const [step,       setStep]       = useState('name')   // 'name' | 'set-pin' | 'enter-pin'
-  const [name,       setName]       = useState('')
-  const [pin,        setPin]        = useState('')
-  const [pinConfirm, setPinConfirm] = useState('')
-  const [showPin,    setShowPin]    = useState(false)
-  const [showConf,   setShowConf]   = useState(false)
-  const [error,      setError]      = useState('')
-  const [loading,    setLoading]    = useState(false)
-  const [userData,   setUserData]   = useState(null)  // { name } once the server knows it
-  const [googleBusy, setGoogleBusy] = useState(false)
+  const [busy,  setBusy]  = useState(false)
+  const [error, setError] = useState('')
 
+  const bg      = dark ? '#0a0a0a'                : '#f8fafc'
+  const cardBg  = dark ? '#141414'                : '#ffffff'
+  const border  = dark ? 'rgba(255,255,255,0.09)' : '#e5e7eb'
+  const textCol = dark ? 'rgba(255,255,255,0.9)'  : '#111827'
+  const subCol  = dark ? 'rgba(255,255,255,0.35)' : '#9ca3af'
+  const accent  = dark ? '#f59e0b'                : '#3b82f6'
 
-  const bg      = dark ? '#0a0a0a'                 : '#f8fafc'
-  const cardBg  = dark ? '#141414'                 : '#ffffff'
-  const border  = dark ? 'rgba(255,255,255,0.09)'  : '#e5e7eb'
-  const textCol = dark ? 'rgba(255,255,255,0.9)'   : '#111827'
-  const subCol  = dark ? 'rgba(255,255,255,0.35)'  : '#9ca3af'
-  const inputBg = dark ? 'rgba(255,255,255,0.05)'  : '#f9fafb'
-  const accent  = dark ? '#f59e0b'                 : '#3b82f6'
-
-  function inputStyle(focused) {
-    return {
-      width: '100%', boxSizing: 'border-box',
-      padding: '11px 14px', borderRadius: 10,
-      background: inputBg,
-      border: `1.5px solid ${border}`,
-      color: textCol, fontSize: 14,
-      fontFamily: 'Inter, sans-serif',
-      outline: 'none', transition: 'border-color 0.15s',
-    }
-  }
-
-  // Step 1 — look up name
-  async function handleNameSubmit(e) {
-    e.preventDefault()
-    if (!name.trim()) return
-    setLoading(true)
+  async function signIn() {
+    setBusy(true)
     setError('')
-
-    try {
-      /* The server answers only which screen comes next; the PIN stays there. */
-      const { step: next } = await loginRequest({ name: name.trim() })
-      setUserData({ name: name.trim() })
-      setPin('')
-      setPinConfirm('')
-      setStep(next)
-    } catch (err) {
-      setError(err.message || 'Something went wrong. Please try again.')
-    } finally {
-      setLoading(false)
-    }
+    try { await startGoogleSignIn() }
+    catch (err) { setError(err.message || 'Could not reach Google'); setBusy(false) }
   }
-
-  // Step 2a — set PIN for first time
-  async function handleSetPin(e) {
-    e.preventDefault()
-    if (pin.length < 4) { setError('PIN must be at least 4 digits.'); return }
-    if (pin !== pinConfirm) { setError('PINs do not match. Please try again.'); return }
-    setLoading(true)
-    setError('')
-
-    try {
-      const session = await loginRequest({ name: userData.name, pin, action: 'set-pin' })
-      login(session)
-      navigate('/', { replace: true })
-    } catch (err) {
-      setError(err.message || 'Could not save your PIN. Please try again.')
-      setLoading(false)
-    }
-  }
-
-  // Step 2b — verify PIN for returning user
-  async function handleEnterPin(e) {
-    e.preventDefault()
-    if (!pin.trim()) return
-    setError('')
-    setLoading(true)
-
-    try {
-      /* The compare happens on the server; the browser never sees the PIN. */
-      const session = await loginRequest({ name: userData.name, pin: pin.trim() })
-      login(session)
-      navigate('/', { replace: true })
-    } catch (err) {
-      setError(err.message || 'Incorrect PIN. Please try again.')
-      setLoading(false)
-    }
-  }
-
-  function goBack() {
-    setStep('name')
-    setPin('')
-    setPinConfirm('')
-    setError('')
-    setUserData(null)
-  }
-
-  const canContinueName  = name.trim().length > 0
-  const canSetPin        = pin.length >= 4 && pinConfirm.length >= 4
-  const canEnterPin      = pin.length > 0
 
   return (
     <div style={{
       minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
-      background: bg, position: 'relative', overflow: 'hidden',
-      fontFamily: 'Inter, sans-serif',
+      background: bg, position: 'relative', overflow: 'hidden', fontFamily: 'Inter, sans-serif',
     }}>
       <div style={{
         position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0,
@@ -129,223 +48,73 @@ export default function Login() {
       }} />
 
       <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: 400, margin: '0 auto', padding: '0 20px' }}>
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={step}
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.28, ease: 'easeOut' }}
-          >
-            <div style={{
-              background: cardBg,
-              border: `1.5px solid ${border}`,
-              borderRadius: 20,
-              padding: '40px 36px',
-              boxShadow: dark ? '0 24px 80px rgba(0,0,0,0.6)' : '0 24px 80px rgba(0,0,0,0.08)',
-            }}>
+        <motion.div
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.28, ease: 'easeOut' }}
+        >
+          <div style={{
+            background: cardBg,
+            border: `1.5px solid ${border}`,
+            borderRadius: 20,
+            padding: '40px 36px',
+            boxShadow: dark ? '0 24px 80px rgba(0,0,0,0.6)' : '0 24px 80px rgba(0,0,0,0.08)',
+          }}>
 
-              {/* Logo */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 32 }}>
-                <div style={{
-                  width: 36, height: 36,
-                  background: dark ? '#1a1a1a' : '#111827',
-                  border: dark ? '1px solid rgba(255,255,255,0.1)' : 'none',
-                  borderRadius: 10,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>
-                  <IconDiamond size={17} color={accent} stroke={1.8} />
-                </div>
-                <div>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: textCol, letterSpacing: '-0.02em', lineHeight: 1.2 }}>
-                    HiddenGem <span style={{ fontWeight: 400, color: subCol }}>Media</span>
-                  </div>
-                  <div style={{ fontSize: 11, color: subCol, letterSpacing: '0.02em' }}>Email Production Studio</div>
-                </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 32 }}>
+              <div style={{
+                width: 36, height: 36,
+                background: dark ? '#1a1a1a' : '#111827',
+                border: dark ? '1px solid rgba(255,255,255,0.1)' : 'none',
+                borderRadius: 10,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <IconDiamond size={17} color={accent} stroke={1.8} />
               </div>
-
-              {/* ── STEP: name ── */}
-              {step === 'name' && (
-                <>
-                  <div style={{ marginBottom: 28 }}>
-                    <h1 style={{ fontSize: 22, fontWeight: 700, color: textCol, margin: 0, letterSpacing: '-0.03em' }}>
-                      Welcome back
-                    </h1>
-                    <p style={{ fontSize: 13, color: subCol, margin: '6px 0 0', lineHeight: 1.5 }}>
-                      Enter your name to get started
-                    </p>
-                  </div>
-
-                  {googleAuthReady && (
-                    <div style={{ marginBottom: 22 }}>
-                      <button
-                        type="button"
-                        disabled={googleBusy}
-                        onClick={async () => {
-                          setGoogleBusy(true)
-                          setError('')
-                          try { await startGoogleSignIn() }
-                          catch (err) { setError(err.message || 'Could not reach Google'); setGoogleBusy(false) }
-                        }}
-                        style={{
-                          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-                          padding: '12px 16px', borderRadius: 12, cursor: googleBusy ? 'wait' : 'pointer',
-                          fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 600,
-                          background: dark ? 'rgba(255,255,255,0.06)' : '#ffffff',
-                          color: textCol, border: `1.5px solid ${border}`, transition: 'all 0.18s',
-                        }}
-                      >
-                        <GoogleMark />
-                        {googleBusy ? 'Opening Google…' : 'Continue with Google'}
-                      </button>
-                      <p style={{ fontSize: 11.5, color: subCol, margin: '9px 2px 0', lineHeight: 1.5 }}>
-                        Your @{ALLOWED_DOMAIN} account. The same one that opens the video analyser.
-                      </p>
-                      {googleError && <div style={{ marginTop: 12 }}><ErrorBox dark={dark} message={googleError} /></div>}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '22px 0 2px' }}>
-                        <div style={{ flex: 1, height: 1, background: border }} />
-                        <span style={{ fontSize: 11, color: subCol, letterSpacing: '0.04em' }}>or</span>
-                        <div style={{ flex: 1, height: 1, background: border }} />
-                      </div>
-                    </div>
-                  )}
-
-                  <form onSubmit={handleNameSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                    <div>
-                      <label style={{ fontSize: 11, fontWeight: 600, color: subCol, textTransform: 'uppercase', letterSpacing: '0.07em', display: 'block', marginBottom: 7 }}>
-                        Your Name
-                      </label>
-                      <input
-                        type="text"
-                        value={name}
-                        onChange={e => { setName(e.target.value); setError('') }}
-                        placeholder="e.g. Alicia"
-                        autoFocus
-                        autoComplete="off"
-                        style={inputStyle()}
-                        onFocus={e => e.target.style.borderColor = accent}
-                        onBlur={e  => e.target.style.borderColor = border}
-                      />
-                    </div>
-
-                    {error && <ErrorBox dark={dark} message={error} />}
-
-                    <button
-                      type="submit"
-                      disabled={!canContinueName || loading}
-                      style={submitStyle(canContinueName && !loading, accent, subCol, dark)}
-                    >
-                      {loading ? 'Looking up…' : 'Continue →'}
-                    </button>
-                  </form>
-                </>
-              )}
-
-              {/* ── STEP: set-pin (first time) ── */}
-              {step === 'set-pin' && (
-                <>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 28 }}>
-                    <button onClick={goBack} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', color: subCol }}>
-                      <IconArrowLeft size={18} stroke={1.8} />
-                    </button>
-                    <div>
-                      <h1 style={{ fontSize: 22, fontWeight: 700, color: textCol, margin: 0, letterSpacing: '-0.03em' }}>
-                        Hi, {userData?.name}!
-                      </h1>
-                      <p style={{ fontSize: 13, color: subCol, margin: '4px 0 0', lineHeight: 1.5 }}>
-                        Set a PIN. You'll use it every time you log in
-                      </p>
-                    </div>
-                  </div>
-
-                  <form onSubmit={handleSetPin} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                    <PinField
-                      label="Choose a PIN"
-                      hint="At least 4 digits"
-                      value={pin}
-                      onChange={v => { setPin(v); setError('') }}
-                      show={showPin}
-                      onToggleShow={() => setShowPin(v => !v)}
-                      accent={accent}
-                      border={border}
-                      inputBg={inputBg}
-                      textCol={textCol}
-                      subCol={subCol}
-                    />
-                    <PinField
-                      label="Confirm PIN"
-                      value={pinConfirm}
-                      onChange={v => { setPinConfirm(v); setError('') }}
-                      show={showConf}
-                      onToggleShow={() => setShowConf(v => !v)}
-                      accent={accent}
-                      border={border}
-                      inputBg={inputBg}
-                      textCol={textCol}
-                      subCol={subCol}
-                    />
-
-                    {error && <ErrorBox dark={dark} message={error} />}
-
-                    <button
-                      type="submit"
-                      disabled={!canSetPin || loading}
-                      style={submitStyle(canSetPin && !loading, accent, subCol, dark)}
-                    >
-                      {loading ? 'Saving…' : 'Set PIN & Sign In'}
-                    </button>
-                  </form>
-                </>
-              )}
-
-              {/* ── STEP: enter-pin (returning) ── */}
-              {step === 'enter-pin' && (
-                <>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 28 }}>
-                    <button onClick={goBack} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', color: subCol }}>
-                      <IconArrowLeft size={18} stroke={1.8} />
-                    </button>
-                    <div>
-                      <h1 style={{ fontSize: 22, fontWeight: 700, color: textCol, margin: 0, letterSpacing: '-0.03em' }}>
-                        Hi, {userData?.name}!
-                      </h1>
-                      <p style={{ fontSize: 13, color: subCol, margin: '4px 0 0', lineHeight: 1.5 }}>
-                        Enter your PIN to continue
-                      </p>
-                    </div>
-                  </div>
-
-                  <form onSubmit={handleEnterPin} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                    <PinField
-                      label="Your PIN"
-                      value={pin}
-                      onChange={v => { setPin(v); setError('') }}
-                      show={showPin}
-                      onToggleShow={() => setShowPin(v => !v)}
-                      autoFocus
-                      accent={accent}
-                      border={border}
-                      inputBg={inputBg}
-                      textCol={textCol}
-                      subCol={subCol}
-                    />
-
-                    {error && <ErrorBox dark={dark} message={error} />}
-
-                    <button
-                      type="submit"
-                      disabled={!canEnterPin || loading}
-                      style={submitStyle(canEnterPin && !loading, accent, subCol, dark)}
-                    >
-                      {loading ? 'Signing in…' : 'Sign In'}
-                    </button>
-                  </form>
-                </>
-              )}
-
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: textCol, letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+                  HiddenGem <span style={{ fontWeight: 400, color: subCol }}>Media</span>
+                </div>
+                <div style={{ fontSize: 11, color: subCol, letterSpacing: '0.02em' }}>Email Production Studio</div>
+              </div>
             </div>
-          </motion.div>
-        </AnimatePresence>
+
+            <div style={{ marginBottom: 26 }}>
+              <h1 style={{ fontSize: 22, fontWeight: 700, color: textCol, margin: 0, letterSpacing: '-0.03em' }}>
+                Welcome back
+              </h1>
+              <p style={{ fontSize: 13, color: subCol, margin: '6px 0 0', lineHeight: 1.5 }}>
+                Sign in with your work account
+              </p>
+            </div>
+
+            {googleAuthReady ? (
+              <>
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={signIn}
+                  style={{
+                    width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+                    padding: '13px 16px', borderRadius: 12, cursor: busy ? 'wait' : 'pointer',
+                    fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 600,
+                    background: dark ? 'rgba(255,255,255,0.06)' : '#ffffff',
+                    color: textCol, border: `1.5px solid ${border}`, transition: 'all 0.18s',
+                  }}
+                >
+                  <GoogleMark />
+                  {busy ? 'Opening Google…' : 'Continue with Google'}
+                </button>
+                {(error || googleError) && (
+                  <div style={{ marginTop: 14 }}><ErrorBox dark={dark} message={error || googleError} /></div>
+                )}
+              </>
+            ) : (
+              <ErrorBox dark={dark} message="Sign-in is not configured on this deployment yet." />
+            )}
+
+          </div>
+        </motion.div>
       </div>
     </div>
   )
@@ -363,52 +132,6 @@ function GoogleMark() {
   )
 }
 
-function PinField({ label, hint, value, onChange, show, onToggleShow, autoFocus, accent, border, inputBg, textCol, subCol }) {
-  return (
-    <div>
-      <label style={{ fontSize: 11, fontWeight: 600, color: subCol, textTransform: 'uppercase', letterSpacing: '0.07em', display: 'block', marginBottom: 7 }}>
-        {label}{hint && <span style={{ fontWeight: 400, marginLeft: 6, textTransform: 'none', letterSpacing: 0 }}>{hint}</span>}
-      </label>
-      <div style={{ position: 'relative' }}>
-        <input
-          type={show ? 'text' : 'password'}
-          inputMode="numeric"
-          value={value}
-          onChange={e => onChange(e.target.value.replace(/\D/g, ''))}
-          placeholder="••••"
-          maxLength={8}
-          autoFocus={autoFocus}
-          style={{
-            width: '100%', boxSizing: 'border-box',
-            padding: '11px 44px 11px 14px', borderRadius: 10,
-            background: inputBg, border: `1.5px solid ${border}`,
-            color: textCol, fontSize: 14,
-            fontFamily: 'Inter, sans-serif', outline: 'none',
-            transition: 'border-color 0.15s',
-            letterSpacing: show ? '0.1em' : '0.25em',
-          }}
-          onFocus={e => e.target.style.borderColor = accent}
-          onBlur={e  => e.target.style.borderColor = border}
-        />
-        <button
-          type="button"
-          onClick={onToggleShow}
-          style={{
-            position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
-            background: 'none', border: 'none', cursor: 'pointer',
-            padding: 4, display: 'flex', color: subCol,
-          }}
-        >
-          {show
-            ? <IconEyeOff size={16} stroke={1.8} />
-            : <IconEye    size={16} stroke={1.8} />
-          }
-        </button>
-      </div>
-    </div>
-  )
-}
-
 function ErrorBox({ dark, message }) {
   return (
     <div style={{
@@ -421,17 +144,4 @@ function ErrorBox({ dark, message }) {
       {message}
     </div>
   )
-}
-
-function submitStyle(active, accent, subCol, dark) {
-  return {
-    marginTop: 4,
-    padding: '12px 0', borderRadius: 11, border: 'none',
-    background: active ? accent : (dark ? 'rgba(255,255,255,0.07)' : '#e5e7eb'),
-    color: active ? '#fff' : subCol,
-    fontSize: 14, fontWeight: 700,
-    cursor: active ? 'pointer' : 'not-allowed',
-    transition: 'all 0.18s',
-    letterSpacing: '-0.01em',
-  }
 }

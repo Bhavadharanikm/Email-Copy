@@ -1,10 +1,14 @@
 /**
  * _auth.js — the one place a request's identity is decided.
  *
- * Sessions are HMAC-signed tokens (SHA-256 over a base64url payload) issued by
- * login.js and checked here. There is no server-side session store: the
- * signature is the proof, so a token edited in the browser fails to verify and
- * a token can only be minted by something holding SESSION_SECRET.
+ * Signing in means Google, on the Supabase project the video analyser uses —
+ * see _authGoogle.js. That is the only way to get a session now.
+ *
+ * The HMAC-signed tokens the old name-and-PIN sign-in issued are still checked
+ * here so a session already in someone's browser is not cut off mid-edit, but
+ * nothing mints them any more: login.js and signSession are both gone. They
+ * lapse on their own within a week, after which this path never matches again
+ * and can be deleted.
  *
  * withAuth(handler, opts) wraps a Netlify-style handler so the check happens
  * before the handler runs, on both Vercel (through api/_adapter.js) and
@@ -25,18 +29,11 @@ import { createHmac, timingSafeEqual } from 'node:crypto'
 import { googleSessionFrom, googleAuthConfigured } from './_authGoogle.js'
 
 const SECRET   = process.env.SESSION_SECRET || ''
-const TTL_SECS = 7 * 24 * 60 * 60   // a week; login is a name and a PIN, not worth more
 
 const b64u = (buf) => Buffer.from(buf).toString('base64').replace(/=+$/, '').replace(/\+/g, '-').replace(/\//g, '_')
 const unb64u = (s) => Buffer.from(s.replace(/-/g, '+').replace(/_/g, '/'), 'base64')
 
 const sign = (data) => b64u(createHmac('sha256', SECRET).update(data).digest())
-
-export function signSession({ id, name, role, isAdmin }) {
-  if (!SECRET) throw new Error('SESSION_SECRET is not set')
-  const payload = b64u(JSON.stringify({ id, name, role, isAdmin: !!isAdmin, exp: Math.floor(Date.now() / 1000) + TTL_SECS }))
-  return `${payload}.${sign(payload)}`
-}
 
 /** Returns the session payload, or null for anything missing, forged or expired. */
 export function verifySession(token) {
@@ -77,7 +74,7 @@ export function withAuth(handler, opts = {}) {
     if (opts.allow && opts.allow(event)) return handler(event, context)
     /* Misconfiguration reads as "everyone is locked out", which is the safe
        direction, but say why in the log so it is not mistaken for a bad token. */
-    if (!SECRET && !googleAuthConfigured) console.error('[auth] neither SESSION_SECRET nor AUTH_SUPABASE_URL is set — every session check fails until one is')
+    if (!googleAuthConfigured) console.error('[auth] AUTH_SUPABASE_URL is not set — nobody can sign in until it is')
     return json(401, { error: 'Sign in required' })
   }
 }
