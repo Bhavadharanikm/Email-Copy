@@ -29,7 +29,7 @@ const MULTILINE = new Set(['bodyText', 'bodyBlock2', 'closingLine', 'momentCopy'
  * scrollHeight only ever reports the taller of old and new and the field can
  * grow but never shrink.
  */
-function AutoTextarea({ value, onChange, onBlur, style }) {
+function AutoTextarea({ value, onChange, onBlur, onKeyDown, style }) {
   const ref = useRef(null)
   useLayoutEffect(() => {
     const el = ref.current
@@ -43,11 +43,45 @@ function AutoTextarea({ value, onChange, onBlur, style }) {
       value={value || ''}
       onChange={onChange}
       onBlur={onBlur}
+      onKeyDown={onKeyDown}
       rows={1}
       style={{ ...style, resize: 'none', overflow: 'hidden' }}
     />
   )
 }
+
+/**
+ * Cmd/Ctrl+B around whatever is selected. The copy stays plain text — the
+ * markers are what the templates turn into <strong> when the email is drawn —
+ * so a writer can still read the field, and nothing downstream has to change.
+ * Pressing it again on text already wrapped takes the markers back off.
+ */
+function toggleBoldInField(el, onChange) {
+  const value = el.value || ''
+  const start = el.selectionStart, end = el.selectionEnd
+  if (start == null || start === end) return false        // nothing selected
+  const picked = value.slice(start, end)
+  const already = picked.startsWith('**') && picked.endsWith('**') && picked.length > 4
+  const around  = value.slice(start - 2, start) === '**' && value.slice(end, end + 2) === '**'
+
+  let next, from, to
+  if (already)      { next = value.slice(0, start) + picked.slice(2, -2) + value.slice(end);        from = start; to = end - 4 }
+  else if (around)  { next = value.slice(0, start - 2) + picked + value.slice(end + 2);             from = start - 2; to = end - 2 }
+  else              { next = value.slice(0, start) + `**${picked}**` + value.slice(end);             from = start + 2; to = end + 2 }
+
+  onChange(next)
+  /* Put the selection back where the words are, after React has redrawn. */
+  requestAnimationFrame(() => { try { el.setSelectionRange(from, to) } catch { /* unmounted */ } })
+  return true
+}
+
+const boldKeyHandler = (onChange) => (e) => {
+  if (!(e.metaKey || e.ctrlKey) || e.key.toLowerCase() !== 'b') return
+  if (toggleBoldInField(e.currentTarget, onChange)) e.preventDefault()
+}
+
+/* Which key to name in the hint. Nothing depends on getting this right. */
+const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent || '')
 
 /* Facts stay identical across variations; only the description shifts with POV. */
 
@@ -215,9 +249,9 @@ export default function WFCopy() {
   const oneInput = (key, value, onChange) =>
     isMultiline(key)
       ? <AutoTextarea value={value} onChange={(e) => onChange(e.target.value)}
-          onBlur={() => persist()} style={inputStyle} />
+          onBlur={() => persist()} onKeyDown={boldKeyHandler(onChange)} style={inputStyle} />
       : <input value={value || ''} onChange={(e) => onChange(e.target.value)} onBlur={() => persist()}
-          style={inputStyle} />
+          onKeyDown={boldKeyHandler(onChange)} style={inputStyle} />
 
   /** One labelled row: the label once, then the same field for all three. */
   const fieldRow = ({ key, label, hint }, valueAt, onChangeAt, last) => (
@@ -249,6 +283,14 @@ export default function WFCopy() {
         </h1>
         <p style={{ fontSize: 13, color: t.muted, margin: '7px 0 0' }}>
           All three side by side. Edit any of them, then pick the one to carry forward.
+        </p>
+        <p style={{ fontSize: 12.5, color: t.muted, margin: '5px 0 0' }}>
+          To bold a word or a sentence, select it and press{' '}
+          <kbd style={{
+            fontFamily: 'inherit', fontSize: 11.5, fontWeight: 700,
+            padding: '2px 6px', borderRadius: 5,
+            background: t.inputBg, border: `1px solid ${t.border}`, color: t.text,
+          }}>{isMac ? '\u2318' : 'Ctrl'} B</kbd>. It shows as **bold** here and prints bold in the email.
         </p>
       </div>
 

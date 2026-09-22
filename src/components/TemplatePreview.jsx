@@ -135,6 +135,28 @@ function week2DayPhotoHeight(card) {
   return Math.round(Math.min(W2_DAY_MAX_H, Math.max(W2_DAY_MIN_H, h)))
 }
 
+/* Writers mark emphasis as **like this** while editing. It stays plain text
+   everywhere else — in the database, in what n8n sends, in the brief — and
+   becomes <strong> only when the email is drawn, so nothing downstream has to
+   understand it. A lone pair of asterisks with nothing between them, or a pair
+   spanning a line break, is left as typed. */
+const WF_BOLD = /\*\*(?!\s)([^*\n]+?)\*\*/g
+function renderBoldMarks(text) {
+  return String(text ?? '').replace(WF_BOLD, '<strong>$1</strong>')
+}
+
+/** The same, over every string in a copy object. URLs are left alone. */
+function withBoldMarks(value, key = '') {
+  if (typeof value === 'string') return /url$/i.test(key) ? value : renderBoldMarks(value)
+  if (Array.isArray(value)) return value.map(v => withBoldMarks(v))
+  if (value && typeof value === 'object') {
+    const out = {}
+    for (const [k, v] of Object.entries(value)) out[k] = withBoldMarks(v, k)
+    return out
+  }
+  return value
+}
+
 function wfButtonText(color) {
   const m = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(String(color || '').trim())
   if (!m) return '#ffffff'
@@ -3844,7 +3866,7 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
       ? { ...clientFooter, logoColor: footerLogoColor, footerLogoSize }
       : clientFooter
     console.log('[baseHtml] tplId:', tpl?.id, 'isHeroGenerated:', isHeroGenerated, 'tplUrls:', tplUrls, 'effectiveImages[4]:', effectiveImages?.[4], 'effectiveImages[5]:', effectiveImages?.[5])
-    const effectiveCopy = generatedCopy ? { ...generatedCopy, headlineText: (generatedCopy.headlineText || '').replace(/\.$/, '') } : generatedCopy
+    const effectiveCopy = generatedCopy ? withBoldMarks({ ...generatedCopy, headlineText: (generatedCopy.headlineText || '').replace(/\.$/, '') }) : generatedCopy
     return tpl.build({ client:selectedClient, copy:effectiveCopy, images:effectiveImages, headerStyle, imageStyle, footerData: effectiveFooterData, isHeroGenerated, isStoryGenerated, cardsGenerated, btnImgUrl: tplUrls.btn || null, introBtnImgUrl: tplUrls.introBtn || null, cardBtnImgUrl: tplUrls.cardBtn || null, stampImgUrl: tplUrls.sec || null, pinImgUrl: tplUrls.ter || null, gridImgUrl: ((tpl?.id === 33 || tpl?.id === 35 || tpl?.id === 36 || tpl?.id === 37 || tpl?.id === 38 || tpl?.id === 39) ? tplUrls.sec : null) || null, iconImgUrls: tplUrls.icons || [], heroMobileImgUrl: tplUrls.heroMobile || null, dayImgUrls: tpl?.id === 32 ? [tplUrls.sec || null, tplUrls.ter || null] : [], dayImgMobUrls: tpl?.id === 32 ? [tplUrls.card1 || null, tplUrls.card2 || null] : [], ...editorProps })
   }, [active, selectedClient, generatedCopy, selectedImages, headerStyle, imageStyle, clientFooter, footerLogoColor, footerLogoSize, weekGenUrls, bakedImages, heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y])
 
@@ -4104,7 +4126,7 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
     const img4Url    = selectedImages?.[4]?.url || selectedImages?.[4]?.thumbnailUrl || ''
     const img5Url    = selectedImages?.[5]?.url || selectedImages?.[5]?.thumbnailUrl || ''
     const logoUrl    = selectedClient?.logoUrl || ''
-    const headline   = (generatedCopy?.headlineText || '').replace(/\.$/, '')
+    const headline   = renderBoldMarks((generatedCopy?.headlineText || '').replace(/\.$/, ''))
     const clientName = selectedClient?.name || ''
     // Week 5 two-font split
     const w5words = headline.trim().split(/\s+/).filter(Boolean)
