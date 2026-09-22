@@ -532,13 +532,12 @@ export default function Layout() {
             style={{
               display: 'flex', alignItems: 'center', gap: 7,
               padding: '7px 13px', borderRadius: 10, textDecoration: 'none',
-              background: dark ? 'rgba(255,255,255,0.06)' : '#f3f4f6',
-              border: dark ? '1px solid rgba(255,255,255,0.1)' : '1px solid #e5e7eb',
-              fontSize: 13, fontWeight: 500, color: dark ? 'rgba(255,255,255,0.7)' : '#374151',
+              background: '#3b82f6', border: '1px solid #3b82f6',
+              fontSize: 13, fontWeight: 600, color: '#ffffff',
               fontFamily: 'Inter, sans-serif', whiteSpace: 'nowrap', transition: 'all 0.18s',
             }}
-            onMouseEnter={e => e.currentTarget.style.background = dark ? 'rgba(255,255,255,0.12)' : '#e5e7eb'}
-            onMouseLeave={e => e.currentTarget.style.background = dark ? 'rgba(255,255,255,0.06)' : '#f3f4f6'}
+            onMouseEnter={e => { e.currentTarget.style.background = '#2563eb'; e.currentTarget.style.borderColor = '#2563eb' }}
+            onMouseLeave={e => { e.currentTarget.style.background = '#3b82f6'; e.currentTarget.style.borderColor = '#3b82f6' }}
           >
             <IconDeviceTv size={16} stroke={1.8} />
             Video Analyser
@@ -548,16 +547,21 @@ export default function Layout() {
           {user && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <div ref={userMenuRef} style={{ position: 'relative' }}>
+                {/* Just the initial. A full name wrapped onto two lines and pushed
+                    the rest of the bar about; the whole of it is in the menu below. */}
                 <button
                   onClick={() => setUserMenuOpen(v => !v)}
+                  title={user.name}
+                  aria-label={`Signed in as ${user.name}`}
                   style={{
-                    display: 'flex', alignItems: 'center', gap: 7,
-                    padding: '6px 12px', borderRadius: 10,
+                    width: 36, height: 36, borderRadius: 10, padding: 0,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
                     background: dark ? 'rgba(255,255,255,0.06)' : '#f3f4f6',
                     border: dark ? '1px solid rgba(255,255,255,0.1)' : '1px solid #e5e7eb',
-                    fontSize: 13, color: dark ? 'rgba(255,255,255,0.7)' : '#374151',
-                    cursor: 'pointer', fontFamily: 'Inter, sans-serif',
+                    cursor: 'pointer', fontFamily: 'Inter, sans-serif', transition: 'all 0.18s',
                   }}
+                  onMouseEnter={e => e.currentTarget.style.background = dark ? 'rgba(255,255,255,0.12)' : '#e5e7eb'}
+                  onMouseLeave={e => e.currentTarget.style.background = dark ? 'rgba(255,255,255,0.06)' : '#f3f4f6'}
                 >
                   <div style={{
                     width: 22, height: 22, borderRadius: '50%',
@@ -568,17 +572,6 @@ export default function Layout() {
                   }}>
                     {user.name?.charAt(0).toUpperCase()}
                   </div>
-                  <span style={{ fontWeight: 600 }}>{user.name}</span>
-                  {user.role && (
-                    <span style={{
-                      fontSize: 10, fontWeight: 700, letterSpacing: '0.05em',
-                      padding: '2px 6px', borderRadius: 5,
-                      background: dark ? 'rgba(245,158,11,0.15)' : 'rgba(59,130,246,0.1)',
-                      color: dark ? '#f59e0b' : '#3b82f6',
-                    }}>
-                      {user.role}
-                    </span>
-                  )}
                 </button>
 
                 {/* Dropdown menu */}
@@ -588,8 +581,21 @@ export default function Layout() {
                     background: dark ? '#1c1c1e' : '#fff',
                     border: `1px solid ${dark ? 'rgba(255,255,255,0.1)' : '#e5e7eb'}`,
                     borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
-                    minWidth: 170, zIndex: 200, overflow: 'hidden',
+                    minWidth: 190, zIndex: 200, overflow: 'hidden',
                   }}>
+                    <div style={{
+                      padding: '11px 14px',
+                      borderBottom: `1px solid ${dark ? 'rgba(255,255,255,0.08)' : '#f1f2f4'}`,
+                    }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: dark ? 'rgba(255,255,255,0.85)' : '#111827' }}>
+                        {user.name}
+                      </div>
+                      {user.email && (
+                        <div style={{ fontSize: 11.5, color: dark ? 'rgba(255,255,255,0.4)' : '#9ca3af', marginTop: 2 }}>
+                          {user.email}
+                        </div>
+                      )}
+                    </div>
                     <button
                       onClick={() => { setUserMenuOpen(false); setShowDeleteClient(true); setDeleteError(''); setDeleteSuccess(false) }}
                       style={{
