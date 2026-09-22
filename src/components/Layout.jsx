@@ -2,7 +2,7 @@ import { Outlet, NavLink, useNavigate, useLocation, matchPath } from 'react-rout
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useRef, useEffect } from 'react'
 import { useCampaignStore } from '../store/campaignStore'
-import { IconDiamond, IconSun, IconMoon, IconMessageCircle, IconCalendar, IconX, IconCheck, IconLogout } from '@tabler/icons-react'
+import { IconDiamond, IconSun, IconMoon, IconMessageCircle, IconCalendar, IconX, IconCheck, IconLogout, IconDeviceTv } from '@tabler/icons-react'
 import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
 import { submitFeedback, submitWfFeedback } from '../lib/api'
@@ -521,6 +521,28 @@ export default function Layout() {
               )}
             </AnimatePresence>
           </div>
+
+          {/* The other half of the studio. One Google account opens both, so
+              whoever is signed in here is already signed in there. */}
+          <a
+            href="https://competitor-video-analyser.vercel.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Open the Video Analyser"
+            style={{
+              display: 'flex', alignItems: 'center', gap: 7,
+              padding: '7px 13px', borderRadius: 10, textDecoration: 'none',
+              background: dark ? 'rgba(255,255,255,0.06)' : '#f3f4f6',
+              border: dark ? '1px solid rgba(255,255,255,0.1)' : '1px solid #e5e7eb',
+              fontSize: 13, fontWeight: 500, color: dark ? 'rgba(255,255,255,0.7)' : '#374151',
+              fontFamily: 'Inter, sans-serif', whiteSpace: 'nowrap', transition: 'all 0.18s',
+            }}
+            onMouseEnter={e => e.currentTarget.style.background = dark ? 'rgba(255,255,255,0.12)' : '#e5e7eb'}
+            onMouseLeave={e => e.currentTarget.style.background = dark ? 'rgba(255,255,255,0.06)' : '#f3f4f6'}
+          >
+            <IconDeviceTv size={16} stroke={1.8} />
+            Video Analyser
+          </a>
 
           {/* Logged-in user chip */}
           {user && (
