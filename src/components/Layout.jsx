@@ -609,25 +609,26 @@ export default function Layout() {
                     >
                       🗑 Delete client
                     </button>
+                    <button
+                      onClick={() => { setUserMenuOpen(false); handleLogout() }}
+                      style={{
+                        width: '100%', padding: '10px 14px', textAlign: 'left',
+                        background: 'none', border: 'none',
+                        borderTop: `1px solid ${dark ? 'rgba(255,255,255,0.08)' : '#f1f2f4'}`,
+                        cursor: 'pointer',
+                        fontSize: 13, fontWeight: 500, fontFamily: 'Inter, sans-serif',
+                        color: dark ? 'rgba(255,255,255,0.7)' : '#374151',
+                        display: 'flex', alignItems: 'center', gap: 8,
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background = dark ? 'rgba(255,255,255,0.06)' : '#f9fafb'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                    >
+                      <IconLogout size={15} stroke={1.8} /> Log out
+                    </button>
                   </div>
                 )}
               </div>
 
-              <button
-                onClick={handleLogout}
-                title="Sign out"
-                style={{
-                  width: 36, height: 36, borderRadius: 10,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  background: dark ? 'rgba(255,255,255,0.06)' : '#f3f4f6',
-                  border: dark ? '1px solid rgba(255,255,255,0.1)' : '1px solid #e5e7eb',
-                  cursor: 'pointer', transition: 'all 0.18s',
-                }}
-                onMouseEnter={e => e.currentTarget.style.background = dark ? 'rgba(239,68,68,0.15)' : '#fee2e2'}
-                onMouseLeave={e => e.currentTarget.style.background = dark ? 'rgba(255,255,255,0.06)' : '#f3f4f6'}
-              >
-                <IconLogout size={16} color={dark ? 'rgba(255,255,255,0.5)' : '#9ca3af'} stroke={1.8} />
-              </button>
             </div>
           )}
 
