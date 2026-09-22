@@ -16,8 +16,13 @@
  *                   session, e.g. n8n posting to copy-callback with its secret
  *
  * A verified session is attached as event.session = { id, name, role, isAdmin }.
+ *
+ * Two kinds of token are accepted. This app's own signed session, and a Google
+ * sign-in from the Supabase project the video analyser uses — see _authGoogle.js.
+ * The HMAC one is tried first because it needs no network call.
  */
 import { createHmac, timingSafeEqual } from 'node:crypto'
+import { googleSessionFrom, googleAuthConfigured } from './_authGoogle.js'
 
 const SECRET   = process.env.SESSION_SECRET || ''
 const TTL_SECS = 7 * 24 * 60 * 60   // a week; login is a name and a PIN, not worth more
@@ -65,10 +70,14 @@ export function withAuth(handler, opts = {}) {
     if (opts.public) return handler(event, context)
     const session = sessionFrom(event)
     if (session) { event.session = session; return handler(event, context) }
+    /* Not one of ours. It may be a Google sign-in on the shared Supabase
+       project, which is the same account that opens the video tool. */
+    const google = await googleSessionFrom(event)
+    if (google) { event.session = google; return handler(event, context) }
     if (opts.allow && opts.allow(event)) return handler(event, context)
     /* Misconfiguration reads as "everyone is locked out", which is the safe
        direction, but say why in the log so it is not mistaken for a bad token. */
-    if (!SECRET) console.error('[auth] SESSION_SECRET is not set — every session check fails until it is')
+    if (!SECRET && !googleAuthConfigured) console.error('[auth] neither SESSION_SECRET nor AUTH_SUPABASE_URL is set — every session check fails until one is')
     return json(401, { error: 'Sign in required' })
   }
 }

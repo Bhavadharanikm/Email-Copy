@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { googleAuthReady, startGoogleSignIn, ALLOWED_DOMAIN } from '../lib/authGoogle'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { IconDiamond, IconEye, IconEyeOff, IconArrowLeft } from '@tabler/icons-react'
@@ -8,7 +9,7 @@ import { useTheme } from '../context/ThemeContext'
 
 // Steps: 'name' → 'set-pin' (first time) | 'enter-pin' (returning)
 export default function Login() {
-  const { login }  = useAuth()
+  const { login, googleError }  = useAuth()
   const { theme }  = useTheme()
   const navigate   = useNavigate()
   const dark = theme === 'dark'
@@ -22,6 +23,8 @@ export default function Login() {
   const [error,      setError]      = useState('')
   const [loading,    setLoading]    = useState(false)
   const [userData,   setUserData]   = useState(null)  // { name } once the server knows it
+  const [googleBusy, setGoogleBusy] = useState(false)
+
 
   const bg      = dark ? '#0a0a0a'                 : '#f8fafc'
   const cardBg  = dark ? '#141414'                 : '#ffffff'
@@ -173,6 +176,40 @@ export default function Login() {
                     </p>
                   </div>
 
+                  {googleAuthReady && (
+                    <div style={{ marginBottom: 22 }}>
+                      <button
+                        type="button"
+                        disabled={googleBusy}
+                        onClick={async () => {
+                          setGoogleBusy(true)
+                          setError('')
+                          try { await startGoogleSignIn() }
+                          catch (err) { setError(err.message || 'Could not reach Google'); setGoogleBusy(false) }
+                        }}
+                        style={{
+                          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+                          padding: '12px 16px', borderRadius: 12, cursor: googleBusy ? 'wait' : 'pointer',
+                          fontFamily: 'Inter, sans-serif', fontSize: 14, fontWeight: 600,
+                          background: dark ? 'rgba(255,255,255,0.06)' : '#ffffff',
+                          color: textCol, border: `1.5px solid ${border}`, transition: 'all 0.18s',
+                        }}
+                      >
+                        <GoogleMark />
+                        {googleBusy ? 'Opening Google…' : 'Continue with Google'}
+                      </button>
+                      <p style={{ fontSize: 11.5, color: subCol, margin: '9px 2px 0', lineHeight: 1.5 }}>
+                        Your @{ALLOWED_DOMAIN} account. The same one that opens the video analyser.
+                      </p>
+                      {googleError && <div style={{ marginTop: 12 }}><ErrorBox dark={dark} message={googleError} /></div>}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '22px 0 2px' }}>
+                        <div style={{ flex: 1, height: 1, background: border }} />
+                        <span style={{ fontSize: 11, color: subCol, letterSpacing: '0.04em' }}>or</span>
+                        <div style={{ flex: 1, height: 1, background: border }} />
+                      </div>
+                    </div>
+                  )}
+
                   <form onSubmit={handleNameSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                     <div>
                       <label style={{ fontSize: 11, fontWeight: 600, color: subCol, textTransform: 'uppercase', letterSpacing: '0.07em', display: 'block', marginBottom: 7 }}>
@@ -311,6 +348,18 @@ export default function Login() {
         </AnimatePresence>
       </div>
     </div>
+  )
+}
+
+/* Google's mark, inline so the button needs no network to draw itself. */
+function GoogleMark() {
+  return (
+    <svg width="17" height="17" viewBox="0 0 48 48" aria-hidden="true">
+      <path fill="#4285F4" d="M45.1 24.5c0-1.6-.1-3.2-.4-4.7H24v8.9h11.8c-.5 2.7-2 5-4.3 6.6v5.5h7c4.1-3.8 6.6-9.4 6.6-16.3z"/>
+      <path fill="#34A853" d="M24 46c5.8 0 10.7-1.9 14.3-5.2l-7-5.5c-1.9 1.3-4.4 2.1-7.3 2.1-5.6 0-10.4-3.8-12.1-8.9H4.7v5.6C8.3 41.4 15.6 46 24 46z"/>
+      <path fill="#FBBC05" d="M11.9 28.5c-.4-1.3-.7-2.7-.7-4.5s.3-3.2.7-4.5v-5.6H4.7C3 17.3 2 20.5 2 24s1 6.7 2.7 10.1l7.2-5.6z"/>
+      <path fill="#EA4335" d="M24 10.6c3.2 0 6 1.1 8.2 3.2l6.2-6.2C34.7 4.1 29.8 2 24 2 15.6 2 8.3 6.6 4.7 13.9l7.2 5.6c1.7-5.1 6.5-8.9 12.1-8.9z"/>
+    </svg>
   )
 }
 

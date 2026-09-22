@@ -33,6 +33,10 @@ export function authHeaders() {
 /** A 401 means the token is missing, forged or expired: sign out and start over. */
 export function handleUnauthorized() {
   clearSession()
+  /* A Google session lives in its own storage. Without dropping that too, the
+     auth listener would put the rejected token straight back and the app would
+     bounce between here and the login screen. */
+  import('./authGoogle').then(m => m.googleSignOut()).catch(() => {})
   if (!location.pathname.startsWith('/login')) location.assign('/login')
 }
 
