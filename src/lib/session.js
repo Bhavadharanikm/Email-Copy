@@ -30,14 +30,52 @@ export function authHeaders() {
   return s ? { Authorization: `Bearer ${s.token}` } : {}
 }
 
-/** A 401 means the token is missing, forged or expired: sign out and start over. */
-export function handleUnauthorized() {
-  clearSession()
-  /* A Google session lives in its own storage. Without dropping that too, the
-     auth listener would put the rejected token straight back and the app would
-     bounce between here and the login screen. */
-  import('./authGoogle').then(m => m.googleSignOut()).catch(() => {})
-  if (!location.pathname.startsWith('/login')) location.assign('/login')
+/* Only one recovery is worth attempting per page, and not again straight away
+   after a reload, or a token the server keeps refusing would reload forever. */
+const RECOVER_MARK = 'hgm_auth_recovered_at'
+const RECOVER_GAP  = 30_000
+let recovering = false
+
+/**
+ * A 401 means the server would not take the token. Usually it has simply gone
+ * stale — a Google one lasts an hour — so the first move is to ask for a fresh
+ * one and carry on where we were.
+ *
+ * What this must never do is sign out of Google. That ends the session for
+ * every tab at once, and since a single stale request is enough to land here,
+ * one forgotten tab would throw everybody out repeatedly. Signing out is what
+ * the Log out button is for.
+ */
+export async function handleUnauthorized() {
+  /* Only to keep a burst of failing calls from all recovering at once. It has
+     to be released on every path, including the one that reloads: a flag left
+     raised would make every later 401 do nothing at all. */
+  if (recovering) return
+  recovering = true
+  try {
+    clearSession()
+
+    const lastTry = Number(sessionStorage.getItem(RECOVER_MARK) || 0)
+    if (Date.now() - lastTry > RECOVER_GAP) {
+      try {
+        const m = await import('./authGoogle')
+        if (m.googleAuthReady) {
+          const { data } = await m.authClient.auth.refreshSession()
+          const session = data?.session
+          if (session?.access_token && m.isAllowedEmail(session.user?.email)) {
+            writeSession({ token: session.access_token, user: m.userFromGoogle(session.user) })
+            sessionStorage.setItem(RECOVER_MARK, String(Date.now()))
+            location.reload()
+            return
+          }
+        }
+      } catch { /* no way back; the sign-in page it is */ }
+    }
+
+    if (!location.pathname.startsWith('/login')) location.assign('/login')
+  } finally {
+    recovering = false
+  }
 }
 
 /* fetch() with the session attached. For the handful of places that call a
@@ -47,9 +85,7 @@ export function handleUnauthorized() {
    A 401 is handled here the way lib/api.js handles it, because the whole
    welcome flow goes through this one. Without it a token the server will not
    take leaves the app reading "that email no longer exists" for good, with no
-   way back to the sign-in screen. A Google session can be ended on the server
-   while the token in this browser still looks unexpired, so this is not only
-   about tokens running out. */
+   way back in. */
 export async function authFetch(url, init = {}) {
   const res = await fetch(url, { ...init, headers: { ...(init.headers || {}), ...authHeaders() } })
   if (res.status === 401) handleUnauthorized()
