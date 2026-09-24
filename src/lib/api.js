@@ -4,7 +4,7 @@
  * All API keys stay server-side — these calls go to /.netlify/functions/*
  */
 
-import { authHeaders, handleUnauthorized } from './session.js'
+import { freshAuthHeaders, handleUnauthorized } from './session.js'
 
 const BASE = '/.netlify/functions'
 
@@ -18,7 +18,7 @@ function checkAuth(res) {
 async function post(path, body) {
   const res  = await fetch(`${BASE}${path}`, {
     method:  'POST',
-    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    headers: { 'Content-Type': 'application/json', ...(await freshAuthHeaders()) },
     body:    JSON.stringify(body),
   })
   checkAuth(res)
@@ -36,7 +36,7 @@ async function post(path, body) {
 
 async function get(path, params = {}) {
   const qs = new URLSearchParams(params).toString()
-  const res = await fetch(`${BASE}${path}${qs ? `?${qs}` : ''}`, { headers: authHeaders() })
+  const res = await fetch(`${BASE}${path}${qs ? `?${qs}` : ''}`, { headers: await freshAuthHeaders() })
   checkAuth(res)
   const data = await res.json()
   if (!res.ok) throw new Error(data.error || `Request failed: ${res.status}`)
@@ -136,7 +136,7 @@ async function inlineAllImages(html) {
   const cache = {}
   await Promise.all([...urls].map(async url => {
     try {
-      const res = await fetch(`/.netlify/functions/proxy-image?url=${encodeURIComponent(url)}`, { headers: authHeaders() })
+      const res = await fetch(`/.netlify/functions/proxy-image?url=${encodeURIComponent(url)}`, { headers: await freshAuthHeaders() })
       if (!res.ok) return
       const blob   = await res.blob()
       const reader = new FileReader()
@@ -211,7 +211,7 @@ export async function htmlToImageClient({ html, width, height, locationId }) {
     const base64 = dataUrl.split(',')[1]
     const res    = await fetch('/.netlify/functions/upload-screenshot', {
       method:  'POST',
-      headers: { 'Content-Type': 'application/json', ...authHeaders() },
+      headers: { 'Content-Type': 'application/json', ...(await freshAuthHeaders()) },
       body:    JSON.stringify({ base64, locationId }),
     })
     const data = await res.json()

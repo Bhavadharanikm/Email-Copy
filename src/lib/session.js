@@ -30,6 +30,33 @@ export function authHeaders() {
   return s ? { Authorization: `Bearer ${s.token}` } : {}
 }
 
+/**
+ * The same, but asking Google's client for the token rather than trusting the
+ * copy sitting in storage.
+ *
+ * A Google access token lasts an hour. The copy here is only refreshed when the
+ * auth listener happens to fire, so a page that calls the server the moment it
+ * opens could easily send one that has just lapsed — which came back as 401 and
+ * threw the person out of a page that was working a second earlier. getSession
+ * hands back a live token, renewing it first if it is due, so the request goes
+ * out valid and a 401 once again means what it should: not signed in.
+ */
+export async function freshAuthHeaders() {
+  try {
+    const m = await import('./authGoogle')
+    if (m.googleAuthReady) {
+      const { data } = await m.authClient.auth.getSession()
+      const token = data?.session?.access_token
+      if (token) {
+        const stored = readSession()
+        if (stored && stored.token !== token) writeSession({ ...stored, token })
+        return { Authorization: `Bearer ${token}` }
+      }
+    }
+  } catch { /* fall back to whatever is stored */ }
+  return authHeaders()
+}
+
 /* Only one recovery is worth attempting per page, and not again straight away
    after a reload, or a token the server keeps refusing would reload forever. */
 const RECOVER_MARK = 'hgm_auth_recovered_at'
@@ -87,7 +114,7 @@ export async function handleUnauthorized() {
    take leaves the app reading "that email no longer exists" for good, with no
    way back in. */
 export async function authFetch(url, init = {}) {
-  const res = await fetch(url, { ...init, headers: { ...(init.headers || {}), ...authHeaders() } })
+  const res = await fetch(url, { ...init, headers: { ...(init.headers || {}), ...(await freshAuthHeaders()) } })
   if (res.status === 401) handleUnauthorized()
   return res
 }
