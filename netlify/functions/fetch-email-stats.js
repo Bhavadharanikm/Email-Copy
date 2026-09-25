@@ -49,18 +49,56 @@ async function getSingleClient(locationId) {
   return [data]
 }
 
-async function fetchStats(apiKey, locationId, bulkRequestId) {
+const sleep = (ms) => new Promise(r => setTimeout(r, ms))
+
+/* GHL rate-limits per location, and a client with 90 sends means 90 of these.
+   Asking for them all at once got nearly all of them refused, and because a
+   refusal came back as null the campaign was reported with its real sent and
+   delivered counts — those come off the schedule — beside a flat zero for
+   opens and clicks. Every number the suggestions would rest on, quietly wrong.
+   So: a few at a time, back off and retry when told to, and say so in the log
+   rather than passing a zero off as a fact. */
+const STATS_CONCURRENCY = 4
+const STATS_RETRIES     = 4
+
+async function fetchStats(apiKey, locationId, bulkRequestId, attempt = 0) {
   try {
     const res = await fetch(
       `${GHL_BASE}/emails/locations/${locationId}/campaigns/stats/bulk-actions/${bulkRequestId}`,
       { headers: statsHeaders(apiKey) }
     )
-    if (!res.ok) return null
+    if (res.status === 429 || res.status >= 500) {
+      if (attempt < STATS_RETRIES) {
+        await sleep(400 * 2 ** attempt)
+        return fetchStats(apiKey, locationId, bulkRequestId, attempt + 1)
+      }
+      console.warn(`[fetch-email-stats] ${bulkRequestId}: gave up after ${res.status}`)
+      return null
+    }
+    if (!res.ok) {
+      console.warn(`[fetch-email-stats] ${bulkRequestId}: ${res.status}`)
+      return null
+    }
     const data = await res.json()
     return data.stats || null
-  } catch {
+  } catch (err) {
+    console.warn(`[fetch-email-stats] ${bulkRequestId}: ${err.message}`)
     return null
   }
+}
+
+/** Run fn over items, no more than `limit` at a time, results in order. */
+async function mapLimit(items, limit, fn) {
+  const out = new Array(items.length)
+  let next = 0
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (true) {
+      const i = next++
+      if (i >= items.length) return
+      out[i] = await fn(items[i], i)
+    }
+  }))
+  return out
 }
 
 async function fetchAllSchedules(apiKey, locationId) {
@@ -102,10 +140,10 @@ async function fetchClientCampaigns(client) {
       return { clientName: client_name, locationId: location_id, campaigns: [], total: 0 }
     }
 
-    // Fetch stats for all campaigns in parallel
-    const statsResults = await Promise.all(
-      sent.map(s => fetchStats(ghl_api_key, location_id, s.bulkRequestId))
-    )
+    const statsResults = await mapLimit(sent, STATS_CONCURRENCY,
+      s => fetchStats(ghl_api_key, location_id, s.bulkRequestId))
+    const missing = statsResults.filter(x => !x).length
+    if (missing) console.warn(`[fetch-email-stats] ${client_name}: ${missing} of ${sent.length} campaigns returned no stats`)
 
     const campaigns = sent.map((s, i) => {
       const stats = statsResults[i]
