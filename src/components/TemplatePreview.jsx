@@ -4219,11 +4219,11 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
        campaign eyebrow and the headline, matching the reference email. The logo
        is forced white here because it now sits on the photograph. */
     const week1wfBg = clientFooter?.bgColor || '#ffffff'
-    const week1wfEyebrow = generatedCopy?.campaignEyebrow || ''
+    const week1wfEyebrow = renderBoldMarks(generatedCopy?.campaignEyebrow || '')
     /* Week 2 has no hero CTA field, so its hero pill carries the email's one
        CTA. Week 1 always has heroCtaText, so the fallback never fires there. */
     /* Email 5's hero has no pill, so its bake gets none whatever the copy carries. */
-    const week1wfHeroCta = isWeek5WF ? '' : (generatedCopy?.heroCtaText || ((isWeek2WF || isWeek3WF || isWeek6WF) ? (generatedCopy?.ctaText || '') : ''))
+    const week1wfHeroCta = renderBoldMarks(isWeek5WF ? '' : (generatedCopy?.heroCtaText || ((isWeek2WF || isWeek3WF || isWeek6WF) ? (generatedCopy?.ctaText || '') : '')))
     const week1wfLogoHtml = logoUrl
       ? `<img src="${logoUrl}" style="height:${logoSize}px;width:auto;display:inline-block;filter:${renderLogoFilter};"/>`
       : `<span style="font-family:Arial,sans-serif;font-size:20px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.4);">${selectedClient?.name || ''}</span>`
@@ -4797,7 +4797,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
        its full-width pill cannot alter Weeks 2, 4 and 6, which still use the
        centred inline-block version. */
     /* Email 9 asks for a reply: no CTA text means no button, not a stand-in. */
-    const week1wfMainCtaText = generatedCopy?.ctaText || (isWeek9WF ? 'Book Your Stay' : 'Book Now')
+    const week1wfMainCtaText = renderBoldMarks(generatedCopy?.ctaText || (isWeek9WF ? 'Book Your Stay' : 'Book Now'))
     const week1wfMainBtnHtml = isWFAny ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
 </head><body>
@@ -4808,7 +4808,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </div>
 </body></html>` : null
 
-    const week1wfIntroCtaText = generatedCopy?.introCtaText || ''
+    const week1wfIntroCtaText = renderBoldMarks(generatedCopy?.introCtaText || '')
     const week1wfIntroBtnHtml = (isWFAny && week1wfIntroCtaText) ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
 </head><body>
@@ -4821,7 +4821,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 
     // identical wording on every card by design (TEMPLATE spec), so one baked
     // image serves all three cards — same idea as Week 2 reusing one button PNG
-    const week1wfCardCtaText = generatedCopy?.propertyCards?.[0]?.ctaText || ''
+    const week1wfCardCtaText = renderBoldMarks(generatedCopy?.propertyCards?.[0]?.ctaText || '')
     const week1wfCardBtnHtml = (isWFCards && week1wfCardCtaText) ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:480px;background:transparent;}</style>
 </head><body>
