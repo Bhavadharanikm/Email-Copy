@@ -157,6 +157,29 @@ function withBoldMarks(value, key = '') {
   return value
 }
 
+/* How a welcome flow photo sits in its frame.
+
+   It used to be shifted by pixels with translate(). The photo was already
+   cropped to the frame, so shifting it always dragged an edge into view and
+   left a gap — it could only be moved cleanly after zooming in far enough to
+   have something to spare.
+
+   Left and Top now choose which part of the photo shows, through
+   object-position. That moves across the photo's own overflow — the width a
+   landscape photo has beyond a tall frame, say — and stops at its edges, so
+   there is never a gap and no zoom is needed to move it. Zoom is a scale about
+   that same point, so it closes in on the part you have chosen.
+
+   The sliders keep their -200..200 range, read as the photo end to end:
+   dragging right shows more of its left side, as the old shift did. Live and
+   baked read the same percentages, so a crop is identical at any size. */
+function wfCrop(x, y, s) {
+  const px = Math.min(100, Math.max(0, 50 - (Number(x) || 0) / 4))
+  const py = Math.min(100, Math.max(0, 50 - (Number(y) || 0) / 4))
+  const sc = Math.max(1, Number(s) || 1)
+  return `object-fit:cover;object-position:${px}% ${py}%;transform:scale(${sc});transform-origin:${px}% ${py}%;`
+}
+
 function wfButtonText(color) {
   const m = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(String(color || '').trim())
   if (!m) return '#ffffff'
@@ -1691,10 +1714,10 @@ function buildTemplateWeek1WF({ client, copy, images, footerData, isHeroGenerate
   const storyA = images?.[4]?.url || ''
   const storyB = images?.[5]?.url || ''
   const cardTf = [
-    `translate(${img1X}px,${img1Y}px) scale(${img1Scale})`,
-    `translate(${img2X}px,${img2Y}px) scale(${img2Scale})`,
-    `translate(${img3X}px,${img3Y}px) scale(${img3Scale})`,
-    `translate(${img4X}px,${img4Y}px) scale(${img4Scale})`,
+    wfCrop(img1X, img1Y, img1Scale),
+    wfCrop(img2X, img2Y, img2Scale),
+    wfCrop(img3X, img3Y, img3Scale),
+    wfCrop(img4X, img4Y, img4Scale),
   ]
 
   const body    = (copy.bodyText || '').replace(/\n/g, '<br>')
@@ -1762,7 +1785,7 @@ function buildTemplateWeek1WF({ client, copy, images, footerData, isHeroGenerate
               // already cropped to 600×320 by Puppeteer — a plain img, no live
               // position:absolute crop needed (and none for Outlook to break)
               ? `<img src="${img}" alt="${card.name||''}" width="600" style="width:100%;height:320px;object-fit:cover;display:block;border-radius:12px;border:0;outline:none;"/>`
-              : `<div style="position:relative;width:100%;height:320px;overflow:hidden;border-radius:12px;"><img src="${img}" alt="${card.name||''}" style="position:absolute;top:0;left:0;width:100%;height:320px;object-fit:cover;display:block;transform:${cardTf[i]};transform-origin:center center;"/></div>`)
+              : `<div style="position:relative;width:100%;height:320px;overflow:hidden;border-radius:12px;"><img src="${img}" alt="${card.name||''}" style="position:absolute;top:0;left:0;width:100%;height:320px;object-fit:cover;display:block;${cardTf[i]}"/></div>`)
           : `<div style="width:100%;height:320px;background:${pillBg};border-radius:12px;"></div>`}
       </div>
       <div style="padding:14px 6px 4px;">
@@ -1934,11 +1957,11 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
      so the count is read off the copy and the extra slots simply go unused. */
   const momentImgs = [1,2,3,4,5].map(i => images?.[i]?.url || '')
   const momentTf = [
-    `translate(${img1X}px,${img1Y}px) scale(${img1Scale})`,
-    `translate(${img2X}px,${img2Y}px) scale(${img2Scale})`,
-    `translate(${img3X}px,${img3Y}px) scale(${img3Scale})`,
-    `translate(${img4X}px,${img4Y}px) scale(${img4Scale})`,
-    `translate(${img5X}px,${img5Y}px) scale(${img5Scale})`,
+    wfCrop(img1X, img1Y, img1Scale),
+    wfCrop(img2X, img2Y, img2Scale),
+    wfCrop(img3X, img3Y, img3Scale),
+    wfCrop(img4X, img4Y, img4Scale),
+    wfCrop(img5X, img5Y, img5Scale),
   ]
 
   const body    = (copy.bodyText || '').replace(/\n/g, '<br>')
@@ -2025,7 +2048,7 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
           ? `<img class="w2wf-thumb-mob" src="${mob}" alt="" width="${THUMB_W}" style="display:none;width:100%;max-width:100%;height:auto;border:0;outline:none;"/>`
           : ''}`
       : live
-        ? `<div class="w2wf-daybox" style="position:relative;width:100%;height:${THUMB_H}px;overflow:hidden;border-radius:16px;"><img src="${live}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:${dayTf[i]};transform-origin:center center;"/></div>`
+        ? `<div class="w2wf-daybox" style="position:relative;width:100%;height:${THUMB_H}px;overflow:hidden;border-radius:16px;"><img src="${live}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;${dayTf[i]}"/></div>`
         : `<div class="w2wf-daybox" style="width:100%;height:${THUMB_H}px;background:${pillBg};border-radius:16px;"></div>`
     return `<div class="w2wf-daycard" style="background-color:${cardTint};border:1px solid ${cardBorder};border-radius:16px;padding:12px;margin-top:${i ? 14 : 0}px;">
       <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
@@ -2152,7 +2175,7 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
          every client and at any width. */
       ? `<img src="${closingImgUrl}" alt="" width="552" style="width:100%;max-width:552px;height:auto;display:block;border:0;outline:none;"/>`
       /* Before baking: the same frame, cropped live with the slider for its slot. */
-      : `<div style="position:relative;width:100%;max-width:552px;aspect-ratio:552/306;overflow:hidden;border-radius:16px;"><img src="${closingImg}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:${momentTf[days.length] || 'none'};transform-origin:center center;border:0;outline:none;"/></div>`}
+      : `<div style="position:relative;width:100%;max-width:552px;aspect-ratio:552/306;overflow:hidden;border-radius:16px;"><img src="${closingImg}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;${momentTf[days.length] || ''}border:0;outline:none;"/></div>`}
   </div>` : ''}
   <!-- BODY BLOCK — its title at H3, as Emails 6 and 8, then the paragraph -->
   ${copy.bodyBlock2Title ? `<div class="w2wf-section" style="padding:26px 48px 0;background-color:${pageBg};">
@@ -2465,10 +2488,10 @@ function buildTemplateWeek4WF({ client, copy, images, footerData, isHeroGenerate
      the baked 552x240 one; cardsGenerated / isStoryGenerated say so. */
   const blockImgs = [1, 2, 3, 4].map(n => images?.[n]?.url || '')
   const blockTf = [
-    `translate(${img1X}px,${img1Y}px) scale(${img1Scale})`,
-    `translate(${img2X}px,${img2Y}px) scale(${img2Scale})`,
-    `translate(${img3X}px,${img3Y}px) scale(${img3Scale})`,
-    `translate(${img4X}px,${img4Y}px) scale(${img4Scale})`,
+    wfCrop(img1X, img1Y, img1Scale),
+    wfCrop(img2X, img2Y, img2Scale),
+    wfCrop(img3X, img3Y, img3Scale),
+    wfCrop(img4X, img4Y, img4Scale),
   ]
 
   const pageBg    = footerData?.bgColor || '#ffffff'
@@ -2544,7 +2567,7 @@ function buildTemplateWeek4WF({ client, copy, images, footerData, isHeroGenerate
     if (cardsGenerated[i]) return `<img src="${blockImgs[i]}" alt="${alt || ''}" width="${STAGE_W}" height="${STAGE_H}" style="width:100%;max-width:${STAGE_W}px;height:auto;display:block;margin:0 auto;border:0;outline:none;"/>`
     const layers = order.map((k, depth) => ({ k, depth })).reverse().map(({ k, depth }) =>
       `<div style="position:absolute;left:${(depth * STEP_X / STAGE_W * 100).toFixed(2)}%;top:${(depth * STEP_Y / STAGE_H * 100).toFixed(2)}%;width:${(PRINT_W / STAGE_W * 100).toFixed(2)}%;height:${((STAGE_H - depth * STEP_H) / STAGE_H * 100).toFixed(2)}%;overflow:hidden;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,0.14);">
-          <img src="${blockImgs[k]}" alt="${depth ? '' : (alt || '')}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:${blockTf[k]};transform-origin:center center;"/>
+          <img src="${blockImgs[k]}" alt="${depth ? '' : (alt || '')}" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;${blockTf[k]}"/>
         </div>`).join('')
     return `<div class="w4wf-fan" style="position:relative;width:100%;max-width:${STAGE_W}px;aspect-ratio:${STAGE_W}/${STAGE_H};margin:0 auto;">${layers}</div>`
   }
@@ -2657,7 +2680,7 @@ function buildTemplateWeek4WF({ client, copy, images, footerData, isHeroGenerate
   ${blockImgs[3] ? `<div class="w4wf-section" style="padding:${copy.bodyBlock2Title ? 18 : 26}px 24px 0;background-color:${pageBg};line-height:0;font-size:0;">
     ${isStoryGenerated
       ? `<img src="${blockImgs[3]}" alt="" width="552" height="240" style="width:100%;max-width:552px;height:auto;display:block;border-radius:16px;border:0;outline:none;"/>`
-      : `<div class="w4wf-bridgebox" style="position:relative;width:100%;height:240px;overflow:hidden;border-radius:16px;"><img src="${blockImgs[3]}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:${blockTf[3]};transform-origin:center center;"/></div>`}
+      : `<div class="w4wf-bridgebox" style="position:relative;width:100%;height:240px;overflow:hidden;border-radius:16px;"><img src="${blockImgs[3]}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;${blockTf[3]}"/></div>`}
   </div>` : ''}
   ${bridgeBack ? `<div class="w4wf-section" style="padding:22px 48px 0;background-color:${pageBg};">
     <div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${textCol};">${bridgeBack}</div>
@@ -2694,9 +2717,9 @@ function buildTemplateWeek5WF({ client, copy, images, footerData, isHeroGenerate
   /* The editor's Left / Top / Zoom for each mosaic photo. The bake applies the
      same three transforms, so what is framed here is what gets baked. */
   const mosaicTf = [
-    `translate(${img1X}px,${img1Y}px) scale(${img1Scale})`,
-    `translate(${img2X}px,${img2Y}px) scale(${img2Scale})`,
-    `translate(${img3X}px,${img3Y}px) scale(${img3Scale})`,
+    wfCrop(img1X, img1Y, img1Scale),
+    wfCrop(img2X, img2Y, img2Scale),
+    wfCrop(img3X, img3Y, img3Scale),
   ]
 
   const leadIn     = (copy.bodyText    || '').replace(/\n/g, '<br>')
@@ -2866,12 +2889,12 @@ function buildTemplateWeek5WF({ client, copy, images, footerData, isHeroGenerate
     <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
       <tr>
         ${[0, 1].map(c => `<td width="50%" valign="top" style="width:50%;padding:${c === 0 ? '0 3px 6px 0' : '0 0 6px 3px'};line-height:0;font-size:0;">${mosaic[c]
-          ? `<div class="w5wf-mtop" style="width:100%;height:240px;overflow:hidden;border-radius:12px;"><img src="${mosaic[c]}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;border:0;outline:none;transform:${mosaicTf[c]};transform-origin:center center;"/></div>`
+          ? `<div class="w5wf-mtop" style="width:100%;height:240px;overflow:hidden;border-radius:12px;"><img src="${mosaic[c]}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;border:0;outline:none;${mosaicTf[c]}"/></div>`
           : `<div class="w5wf-mtop" style="width:100%;height:240px;background:${pillBg};border-radius:12px;"></div>`}</td>`).join('')}
       </tr>
       <tr>
         <td colspan="2" valign="top" style="padding:0;line-height:0;font-size:0;">${mosaic[2]
-          ? `<div class="w5wf-mwide" style="width:100%;height:306px;overflow:hidden;border-radius:12px;"><img src="${mosaic[2]}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;border:0;outline:none;transform:${mosaicTf[2]};transform-origin:center center;"/></div>`
+          ? `<div class="w5wf-mwide" style="width:100%;height:306px;overflow:hidden;border-radius:12px;"><img src="${mosaic[2]}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;border:0;outline:none;${mosaicTf[2]}"/></div>`
           : `<div class="w5wf-mwide" style="width:100%;height:306px;background:${pillBg};border-radius:12px;"></div>`}</td>
       </tr>
     </table>`}
@@ -2993,8 +3016,8 @@ function buildTemplateWeek6WF({ client, copy, images, footerData, isHeroGenerate
      (weekly) uses. Sub 2 falls back to Sub 1 so one photo still makes a pair. */
   const stack1 = images?.[1]?.url || ''
   const stack2 = images?.[2]?.url || stack1
-  const stackTf1 = `translate(${img1X}px,${img1Y}px) scale(${img1Scale})`
-  const stackTf2 = `translate(${img2X}px,${img2Y}px) scale(${img2Scale})`
+  const stackTf1 = wfCrop(img1X, img1Y, img1Scale)
+  const stackTf2 = wfCrop(img2X, img2Y, img2Scale)
 
   const intro      = (copy.bodyText    || '').trim()
   const closing    = (copy.closingLine || '').replace(/\n/g, '<br>')
@@ -3144,10 +3167,10 @@ function buildTemplateWeek6WF({ client, copy, images, footerData, isHeroGenerate
       ? `<img src="${gridImgUrl}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;border:0;outline:none;"/>`
       : `<div class="w6wf-stack" style="position:relative;width:100%;max-width:600px;height:420px;margin:0 auto;">
       <div class="w6wf-stackcard" style="position:absolute;left:4.67%;top:24px;width:45.33%;height:372px;border-radius:20px;transform:rotate(-3deg);transform-origin:center center;box-shadow:4px 0 20px rgba(0,0,0,0.18);overflow:hidden;z-index:1;">
-        <img src="${stack1}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:${stackTf1};transform-origin:center center;"/>
+        <img src="${stack1}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;${stackTf1}"/>
       </div>
       <div class="w6wf-stackcard" style="position:absolute;left:49.33%;top:24px;width:45.33%;height:372px;border-radius:20px;transform:rotate(3deg);transform-origin:center center;box-shadow:-4px 0 20px rgba(0,0,0,0.18);overflow:hidden;z-index:2;">
-        <img src="${stack2}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:${stackTf2};transform-origin:center center;"/>
+        <img src="${stack2}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;${stackTf2}"/>
       </div>
     </div>`}
   </div>` : ''}
@@ -3198,14 +3221,14 @@ function buildTemplateWeek7WF({ client, copy, images, footerData, isHeroGenerate
   const heroImg = images?.[0]?.url || ''
   const stripL  = images?.[3]?.url || images?.[1]?.url || heroImg
   const stripR  = images?.[4]?.url || images?.[2]?.url || heroImg
-  const stripTfL = `translate(${img3X}px,${img3Y}px) scale(${img3Scale})`
-  const stripTfR = `translate(${img4X}px,${img4Y}px) scale(${img4Scale})`
+  const stripTfL = wfCrop(img3X, img3Y, img3Scale)
+  const stripTfR = wfCrop(img4X, img4Y, img4Scale)
   /* Sub 1 is the large circle, Sub 2 the small one behind it. Either alone
      still draws, so a half-filled brief does not leave a hole. */
   const circleA = images?.[1]?.url || ''
   const circleB = images?.[2]?.url || ''
-  const circleTfA = `translate(${img1X}px,${img1Y}px) scale(${img1Scale})`
-  const circleTfB = `translate(${img2X}px,${img2Y}px) scale(${img2Scale})`
+  const circleTfA = wfCrop(img1X, img1Y, img1Scale)
+  const circleTfB = wfCrop(img2X, img2Y, img2Scale)
 
   const closing    = (copy.closingLine || '').replace(/\n/g, '<br>')
   const footerLine = (copy.footerLine  || '').replace(/\n/g, '<br>')
@@ -3283,10 +3306,10 @@ function buildTemplateWeek7WF({ client, copy, images, footerData, isHeroGenerate
       ? `<img src="${heroImg}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;border:0;outline:none;"/>`
       : `<div style="position:relative;width:100%;max-width:600px;aspect-ratio:600/340;margin:0 auto;overflow:hidden;">
       ${stripL ? `<div style="position:absolute;left:-15%;top:11%;width:30%;height:78%;border-radius:14px;overflow:hidden;">
-        <img src="${stripL}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;transform:${stripTfL};transform-origin:center center;"/>
+        <img src="${stripL}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;${stripTfL}"/>
       </div>` : ''}
       ${stripR ? `<div style="position:absolute;left:85%;top:11%;width:30%;height:78%;border-radius:14px;overflow:hidden;">
-        <img src="${stripR}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;transform:${stripTfR};transform-origin:center center;"/>
+        <img src="${stripR}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;${stripTfR}"/>
       </div>` : ''}
       <div style="position:absolute;left:17.5%;top:0;width:65%;height:100%;border-radius:14px;overflow:hidden;">
         <img src="${heroImg}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>
@@ -3321,10 +3344,10 @@ function buildTemplateWeek7WF({ client, copy, images, footerData, isHeroGenerate
       ? `<img src="${gridImgUrl}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;margin:0 auto;border:0;outline:none;"/>`
       : `<div style="position:relative;width:100%;max-width:600px;aspect-ratio:600/360;margin:0 auto;">
       ${circleB ? `<div style="position:absolute;left:10%;top:41.67%;width:33.33%;aspect-ratio:1;border-radius:50%;overflow:hidden;border:6px solid ${pageBg};">
-        <img src="${circleB}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;transform:${circleTfB};transform-origin:center center;"/>
+        <img src="${circleB}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;${circleTfB}"/>
       </div>` : ''}
       ${circleA ? `<div style="position:absolute;left:36.67%;top:5.56%;width:53.33%;aspect-ratio:1;border-radius:50%;overflow:hidden;border:6px solid ${pageBg};">
-        <img src="${circleA}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;transform:${circleTfA};transform-origin:center center;"/>
+        <img src="${circleA}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;${circleTfA}"/>
       </div>` : ''}
     </div>`}
   </div>` : ''}
@@ -3367,8 +3390,8 @@ function buildTemplateWeek8WF({ client, copy, images, footerData, isHeroGenerate
   const heroImg = images?.[0]?.url || ''
   const circleA = images?.[1]?.url || ''
   const circleB = images?.[2]?.url || ''
-  const circleTfA = `translate(${img1X}px,${img1Y}px) scale(${img1Scale})`
-  const circleTfB = `translate(${img2X}px,${img2Y}px) scale(${img2Scale})`
+  const circleTfA = wfCrop(img1X, img1Y, img1Scale)
+  const circleTfB = wfCrop(img2X, img2Y, img2Scale)
 
   const eyebrowText = (copy.campaignEyebrow || '').trim()
   const subhead     = (copy.sectionSubhead || copy.subhead || '').replace(/\n/g, '<br>')
@@ -3495,10 +3518,10 @@ function buildTemplateWeek8WF({ client, copy, images, footerData, isHeroGenerate
       ? `<img src="${gridImgUrl}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;margin:0 auto;border:0;outline:none;"/>`
       : `<div style="position:relative;width:100%;max-width:600px;aspect-ratio:600/360;margin:0 auto;">
       ${circleB ? `<div style="position:absolute;left:10%;top:41.67%;width:33.33%;aspect-ratio:1;border-radius:50%;overflow:hidden;border:6px solid ${pageBg};">
-        <img src="${circleB}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;transform:${circleTfB};transform-origin:center center;"/>
+        <img src="${circleB}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;${circleTfB}"/>
       </div>` : ''}
       ${circleA ? `<div style="position:absolute;left:36.67%;top:5.56%;width:53.33%;aspect-ratio:1;border-radius:50%;overflow:hidden;border:6px solid ${pageBg};">
-        <img src="${circleA}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;transform:${circleTfA};transform-origin:center center;"/>
+        <img src="${circleA}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;${circleTfA}"/>
       </div>` : ''}
     </div>`}
   </div>` : ''}
@@ -3543,8 +3566,8 @@ function buildTemplateWeek9WF({ client, copy, images, footerData,
 }) {
   const circleA = images?.[1]?.url || ''
   const circleB = images?.[2]?.url || ''
-  const circleTfA = `translate(${img1X}px,${img1Y}px) scale(${img1Scale})`
-  const circleTfB = `translate(${img2X}px,${img2Y}px) scale(${img2Scale})`
+  const circleTfA = wfCrop(img1X, img1Y, img1Scale)
+  const circleTfB = wfCrop(img2X, img2Y, img2Scale)
 
   const framing    = (copy.questionFramingLine || '').replace(/\n/g, '<br>')
   const closing    = (copy.closingLine || copy.close || '').replace(/\n/g, '<br>')
@@ -3658,10 +3681,10 @@ function buildTemplateWeek9WF({ client, copy, images, footerData,
       ? `<img src="${gridImgUrl}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;margin:0 auto;border:0;outline:none;"/>`
       : `<div style="position:relative;width:100%;max-width:600px;aspect-ratio:600/360;margin:0 auto;">
       ${circleB ? `<div style="position:absolute;left:10%;top:41.67%;width:33.33%;aspect-ratio:1;border-radius:50%;overflow:hidden;border:6px solid ${pageBg};">
-        <img src="${circleB}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;transform:${circleTfB};transform-origin:center center;"/>
+        <img src="${circleB}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;${circleTfB}"/>
       </div>` : ''}
       ${circleA ? `<div style="position:absolute;left:36.67%;top:5.56%;width:53.33%;aspect-ratio:1;border-radius:50%;overflow:hidden;border:6px solid ${pageBg};">
-        <img src="${circleA}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;transform:${circleTfA};transform-origin:center center;"/>
+        <img src="${circleA}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;${circleTfA}"/>
       </div>` : ''}
     </div>`}
   </div>` : ''}
@@ -4470,12 +4493,12 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 <table width="552" cellpadding="0" cellspacing="0" border="0" style="width:552px;border-collapse:collapse;background:transparent;">
   <tr>
     ${[img1Url, img2Url].map((u, c) => `<td width="276" valign="top" style="width:276px;padding:${c === 0 ? '0 3px 6px 0' : '0 0 6px 3px'};line-height:0;font-size:0;">
-      ${u ? `<div style="width:100%;height:240px;overflow:hidden;border-radius:12px;"><img src="${u}" style="width:100%;height:100%;object-fit:cover;display:block;transform:translate(${c === 0 ? img1X : img2X}px,${c === 0 ? img1Y : img2Y}px) scale(${c === 0 ? img1Scale : img2Scale});transform-origin:center center;"/></div>` : `<div style="width:100%;height:240px;background:rgba(0,0,0,0.06);border-radius:12px;"></div>`}
+      ${u ? `<div style="width:100%;height:240px;overflow:hidden;border-radius:12px;"><img src="${u}" style="width:100%;height:100%;object-fit:cover;display:block;${wfCrop(c === 0 ? img1X : img2X, c === 0 ? img1Y : img2Y, c === 0 ? img1Scale : img2Scale)}"/></div>` : `<div style="width:100%;height:240px;background:rgba(0,0,0,0.06);border-radius:12px;"></div>`}
     </td>`).join('')}
   </tr>
   <tr>
     <td colspan="2" style="padding:0;line-height:0;font-size:0;">
-      ${img3Url ? `<div style="width:552px;height:306px;overflow:hidden;border-radius:12px;"><img src="${img3Url}" style="width:100%;height:100%;object-fit:cover;display:block;transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/></div>` : `<div style="width:552px;height:306px;background:rgba(0,0,0,0.06);border-radius:12px;"></div>`}
+      ${img3Url ? `<div style="width:552px;height:306px;overflow:hidden;border-radius:12px;"><img src="${img3Url}" style="width:100%;height:100%;object-fit:cover;display:block;${wfCrop(img3X, img3Y, img3Scale)}"/></div>` : `<div style="width:552px;height:306px;background:rgba(0,0,0,0.06);border-radius:12px;"></div>`}
     </td>
   </tr>
 </table>
@@ -4534,10 +4557,10 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </head><body>
 <div style="position:relative;width:600px;height:420px;background:transparent;">
   <div style="position:absolute;left:28px;top:24px;width:272px;height:372px;border-radius:20px;transform:rotate(-3deg);transform-origin:center center;box-shadow:4px 0 20px rgba(0,0,0,0.18);overflow:hidden;z-index:1;">
-    <img src="${img1Url}" style="position:absolute;top:0;left:0;width:272px;height:372px;object-fit:cover;display:block;transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/>
+    <img src="${img1Url}" style="position:absolute;top:0;left:0;width:272px;height:372px;object-fit:cover;display:block;${wfCrop(img1X, img1Y, img1Scale)}"/>
   </div>
   <div style="position:absolute;left:296px;top:24px;width:272px;height:372px;border-radius:20px;transform:rotate(3deg);transform-origin:center center;box-shadow:-4px 0 20px rgba(0,0,0,0.18);overflow:hidden;z-index:2;">
-    <img src="${week6wfStack2}" style="position:absolute;top:0;left:0;width:272px;height:372px;object-fit:cover;display:block;transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/>
+    <img src="${week6wfStack2}" style="position:absolute;top:0;left:0;width:272px;height:372px;object-fit:cover;display:block;${wfCrop(img2X, img2Y, img2Scale)}"/>
   </div>
 </div>
 </body></html>` : null
@@ -4551,10 +4574,10 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </head><body>
 <div style="position:relative;width:600px;height:340px;overflow:hidden;line-height:0;font-size:0;">
   ${week7wfStripL ? `<div style="position:absolute;left:-90px;top:37px;width:180px;height:265px;border-radius:14px;overflow:hidden;">
-    <img src="${week7wfStripL}" style="width:100%;height:100%;object-fit:cover;display:block;transform:translate(${img3X}px,${img3Y}px) scale(${img3Scale});transform-origin:center center;"/>
+    <img src="${week7wfStripL}" style="width:100%;height:100%;object-fit:cover;display:block;${wfCrop(img3X, img3Y, img3Scale)}"/>
   </div>` : ''}
   ${week7wfStripR ? `<div style="position:absolute;left:510px;top:37px;width:180px;height:265px;border-radius:14px;overflow:hidden;">
-    <img src="${week7wfStripR}" style="width:100%;height:100%;object-fit:cover;display:block;transform:translate(${img4X}px,${img4Y}px) scale(${img4Scale});transform-origin:center center;"/>
+    <img src="${week7wfStripR}" style="width:100%;height:100%;object-fit:cover;display:block;${wfCrop(img4X, img4Y, img4Scale)}"/>
   </div>` : ''}
   <div style="position:absolute;left:105px;top:0;width:390px;height:340px;border-radius:14px;overflow:hidden;">
     ${heroImgUrl
@@ -4571,10 +4594,10 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </head><body>
 <div style="position:relative;width:600px;height:360px;background:transparent;">
   ${img2Url ? `<div style="position:absolute;left:60px;top:150px;width:200px;height:200px;border-radius:50%;overflow:hidden;border:6px solid ${week1wfPageBg};">
-    <img src="${img2Url}" style="width:100%;height:100%;object-fit:cover;display:block;transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/>
+    <img src="${img2Url}" style="width:100%;height:100%;object-fit:cover;display:block;${wfCrop(img2X, img2Y, img2Scale)}"/>
   </div>` : ''}
   ${img1Url ? `<div style="position:absolute;left:220px;top:20px;width:320px;height:320px;border-radius:50%;overflow:hidden;border:6px solid ${week1wfPageBg};">
-    <img src="${img1Url}" style="width:100%;height:100%;object-fit:cover;display:block;transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/>
+    <img src="${img1Url}" style="width:100%;height:100%;object-fit:cover;display:block;${wfCrop(img1X, img1Y, img1Scale)}"/>
   </div>` : ''}
 </div>
 </body></html>` : null
@@ -4606,10 +4629,10 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </head><body>
 <div style="position:relative;width:600px;height:360px;background:transparent;">
   ${img2Url ? `<div style="position:absolute;left:60px;top:150px;width:200px;height:200px;border-radius:50%;overflow:hidden;border:6px solid ${week1wfPageBg};">
-    <img src="${img2Url}" style="width:100%;height:100%;object-fit:cover;display:block;transform:translate(${img2X}px,${img2Y}px) scale(${img2Scale});transform-origin:center center;"/>
+    <img src="${img2Url}" style="width:100%;height:100%;object-fit:cover;display:block;${wfCrop(img2X, img2Y, img2Scale)}"/>
   </div>` : ''}
   ${img1Url ? `<div style="position:absolute;left:220px;top:20px;width:320px;height:320px;border-radius:50%;overflow:hidden;border:6px solid ${week1wfPageBg};">
-    <img src="${img1Url}" style="width:100%;height:100%;object-fit:cover;display:block;transform:translate(${img1X}px,${img1Y}px) scale(${img1Scale});transform-origin:center center;"/>
+    <img src="${img1Url}" style="width:100%;height:100%;object-fit:cover;display:block;${wfCrop(img1X, img1Y, img1Scale)}"/>
   </div>` : ''}
 </div>
 </body></html>` : null
@@ -4621,7 +4644,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:${w}px;background:transparent;}</style>
 </head><body>
 <div style="position:relative;width:${w}px;height:${h}px;border-radius:16px;overflow:hidden;">
-  <img src="${url}" style="position:absolute;top:0;left:0;width:${w}px;height:${h}px;object-fit:cover;display:block;transform:translate(${x}px,${y}px) scale(${sc});transform-origin:center center;"/>
+  <img src="${url}" style="position:absolute;top:0;left:0;width:${w}px;height:${h}px;object-fit:cover;display:block;${wfCrop(x, y, sc)}"/>
 </div>
 </body></html>`
 
@@ -4647,7 +4670,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:${w}px;background:transparent;}</style>
 </head><body>
 <div style="position:relative;width:${w}px;height:${hgt}px;border-radius:${r}px;overflow:hidden;">
-  <img src="${url}" style="position:absolute;top:0;left:0;width:${w}px;height:${hgt}px;object-fit:cover;display:block;transform:translate(${x}px,${y}px) scale(${sc});transform-origin:center center;"/>
+  <img src="${url}" style="position:absolute;top:0;left:0;width:${w}px;height:${hgt}px;object-fit:cover;display:block;${wfCrop(x, y, sc)}"/>
 </div>
 </body></html>`
 
@@ -4658,7 +4681,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
       const present = order.filter(k => urls[k])
       const layers = present.map((k, depth) => ({ k, depth })).reverse().map(({ k, depth }) =>
         `<div style="position:absolute;left:${depth * 40}px;top:${depth * 10}px;width:260px;height:${340 - depth * 20}px;overflow:hidden;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,0.14);">
-    <img src="${urls[k]}" style="position:absolute;top:0;left:0;width:260px;height:${340 - depth * 20}px;object-fit:cover;display:block;transform:translate(${tf[k][0]}px,${tf[k][1]}px) scale(${tf[k][2]});transform-origin:center center;"/>
+    <img src="${urls[k]}" style="position:absolute;top:0;left:0;width:260px;height:${340 - depth * 20}px;object-fit:cover;display:block;${wfCrop(tf[k][0], tf[k][1], tf[k][2])}"/>
   </div>`).join('')
       return `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:340px;background:transparent;}</style>
@@ -4850,7 +4873,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
 </head><body>
 <div style="position:relative;width:600px;height:320px;overflow:hidden;">
-  <img src="${url}" style="position:absolute;top:0;left:0;width:600px;height:320px;object-fit:cover;display:block;transform:translate(${x}px,${y}px) scale(${scale});transform-origin:center center;"/>
+  <img src="${url}" style="position:absolute;top:0;left:0;width:600px;height:320px;object-fit:cover;display:block;${wfCrop(x, y, scale)}"/>
 </div>
 </body></html>` : null
     const week1wfCard1Html = isWFCards ? week1wfCardHtml(img1Url, img1Scale, img1X, img1Y) : null
@@ -6043,7 +6066,9 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
                     <span style={{ fontSize: 11, color: dark ? '#9ca3af' : '#6b7280', fontWeight: 500 }}>{ctrl.name}</span>
                     <span style={{ fontSize: 10, fontWeight: 600, background: dark ? 'rgba(255,255,255,0.08)' : '#f3f4f6', color: dark ? '#e5e7eb' : '#374151', borderRadius: 5, padding: '1px 6px' }}>
-                      {ctrl.toDisplay ? ctrl.toDisplay(ctrl.val) : ctrl.val}{ctrl.unit}
+                      {(tpl?.id >= 31 && tpl?.id <= 39 && ctrl.unit === 'px')
+                        ? `${Math.round(ctrl.val / 4)}%`
+                        : <>{ctrl.toDisplay ? ctrl.toDisplay(ctrl.val) : ctrl.val}{ctrl.unit}</>}
                     </span>
                   </div>
                   <input type="range" min={ctrl.min} max={ctrl.max} step={ctrl.step} value={ctrl.val}
