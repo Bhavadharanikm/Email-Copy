@@ -1927,7 +1927,7 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
   img3Scale=1, img3X=0, img3Y=0,
   img4Scale=1, img4X=0, img4Y=0,
   img5Scale=1, img5X=0, img5Y=0,
-  btnImgUrl = null, introBtnImgUrl = null, dayImgUrls = [], dayImgMobUrls = [],
+  btnImgUrl = null, introBtnImgUrl = null, dayImgUrls = [], dayImgMobUrls = [], closingImgUrl = null,
 }) {
   const heroObj = images?.[0]; const heroImg = heroObj?.url || ''
   /* One photo per moment, Sub 1–5. The copy decides how many moments there are,
@@ -2147,7 +2147,12 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
 
   <!-- ONE MORE PHOTO, full width, then the paragraph that closes the itinerary -->
   ${closingImg ? `<div class="w2wf-section" style="padding:26px 24px 0;background-color:${pageBg};line-height:0;font-size:0;">
-    <img src="${closingImg}" alt="" width="552" style="width:100%;max-width:552px;height:auto;display:block;border-radius:16px;border:0;outline:none;"/>
+    ${closingImgUrl
+      /* Baked at 552x306 with the corners in the PNG, so it keeps that shape in
+         every client and at any width. */
+      ? `<img src="${closingImgUrl}" alt="" width="552" style="width:100%;max-width:552px;height:auto;display:block;border:0;outline:none;"/>`
+      /* Before baking: the same frame, cropped live with the slider for its slot. */
+      : `<div style="position:relative;width:100%;max-width:552px;aspect-ratio:552/306;overflow:hidden;border-radius:16px;"><img src="${closingImg}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:${momentTf[days.length] || 'none'};transform-origin:center center;border:0;outline:none;"/></div>`}
   </div>` : ''}
   <!-- BODY BLOCK — its title at H3, as Emails 6 and 8, then the paragraph -->
   ${copy.bodyBlock2Title ? `<div class="w2wf-section" style="padding:26px 48px 0;background-color:${pageBg};">
@@ -3840,9 +3845,13 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
     if (isWeekTemplate && (tplUrls.hero || tplUrls.sec || tplUrls.ter || tplUrls.card1 || tplUrls.card2 || tplUrls.card3)) {
       effectiveImages = [...(selectedImages || [])]
       if (tplUrls.hero)  effectiveImages[0] = { url: tplUrls.hero,  focalX: 50, focalY: 50 }
-      if (tplUrls.card1) effectiveImages[1] = { url: tplUrls.card1, focalX: 50, focalY: 50 }
-      if (tplUrls.card2) effectiveImages[2] = { url: tplUrls.card2, focalX: 50, focalY: 50 }
-      if (tplUrls.card3) effectiveImages[3] = { url: tplUrls.card3, focalX: 50, focalY: 50 }
+      /* Email 2 (32) uses card1/card2 for its square phone crops and passes them
+         in explicitly, so they must not stand in for its day photos here. */
+      if (tpl?.id !== 32) {
+        if (tplUrls.card1) effectiveImages[1] = { url: tplUrls.card1, focalX: 50, focalY: 50 }
+        if (tplUrls.card2) effectiveImages[2] = { url: tplUrls.card2, focalX: 50, focalY: 50 }
+        if (tplUrls.card3) effectiveImages[3] = { url: tplUrls.card3, focalX: 50, focalY: 50 }
+      }
       /* Slots 4 and 5 normally hold baked composites — Week 1's story circles,
          a stamp, a pin. Week 3 WF fills its photo grid straight from Sub 1-4,
          so swapping slot 4 would drop a composite into the fourth cell. It used
@@ -3867,7 +3876,7 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
       : clientFooter
     console.log('[baseHtml] tplId:', tpl?.id, 'isHeroGenerated:', isHeroGenerated, 'tplUrls:', tplUrls, 'effectiveImages[4]:', effectiveImages?.[4], 'effectiveImages[5]:', effectiveImages?.[5])
     const effectiveCopy = generatedCopy ? withBoldMarks({ ...generatedCopy, headlineText: (generatedCopy.headlineText || '').replace(/\.$/, '') }) : generatedCopy
-    return tpl.build({ client:selectedClient, copy:effectiveCopy, images:effectiveImages, headerStyle, imageStyle, footerData: effectiveFooterData, isHeroGenerated, isStoryGenerated, cardsGenerated, btnImgUrl: tplUrls.btn || null, introBtnImgUrl: tplUrls.introBtn || null, cardBtnImgUrl: tplUrls.cardBtn || null, stampImgUrl: tplUrls.sec || null, pinImgUrl: tplUrls.ter || null, gridImgUrl: ((tpl?.id === 33 || tpl?.id === 35 || tpl?.id === 36 || tpl?.id === 37 || tpl?.id === 38 || tpl?.id === 39) ? tplUrls.sec : null) || null, iconImgUrls: tplUrls.icons || [], heroMobileImgUrl: tplUrls.heroMobile || null, dayImgUrls: tpl?.id === 32 ? [tplUrls.sec || null, tplUrls.ter || null] : [], dayImgMobUrls: tpl?.id === 32 ? [tplUrls.card1 || null, tplUrls.card2 || null] : [], ...editorProps })
+    return tpl.build({ client:selectedClient, copy:effectiveCopy, images:effectiveImages, headerStyle, imageStyle, footerData: effectiveFooterData, isHeroGenerated, isStoryGenerated, cardsGenerated, btnImgUrl: tplUrls.btn || null, introBtnImgUrl: tplUrls.introBtn || null, cardBtnImgUrl: tplUrls.cardBtn || null, stampImgUrl: tplUrls.sec || null, pinImgUrl: tplUrls.ter || null, gridImgUrl: ((tpl?.id === 33 || tpl?.id === 35 || tpl?.id === 36 || tpl?.id === 37 || tpl?.id === 38 || tpl?.id === 39) ? tplUrls.sec : null) || null, iconImgUrls: tplUrls.icons || [], heroMobileImgUrl: tplUrls.heroMobile || null, dayImgUrls: tpl?.id === 32 ? [tplUrls.sec || null, tplUrls.ter || null] : [], dayImgMobUrls: tpl?.id === 32 ? [tplUrls.card1 || null, tplUrls.card2 || null] : [], closingImgUrl: tpl?.id === 32 ? (tplUrls.closing || null) : null, ...editorProps })
   }, [active, selectedClient, generatedCopy, selectedImages, headerStyle, imageStyle, clientFooter, footerLogoColor, footerLogoSize, weekGenUrls, bakedImages, heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y])
 
   // Keep store in sync so ApprovalPanel always has the latest HTML
@@ -5429,6 +5438,22 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     const cardBtnThunk = () => isWFCards && week1wfCardBtnHtml
       ? renderImage({ html: week1wfCardBtnHtml, width: 480, height: 80, transparent: true })
       : Promise.resolve(null)
+    /* Email 2's closing photo: the one after the days. It went into the email
+       raw, so its height was whatever the file happened to be — a portrait photo
+       came out as tall as a poster. Baked at 552x306 now, the size of Email 5's
+       wide mosaic photo, with the same crop sliders as the photo in that slot.
+       It sits at position days + 1 (the hero is 0, the days 1..n), exactly where
+       the template reads it. */
+    const week2wfClosingHtml = (() => {
+      if (!isWeek2WF) return null
+      const pos  = week2wfDayHeights.length + 1
+      const urls = [null, img1Url, img2Url, img3Url, img4Url, img5Url]
+      const tfs  = [null, [img1X, img1Y, img1Scale], [img2X, img2Y, img2Scale], [img3X, img3Y, img3Scale], [img4X, img4Y, img4Scale], [0, 0, 1]]
+      if (!urls[pos]) return null
+      const [x, y, sc] = tfs[pos]
+      return week2wfDayHtml(urls[pos], x, y, sc, 306, 552)
+    })()
+
     /* On a phone the photo is not beside the copy, so it has no reason to be as
        tall as it. A square crop of the same photo goes in card1/card2 and the
        phone shows that instead. */
@@ -5466,7 +5491,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
         ])
 
         // wave 2 — Week 1 WF only, and only started once wave 1 has finished
-        const [introBtnRes, cardBtnRes, card1Res, card2Res, card3Res, heroMobileRes, iconRes] = isWFAny
+        const [introBtnRes, cardBtnRes, card1Res, card2Res, card3Res, heroMobileRes, iconRes, closingRes] = isWFAny
           ? await Promise.all([introBtnThunk(), cardBtnThunk(), card1Thunk(), card2Thunk(), card3Thunk(),
               isWeek5WF ? renderImage({ html: week5wfHeroMobileHtml, width: 600, height: heroHeight, transparent: true })
                 : isWeek3WF ? renderImage({ html: week3wfHeroMobileHtml, width: 600, height: heroHeight, transparent: true })
@@ -5475,8 +5500,9 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
                 : Promise.resolve(null),
               week6wfIconKeys.length
                 ? Promise.all(week6wfIconKeys.map(key => renderImage({ html: week6wfIconHtml(key, clientFooter?.secondaryColor || clientFooter?.buttonColor || '#1a73e8'), width: 32, height: 32, transparent: true })))
-                : Promise.resolve(null)])
-          : [null, null, null, null, null, null, null]
+                : Promise.resolve(null),
+              week2wfClosingHtml ? renderImage({ html: week2wfClosingHtml, width: 552, height: 306, transparent: true }) : Promise.resolve(null)])
+          : [null, null, null, null, null, null, null, null]
 
         console.log('[WeekGen] both waves resolved:', { tplId: tpl?.id, heroRes, secRes, terRes, btnRes })
         const urls = {
@@ -5484,6 +5510,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
           introBtn: introBtnRes?.url || null, cardBtn: cardBtnRes?.url || null,
           card1: card1Res?.url || null, card2: card2Res?.url || null, card3: card3Res?.url || null,
           heroMobile: heroMobileRes?.url || null,
+          closing: closingRes?.url || null,
           icons: Array.isArray(iconRes) ? iconRes.map(r => r?.url || null) : null,
         }
         console.log('[WeekGen] Calling setWeekGenUrls with:', urls)
