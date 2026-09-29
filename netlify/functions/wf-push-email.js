@@ -81,7 +81,10 @@ const rawHandler = async (event) => {
       brief:          email.brief || '',
       copy:           { selectedVariation: selected, variations },
       images:         email.selectedImages || [],
-      generated_urls: email.generatedUrls || {},
+      /* The slider positions that produced the bakes ride along with them, so
+         reopening the email puts every photo back where it was framed. Kept
+         under one key so nothing that reads the bakes has to know. */
+      generated_urls: { ...(email.generatedUrls || {}), ...(email.editorSettings ? { _editor: email.editorSettings } : {}) },
       preview_html:   email.previewHtml || email.renderedHtml || '',
       rendered_html:  email.renderedHtml || '',
       ghl_template_id: email.ghlTemplateId || null,

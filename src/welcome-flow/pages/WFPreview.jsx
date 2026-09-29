@@ -26,7 +26,7 @@ export default function WFPreview() {
   const { clientId, emailId } = useParams()
   const navigate = useNavigate()
   const t = useWfTheme()
-  const { getClient, getEmails, updateEmail, ensureClients, ensureEmails, loadingClients, clientsLoaded, loadedEmails } = useWelcomeFlowStore()
+  const { getClient, getEmails, updateEmail, saveEditorSettings, ensureClients, ensureEmails, loadingClients, clientsLoaded, loadedEmails } = useWelcomeFlowStore()
 
   // clients are not persisted — refetch after a reload on this deep route
   useEffect(() => { ensureClients() }, [ensureClients])
@@ -85,6 +85,7 @@ export default function WFPreview() {
       generatedUrls:  store.generatedUrls,
       imageGenHtml:   store.imageGenHtml,
       locationId:     store.locationId,
+      editorSettings: store.editorSettings,
     }
 
     // Only clear clientFooter when the client actually changed. Nulling it on
@@ -111,6 +112,8 @@ export default function WFPreview() {
       generatedUrls:  email.generatedUrls || {},
       imageGenHtml:   '',
       locationId:     client.locationId || '',
+      /* Where this email's sliders were left, applied when the preview opens. */
+      editorSettings: email.editorSettings || null,
     })
     setReady(true)
 
@@ -131,6 +134,19 @@ export default function WFPreview() {
       if (snapshot.current) useCampaignStore.setState(snapshot.current)
     }
   }, [client?.id, email?.id])   // eslint-disable-line react-hooks/exhaustive-deps
+
+  /* The preview reports slider positions to the store as they change; save
+     them with the email so reopening it restores every photo's framing. Only
+     once this page has handed its own positions in, so a stale set left over
+     from another email can never be written onto this one. */
+  useEffect(() => {
+    if (!ready || !email) return
+    return useCampaignStore.subscribe((st, prev) => {
+      if (st.editorSettings && st.editorSettings !== prev.editorSettings) {
+        saveEditorSettings(clientId, emailId, st.editorSettings)
+      }
+    })
+  }, [ready, email?.id, clientId, emailId, saveEditorSettings])   // eslint-disable-line react-hooks/exhaustive-deps
 
   /* Still fetching: the client list, or this client's emails from the database.
      Not the 'not found' screen — that is only right once loading has finished. */

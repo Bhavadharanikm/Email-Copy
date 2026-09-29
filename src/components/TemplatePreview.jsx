@@ -3833,6 +3833,22 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
   const [img5X,     setImg5X]     = useState(0)
   const [img5Y,     setImg5Y]     = useState(0)
 
+  /* Every Adjust Design value, by the name it is saved under. */
+  const EDITOR_SETTERS = {
+    heroScale: setHeroScale, heroX: setHeroX, heroY: setHeroY,
+    textSize: setTextSize, textTop: setTextTop, textLeft: setTextLeft,
+    logoColor: setLogoColor, logoTop: setLogoTop, logoRight: setLogoRight, logoSize: setLogoSize,
+    footerLogoColor: setFooterLogoColor, footerLogoSize: setFooterLogoSize,
+    img1Scale: setImg1Scale, img1X: setImg1X, img1Y: setImg1Y,
+    img2Scale: setImg2Scale, img2X: setImg2X, img2Y: setImg2Y,
+    img3Scale: setImg3Scale, img3X: setImg3X, img3Y: setImg3Y,
+    img4Scale: setImg4Scale, img4X: setImg4X, img4Y: setImg4Y,
+    img5Scale: setImg5Scale, img5X: setImg5X, img5Y: setImg5Y,
+  }
+  /* The template whose saved positions have been applied. Mirroring waits for
+     it, or the first render's defaults would be written over the saved ones. */
+  const [editorReadyFor, setEditorReadyFor] = useState(null)
+
   // Reset slider defaults when switching between editable templates
   useEffect(() => {
     if (!isEditable) return
@@ -3852,7 +3868,34 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
     if (tpl?.id === 25) { setTextSize(48); setTextTop(108); setTextLeft(28); setLogoColor('white');    setLogoTop(28); setLogoRight(28);  setLogoSize(40) }
     if (tpl?.id === 23) { setTextSize(68); setTextTop(80);  setTextLeft(64); setLogoColor('white');    setLogoTop(28); setLogoRight(28);  setLogoSize(44) }
     if (tpl?.id === 31 || tpl?.id === 32 || tpl?.id === 33 || tpl?.id === 35 || tpl?.id === 36) { setTextSize(44); setTextTop(34);  setTextLeft(52); setLogoColor('original'); setLogoTop(64); setLogoRight(200); setLogoSize(44) }
+    /* A welcome flow email reopens with its sliders where they were left. The
+       positions were saved with the email and handed over through the store;
+       applied after the defaults above, and only for the template they were
+       made on. */
+    if (welcomeFlow) {
+      const saved = useCampaignStore.getState().editorSettings
+      if (saved && saved.tplId === tpl?.id) {
+        for (const [key, set] of Object.entries(EDITOR_SETTERS)) if (saved[key] !== undefined) set(saved[key])
+      }
+    }
+    setEditorReadyFor(tpl?.id ?? null)
   }, [tpl?.id])  // eslint-disable-line react-hooks/exhaustive-deps
+
+  /* Hand the current positions to the store as they change; the welcome flow
+     saves them with the email. Weekly campaigns do not keep them. */
+  useEffect(() => {
+    if (!welcomeFlow || editorReadyFor !== (tpl?.id ?? null)) return
+    useCampaignStore.setState({ editorSettings: {
+      tplId: tpl?.id ?? null,
+      heroScale, heroX, heroY, textSize, textTop, textLeft,
+      logoColor, logoTop, logoRight, logoSize, footerLogoColor, footerLogoSize,
+      img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y,
+      img4Scale, img4X, img4Y, img5Scale, img5X, img5Y,
+    } })
+  }, [welcomeFlow, editorReadyFor, tpl?.id, heroScale, heroX, heroY, textSize, textTop, textLeft,
+      logoColor, logoTop, logoRight, logoSize, footerLogoColor, footerLogoSize,
+      img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y,
+      img4Scale, img4X, img4Y, img5Scale, img5X, img5Y])
 
   // ── Week template image generation ───────────────────────────────────────────
   /* Every template with a Generate Images pipeline. Emails 4 and 5 were built

@@ -44,7 +44,13 @@ export function rowToEmail(r) {
     variations,
     selectedVariation: selected,
     selectedImages:    Array.isArray(r.images) ? r.images : [],
-    generatedUrls:     r.generated_urls && typeof r.generated_urls === 'object' ? r.generated_urls : {},
+    ...(() => {
+      /* generated_urls carries the slider positions under _editor alongside the
+         bakes. Split here so the pages see the bakes on their own, as before. */
+      const gu = r.generated_urls && typeof r.generated_urls === 'object' ? r.generated_urls : {}
+      const { _editor, ...generatedUrls } = gu
+      return { generatedUrls, editorSettings: _editor && typeof _editor === 'object' ? _editor : null }
+    })(),
     previewHtml:       r.preview_html || '',
     renderedHtml:      r.rendered_html || '',
     ghlTemplateId:     r.ghl_template_id || null,

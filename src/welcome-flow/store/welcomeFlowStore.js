@@ -279,6 +279,28 @@ export const useWelcomeFlowStore = create(
         scheduleSave(get, set, clientId, emailId)
       },
 
+      /**
+       * The Adjust Design slider positions. Saved like any other change, but
+       * without touching the status: framing a photo changes nothing in GHL
+       * until the images are generated again, and that does flag it. Opening a
+       * pushed email would otherwise mark it out of date just by loading its
+       * sliders. Nothing is written when the positions have not changed.
+       */
+      saveEditorSettings: (clientId, emailId, editorSettings) => {
+        const cur = (get().emails[clientId] || []).find(e => e.id === emailId)
+        /* Keys sorted before comparing: the database hands JSON back in its own
+           key order, so a plain comparison would call an unchanged set new. */
+        const same = (x, y) => { const k = (o) => o && typeof o === 'object' ? JSON.stringify(o, Object.keys(o).sort()) : JSON.stringify(o ?? null); return k(x) === k(y) }
+        if (!cur || same(cur.editorSettings, editorSettings)) return
+        set((s) => ({
+          emails: {
+            ...s.emails,
+            [clientId]: (s.emails[clientId] || []).map(e => e.id === emailId ? { ...e, editorSettings } : e),
+          },
+        }))
+        scheduleSave(get, set, clientId, emailId)
+      },
+
       removeEmail: (clientId, emailId) => set((s) => ({
         emails: {
           ...s.emails,
