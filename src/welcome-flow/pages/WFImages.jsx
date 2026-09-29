@@ -17,16 +17,9 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { IconArrowLeft } from '@tabler/icons-react'
 import { useWelcomeFlowStore } from '../store/welcomeFlowStore'
 import { useWfTheme, WfCard, WfButton, WfStepNav } from '../components/wfUi'
+import { wfImageSlots, WF_IMAGE_POSITIONS } from '../wfImageSlots'
 import { fetchGhlImages, uploadLogo, analyzeImageFocal } from '../../lib/api'
 
-const SLOTS = [
-  { key: 'hero', label: 'Hero Image',  desc: 'Main banner at the top' },
-  { key: 'sub1', label: 'Sub Image 1', desc: 'Stay card 1' },
-  { key: 'sub2', label: 'Sub Image 2', desc: 'Stay card 2' },
-  { key: 'sub3', label: 'Sub Image 3', desc: 'Stay card 3' },
-  { key: 'sub4', label: 'Sub Image 4', desc: 'Story · large circle' },
-  { key: 'sub5', label: 'Sub Image 5', desc: 'Story · small circle' },
-]
 
 export default function WFImages() {
   const { clientId, emailId } = useParams()
@@ -40,6 +33,11 @@ export default function WFImages() {
 
   const client = getClient(clientId)
   const email  = (getEmails(clientId) || []).find(e => e.id === emailId)
+  /* The slots this email actually uses, at the positions its template reads.
+     The full six-position list is still what is saved, so a photo chosen for
+     a slot this email does not show is kept rather than thrown away. */
+  const slotList  = wfImageSlots(email?.week, email?.copy)
+  const positions = slotList.map(x => x.index)
 
   const [folders, setFolders] = useState([])
   const [images,  setImages]  = useState([])
@@ -49,7 +47,7 @@ export default function WFImages() {
   const [folderStack, setFolderStack] = useState([])
   const activeFolder = folderStack[folderStack.length - 1] ?? null
 
-  const [slots, setSlots] = useState(SLOTS.map(() => null))
+  const [slots, setSlots] = useState(() => Array(WF_IMAGE_POSITIONS).fill(null))
 
   const [logoUrl, setLogoUrl]             = useState('')
   const [logoUploading, setLogoUploading] = useState(false)
@@ -64,7 +62,7 @@ export default function WFImages() {
   useEffect(() => {
     if (!email) return
     const saved = email.selectedImages || []
-    setSlots(SLOTS.map((_, i) => saved[i] ?? null))
+    setSlots(Array.from({ length: WF_IMAGE_POSITIONS }, (_, i) => saved[i] ?? null))
   }, [email?.id])   // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -84,11 +82,11 @@ export default function WFImages() {
   }, [clientId, emailId, updateEmail])
 
   function handleImageClick(img) {
-    const at = slots.findIndex(s => s?.id === img.id)
-    if (at !== -1) { const next = [...slots]; next[at] = null; save(next); return }
+    const at = positions.find(i => slots[i]?.id === img.id)
+    if (at !== undefined) { const next = [...slots]; next[at] = null; save(next); return }
 
-    const empty = slots.findIndex(s => s === null)
-    if (empty === -1) return
+    const empty = positions.find(i => !slots[i])
+    if (empty === undefined) return
     const next = [...slots]; next[empty] = img; save(next)
 
     // enrich with a focal point in the background — default centring is fine
@@ -157,7 +155,8 @@ export default function WFImages() {
     )
   }
 
-  const filledCount = slots.filter(Boolean).length
+  const filledCount = positions.filter(i => slots[i]).length
+  const firstSlot   = slotList[0]
 
   return (
     <div style={{ maxWidth: 1120, margin: '0 auto', padding: '28px 24px 64px' }}>
@@ -165,8 +164,8 @@ export default function WFImages() {
         email={email} step={3}
         backLabel="Copy"
         onBack={() => navigate(`/welcome-flow/${clientId}/email/${emailId}/copy`)}
-        nextLabel={slots[0] ? 'Next: Preview' : 'Pick a hero image'}
-        nextDisabled={!slots[0]}
+        nextLabel={slots[firstSlot.index] ? 'Next: Preview' : `Pick the ${firstSlot.label.toLowerCase()}`}
+        nextDisabled={!slots[firstSlot.index]}
         onNext={() => navigate(`/welcome-flow/${clientId}/email/${emailId}/preview`)}
       />
 
@@ -175,7 +174,7 @@ export default function WFImages() {
           Pick Your Images
         </h1>
         <p style={{ fontSize: 13, color: t.muted, margin: '7px 0 0' }}>
-          {filledCount} of {SLOTS.length} slots filled. Click an image to place it in the next empty slot.
+          {filledCount} of {slotList.length} slots filled. Click an image to place it in the next empty slot.
         </p>
       </div>
 
@@ -221,10 +220,11 @@ export default function WFImages() {
             />
           </WfCard>
 
-          {SLOTS.map((slot, i) => {
+          {slotList.map((slot, n) => {
+            const i = slot.index
             const filled = slots[i]
             return (
-              <div key={slot.key} style={{
+              <div key={slot.index} style={{
                 borderRadius: 14, overflow: 'hidden',
                 border: `2px ${filled ? 'solid' : 'dashed'} ${filled ? t.accent : t.border}`,
               }}>
@@ -257,10 +257,12 @@ export default function WFImages() {
                                 justifyContent: 'center', background: t.dark ? 'rgba(255,255,255,0.02)' : '#f9fafb' }}>
                     <div style={{ width: 32, height: 32, borderRadius: '50%', border: `2px dashed ${t.border}`,
                                   display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>
-                      <span style={{ fontSize: 13, fontWeight: 700, color: t.faint }}>{i + 1}</span>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: t.faint }}>{n + 1}</span>
                     </div>
-                    <div style={{ fontSize: 12.5, fontWeight: 600, color: t.muted }}>{slot.label}</div>
-                    <div style={{ fontSize: 11, color: t.faint, marginTop: 3 }}>{slot.desc}</div>
+                    <div style={{ fontSize: 12.5, fontWeight: 600, color: t.muted }}>
+                      {slot.label}{slot.optional && <span style={{ fontWeight: 400, color: t.faint }}> · optional</span>}
+                    </div>
+                    <div style={{ fontSize: 11, color: t.faint, marginTop: 3, textAlign: 'center', padding: '0 10px' }}>{slot.desc}</div>
                   </div>
                 )}
               </div>
@@ -342,9 +344,9 @@ export default function WFImages() {
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(116px,1fr))', gap: 9 }}>
               {images.map(img => {
-                const at = slots.findIndex(s => s?.id === img.id)
-                const on = at !== -1
-                const full = !on && slots.every(Boolean)
+                const n  = positions.findIndex(i => slots[i]?.id === img.id)
+                const on = n !== -1
+                const full = !on && positions.every(i => slots[i])
                 return (
                   <button
                     key={img.id}
@@ -366,7 +368,7 @@ export default function WFImages() {
                         position: 'absolute', top: 6, right: 6, width: 22, height: 22, borderRadius: '50%',
                         background: t.accent, color: t.onAccent, fontSize: 11, fontWeight: 700,
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      }}>{at + 1}</span>
+                      }}>{n + 1}</span>
                     )}
                   </button>
                 )
