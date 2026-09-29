@@ -48,6 +48,7 @@ const W2_TRY_LIST_HTML = `<div style="padding:14px 0 0 18px;">${W2_TRY_ITEMS.map
 ).join('')}</div>`
 
 import { useCampaignStore }  from '../store/campaignStore'
+import { wfImageSlots } from '../welcome-flow/wfImageSlots'
 import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
 import { recommendTemplate, analyzeImageFocal, htmlToImage, fetchFooterData, sendTestEmail } from '../lib/api'
@@ -1704,6 +1705,7 @@ function buildTemplateWeek1WF({ client, copy, images, footerData, isHeroGenerate
   img2Scale=1, img2X=0, img2Y=0,
   img3Scale=1, img3X=0, img3Y=0,
   img4Scale=1, img4X=0, img4Y=0,
+  img5Scale=1, img5X=0, img5Y=0,
   btnImgUrl = null, introBtnImgUrl = null, cardBtnImgUrl = null,
   cardsGenerated = [false, false, false],
 }) {
@@ -1909,8 +1911,8 @@ function buildTemplateWeek1WF({ client, copy, images, footerData, isHeroGenerate
         ? `<img src="${storyA}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;margin:0 auto;border:0;outline:none;"/>`
         : `<div style="position:relative;width:100%;max-width:600px;height:360px;margin:0 auto;">
             <!-- pair spans 60→540, i.e. 480 wide centred in the 600 box -->
-            ${storyB ? `<div style="position:absolute;left:60px;top:150px;width:200px;height:200px;border-radius:50%;overflow:hidden;border:6px solid ${pageBg};"><img src="${storyB}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;"/></div>` : ''}
-            ${storyA ? `<div style="position:absolute;left:220px;top:20px;width:320px;height:320px;border-radius:50%;overflow:hidden;border:6px solid ${pageBg};"><img src="${storyA}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;"/></div>` : ''}
+            ${storyB ? `<div style="position:absolute;left:60px;top:150px;width:200px;height:200px;border-radius:50%;overflow:hidden;border:6px solid ${pageBg};"><img src="${storyB}" alt="" style="width:100%;height:100%;display:block;${wfCrop(img5X, img5Y, img5Scale)}"/></div>` : ''}
+            ${storyA ? `<div style="position:absolute;left:220px;top:20px;width:320px;height:320px;border-radius:50%;overflow:hidden;border:6px solid ${pageBg};"><img src="${storyA}" alt="" style="width:100%;height:100%;display:block;${wfCrop(img4X, img4Y, img4Scale)}"/></div>` : ''}
           </div>`}
     </div>
   </div>` : ''}
@@ -2211,12 +2213,18 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
   heroScale=1, heroX=0, heroY=0,
   textSize=44, textTop=34, textLeft=52,
   logoColor='original', logoTop=64, logoRight=200, logoSize=44,
+  img1Scale=1, img1X=0, img1Y=0,
+  img2Scale=1, img2X=0, img2Y=0,
+  img3Scale=1, img3X=0, img3Y=0,
+  img4Scale=1, img4X=0, img4Y=0,
   btnImgUrl = null, introBtnImgUrl = null, gridImgUrl = null, heroMobileImgUrl = null,
 }) {
   const heroObj = images?.[0]; const heroImg = heroObj?.url || ''
   /* The reviews are text only, so every sub-image goes to the photo grid below
      them: Sub 1-4, the four cells. */
   const gridImgs = [1,2,3,4].map(i => images?.[i]?.url || '')
+  /* Each grid photo pans and zooms with its own Sub slider, top left to bottom right. */
+  const gridTf = [wfCrop(img1X, img1Y, img1Scale), wfCrop(img2X, img2Y, img2Scale), wfCrop(img3X, img3Y, img3Scale), wfCrop(img4X, img4Y, img4Scale)]
 
   const setup   = (copy.bodyText || '').replace(/\n/g, '<br>')
   const closing    = (copy.closingLine || '').replace(/\n/g, '<br>')
@@ -2430,7 +2438,7 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
            carry no padding and only the gutter between the cells does. */
         const pad = col === 0 ? '0 3px 6px 0' : '0 0 6px 3px'
         return `<td width="50%" valign="top" style="width:50%;padding:${pad};line-height:0;font-size:0;">${g
-          ? `<img src="${g}" alt="" style="width:100%;aspect-ratio:1/1;height:auto;object-fit:cover;display:block;border-radius:12px;border:0;outline:none;"/>`
+          ? `<div style="width:100%;aspect-ratio:1/1;overflow:hidden;border-radius:12px;line-height:0;"><img src="${g}" alt="" style="width:100%;height:100%;display:block;border:0;outline:none;${gridTf[row + col]}"/></div>`
           : `<div style="width:100%;aspect-ratio:1/1;background:${pillBg};border-radius:12px;"></div>`}</td>`
       }).join('')}</tr>`).join('')}
     </table>`}
@@ -3820,6 +3828,10 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
   const [img4Scale, setImg4Scale] = useState(1)
   const [img4X,     setImg4X]     = useState(0)
   const [img4Y,     setImg4Y]     = useState(0)
+  /* Sub Image 5: Email 1's small story circle, and Email 2's fourth day. */
+  const [img5Scale, setImg5Scale] = useState(1)
+  const [img5X,     setImg5X]     = useState(0)
+  const [img5Y,     setImg5Y]     = useState(0)
 
   // Reset slider defaults when switching between editable templates
   useEffect(() => {
@@ -3829,6 +3841,7 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
     setImg2Scale(1); setImg2X(0); setImg2Y(0)
     setImg3Scale(1); setImg3X(0); setImg3Y(0)
     setImg4Scale(1); setImg4X(0); setImg4Y(0)
+    setImg5Scale(1); setImg5X(0); setImg5Y(0)
     if (tpl?.id === 10 || tpl?.id === 17) { setTextSize(38); setTextTop(32);  setTextLeft(24);  setLogoColor('original'); setLogoTop(32); setLogoRight(200); setLogoSize(40) }
     if (tpl?.id === 11) { setTextSize(40); setTextTop(14);  setTextLeft(52);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
     if (tpl?.id === 13) { setTextSize(52); setTextTop(32);  setTextLeft(36);  setLogoColor('white');    setLogoTop(28); setLogoRight(36);  setLogoSize(40) }
@@ -3884,7 +3897,7 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
       if (usesBakedSecTer && tplUrls.sec) effectiveImages[4] = { url: tplUrls.sec, focalX: 50, focalY: 50 }
       if (usesBakedSecTer && tplUrls.ter) effectiveImages[5] = { url: tplUrls.ter, focalX: 50, focalY: 50 }
     }
-    const editorProps = isEditable ? { heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y } : {}
+    const editorProps = isEditable ? { heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y, img5Scale, img5X, img5Y } : {}
     /* Same list as isWeekTemplate — every template whose hero is baked. A template
        missing here renders its live hero over its own baked PNG: two headlines. */
     const isHeroGenerated = [10, 11, 13, 16, 17, 18, 19, 20, 23, 24, 25, 31, 32, 33, 34, 35, 36, 37, 38].includes(tpl?.id) && !!tplUrls.hero
@@ -3900,7 +3913,7 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
     console.log('[baseHtml] tplId:', tpl?.id, 'isHeroGenerated:', isHeroGenerated, 'tplUrls:', tplUrls, 'effectiveImages[4]:', effectiveImages?.[4], 'effectiveImages[5]:', effectiveImages?.[5])
     const effectiveCopy = generatedCopy ? withBoldMarks({ ...generatedCopy, headlineText: (generatedCopy.headlineText || '').replace(/\.$/, '') }) : generatedCopy
     return tpl.build({ client:selectedClient, copy:effectiveCopy, images:effectiveImages, headerStyle, imageStyle, footerData: effectiveFooterData, isHeroGenerated, isStoryGenerated, cardsGenerated, btnImgUrl: tplUrls.btn || null, introBtnImgUrl: tplUrls.introBtn || null, cardBtnImgUrl: tplUrls.cardBtn || null, stampImgUrl: tplUrls.sec || null, pinImgUrl: tplUrls.ter || null, gridImgUrl: ((tpl?.id === 33 || tpl?.id === 35 || tpl?.id === 36 || tpl?.id === 37 || tpl?.id === 38 || tpl?.id === 39) ? tplUrls.sec : null) || null, iconImgUrls: tplUrls.icons || [], heroMobileImgUrl: tplUrls.heroMobile || null, dayImgUrls: tpl?.id === 32 ? [tplUrls.sec || null, tplUrls.ter || null] : [], dayImgMobUrls: tpl?.id === 32 ? [tplUrls.card1 || null, tplUrls.card2 || null] : [], closingImgUrl: tpl?.id === 32 ? (tplUrls.closing || null) : null, ...editorProps })
-  }, [active, selectedClient, generatedCopy, selectedImages, headerStyle, imageStyle, clientFooter, footerLogoColor, footerLogoSize, weekGenUrls, bakedImages, heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y])
+  }, [active, selectedClient, generatedCopy, selectedImages, headerStyle, imageStyle, clientFooter, footerLogoColor, footerLogoSize, weekGenUrls, bakedImages, heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y, img5Scale, img5X, img5Y])
 
   // Keep store in sync so ApprovalPanel always has the latest HTML
   useEffect(() => {
@@ -4290,8 +4303,8 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
 </head><body>
 <div style="position:relative;width:600px;height:360px;">
-  ${img5Url ? `<div style="position:absolute;left:60px;top:150px;width:200px;height:200px;border-radius:50%;overflow:hidden;border:6px solid ${week1wfPageBg};"><img src="${img5Url}" style="width:100%;height:100%;object-fit:cover;display:block;"/></div>` : ''}
-  ${img4Url ? `<div style="position:absolute;left:220px;top:20px;width:320px;height:320px;border-radius:50%;overflow:hidden;border:6px solid ${week1wfPageBg};"><img src="${img4Url}" style="width:100%;height:100%;object-fit:cover;display:block;"/></div>` : ''}
+  ${img5Url ? `<div style="position:absolute;left:60px;top:150px;width:200px;height:200px;border-radius:50%;overflow:hidden;border:6px solid ${week1wfPageBg};"><img src="${img5Url}" style="width:100%;height:100%;display:block;${wfCrop(img5X, img5Y, img5Scale)}"/></div>` : ''}
+  ${img4Url ? `<div style="position:absolute;left:220px;top:20px;width:320px;height:320px;border-radius:50%;overflow:hidden;border:6px solid ${week1wfPageBg};"><img src="${img4Url}" style="width:100%;height:100%;display:block;${wfCrop(img4X, img4Y, img4Scale)}"/></div>` : ''}
 </div>
 </body></html>` : null
 
@@ -4438,12 +4451,12 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
 </head><body>
 <table width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;border-collapse:collapse;background:transparent;">
-  ${[[img1Url, img2Url], [img3Url, img4Url]].map((row, r) => `<tr>${row.map((u, c) => `
+  ${[[img1Url, img2Url], [img3Url, img4Url]].map((row, r) => `<tr>${row.map((u, c) => { const tf = [[img1X, img1Y, img1Scale], [img2X, img2Y, img2Scale], [img3X, img3Y, img3Scale], [img4X, img4Y, img4Scale]][r * 2 + c]; return `
     <td width="300" valign="top" style="width:300px;padding-top:0;padding-bottom:${r === 0 ? 6 : 0}px;padding-left:${c === 1 ? 3 : 0}px;padding-right:${c === 0 ? 3 : 0}px;line-height:0;font-size:0;">
       ${u
-        ? `<img src="${u}" style="width:100%;height:297px;object-fit:cover;display:block;border-radius:12px;"/>`
+        ? `<div style="width:100%;height:297px;overflow:hidden;border-radius:12px;"><img src="${u}" style="width:100%;height:100%;display:block;${wfCrop(tf[0], tf[1], tf[2])}"/></div>`
         : `<div style="width:100%;height:297px;background:rgba(0,0,0,0.06);border-radius:12px;"></div>`}
-    </td>`).join('')}</tr>`).join('')}
+    </td>` }).join('')}</tr>`).join('')}
 </table>
 </body></html>`
       : null
@@ -5471,7 +5484,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
       if (!isWeek2WF) return null
       const pos  = week2wfDayHeights.length + 1
       const urls = [null, img1Url, img2Url, img3Url, img4Url, img5Url]
-      const tfs  = [null, [img1X, img1Y, img1Scale], [img2X, img2Y, img2Scale], [img3X, img3Y, img3Scale], [img4X, img4Y, img4Scale], [0, 0, 1]]
+      const tfs  = [null, [img1X, img1Y, img1Scale], [img2X, img2Y, img2Scale], [img3X, img3Y, img3Scale], [img4X, img4Y, img4Scale], [img5X, img5Y, img5Scale]]
       if (!urls[pos]) return null
       const [x, y, sc] = tfs[pos]
       return week2wfDayHtml(urls[pos], x, y, sc, 306, 552)
@@ -6005,8 +6018,30 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
             </>}
           </div>
 
-          {/* Sub-image adjusters — shown for templates that have sub-images */}
-          {[10, 11, 13, 16, 17, 18, 24, 25, 31, 32, 33, 34, 35, 36, 37, 38, 39].includes(tpl?.id) && [
+          {/* Sub-image adjusters — shown for templates that have sub-images. A welcome
+              flow email lists exactly the photos it has, named as the image picker
+              names them, from the same list; the weekly templates keep theirs. */}
+          {[10, 11, 13, 16, 17, 18, 24, 25, 31, 32, 33, 34, 35, 36, 37, 38, 39].includes(tpl?.id) && ((tpl?.id >= 31 && tpl?.id <= 39)
+            ? wfImageSlots(tpl.id - 30, generatedCopy).filter(sl => sl.index > 0).map(sl => {
+                const [color, darkBg, lightBg] = ({
+                  1: ['#7c3aed', 'rgba(124,58,237,0.15)', '#f5f3ff'], 2: ['#db2777', 'rgba(219,39,119,0.15)', '#fdf2f8'],
+                  3: ['#ea580c', 'rgba(234,88,12,0.15)', '#fff7ed'],  4: ['#0891b2', 'rgba(8,145,178,0.15)', '#ecfeff'],
+                  5: ['#16a34a', 'rgba(22,163,74,0.15)', '#f0fdf4'],
+                })[sl.index]
+                const [x, setX, y, setY, sc, setSc] = ({
+                  1: [img1X, setImg1X, img1Y, setImg1Y, img1Scale, setImg1Scale],
+                  2: [img2X, setImg2X, img2Y, setImg2Y, img2Scale, setImg2Scale],
+                  3: [img3X, setImg3X, img3Y, setImg3Y, img3Scale, setImg3Scale],
+                  4: [img4X, setImg4X, img4Y, setImg4Y, img4Scale, setImg4Scale],
+                  5: [img5X, setImg5X, img5Y, setImg5Y, img5Scale, setImg5Scale],
+                })[sl.index]
+                return { key: `sub${sl.index}`, label: sl.label, color, bg: dark ? darkBg : lightBg, controls: [
+                  { name: 'Left', min: -200, max: 200, step: 4, val: x,  set: setX,  unit: 'px' },
+                  { name: 'Top',  min: -200, max: 200, step: 4, val: y,  set: setY,  unit: 'px' },
+                  { name: 'Zoom', min: 1, max: 2.5, step: 0.05, val: sc, set: setSc, unit: 'x', toDisplay: v => v.toFixed(2) },
+                ] }
+              })
+            : [
             { key: 'sub1', label: 'Sub Image 1', color: '#7c3aed', bg: dark ? 'rgba(124,58,237,0.15)' : '#f5f3ff',
               controls: [
                 { name: 'Left', min: -200, max: 200, step: 4, val: img1X,     set: setImg1X,     unit: 'px' },
@@ -6035,7 +6070,8 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
                 { name: 'Zoom',  min: 1,    max: 2.5, step: 0.05, val: img4Scale, set: setImg4Scale, unit: 'x', toDisplay: v => v.toFixed(2) },
               ]
             }] : []),
-          ].map(section => (
+          ]
+          ).map(section => (
             <div key={section.key} style={{ marginBottom: 4 }}>
               <div onClick={() => setEditorSection(s => s === section.key ? null : section.key)}
                 style={{
@@ -6084,7 +6120,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
           <div style={{ height: 1, background: dark ? 'rgba(255,255,255,0.07)' : '#f0f1f3', margin: '12px 0 8px' }} />
           <button onClick={() => {
             setHeroScale(1); setHeroX(0); setHeroY(0); setFooterLogoColor('original'); setFooterLogoSize(40)
-            setImg1Scale(1); setImg1X(0); setImg1Y(0); setImg2Scale(1); setImg2X(0); setImg2Y(0); setImg3Scale(1); setImg3X(0); setImg3Y(0); setImg4Scale(1); setImg4X(0); setImg4Y(0)
+            setImg1Scale(1); setImg1X(0); setImg1Y(0); setImg2Scale(1); setImg2X(0); setImg2Y(0); setImg3Scale(1); setImg3X(0); setImg3Y(0); setImg4Scale(1); setImg4X(0); setImg4Y(0); setImg5Scale(1); setImg5X(0); setImg5Y(0)
             if (tpl?.id === 10 || tpl?.id === 17) { setTextSize(38); setTextTop(32);  setTextLeft(24);  setLogoColor('original'); setLogoTop(32); setLogoRight(200); setLogoSize(40) }
             if (tpl?.id === 11) { setTextSize(40); setTextTop(14);  setTextLeft(52);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
             if (tpl?.id === 13) { setTextSize(52); setTextTop(32);  setTextLeft(36);  setLogoColor('white');    setLogoTop(28); setLogoRight(36);  setLogoSize(40) }
