@@ -26,6 +26,7 @@ import { handler as uploadLogo }         from '../netlify/functions/upload-logo.
 import { handler as uploadScreenshot }   from '../netlify/functions/upload-screenshot.js'
 import { handler as wfClients }          from '../netlify/functions/wf-clients.js'
 import { handler as wfGenerateCopy }     from '../netlify/functions/wf-generate-copy.js'
+import { handler as wfClaudeCopy }       from '../netlify/functions/wf-claude-copy-background.js'
 import { handler as wfPushEmail }        from '../netlify/functions/wf-push-email.js'
 import { handler as wfEmails }           from '../netlify/functions/wf-emails.js'
 
@@ -63,6 +64,7 @@ const HANDLERS = {
   'upload-screenshot':   uploadScreenshot,
   'wf-clients':          wfClients,
   'wf-generate-copy':    wfGenerateCopy,
+  'wf-claude-copy-background': wfClaudeCopy,
   'wf-push-email':       wfPushEmail,
   'wf-emails':           wfEmails,
   'wf-submit-feedback':  wfSubmitFeedback,

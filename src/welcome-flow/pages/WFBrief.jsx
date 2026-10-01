@@ -16,12 +16,12 @@ import { useWfTheme, WfCard, WfButton, WfInput, WfStepNav } from '../components/
 import { WF_WEEKS, wfWeek, wfWeekReady, wfWeekLabel, wfBriefTemplate, wfBriefIsSeed } from '../wfWeeks'
 import { wfTestVariations } from '../wfTestData'
 import { wfCopySchema } from '../wfCopySchema'
-import { wfGenerateCopy } from '../../lib/api'
+import { wfGenerateCopy, wfClaudeCopy } from '../../lib/api'
 import { extractWfVariations } from '../parseWfCopy'
 import { authFetch } from '../../lib/session'
 
 const POLL_INTERVAL_MS  = 2_000
-const POLL_MAX_ATTEMPTS = 60      // 120s — the workflow runs 45-50s
+const POLL_MAX_ATTEMPTS = 150     // 300s — n8n runs 45-50s, Claude's write + review up to ~3 min
 
 /**
  * n8n answers the webhook immediately and posts the finished copy to
@@ -34,9 +34,9 @@ async function pollForResult(jobId) {
     const res  = await authFetch(`/.netlify/functions/copy-callback?jobId=${encodeURIComponent(jobId)}`)
     const data = await res.json()
     if (data.status === 'done')  return data          // { copy, emailNumber?, emailKey? }
-    if (data.status === 'error') throw new Error(data.error || 'n8n workflow failed')
+    if (data.status === 'error') throw new Error(data.error || 'Copy generation failed')
   }
-  throw new Error('No response after 2 minutes. Check that the n8n workflow is active and posting to the callback URL.')
+  throw new Error('No copy after 5 minutes. Try again, and if it keeps happening check the function logs.')
 }
 
 /** GHL folder links carry the id as ?folderId=… */
@@ -141,12 +141,17 @@ export default function WFBrief() {
     const tick = setInterval(() => setElapsed(s => s + 1), 1000)
     try {
       // Returns a jobId straight away; the copy arrives via copy-callback.
-      const { jobId } = await wfGenerateCopy({
+      const { jobId, engine } = await wfGenerateCopy({
         week:       Number(week),
         prompt,
         clientName: client.name,
         locationId: client.locationId,
       })
+      /* Claude runs in its own request. Not awaited: its result, or its
+         error, lands in copy_jobs, which the poll below reads either way. */
+      if (engine === 'claude') {
+        wfClaudeCopy({ jobId, week: Number(week), prompt, clientName: client.name }).catch(() => {})
+      }
       const reply  = await pollForResult(jobId)
       const result = reply.copy
 

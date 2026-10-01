@@ -99,6 +99,13 @@ export const wfPushEmail = ({ clientId, clientName, position, week, dbId, email 
 export const wfGenerateCopy = ({ week, prompt, clientName, locationId }) =>
   post('/wf-generate-copy', { week, prompt, clientName, locationId })
 
+// Emails moved to Claude: runs for one to three minutes and stores its result
+// under jobId, so the caller fires it and polls copy-callback as for n8n. A
+// Netlify background function (hence the name): netlify dev stops ordinary
+// ones at 30s. On Vercel the API router runs it with a 300s limit.
+export const wfClaudeCopy = ({ jobId, week, prompt, clientName }) =>
+  post('/wf-claude-copy-background', { jobId, week, prompt, clientName })
+
 // ── Logo upload → GHL media library + save logo_url to Email_Client_API ──
 // apiKey is optional: omit it and the function resolves it from locationId.
 export const uploadLogo = ({ base64, mimeType, fileName, locationId, apiKey, clientRowIndex }) =>

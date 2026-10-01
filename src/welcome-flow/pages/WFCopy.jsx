@@ -21,7 +21,9 @@ import { useWfTheme, WfCard, WfButton, WfStepNav } from '../components/wfUi'
    sit between the two groups, which is where they appear in the email. */
 
 
-const MULTILINE = new Set(['bodyText', 'bodyBlock2', 'closingLine', 'momentCopy', 'quote', 'attribution', 'description'])
+const MULTILINE = new Set(['bodyText', 'bodyBlock2', 'closingLine', 'momentCopy', 'quote', 'attribution', 'description',
+  // Email 4's block entries: one "Name - detail" per line, so it must wrap and take Enter
+  'entries'])
 
 /**
  * A textarea that grows to whatever it holds, so nothing scrolls inside a box
@@ -245,13 +247,15 @@ export default function WFCopy() {
   const isMultiline = (key) =>
     MULTILINE.has(key) || MULTILINE.has(String(key).split('-').pop())
 
-  /** One input, for one variation. */
-  const oneInput = (key, value, onChange) =>
-    isMultiline(key)
-      ? <AutoTextarea value={value} onChange={(e) => onChange(e.target.value)}
-          onBlur={() => persist()} onKeyDown={boldKeyHandler(onChange)} style={inputStyle} />
-      : <input value={value || ''} onChange={(e) => onChange(e.target.value)} onBlur={() => persist()}
-          onKeyDown={boldKeyHandler(onChange)} style={inputStyle} />
+  /** One input, for one variation. Every field wraps and grows to fit its
+      text, so nothing scrolls sideways in a box a third of the page wide.
+      Single-line fields keep Enter out, so they stay one line of copy. */
+  const oneInput = (key, value, onChange) => {
+    const bold = boldKeyHandler(onChange)
+    const onKeyDown = isMultiline(key) ? bold : (e) => { if (e.key === 'Enter') { e.preventDefault(); return } bold(e) }
+    return <AutoTextarea value={value} onChange={(e) => onChange(e.target.value)}
+      onBlur={() => persist()} onKeyDown={onKeyDown} style={inputStyle} />
+  }
 
   /** One labelled row: the label once, then the same field for all three. */
   const fieldRow = ({ key, label, hint }, valueAt, onChangeAt, last) => (

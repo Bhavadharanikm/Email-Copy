@@ -28,6 +28,7 @@
 
 import { withAuth } from './_auth.js'
 import { randomUUID, createSign } from 'crypto'
+import { claudeEnabledFor } from './_wfClaude.js'
 
 const SPREADSHEET_ID = '14HEBZ9DPckY9jJRq-DYUZYI6bz2WJHhec9LTmP8FP54'
 const SHEET_NAME     = 'Sheet1'
@@ -123,6 +124,15 @@ const rawHandler = async (event) => {
     const weekNum = Number(week)
     if (!weekNum || weekNum < 1 || weekNum > 9) {
       return json(400, { error: `Invalid week "${week}" — expected 1-9` })
+    }
+
+    /* Emails moved to Claude skip n8n. The page fires wf-claude-copy with this
+       jobId and polls copy-callback exactly as before. */
+    if (claudeEnabledFor(weekNum)) {
+      const jobId     = randomUUID()
+      const brandData = await fetchBrandData(clientName)
+      console.log(`[wf-generate-copy] week=${weekNum} client="${clientName}" engine=claude jobId=${jobId}`)
+      return json(200, { jobId, brandData, engine: 'claude' })
     }
 
     /* A per-week URL wins when set; otherwise one workflow serves every email
