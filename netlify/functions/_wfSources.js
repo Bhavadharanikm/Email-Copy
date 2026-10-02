@@ -104,7 +104,18 @@ export async function fetchCopyBrief(clientName) {
   const docId = (row[iDoc] || '').match(/\/d\/([\w-]+)/)?.[1]
   if (!docId) throw new Error(`"${clientName}" has no copy brief doc linked in the Welcome Email Copy Brief sheet`)
 
-  const doc  = await googleGet(`https://docs.googleapis.com/v1/documents/${docId}?includeTabsContent=true`)
+  /* A brief doc nobody shared with the service account answers 403; say what
+     to do about it rather than passing Google's wording through. */
+  let doc
+  try {
+    doc = await googleGet(`https://docs.googleapis.com/v1/documents/${docId}?includeTabsContent=true`)
+  } catch (err) {
+    if (/permission|403/i.test(err.message)) {
+      const who = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || 'the app\'s Google service account'
+      throw new Error(`${clientName}'s copy brief doc isn't shared with the app. Share it with ${who} as a Viewer, then generate again.`)
+    }
+    throw err
+  }
   const text = docText(doc)
   if (!text) throw new Error(`The copy brief doc for "${clientName}" is empty`)
   return { title: doc.title || '', text, website: iSite >= 0 ? (row[iSite] || '').trim() : '' }

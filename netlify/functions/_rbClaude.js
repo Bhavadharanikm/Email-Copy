@@ -19,7 +19,7 @@ const MODEL = 'claude-opus-5'
 const PROMPTS = { 1: email1, 2: email2, 3: email3 }
 
 /* HiddenGem Test has no copy brief of its own, so it writes from a real one. */
-const TEST_CLIENT_STAND_IN = { 'hiddengem test': 'Starlight Haven Hot Springs' }
+const TEST_CLIENT_STAND_IN = { 'hiddengem test': 'Walden Retreats' }
 const sourceClientFor = (name) => TEST_CLIENT_STAND_IN[(name || '').trim().toLowerCase()] || name
 
 export const rbClaudeEnabledFor = (n) => Boolean(process.env.ANTHROPIC_API_KEY && PROMPTS[Number(n)])

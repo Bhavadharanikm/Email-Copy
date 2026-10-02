@@ -32,7 +32,7 @@ const PROMPTS = { 1: email1, 2: email2, 3: email3, 4: email4, 5: email5, 6: emai
 
 /* HiddenGem Test is a testing client with no copy brief of its own, so it
    writes from a real client's brief and brand row instead. */
-const TEST_CLIENT_STAND_IN = { 'hiddengem test': 'Starlight Haven Hot Springs' }
+const TEST_CLIENT_STAND_IN = { 'hiddengem test': 'Walden Retreats' }
 const sourceClientFor = (name) => TEST_CLIENT_STAND_IN[(name || '').trim().toLowerCase()] || name
 
 export const claudeWeeks = () => Object.keys(PROMPTS).map(Number)
