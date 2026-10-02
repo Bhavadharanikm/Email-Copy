@@ -348,7 +348,8 @@ const WEEK9 = {
   after: [
     { key: 'closingLine', label: 'Close',         hint: 'The ask again: send it over, someone at the property will reply' },
     { key: 'signature',   label: 'Signature',     hint: 'A named person and the property, e.g. "Kevin, Starlight Haven Hot Springs"' },
-    { key: 'ctaText',     label: 'CTA Button',    hint: 'Left blank the button reads "Book Your Stay" and links to the client\u2019s site' },
+    { key: 'ctaText',     label: 'CTA Button',    hint: '2\u20134 words, e.g. "Book Your Stay". The button\u2019s label, not a link' },
+    { key: 'ctaUrl',      label: 'CTA URL',       hint: 'Full URL with https://. Blank links to the client\u2019s website' },
     { key: 'footerLine',  label: 'Code Reminder', hint: 'Optional. Blank hides it' },
   ],
 }

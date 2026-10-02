@@ -2,18 +2,24 @@
  * Welcome Flow — approve & push (step 5 of a WF email).
  *
  * Same shape and same endpoints as the Weekly Email Campaign's ApprovalPanel:
- * review summary, optional notes, Approve & Push / Send Back for Revision.
+ * review summary, optional notes, Approve & Push, and a test push.
  * Approve calls push-html-to-ghl (creates or updates a GHL email template,
  * moves it into the client's folder) then notifyChat (non-fatal).
  *
  * The one difference is the API key: the weekly campaign sends it from the
  * browser, Welcome Flow never holds it, so client.ghlApiKey is omitted and
  * push-html-to-ghl resolves it server-side from the location id.
+ *
+ * Test Push to GHL sends the same rendered email to GHL as a separate "TEST ·"
+ * template and saves nothing: no database row, no status change, no Google
+ * Chat. It never touches the email's real template, and it goes around the
+ * store, because every store change is saved to the database. Repeat test
+ * pushes update the same test template, remembered only in this tab.
  */
 
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { IconCheck, IconRotate, IconDatabase } from '@tabler/icons-react'
+import { IconCheck, IconFlask, IconDatabase } from '@tabler/icons-react'
 import { useWelcomeFlowStore } from '../store/welcomeFlowStore'
 import { useWfTheme, WfCard, WfButton, WfStepNav } from '../components/wfUi'
 import { pushHtmlToGHL, notifyChat, wfPushEmail } from '../../lib/api'
@@ -38,6 +44,9 @@ export default function WFApprove() {
   const [dbErr, setDbErr]       = useState('')
   const [done, setDone]       = useState(false)
   const [previewUrl, setPreviewUrl] = useState('')
+  const [testing, setTesting]   = useState(false)
+  const [testMsg, setTestMsg]   = useState(null)   // { ok, text, url }
+  const [testTip, setTestTip]   = useState(false)  // the test push's hover note, shown at once (a title waits ~1s)
 
   /* Still fetching: the client list, or this client's emails from the database.
      Not the 'not found' screen — that is only right once loading has finished. */
@@ -142,8 +151,29 @@ export default function WFApprove() {
     }
   }
 
-  function handleReject() {
-    updateEmail(clientId, emailId, { status: 'needs_update', reviewNotes: notes })
+  /** Push to GHL for a look, nothing saved. See the header. */
+  async function handleTestPush() {
+    const key = `wf-test-ghl-template:${emailId}`
+    let testTemplateId = null
+    try { testTemplateId = sessionStorage.getItem(key) } catch { /* storage blocked: a new test template each time */ }
+    setTesting(true); setTestMsg(null)
+    try {
+      const result = await pushHtmlToGHL({
+        client: { name: client.name, ghl: { locationId: client.locationId } },
+        renderedHtml:  email.renderedHtml,
+        generatedCopy: copy,
+        templateId:    testTemplateId,
+        locationId:    client.locationId,
+        folderId:      client.folderId,
+        templateLabel: `TEST · ${email.templateLabel || `Email ${email.position}`}`,
+      })
+      if (result.templateId) { try { sessionStorage.setItem(key, result.templateId) } catch { /* fine */ } }
+      setTestMsg({ ok: true, text: 'Test template pushed to GHL. Nothing was saved here.', url: client.folderUrl || result.previewUrl || '' })
+    } catch (e) {
+      setTestMsg({ ok: false, text: e.message })
+    } finally {
+      setTesting(false)
+    }
   }
 
   if (done) {
@@ -268,15 +298,40 @@ export default function WFApprove() {
         >
           <IconCheck size={15} stroke={2.4} /> {loading ? 'Pushing to GHL…' : 'Approve & Push to GHL'}
         </WfButton>
-        <WfButton
-          variant="ghost"
-          onClick={handleReject}
-          disabled={loading}
-          style={{ flex: 1, justifyContent: 'center', padding: '12px 16px' }}
+        <div
+          style={{ flex: 1, position: 'relative', display: 'flex' }}
+          onMouseEnter={() => setTestTip(true)} onMouseLeave={() => setTestTip(false)}
+          onFocus={() => setTestTip(true)} onBlur={() => setTestTip(false)}
         >
-          <IconRotate size={15} stroke={2.2} /> Send Back for Revision
-        </WfButton>
+          <WfButton
+            variant="ghost"
+            onClick={handleTestPush}
+            disabled={testing || loading || !email.renderedHtml}
+            aria-describedby="wf-test-push-tip"
+            style={{ flex: 1, justifyContent: 'center', padding: '12px 16px' }}
+          >
+            <IconFlask size={15} stroke={2.2} /> {testing ? 'Pushing test…' : 'Test Push to GHL'}
+          </WfButton>
+          <div
+            id="wf-test-push-tip" role="tooltip"
+            style={{
+              position: 'absolute', bottom: 'calc(100% + 8px)', left: '50%', transform: 'translateX(-50%)',
+              width: 'max-content', maxWidth: 300, padding: '8px 11px', borderRadius: 8,
+              background: '#111827', color: '#fff', fontSize: 12, lineHeight: 1.45, textAlign: 'center',
+              boxShadow: '0 6px 20px rgba(0,0,0,0.18)', pointerEvents: 'none', zIndex: 20,
+              opacity: testTip ? 1 : 0, visibility: testTip ? 'visible' : 'hidden',
+            }}
+          >
+            This is not saved. It's only for testing. To save and run it, click Approve &amp; Push to GHL.
+          </div>
+        </div>
       </div>
+      {testMsg && (
+        <div style={{ fontSize: 12, color: testMsg.ok ? '#16a34a' : '#dc2626', marginTop: 10, textAlign: 'center' }}>
+          {testMsg.ok ? '✓ ' : '⚠ '}{testMsg.text}
+          {testMsg.ok && testMsg.url && <> <a href={testMsg.url} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>Open in GHL →</a></>}
+        </div>
+      )}
     </div>
   )
 }

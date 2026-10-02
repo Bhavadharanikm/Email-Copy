@@ -159,13 +159,13 @@ export default function WFBrief() {
          brief asked for, stop here — rendering Email 3 copy into an Email 1
          template fails quietly and looks like a design bug. */
       if (reply.emailNumber && Number(reply.emailNumber) !== Number(week)) {
-        throw new Error(`n8n returned copy for Email ${reply.emailNumber}, but this brief is Email ${week}. Check the workflow's branch for this email.`)
+        throw new Error(`The copy that came back is for Email ${reply.emailNumber}, but this brief is Email ${week}. Try generating again.`)
       }
 
       // the workflow writes Markdown prose, so it gets parsed into fields here
       const variations = extractWfVariations(result)
       if (!variations.length) {
-        throw new Error('n8n replied but no variations could be read from it. Check the workflow output format.')
+        throw new Error('The copy came back, but no variations could be read from it. Try generating again.')
       }
 
       /* Does the copy carry what this email's template renders? A missing
@@ -183,7 +183,7 @@ export default function WFBrief() {
         missing.push(schema.group.title)
       }
       if (missing.length) {
-        throw new Error(`n8n's copy for Email ${week} is missing: ${missing.join(', ')}. The workflow's output for this email does not match its fields.`)
+        throw new Error(`The copy for Email ${week} is missing: ${missing.join(', ')}. Try generating again.`)
       }
 
       updateEmail(clientId, emailId, {
@@ -256,7 +256,7 @@ export default function WFBrief() {
         <div style={{ marginBottom: 18 }}>
           <label style={{ fontSize: 12, fontWeight: 700, color: t.text, display: 'block', marginBottom: 6 }}>
             Welcome Email{' '}
-            <span style={{ fontWeight: 400, color: t.muted }}>sets the template and which n8n workflow runs</span>
+            <span style={{ fontWeight: 400, color: t.muted }}>sets the template and which email is written</span>
           </label>
           {email?.week ? (
             /* The email's place in the flow is fixed by its row on the client page:
@@ -368,7 +368,7 @@ export default function WFBrief() {
         {/* prompt */}
         <div style={{ marginBottom: 18 }}>
           <label style={{ fontSize: 12, fontWeight: 700, color: t.text, display: 'block', marginBottom: 6 }}>
-            Prompt <span style={{ fontWeight: 400, color: t.muted }}>sent to your n8n workflow</span>
+            Prompt <span style={{ fontWeight: 400, color: t.muted }}>the brief the copy is written from</span>
           </label>
           <textarea
             value={prompt}
@@ -391,7 +391,7 @@ export default function WFBrief() {
           onClick={handleGenerate}
           style={{ width: '100%', justifyContent: 'center', padding: '12px 16px' }}
         >
-          {generating ? `Writing copy… ${elapsed}s` : 'Generate Copy with n8n →'}
+          {generating ? `Writing copy… ${elapsed}s` : 'Generate Copy →'}
         </WfButton>
 
         {genError && (
@@ -399,7 +399,7 @@ export default function WFBrief() {
         )}
         {generating && (
           <div style={{ fontSize: 11.5, color: t.muted, marginTop: 8, textAlign: 'center' }}>
-            n8n usually takes 35–45 seconds. Leaving this page cancels the wait.
+            This usually takes about 1–2 minutes. Leaving this page cancels the wait.
           </div>
         )}
 
@@ -411,7 +411,7 @@ export default function WFBrief() {
                what that week's template knows how to render */
             const testVars = wfTestVariations(week)
             if (!testVars) {
-              setGenError(`No test copy for Email ${week} yet \u2014 generate it with n8n, or add the workflow's output as sample data.`)
+              setGenError(`No test copy for Email ${week} yet \u2014 generate it first, or add sample data for it.`)
               return
             }
             updateEmail(clientId, emailId, {
@@ -432,7 +432,7 @@ export default function WFBrief() {
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 7,
           }}
         >
-          <IconBolt size={14} stroke={2} /> Dev: Skip n8n, use test data
+          <IconBolt size={14} stroke={2} /> Dev: Skip generation, use test data
         </button>
       </WfCard>
     </div>

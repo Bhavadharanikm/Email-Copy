@@ -211,6 +211,10 @@ export const SCHEMA = {
   },
 }
 
+/** Place names come from the brief as written. Details are written up from the
+    brief, so they are not held to its exact words. */
+export const verbatimPaths = (v) => (v.blocks || []).flatMap((b, i) => (b.entries || []).map((_, j) => `blocks.${i}.entries.${j}.name`))
+
 /* The Copy page keeps a block's entries in one box, one "Name - detail" per
    line. The template splits each line at the first spaced dash and prints the
    name bold with the detail beneath, so the reader never sees it. A hyphen,
