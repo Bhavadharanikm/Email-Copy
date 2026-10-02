@@ -4,14 +4,18 @@
  * push-html-to-ghl creates the GHL email template (or updates it on a second
  * push) and moves it into the client's folder; the key is resolved server side
  * from the location. Then a Google Chat note, which never fails the push.
+ *
+ * The email's HTML is saved to rb_emails (one row per client per email, on the
+ * shared project) when it is approved, and with Save to Database at any time.
+ * A failed save never fails the GHL push: the button stays for a retry.
  */
 
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { IconCheck, IconRotate } from '@tabler/icons-react'
+import { IconCheck, IconRotate, IconDatabase } from '@tabler/icons-react'
 import { useRepeatBookingStore } from '../store/repeatBookingStore'
 import { useWfTheme, WfCard, WfButton, WfStepNav } from '../../welcome-flow/components/wfUi'
-import { pushHtmlToGHL, notifyChat } from '../../lib/api'
+import { pushHtmlToGHL, notifyChat, rbSaveEmail } from '../../lib/api'
 import { rbEmail } from '../rbEmails'
 import { useRbEmail, rbPath, RBMissing } from '../components/rbShared'
 
@@ -24,7 +28,10 @@ export default function RBApprove() {
   const [notes, setNotes]     = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState('')
-  const [done, setDone]       = useState(null)   // { previewUrl, chatSent }
+  const [done, setDone]       = useState(null)   // { previewUrl, chatSent, dbSaved }
+  const [dbSaving, setDbSaving] = useState(false)
+  const [dbMsg, setDbMsg]       = useState('')
+  const [dbErr, setDbErr]       = useState('')
 
   if (!client || !email) return <RBMissing />
 
@@ -32,6 +39,23 @@ export default function RBApprove() {
   const info = rbEmail(email.email)
   const templateLabel = `Repeat Booking Email ${email.email} - ${info?.name || ''}`.trim()
   const blockers = email.notes?.blockers || []
+
+  const saveToDb = () => rbSaveEmail({
+    clientName: client.name, locationId: client.locationId,
+    emailNumber: email.email, renderedHtml: email.renderedHtml,
+  })
+
+  async function handleSaveDb() {
+    setDbSaving(true); setDbErr(''); setDbMsg('')
+    try {
+      const res = await saveToDb()
+      setDbMsg(`${res.action === 'updated' ? 'Updated' : 'Saved'}: Email ${email.email} for ${client.name}`)
+    } catch (e) {
+      setDbErr(e.message)
+    } finally {
+      setDbSaving(false)
+    }
+  }
 
   async function handleApprove() {
     setLoading(true); setError('')
@@ -49,12 +73,16 @@ export default function RBApprove() {
         status: 'pushed', ghlTemplateId: result.templateId || email.ghlTemplateId || null,
         pushedAt: new Date().toISOString(), approveNotes: notes, reviewNotes: '',
       })
+      let dbSaved = false
+      try { await saveToDb(); dbSaved = true } catch (dbe) {
+        console.warn('[RBApprove] GHL push succeeded but the database save did not:', dbe.message)
+      }
       let chatSent = false
       try {
         await notifyChat({ clientName: client.name, previewUrl: result.previewUrl, approvedBy: 'Repeat Booking Flow' })
         chatSent = true
       } catch { /* the push already succeeded */ }
-      setDone({ previewUrl: client.folderUrl || result.previewUrl || '', chatSent })
+      setDone({ previewUrl: client.folderUrl || result.previewUrl || '', chatSent, dbSaved })
     } catch (e) {
       setError(e.message)
     } finally {
@@ -70,7 +98,8 @@ export default function RBApprove() {
           <p style={{ fontSize: 19, fontWeight: 700, color: t.text }}>Email pushed to GHL</p>
           <p style={{ fontSize: 13.5, color: t.muted }}>
             Saved as "{client.name} - {templateLabel}".{' '}
-            {done.chatSent ? 'Google Chat notification sent.' : 'The Google Chat notification did not go through.'}
+            {done.chatSent ? 'Google Chat notification sent.' : 'The Google Chat notification did not go through.'}{' '}
+            {done.dbSaved ? 'Saved to the database.' : 'Saving to the database did not go through: use Save to Database to retry.'}
           </p>
           {done.previewUrl && (
             <a href={done.previewUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', marginTop: 6 }}>
@@ -158,6 +187,19 @@ export default function RBApprove() {
       </div>
 
       {error && <div style={{ fontSize: 12.5, color: '#dc2626', marginTop: 12 }}>{error}</div>}
+
+      {/* Save the finished HTML without publishing anything to GHL. */}
+      <div style={{ marginTop: 16 }}>
+        <WfButton variant="ghost" onClick={handleSaveDb} disabled={dbSaving || !email.renderedHtml}
+          style={{ width: '100%', justifyContent: 'center', padding: '12px 16px' }}>
+          <IconDatabase size={15} stroke={2} /> {dbSaving ? 'Saving to database…' : 'Save to Database'}
+        </WfButton>
+        {dbMsg && <div style={{ fontSize: 12, color: '#16a34a', marginTop: 8, textAlign: 'center' }}>✓ {dbMsg}</div>}
+        {dbErr && <div style={{ fontSize: 12, color: '#dc2626', marginTop: 8, textAlign: 'center' }}>⚠ {dbErr}</div>}
+        <div style={{ fontSize: 11.5, color: t.muted, marginTop: 8, textAlign: 'center' }}>
+          Stores the client, the email number and the finished HTML. Approving saves it too.
+        </div>
+      </div>
 
       <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
         <WfButton onClick={handleApprove} disabled={loading || !email.renderedHtml}

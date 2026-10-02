@@ -118,6 +118,11 @@ export const notifyChat = ({ clientName, previewUrl, approvedBy }) =>
 export const wfPushEmail = ({ clientId, clientName, position, week, dbId, email }) =>
   post('/wf-push-email', { clientId, clientName, position, week, dbId, email })
 
+// Repeat Booking: one row per client per email (1-3) in rb_emails on the shared
+// project. Saving again replaces that row. Written as the signed-in person.
+export const rbSaveEmail = ({ clientName, locationId, emailNumber, renderedHtml }) =>
+  post('/rb-save-email', { clientName, locationId, emailNumber, renderedHtml })
+
 // ── Welcome Flow copy generation ─────────────────────────────────
 // Only the week number goes over the wire; the server resolves it to that
 // week's n8n webhook so the URLs never reach the browser.
