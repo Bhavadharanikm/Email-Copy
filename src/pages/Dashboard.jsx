@@ -78,7 +78,11 @@ export default function Dashboard() {
     <div>
 
       {/* Hero */}
-      <HeroGeometric onStart={startNew} onWelcomeFlow={() => navigate('/welcome-flow')} />
+      <HeroGeometric
+        onStart={startNew}
+        onWelcomeFlow={() => navigate('/welcome-flow')}
+        onRepeatBooking={() => navigate('/repeat-booking')}
+      />
 
       {/* Cards section */}
       <div style={{

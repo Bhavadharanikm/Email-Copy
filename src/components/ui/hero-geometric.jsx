@@ -1,10 +1,26 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { IconDiamond, IconPlayerPlay, IconRoute } from "@tabler/icons-react"
+import { IconDiamond, IconPlayerPlay, IconRoute, IconRepeat } from "@tabler/icons-react"
 import { useTheme } from "../../context/ThemeContext"
 
-export default function HeroGeometric({ badge = "Hidden Gem Media", title1 = "Email Production", title2 = "Studio", onStart, onWelcomeFlow }) {
+function OutlineButton({ onClick, dark, accentColor, children }) {
+  const border = dark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.12)'
+  const color  = dark ? 'rgba(255,255,255,0.85)' : '#111827'
+  return (
+    <button
+      onClick={onClick}
+      className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-xl font-semibold text-sm transition-all duration-200"
+      style={{ background: 'transparent', border: `1.5px solid ${border}`, color, cursor: 'pointer' }}
+      onMouseEnter={e => { e.currentTarget.style.borderColor = accentColor; e.currentTarget.style.color = accentColor }}
+      onMouseLeave={e => { e.currentTarget.style.borderColor = border; e.currentTarget.style.color = color }}
+    >
+      {children}
+    </button>
+  )
+}
+
+export default function HeroGeometric({ badge = "Hidden Gem Media", title1 = "Email Production", title2 = "Studio", onStart, onWelcomeFlow, onRepeatBooking }) {
   const { theme } = useTheme()
   const dark = theme === 'dark'
 
@@ -71,7 +87,8 @@ export default function HeroGeometric({ badge = "Hidden Gem Media", title1 = "Em
           </motion.div>
 
           {/* CTA */}
-          <motion.div custom={3} variants={fadeUpVariants} initial="hidden" animate="visible">
+          <motion.div custom={3} variants={fadeUpVariants} initial="hidden" animate="visible"
+            className="flex flex-wrap items-center justify-center gap-3">
             <button
               onClick={onStart}
               className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-xl font-semibold text-sm transition-all duration-200"
@@ -83,24 +100,15 @@ export default function HeroGeometric({ badge = "Hidden Gem Media", title1 = "Em
               Weekly Email Campaign
             </button>
 
-            <button
-              onClick={onWelcomeFlow}
-              className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 ml-3"
-              style={{
-                background: 'transparent',
-                border: `1.5px solid ${dark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.12)'}`,
-                color: dark ? 'rgba(255,255,255,0.85)' : '#111827',
-                cursor: 'pointer',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = accentColor; e.currentTarget.style.color = accentColor }}
-              onMouseLeave={e => {
-                e.currentTarget.style.borderColor = dark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.12)'
-                e.currentTarget.style.color = dark ? 'rgba(255,255,255,0.85)' : '#111827'
-              }}
-            >
+            <OutlineButton onClick={onWelcomeFlow} dark={dark} accentColor={accentColor}>
               <IconRoute size={14} stroke={2} />
               Welcome Flow Campaign
-            </button>
+            </OutlineButton>
+
+            <OutlineButton onClick={onRepeatBooking} dark={dark} accentColor={accentColor}>
+              <IconRepeat size={14} stroke={2} />
+              Repeat Booking Flow
+            </OutlineButton>
           </motion.div>
 
         </div>

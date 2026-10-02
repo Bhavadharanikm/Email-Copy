@@ -8,6 +8,7 @@ import { useTheme } from '../context/ThemeContext'
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase, TABLE, rowToIdea, rowToEntry, ideaToRow, entryToRow } from '../lib/supabase'
 import { authFetch } from '../lib/session'
+import SuggestionsView from '../components/SuggestionsView'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -1120,6 +1121,7 @@ export default function ContentCalendar() {
           {[
             { key: 'calendar', label: '📅 Calendar' },
             { key: 'ideas',    label: '💡 Ideas',    badge: pendingIdeas > 0 ? pendingIdeas : null },
+            { key: 'suggestions', label: '✨ Suggestions' },
           ].map(tab => (
             <button key={tab.key} onClick={() => setActiveTab(tab.key)}
               style={{
@@ -1221,6 +1223,12 @@ export default function ContentCalendar() {
           {activeTab === 'ideas' && (
             <motion.div key="ideas" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 6 }} transition={{ duration: 0.18 }}>
               <IdeasView dark={dark} ideas={ideas} clients={clients} allRows={allRows} patchRow={patchRow} addRow={addRow} />
+            </motion.div>
+          )}
+
+          {activeTab === 'suggestions' && (
+            <motion.div key="suggestions" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 6 }} transition={{ duration: 0.18 }}>
+              <SuggestionsView dark={dark} clients={clients} />
             </motion.div>
           )}
         </AnimatePresence>

@@ -27,8 +27,10 @@ import { handler as uploadScreenshot }   from '../netlify/functions/upload-scree
 import { handler as wfClients }          from '../netlify/functions/wf-clients.js'
 import { handler as wfGenerateCopy }     from '../netlify/functions/wf-generate-copy.js'
 import { handler as wfClaudeCopy }       from '../netlify/functions/wf-claude-copy-background.js'
+import { handler as rbClaudeCopy }       from '../netlify/functions/rb-claude-copy-background.js'
 import { handler as wfPushEmail }        from '../netlify/functions/wf-push-email.js'
 import { handler as wfEmails }           from '../netlify/functions/wf-emails.js'
+import { handler as suggestCampaigns }   from '../netlify/functions/suggest-campaigns-background.js'
 
 export const config = {
   api: {
@@ -65,9 +67,11 @@ const HANDLERS = {
   'wf-clients':          wfClients,
   'wf-generate-copy':    wfGenerateCopy,
   'wf-claude-copy-background': wfClaudeCopy,
+  'rb-claude-copy-background': rbClaudeCopy,
   'wf-push-email':       wfPushEmail,
   'wf-emails':           wfEmails,
   'wf-submit-feedback':  wfSubmitFeedback,
+  'suggest-campaigns-background': suggestCampaigns,
 }
 
 export default async function handler(req, res) {

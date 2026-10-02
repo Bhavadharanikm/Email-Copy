@@ -3,6 +3,8 @@
  *
  *   GET  /.netlify/functions/wf-clients              → { clients: [...] }
  *   GET  /.netlify/functions/wf-clients?locationId=X → { match: {...} | null }   (lookup only)
+ *   GET  /.netlify/functions/wf-clients?directory=1  → { directory: [{ name, locationId, logoUrl }] }
+ *        every client in Email_Client_API, for the repeat booking client picker
  *   POST /.netlify/functions/wf-clients              → { client }
  *
  * Talks to TWO Supabase projects on purpose:
@@ -54,6 +56,20 @@ async function resolveLocation(locationId) {
   }
 }
 
+/** Every client in the VD client database, for picking one. Never the key. */
+async function clientDirectory() {
+  const { url, key } = vdEnv()
+  if (!url || !key) throw new Error('VD Supabase credentials not configured')
+  const res = await fetch(
+    `${url}/rest/v1/Email_Client_API?select=client_name,location_id,logo_url&location_id=not.is.null&order=client_name.asc`,
+    { headers: headers(key) }
+  )
+  if (!res.ok) throw new Error(`VD directory failed (${res.status})`)
+  return (await res.json())
+    .filter(r => r.client_name && r.location_id)
+    .map(r => ({ name: r.client_name, locationId: r.location_id, logoUrl: r.logo_url || '' }))
+}
+
 const rawHandler = async (event) => {
   try {
     const { url, key } = wfEnv()
@@ -65,6 +81,10 @@ const rawHandler = async (event) => {
     const locationId = event.queryStringParameters?.locationId
     if (event.httpMethod === 'GET' && locationId) {
       return json(200, { match: await resolveLocation(locationId) })
+    }
+
+    if (event.httpMethod === 'GET' && event.queryStringParameters?.directory) {
+      return json(200, { directory: await clientDirectory() })
     }
 
     // ── list ───────────────────────────────────────────────────────────────

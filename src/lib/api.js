@@ -47,6 +47,31 @@ async function get(path, params = {}) {
 // The one public endpoint. Returns { step } for a name alone, or
 
 // ── Client list ──────────────────────────────────────────────────
+// Runs for a minute or two: netlify dev answers a -background function with 202
+// at once, Vercel holds the request open. Either way the result is polled from
+// copy-callback, and a rejected start (400/401/500) is surfaced straight away.
+export async function suggestCampaigns({ locationId, month }) {
+  const jobId = crypto.randomUUID()
+  let startError = null
+  fetch(`${BASE}/suggest-campaigns-background`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...(await freshAuthHeaders()) },
+    body: JSON.stringify({ jobId, locationId, month }),
+  }).then(async res => {
+    checkAuth(res)
+    if (!res.ok && res.status !== 202) startError = new Error((await res.text()).slice(0, 300) || `Request failed: ${res.status}`)
+  }).catch(err => { startError = err })
+
+  for (let i = 0; i < 100; i++) {
+    await new Promise(r => setTimeout(r, 3000))
+    if (startError) throw startError
+    const data = await get('/copy-callback', { jobId })
+    if (data.status === 'done')  return data.suggestions
+    if (data.status === 'error') throw new Error(data.error || 'Suggestion generation failed')
+  }
+  throw new Error('No suggestions after 5 minutes. Try again, and if it keeps happening check the function logs.')
+}
+
 export const fetchClients = () =>
   get('/clients')
 

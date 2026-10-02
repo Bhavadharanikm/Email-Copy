@@ -13,7 +13,7 @@ const rawHandler = async () => {
     if (!SUPABASE_URL || !SUPABASE_KEY) throw new Error('Supabase credentials not set')
 
     const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/Email_Client_API?select=id,client_name,ghl_api_key,location_id,logo_url&order=id.asc`,
+      `${SUPABASE_URL}/rest/v1/Email_Client_API?select=id,client_name,ghl_api_key,location_id,logo_url,is_active&order=id.asc`,
       {
         headers: {
           apikey:        SUPABASE_KEY,
@@ -37,6 +37,7 @@ const rawHandler = async () => {
         locationId: row.location_id || '',
       },
       logoUrl:     row.logo_url || '',
+      isActive:    row.is_active === true,
       brandColors: null,
       brand:       {},
     }))

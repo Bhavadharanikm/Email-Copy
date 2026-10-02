@@ -1,0 +1,255 @@
+/**
+ * Repeat Booking — images (step 3).
+ *
+ * The welcome flow's picker: named slots on the left, the client's GHL media
+ * library on the right, click to fill the next empty slot. Only the location
+ * is sent; fetch-ghl-images and upload-logo resolve the GHL key server side.
+ */
+
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useRepeatBookingStore } from '../store/repeatBookingStore'
+import { useWfTheme, WfCard, WfButton, WfStepNav } from '../../welcome-flow/components/wfUi'
+import { rbImageSlots, RB_IMAGE_POSITIONS } from '../rbImageSlots'
+import { fetchGhlImages, uploadLogo, analyzeImageFocal } from '../../lib/api'
+import { useRbEmail, rbPath, RBMissing } from '../components/rbShared'
+
+export default function RBImages() {
+  const navigate = useNavigate()
+  const t = useWfTheme()
+  const { clientId, emailId, client, email, navEmail } = useRbEmail()
+  const { updateEmail, updateClient } = useRepeatBookingStore()
+
+  const slotList  = rbImageSlots(email?.email, email?.copy)
+  const positions = slotList.map(x => x.index)
+
+  const [folders, setFolders] = useState([])
+  const [images,  setImages]  = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error,   setError]   = useState(null)
+  const [folderStack, setFolderStack] = useState([])
+  const activeFolder = folderStack[folderStack.length - 1] ?? null
+  const [slots, setSlots] = useState(() => Array(RB_IMAGE_POSITIONS).fill(null))
+
+  const [logoUrl, setLogoUrl]             = useState('')
+  const [logoUploading, setLogoUploading] = useState(false)
+  const [logoMsg, setLogoMsg]             = useState('')
+  const [logoStatus, setLogoStatus]       = useState('')
+  const logoInputRef = useRef(null)
+
+  const locationId = client?.locationId
+
+  useEffect(() => { setLogoUrl(client?.logoUrl || '') }, [client?.logoUrl])
+
+  useEffect(() => {
+    if (!email) return
+    const saved = email.selectedImages || []
+    setSlots(Array.from({ length: RB_IMAGE_POSITIONS }, (_, i) => saved[i] ?? null))
+  }, [email?.id])   // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!locationId) { setError('This client has no GHL location.'); setLoading(false); return }
+    setError(null); setLoading(true)
+    fetchGhlImages({ locationId, folderId: activeFolder?.id })
+      .then(d => { setFolders(d.folders || []); setImages(d.images || []) })
+      .catch(e => setError(e.message))
+      .finally(() => setLoading(false))
+  }, [locationId, activeFolder?.id])
+
+  const save = useCallback((next) => {
+    setSlots(next)
+    updateEmail(clientId, emailId, { selectedImages: next })
+  }, [clientId, emailId, updateEmail])
+
+  if (!client || !email) return <RBMissing />
+
+  function handleImageClick(img) {
+    const at = positions.find(i => slots[i]?.id === img.id)
+    if (at !== undefined) { const next = [...slots]; next[at] = null; save(next); return }
+    const empty = positions.find(i => !slots[i])
+    if (empty === undefined) return
+    const next = [...slots]; next[empty] = img; save(next)
+
+    const url = img.url || img.thumbnailUrl
+    if (!url) return
+    analyzeImageFocal({ imageUrl: url })
+      .then(({ focalX, focalY }) => {
+        setSlots(cur => {
+          const idx = cur.findIndex(s => s?.id === img.id)
+          if (idx === -1) return cur
+          const updated = [...cur]
+          updated[idx] = { ...updated[idx], focalX, focalY }
+          updateEmail(clientId, emailId, { selectedImages: updated })
+          return updated
+        })
+      })
+      .catch(() => {})
+  }
+
+  async function handleLogoUpload(e) {
+    const file = e.target.files?.[0]
+    if (!file || !locationId) return
+    setLogoUploading(true); setLogoStatus(''); setLogoMsg('')
+    try {
+      const base64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload  = () => resolve(reader.result.split(',')[1])
+        reader.onerror = reject
+        reader.readAsDataURL(file)
+      })
+      const result = await uploadLogo({ base64, mimeType: file.type, fileName: file.name, locationId })
+      setLogoUrl(result.logoUrl)
+      setLogoStatus('success'); setLogoMsg('Logo saved!')
+      updateClient(clientId, { logoUrl: result.logoUrl })
+    } catch (err) {
+      setLogoStatus('error'); setLogoMsg(err.message || 'Upload failed')
+    } finally {
+      setLogoUploading(false)
+      if (logoInputRef.current) logoInputRef.current.value = ''
+    }
+  }
+
+  const filledCount = positions.filter(i => slots[i]).length
+  const firstSlot   = slotList[0]
+
+  return (
+    <div style={{ maxWidth: 1120, margin: '0 auto', padding: '28px 24px 64px' }}>
+      <WfStepNav
+        email={navEmail} step={3}
+        backLabel="Copy"
+        onBack={() => navigate(rbPath(clientId, emailId, 'copy'))}
+        nextLabel={slots[firstSlot.index] ? 'Next: Preview' : `Pick the ${firstSlot.label.toLowerCase()}`}
+        nextDisabled={!slots[firstSlot.index]}
+        onNext={() => navigate(rbPath(clientId, emailId, 'preview'))}
+      />
+
+      <div style={{ textAlign: 'center', marginBottom: 24 }}>
+        <h1 style={{ fontSize: 30, fontWeight: 700, letterSpacing: '-0.02em', margin: 0, color: t.text }}>Pick Your Images</h1>
+        <p style={{ fontSize: 13, color: t.muted, margin: '7px 0 0' }}>
+          {filledCount} of {slotList.length} slots filled. Click an image to place it in the next empty slot.
+        </p>
+      </div>
+
+      <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+        <div style={{ width: 236, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 11 }}>
+          <WfCard style={{ padding: 0, overflow: 'hidden' }}>
+            <div style={{ padding: '9px 13px', borderBottom: `1px solid ${t.border}` }}>
+              <div style={{ fontSize: 10.5, fontWeight: 700, color: t.faint, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Client Logo</div>
+            </div>
+            <div style={{ padding: 12, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 9 }}>
+              {logoUrl ? (
+                <div style={{ width: '100%', height: 74, background: '#1a1a1a', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 10 }}>
+                  <img src={logoUrl} alt="Logo" style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }} />
+                </div>
+              ) : (
+                <div style={{ width: '100%', height: 74, borderRadius: 8, border: `1.5px dashed ${t.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <span style={{ fontSize: 11.5, color: t.faint }}>No logo yet</span>
+                </div>
+              )}
+              <WfButton variant="ghost" disabled={logoUploading} onClick={() => logoInputRef.current?.click()}
+                style={{ width: '100%', justifyContent: 'center', padding: '7px 0', fontSize: 12 }}>
+                {logoUploading ? 'Uploading…' : logoUrl ? '↑ Replace' : '↑ Upload Logo'}
+              </WfButton>
+              {logoStatus === 'success' && <span style={{ fontSize: 11, color: '#16a34a' }}>✓ {logoMsg}</span>}
+              {logoStatus === 'error'   && <span style={{ fontSize: 11, color: '#dc2626' }}>⚠ {logoMsg}</span>}
+            </div>
+            <input ref={logoInputRef} type="file" style={{ display: 'none' }}
+              accept="image/png,image/jpeg,image/svg+xml,image/webp" onChange={handleLogoUpload} />
+          </WfCard>
+
+          {slotList.map((slot, n) => {
+            const i = slot.index
+            const filled = slots[i]
+            return (
+              <div key={slot.index} style={{ borderRadius: 14, overflow: 'hidden', border: `2px ${filled ? 'solid' : 'dashed'} ${filled ? t.accent : t.border}` }}>
+                {filled ? (
+                  <div style={{ position: 'relative' }}>
+                    <img src={filled.thumbnailUrl || filled.url} alt={filled.name} style={{ width: '100%', height: 96, objectFit: 'cover', display: 'block' }} />
+                    <button onClick={() => { const next = [...slots]; next[i] = null; save(next) }} title="Remove"
+                      style={{ position: 'absolute', top: 8, left: 8, width: 25, height: 25, background: 'rgba(0,0,0,0.55)', borderRadius: '50%',
+                               border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, fontWeight: 700, color: '#fff' }}>×</button>
+                    <div style={{ padding: '9px 12px', background: t.cardBg }}>
+                      <div style={{ fontSize: 12.5, fontWeight: 700, color: t.text }}>{slot.label}</div>
+                      <div style={{ fontSize: 11.5, color: t.muted, marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {filled.name?.replace(/\.[^.]+$/, '')}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ height: 112, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                                background: t.dark ? 'rgba(255,255,255,0.02)' : '#f9fafb' }}>
+                    <div style={{ width: 32, height: 32, borderRadius: '50%', border: `2px dashed ${t.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: t.faint }}>{n + 1}</span>
+                    </div>
+                    <div style={{ fontSize: 12.5, fontWeight: 600, color: t.muted }}>
+                      {slot.label}{slot.optional && <span style={{ fontWeight: 400, color: t.faint }}> · optional</span>}
+                    </div>
+                    <div style={{ fontSize: 11, color: t.faint, marginTop: 3, textAlign: 'center', padding: '0 10px' }}>{slot.desc}</div>
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+
+        <div style={{ flex: 1, minWidth: 320 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12, flexWrap: 'wrap' }}>
+            <button type="button" onClick={() => setFolderStack([])}
+              style={{ fontSize: 11.5, fontWeight: folderStack.length === 0 ? 700 : 500, color: folderStack.length === 0 ? t.text : t.muted,
+                       background: 'none', border: 'none', padding: 0, cursor: folderStack.length === 0 ? 'default' : 'pointer',
+                       fontFamily: 'Inter, sans-serif', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Media Library</button>
+            {folderStack.map((f, i) => (
+              <span key={f.id} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: 12, color: t.faint }}>›</span>
+                <button type="button" onClick={() => setFolderStack(folderStack.slice(0, i + 1))}
+                  style={{ fontSize: 12.5, fontWeight: i === folderStack.length - 1 ? 700 : 500, color: i === folderStack.length - 1 ? t.text : t.muted,
+                           background: 'none', border: 'none', padding: 0, cursor: i === folderStack.length - 1 ? 'default' : 'pointer', fontFamily: 'Inter, sans-serif' }}>{f.name}</button>
+              </span>
+            ))}
+            {folderStack.length > 0 && (
+              <WfButton variant="ghost" onClick={() => setFolderStack(s => s.slice(0, -1))} style={{ marginLeft: 'auto', padding: '4px 10px', fontSize: 11.5 }}>← Back</WfButton>
+            )}
+          </div>
+
+          {folders.length > 0 && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 12 }}>
+              {folders.map(f => (
+                <button key={f.id} type="button" onClick={() => setFolderStack(s => [...s, f])}
+                  style={{ fontSize: 12, fontWeight: 600, padding: '5px 12px', borderRadius: 20, cursor: 'pointer', border: `1px solid ${t.border}`,
+                           background: t.dark ? 'rgba(255,255,255,0.06)' : '#f3f4f6', color: t.text, fontFamily: 'Inter, sans-serif' }}>📁 {f.name}</button>
+              ))}
+            </div>
+          )}
+
+          {error ? (
+            <WfCard style={{ padding: 28, textAlign: 'center' }}><div style={{ fontSize: 13, color: '#dc2626' }}>{error}</div></WfCard>
+          ) : loading ? (
+            <WfCard style={{ padding: 28, textAlign: 'center' }}><div style={{ fontSize: 13, color: t.muted }}>Loading images from the GHL media library…</div></WfCard>
+          ) : images.length === 0 ? (
+            <WfCard style={{ padding: 28, textAlign: 'center' }}><div style={{ fontSize: 13, color: t.muted }}>No images in this folder.</div></WfCard>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(116px,1fr))', gap: 9 }}>
+              {images.map(img => {
+                const n  = positions.findIndex(i => slots[i]?.id === img.id)
+                const on = n !== -1
+                const full = !on && positions.every(i => slots[i])
+                return (
+                  <button key={img.id} type="button" onClick={() => handleImageClick(img)} disabled={full}
+                    title={full ? 'All slots are full, remove one first' : img.name}
+                    style={{ position: 'relative', padding: 0, borderRadius: 10, overflow: 'hidden', border: `2px solid ${on ? t.accent : t.border}`,
+                             background: 'none', cursor: full ? 'not-allowed' : 'pointer', opacity: full ? 0.4 : 1, aspectRatio: '1 / 1' }}>
+                    <img src={img.thumbnailUrl || img.url} alt={img.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                    {on && (
+                      <span style={{ position: 'absolute', top: 6, right: 6, width: 22, height: 22, borderRadius: '50%', background: t.accent, color: t.onAccent,
+                                     fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{n + 1}</span>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}

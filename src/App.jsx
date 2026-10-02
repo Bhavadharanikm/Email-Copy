@@ -11,6 +11,13 @@ import WFCopy         from './welcome-flow/pages/WFCopy'
 import WFImages       from './welcome-flow/pages/WFImages'
 import WFPreview      from './welcome-flow/pages/WFPreview'
 import WFApprove      from './welcome-flow/pages/WFApprove'
+import RBClients      from './repeat-booking/pages/RBClients'
+import RBClientDetail from './repeat-booking/pages/RBClientDetail'
+import RBBrief        from './repeat-booking/pages/RBBrief'
+import RBCopy         from './repeat-booking/pages/RBCopy'
+import RBImages       from './repeat-booking/pages/RBImages'
+import RBPreview      from './repeat-booking/pages/RBPreview'
+import RBApprove      from './repeat-booking/pages/RBApprove'
 import Login from './pages/Login'
 import { useAuth } from './context/AuthContext'
 
@@ -37,6 +44,13 @@ export default function App() {
         <Route path="welcome-flow/:clientId/email/:emailId/images" element={<WFImages />} />
         <Route path="welcome-flow/:clientId/email/:emailId/preview" element={<WFPreview />} />
         <Route path="welcome-flow/:clientId/email/:emailId/approve" element={<WFApprove />} />
+        <Route path="repeat-booking" element={<RBClients />} />
+        <Route path="repeat-booking/:clientId" element={<RBClientDetail />} />
+        <Route path="repeat-booking/:clientId/email/:emailId" element={<RBBrief />} />
+        <Route path="repeat-booking/:clientId/email/:emailId/copy" element={<RBCopy />} />
+        <Route path="repeat-booking/:clientId/email/:emailId/images" element={<RBImages />} />
+        <Route path="repeat-booking/:clientId/email/:emailId/preview" element={<RBPreview />} />
+        <Route path="repeat-booking/:clientId/email/:emailId/approve" element={<RBApprove />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

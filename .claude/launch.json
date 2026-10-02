@@ -7,6 +7,20 @@
       "runtimeArgs": ["netlify", "dev", "--port", "8888"],
       "port": 8888,
       "autoPort": false
+    },
+    {
+      "name": "email-studio-alt",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["netlify", "dev", "--port", "8897"],
+      "port": 8897,
+      "autoPort": false
+    },
+    {
+      "name": "email-studio-3",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["netlify", "dev", "--port", "8898"],
+      "port": 8898,
+      "autoPort": false
     }
   ]
 }

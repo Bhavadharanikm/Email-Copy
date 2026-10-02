@@ -49,6 +49,7 @@ const W2_TRY_LIST_HTML = `<div style="padding:14px 0 0 18px;">${W2_TRY_ITEMS.map
 
 import { useCampaignStore }  from '../store/campaignStore'
 import { wfImageSlots } from '../welcome-flow/wfImageSlots'
+import { rbImageSlots } from '../repeat-booking/rbImageSlots'
 import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
 import { recommendTemplate, analyzeImageFocal, htmlToImage, fetchFooterData, sendTestEmail } from '../lib/api'
@@ -250,11 +251,19 @@ function buildFooter(client, footerData = null, options = {}) {
       ).join('')}
     </div>` : ''
 
+  /* Welcome-flow footers (options.wfLogoColor) use the colour picked, as the
+     hero logo does, and drop the logo's background while recoloured: a CSS
+     filter recolours the whole box, so brightness(0) over that background
+     turned the logo into a solid dark block. Other templates keep the old
+     behaviour unchanged. */
+  const wfLogo = Boolean(options.wfLogoColor)
   const footerLogoFilter = logoColorOpt === 'original' ? 'none'
+    : wfLogo ? (logoColorOpt === 'white' ? 'brightness(0) invert(1)' : 'brightness(0)')
     : light ? 'brightness(0)'
     : 'brightness(0) invert(1)'
+  const footerLogoBg = wfLogo && footerLogoFilter !== 'none' ? '' : `background-color:${bgRaw};`
   const logoHtml = logoUrl
-    ? `<div style="margin:0 0 20px;text-align:center"><img class="w5-footer-logo" src="${logoUrl}" alt="${name}" style="height:${fd.footerLogoSize || 40}px;width:auto;object-fit:contain;display:inline-block;filter:${footerLogoFilter};opacity:.8;background-color:${bgRaw};"/></div>`
+    ? `<div style="margin:0 0 20px;text-align:center"><img class="w5-footer-logo" src="${logoUrl}" alt="${name}" style="height:${fd.footerLogoSize || 40}px;width:auto;object-fit:contain;display:inline-block;filter:${footerLogoFilter};opacity:.8;${footerLogoBg}"/></div>`
     : `<div style="margin:0 0 20px;${sysName}font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:${textCol};font-family:Arial,sans-serif">${name}</div>`
 
   const contactParts = [
@@ -1820,12 +1829,17 @@ function buildTemplateWeek1WF({ client, copy, images, footerData, isHeroGenerate
   table{border-collapse:collapse;}
   .w1wf-outer { width:100%!important; max-width:600px!important; }
   ${SHARED_MOBILE_CSS}
+  /* Baked buttons go edge to edge on a real phone only (360-430px). At the
+     600px breakpoint a viewer whose email pane is 600 wide or less, GHL's
+     preview among them, stretched the 343px button to full width. */
+  @media only screen and (max-width:480px){
+    .w1wf-btn-img  { width:100%!important; max-width:100%!important; }
+  }
   @media only screen and (max-width:600px){
     .w1wf-section  { padding-left:24px!important; padding-right:24px!important; }
     /* 772px of hero is a lot of phone screen — crop it rather than scale it */
     .w1wf-hero     { height:560px!important; }
     /* let the baked button use the full phone width instead of 300px */
-    .w1wf-btn-img  { width:100%!important; max-width:100%!important; }
     /* SHARED_MOBILE_CSS gives .mobile-cta 80px side padding, which a fluid card
        cannot absorb — this rule comes later, so it wins. */
     .w1wf-btnwrap  { width:100%!important; }
@@ -1932,7 +1946,7 @@ function buildTemplateWeek1WF({ client, copy, images, footerData, isHeroGenerate
     : `<table class="w1wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;max-width:100%;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w1wf-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:${btnText}!important;-webkit-text-fill-color:${btnText};text-decoration:none!important;">${copy.ctaText} &rarr;</a></td></tr></table>`
   }</div>` : ''}
 
-  <div style="background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true, wfFooter: true })}</div>
+  <div style="background-color:${pageBg};">${buildFooter(client, footerData, { wfLogoColor: true, defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true, wfFooter: true })}</div>
 
 </td></tr></table>
 </body></html>`
@@ -2089,10 +2103,16 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
   table{border-collapse:collapse;}
   .w2wf-outer { width:100%!important; max-width:600px!important; }
   ${SHARED_MOBILE_CSS}
+  /* The baked buttons go edge to edge on a real phone only. At the 600px
+     breakpoint a desktop viewer whose email pane is 600 wide or less (GHL's
+     preview among them) took the phone rule and stretched the 343px button to
+     full width. Phones are 360-430px wide, so 480 leaves desktop at 343. */
+  @media only screen and (max-width:480px){
+    .w2wf-btn-img  { width:100%!important; max-width:100%!important; }
+  }
   @media only screen and (max-width:600px){
     .w2wf-section  { padding-left:24px!important; padding-right:24px!important; }
     .w2wf-hero     { height:560px!important; }
-    .w2wf-btn-img  { width:100%!important; max-width:100%!important; }
     /* The system fills a button edge to edge on a phone and lets it hug its
        label on desktop; only the left/right padding differs. */
     .w2wf-btnwrap  { width:100%!important; }
@@ -2198,7 +2218,7 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
       : `<table class="w2wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w2wf-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:${btnText}!important;-webkit-text-fill-color:${btnText};text-decoration:none!important;text-align:center;">${copy.ctaText} &rarr;</a></td></tr></table>`}
   </div>` : ''}
 
-  <div style="padding-top:18px;background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true, wfFooter: true, leadLine })}</div>
+  <div style="padding-top:18px;background-color:${pageBg};">${buildFooter(client, footerData, { wfLogoColor: true, defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true, wfFooter: true, leadLine })}</div>
 
 </td></tr>
 </table>
@@ -2209,6 +2229,29 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
    Starts as an exact duplicate of Week 1 WF (id 31). Its own function from
    the outset so the guest-reviews design can diverge without touching Week 1.
    Verified byte-identical output to Week 1 WF at the time of cloning.      */
+/* Email 3 WF's baked bottom button keeps its 28px type and gets clear space
+   either side: the canvas grows to the label plus 56px a side instead of the
+   type shrinking to fit 600. It shows at the same 343/600 scale as every other
+   baked button, so the type reads the same size and only the button widens,
+   capped at the 552px content width. Arial bold runs about 0.6em a character;
+   the arrow and its space count. Email 3 only for now, on trial. */
+function w3BtnCanvas(label) {
+  const len = String(label || '').replace(/<[^>]*>/g, '').length + 2
+  return Math.max(600, Math.ceil(len * 28 * 0.6 + 2 * 56))
+}
+const w3BtnShown = (label) => Math.min(552, Math.round(w3BtnCanvas(label) * 343 / 600))
+
+/* Email 3 WF's hero pill: the largest type, up to the design size, at which the
+   label stays on one line in the width the hero gives it (Arial bold runs about
+   0.6em a character). The CTA is "Experience [Client] for yourself", far longer
+   than the pill was drawn for, and wrapped to two lines it read as a box. Only
+   a label too long even at the floor size wraps. */
+function w3PillFit(label, avail, maxFs, pad, floor) {
+  const len = String(label || '').replace(/<[^>]*>/g, '').length || 1
+  const fs = Math.min(maxFs, Math.floor((avail - 2 * pad - 6) / (len * 0.6)))
+  return fs >= floor ? { fs, wrap: false } : { fs: floor, wrap: true }
+}
+
 function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerated = false,
   heroScale=1, heroX=0, heroY=0,
   textSize=44, textTop=34, textLeft=52,
@@ -2217,7 +2260,7 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
   img2Scale=1, img2X=0, img2Y=0,
   img3Scale=1, img3X=0, img3Y=0,
   img4Scale=1, img4X=0, img4Y=0,
-  btnImgUrl = null, introBtnImgUrl = null, gridImgUrl = null, heroMobileImgUrl = null,
+  btnImgUrl = null, introBtnImgUrl = null, gridImgUrl = null, heroMobileImgUrl = null, btnMobileImgUrl = null,
 }) {
   const heroObj = images?.[0]; const heroImg = heroObj?.url || ''
   /* The reviews are text only, so every sub-image goes to the photo grid below
@@ -2269,6 +2312,9 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
   /* Week 3 has no hero CTA field of its own, so the hero pill carries the
      email's one CTA. */
   const heroCta = copy.heroCtaText || copy.ctaText || ''
+  /* Desktop gets the hero's own width; the phone is sized for a 375px screen. */
+  const pillDesk = w3PillFit(heroCta, 600 - 2 * textLeft, 18, 24, 13)
+  const pillPhone = w3PillFit(heroCta, 375 - 2 * textLeft, 20, 18, 15)
 
   /* Week 5's headline treatment: first word italic, the middle in heavy
      uppercase, the last word italic again — all in Lora. A two-word headline
@@ -2350,20 +2396,30 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
   table{border-collapse:collapse;}
   .w3wf-outer { width:100%!important; max-width:600px!important; }
   ${SHARED_MOBILE_CSS}
+  /* Baked buttons go edge to edge on a real phone only (360-430px). At the
+     600px breakpoint a viewer whose email pane is 600 wide or less, GHL's
+     preview among them, stretched the 343px button to full width. */
+  @media only screen and (max-width:480px){
+    .w3wf-btn-img  { width:100%!important; max-width:100%!important; }
+    /* The phone button image, where one was baked, in place of the desktop one. */
+    .w3wf-btn-desk { display:none!important; }
+    .w3wf-btn-mob  { display:block!important; }
+  }
   @media only screen and (max-width:600px){
     .w3wf-section  { padding-left:24px!important; padding-right:24px!important; }
     .w3wf-hero     { height:560px!important; }
-    /* The phone keeps the hero pill at its former size; only desktop shrank. */
+    /* The phone pill wraps rather than running off the screen: the CTA is
+       "Experience [Client] for yourself", far longer than the 2-4 words this was
+       sized for, and at 23px with 52px sides it overflowed the hero and was cut. */
     .w3wf-heroctabox { border-width:3px!important; }
-    .w3wf-herocta  { padding:13px 52px!important; font-size:23px!important; line-height:26px!important; }
+    .w3wf-herocta  { padding:12px 18px!important; font-size:${pillPhone.fs}px!important; line-height:26px!important; white-space:${pillPhone.wrap ? 'normal' : 'nowrap'}!important; }
     .w3wf-hero-desk { display:none!important; }
     .w3wf-hero-mob  { display:block!important; }
     /* The desktop button is deliberately narrow — 420px with a 15px label.
        These put the phone back to full width at the old size, so nothing about
        the mobile button changes. */
-    .w3wf-btn-img  { width:100%!important; max-width:100%!important; }
     .w3wf-btnwrap  { width:100%!important; }
-    .w3wf-cta      { padding:12px 20px!important; }
+    .w3wf-cta      { padding:12px 28px!important; }
     .w3wf-cardbox  { padding:16px!important; }
     .wf-lora-h3    { font-size:20px!important; line-height:30px!important; }
   }
@@ -2392,8 +2448,8 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
               <div style="font-family:'Lora',serif;font-size:${textSize}px;font-weight:700;text-transform:uppercase;color:#ffffff;line-height:1.02;text-shadow:0 2px 20px rgba(0,0,0,.3);">${hwMain}${hwLast ? ` <span style="font-family:'Lora',serif;font-style:italic;font-weight:400;text-transform:capitalize;font-size:${Math.round(textSize * 0.9)}px;">${hwLast}</span>` : ''}</div>
             </div>` : ''}
             ${heroCta ? `<div style="margin-top:30px;">
-              <table cellpadding="0" cellspacing="0" border="0" style="margin:0;max-width:100%;border-collapse:separate;"><tr><td class="w3wf-heroctabox" style="border:2px solid #ffffff;border-radius:999px;padding:0;">
-                <a class="w3wf-herocta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:10px 28px;font-family:Arial,sans-serif;font-size:18px;line-height:22px;font-weight:700;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${heroCta}</a>
+              <table cellpadding="0" cellspacing="0" border="0" style="margin:0;max-width:100%;border-collapse:separate;"><tr><td class="w3wf-heroctabox" style="border:2px solid #ffffff;border-radius:999px;padding:0;background:rgba(0,0,0,0.32);">
+                <a class="w3wf-herocta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:10px 24px;font-family:Arial,sans-serif;font-size:${pillDesk.fs}px;line-height:22px;font-weight:700;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:${pillDesk.wrap ? 'normal' : 'nowrap'};text-align:center;">${heroCta}</a>
               </td></tr></table>
             </div>` : ''}
           </td></tr>
@@ -2456,7 +2512,7 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
 
   ${copy.ctaText ? `<div class="w3wf-section" style="padding:22px 48px 34px;background-color:${pageBg};text-align:center;">
     ${btnImgUrl
-      ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w3wf-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="343" style="width:343px;max-width:100%;height:auto;display:block;margin:0 auto;border:0;outline:none;"/></a>`
+      ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w3wf-btn-img${btnMobileImgUrl ? ' w3wf-btn-desk' : ''}" src="${btnImgUrl}" alt="${copy.ctaText}" width="${w3BtnShown(copy.ctaText)}" style="width:${w3BtnShown(copy.ctaText)}px;max-width:100%;height:auto;display:block;margin:0 auto;border:0;outline:none;"/>${btnMobileImgUrl ? `<img class="w3wf-btn-mob" src="${btnMobileImgUrl}" alt="${copy.ctaText}" width="600" style="width:100%;max-width:600px;height:auto;display:none;margin:0 auto;border:0;outline:none;"/>` : ''}</a>`
       : `<table class="w3wf-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="w3wf-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:${btnText}!important;-webkit-text-fill-color:${btnText};text-decoration:none!important;text-align:center;">${copy.ctaText} &rarr;</a></td></tr></table>`}
   </div>` : ''}
 
@@ -2464,7 +2520,7 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
     <div style="font-family:Arial,sans-serif;font-size:13px;color:${faintTextCol};line-height:1.6;">${footerLine}</div>
   </div>` : ''}
 
-  <div style="background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true, wfFooter: true })}</div>
+  <div style="background-color:${pageBg};">${buildFooter(client, footerData, { wfLogoColor: true, defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true, wfFooter: true })}</div>
 
 </td></tr>
 </table>
@@ -2612,12 +2668,17 @@ function buildTemplateWeek4WF({ client, copy, images, footerData, isHeroGenerate
   table{border-collapse:collapse;}
   .w4wf-outer { width:100%!important; max-width:600px!important; }
   ${SHARED_MOBILE_CSS}
+  /* Baked buttons go edge to edge on a real phone only (360-430px). At the
+     600px breakpoint a viewer whose email pane is 600 wide or less, GHL's
+     preview among them, stretched the 343px button to full width. */
+  @media only screen and (max-width:480px){
+    .w4wf-btn-img  { width:100%!important; max-width:100%!important; }
+  }
   @media only screen and (max-width:600px){
     .w4wf-section  { padding-left:24px!important; padding-right:24px!important; }
     .w4wf-hero      { height:600px!important; }
     .w4wf-herocard  { height:360px!important; }
     .w4wf-headline  { font-size:30px!important; }
-    .w4wf-btn-img  { width:100%!important; max-width:100%!important; }
     .w4wf-btnwrap  { width:100%!important; }
     .w4wf-cta      { padding:12px 20px!important; }
     .w4wf-bridgebox { height:200px!important; }
@@ -2695,7 +2756,7 @@ function buildTemplateWeek4WF({ client, copy, images, footerData, isHeroGenerate
   </div>` : ''}
   ${ctaButton ? `<div class="w4wf-section" style="padding:24px 48px 0;background-color:${pageBg};text-align:center;">${ctaButton}</div>` : ''}
 
-  <div style="padding-top:26px;background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true, wfFooter: true, leadLine: footerLine })}</div>
+  <div style="padding-top:26px;background-color:${pageBg};">${buildFooter(client, footerData, { wfLogoColor: true, defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true, wfFooter: true, leadLine: footerLine })}</div>
 
 </td></tr>
 </table>
@@ -2814,6 +2875,12 @@ function buildTemplateWeek5WF({ client, copy, images, footerData, isHeroGenerate
   table{border-collapse:collapse;}
   .w5wf-outer { width:100%!important; max-width:600px!important; }
   ${SHARED_MOBILE_CSS}
+  /* Baked buttons go edge to edge on a real phone only (360-430px). At the
+     600px breakpoint a viewer whose email pane is 600 wide or less, GHL's
+     preview among them, stretched the 343px button to full width. */
+  @media only screen and (max-width:480px){
+    .w5wf-btn-img  { width:100%!important; max-width:100%!important; }
+  }
   @media only screen and (max-width:600px){
     .w5wf-section  { padding-left:24px!important; padding-right:24px!important; }
     .w5wf-hero     { height:560px!important; }
@@ -2822,7 +2889,6 @@ function buildTemplateWeek5WF({ client, copy, images, footerData, isHeroGenerate
     .w5wf-hero-desk { display:none!important; }
     .w5wf-hero-mob  { display:block!important; }
     .w5wf-headline { font-size:32px!important; line-height:38px!important; }
-    .w5wf-btn-img  { width:100%!important; max-width:100%!important; }
     .w5wf-btnwrap  { width:100%!important; }
     .w5wf-cta      { padding:12px 20px!important; }
     /* The story and the mosaic pull in tighter than the text sections on a
@@ -2922,7 +2988,7 @@ function buildTemplateWeek5WF({ client, copy, images, footerData, isHeroGenerate
   </div>` : ''}
   ${ctaButton ? `<div class="w5wf-section" style="padding:22px 48px 34px;background-color:${pageBg};text-align:center;">${ctaButton}</div>` : ''}
 
-  <div style="background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true, wfFooter: true, leadLine: footerLine })}</div>
+  <div style="background-color:${pageBg};">${buildFooter(client, footerData, { wfLogoColor: true, defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true, wfFooter: true, leadLine: footerLine })}</div>
 
 </td></tr>
 </table>
@@ -3104,11 +3170,16 @@ function buildTemplateWeek6WF({ client, copy, images, footerData, isHeroGenerate
   table{border-collapse:collapse;}
   .w6wf-outer { width:100%!important; max-width:600px!important; }
   ${SHARED_MOBILE_CSS}
+  /* Baked buttons go edge to edge on a real phone only (360-430px). At the
+     600px breakpoint a viewer whose email pane is 600 wide or less, GHL's
+     preview among them, stretched the 343px button to full width. */
+  @media only screen and (max-width:480px){
+    .w6wf-btn-img  { width:100%!important; max-width:100%!important; }
+  }
   @media only screen and (max-width:600px){
     .w6wf-section  { padding-left:24px!important; padding-right:24px!important; }
     .w6wf-hero     { height:560px!important; }
     .w6wf-headline { font-size:32px!important; line-height:38px!important; }
-    .w6wf-btn-img  { width:100%!important; max-width:100%!important; }
     .w6wf-btnwrap  { width:100%!important; }
     .w6wf-cta      { padding:12px 20px!important; }
     .w6wf-h3       { font-size:20px!important; line-height:30px!important; }
@@ -3195,7 +3266,7 @@ function buildTemplateWeek6WF({ client, copy, images, footerData, isHeroGenerate
   </div>` : ''}
   ${ctaButton ? `<div class="w6wf-section" style="padding:26px 48px 34px;background-color:${pageBg};text-align:center;">${ctaButton}</div>` : ''}
 
-  <div style="background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true, wfFooter: true, leadLine: footerLine })}</div>
+  <div style="background-color:${pageBg};">${buildFooter(client, footerData, { wfLogoColor: true, defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true, wfFooter: true, leadLine: footerLine })}</div>
 
 </td></tr>
 </table>
@@ -3283,10 +3354,15 @@ function buildTemplateWeek7WF({ client, copy, images, footerData, isHeroGenerate
   table{border-collapse:collapse;}
   .w7wf-outer { width:100%!important; max-width:600px!important; }
   ${SHARED_MOBILE_CSS}
+  /* Baked buttons go edge to edge on a real phone only (360-430px). At the
+     600px breakpoint a viewer whose email pane is 600 wide or less, GHL's
+     preview among them, stretched the 343px button to full width. */
+  @media only screen and (max-width:480px){
+    .w7wf-btn-img  { width:100%!important; max-width:100%!important; }
+  }
   @media only screen and (max-width:600px){
     .w7wf-section  { padding-left:24px!important; padding-right:24px!important; }
     .w7wf-headline { font-size:32px!important; line-height:38px!important; }
-    .w7wf-btn-img  { width:100%!important; max-width:100%!important; }
     .w7wf-btnwrap  { width:100%!important; }
     .w7wf-cta      { padding:12px 20px!important; }
   }
@@ -3370,7 +3446,7 @@ function buildTemplateWeek7WF({ client, copy, images, footerData, isHeroGenerate
     ${ctaBtnHtml(copy.ctaText, btnImgUrl)}
   </div>` : ''}
 
-  <div style="padding-top:26px;background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true, wfFooter: true, leadLine: footerLine })}</div>
+  <div style="padding-top:26px;background-color:${pageBg};">${buildFooter(client, footerData, { wfLogoColor: true, defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true, wfFooter: true, leadLine: footerLine })}</div>
 
 </td></tr>
 </table>
@@ -3457,10 +3533,15 @@ function buildTemplateWeek8WF({ client, copy, images, footerData, isHeroGenerate
   table{border-collapse:collapse;}
   .w8wf-outer { width:100%!important; max-width:600px!important; }
   ${SHARED_MOBILE_CSS}
+  /* Baked buttons go edge to edge on a real phone only (360-430px). At the
+     600px breakpoint a viewer whose email pane is 600 wide or less, GHL's
+     preview among them, stretched the 343px button to full width. */
+  @media only screen and (max-width:480px){
+    .w8wf-btn-img  { width:100%!important; max-width:100%!important; }
+  }
   @media only screen and (max-width:600px){
     .w8wf-section  { padding-left:24px!important; padding-right:24px!important; }
     .w8wf-headline { font-size:32px!important; line-height:38px!important; }
-    .w8wf-btn-img  { width:100%!important; max-width:100%!important; }
     .w8wf-btnwrap  { width:100%!important; }
     .w8wf-cta      { padding:12px 20px!important; }
     /* On a phone the photo is square: the live crop and the phone bake alike. */
@@ -3551,7 +3632,7 @@ function buildTemplateWeek8WF({ client, copy, images, footerData, isHeroGenerate
     <div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${mutedTextCol};">${closing}</div>
   </div>` : ''}
 
-  <div style="padding-top:26px;background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true, wfFooter: true, leadLine: footerLine })}</div>
+  <div style="padding-top:26px;background-color:${pageBg};">${buildFooter(client, footerData, { wfLogoColor: true, defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true, wfFooter: true, leadLine: footerLine })}</div>
 
 </td></tr>
 </table>
@@ -3620,8 +3701,12 @@ function buildTemplateWeek9WF({ client, copy, images, footerData,
   /* The workflow leaves the CTA blank on this email, since it asks for a
      reply. The design still carries a button, so a blank label falls back to
      the booking one and the link to the client's site. Same fallback in the bake. */
-  const ctaText = (copy.ctaText || '').trim() || 'Book Your Stay'
-  const ctaHref = copy.ctaUrl || footerData?.websiteUrl || '#'
+  /* A web address typed into the CTA box is a link, not a label: the button
+     reads "Book Your Stay" and goes there, unless CTA URL says otherwise. */
+  const rawCta = (copy.ctaText || '').trim()
+  const ctaIsUrl = /^(https?:\/\/|www\.)\S+$/i.test(rawCta)
+  const ctaText = (!ctaIsUrl && rawCta) || 'Book Your Stay'
+  const ctaHref = copy.ctaUrl || (ctaIsUrl ? (/^www\./i.test(rawCta) ? `https://${rawCta}` : rawCta) : '') || footerData?.websiteUrl || '#'
   const ctaButton = ctaText
     ? (btnImgUrl
       ? `<a href="${ctaHref}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w9wf-btn-img" src="${btnImgUrl}" alt="${ctaText}" width="343" style="width:343px;max-width:100%;height:auto;display:block;margin:0 auto;border:0;outline:none;"/></a>`
@@ -3636,10 +3721,15 @@ function buildTemplateWeek9WF({ client, copy, images, footerData,
   table{border-collapse:collapse;}
   .w9wf-outer { width:100%!important; max-width:600px!important; }
   ${SHARED_MOBILE_CSS}
+  /* Baked buttons go edge to edge on a real phone only (360-430px). At the
+     600px breakpoint a viewer whose email pane is 600 wide or less, GHL's
+     preview among them, stretched the 343px button to full width. */
+  @media only screen and (max-width:480px){
+    .w9wf-btn-img  { width:100%!important; max-width:100%!important; }
+  }
   @media only screen and (max-width:600px){
     .w9wf-section  { padding-left:24px!important; padding-right:24px!important; }
     .w9wf-headline { font-size:32px!important; line-height:38px!important; }
-    .w9wf-btn-img  { width:100%!important; max-width:100%!important; }
     .w9wf-btnwrap  { width:100%!important; }
     .w9wf-cta      { padding:12px 20px!important; }
   }
@@ -3697,10 +3787,538 @@ function buildTemplateWeek9WF({ client, copy, images, footerData,
     </div>`}
   </div>` : ''}
 
+  <div style="padding-top:26px;background-color:${pageBg};">${buildFooter(client, footerData, { wfLogoColor: true, defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true, wfFooter: true, leadLine: footerLine })}</div>
+
+</td></tr>
+</table>
+</body></html>`
+}
+
+/* ─────────────────────── Repeat Booking Email 1 — returning-guest code ──────
+   A duplicate of Email 7 WF, renamed so the two can change independently:
+   logo and headline on the page, the three-photo strip, the circles near the
+   foot, the design-system button. What differs follows the email's own brief:
+   a campaign eyebrow above the headline; the thank-you block where Email 7
+   has its subhead and body; the offer block (eyebrow, title, paragraph), then
+   the code on its own; a sign-off under the closing line; and ONE button,
+   last ("one CTA, one placement"), so Email 7's button under the subhead is
+   gone. The code reminder rides in the footer's lead line, as in Email 7.  */
+function buildTemplateRB1({ client, copy, images, footerData, isHeroGenerated = false,
+  heroScale=1, heroX=0, heroY=0,
+  textSize=38,
+  logoColor='original', logoTop=40, logoSize=44,
+  img1Scale=1, img1X=0, img1Y=0,
+  img2Scale=1, img2X=0, img2Y=0,
+  img3Scale=1, img3X=0, img3Y=0,
+  img4Scale=1, img4X=0, img4Y=0,
+  btnImgUrl = null, gridImgUrl = null,
+}) {
+  const heroImg = images?.[0]?.url || ''
+  const stripL  = images?.[3]?.url || images?.[1]?.url || heroImg
+  const stripR  = images?.[4]?.url || images?.[2]?.url || heroImg
+  const stripTfL = wfCrop(img3X, img3Y, img3Scale)
+  const stripTfR = wfCrop(img4X, img4Y, img4Scale)
+  /* Sub 1 is the large circle, Sub 2 the small one. An empty circle borrows
+     the strip photo on its side (the reverse of the strip's own fallback), so
+     the pair never shows with one missing. */
+  const circleA = images?.[1]?.url || images?.[3]?.url || ''
+  const circleB = images?.[2]?.url || images?.[4]?.url || ''
+  const circleTfA = images?.[1]?.url ? wfCrop(img1X, img1Y, img1Scale) : wfCrop(img3X, img3Y, img3Scale)
+  const circleTfB = images?.[2]?.url ? wfCrop(img2X, img2Y, img2Scale) : wfCrop(img4X, img4Y, img4Scale)
+
+  const closing    = (copy.closingLine || '').replace(/\n/g, '<br>')
+  const signOff    = (copy.signOff     || '').replace(/\n/g, '<br>')
+  const footerLine = (copy.footerLine  || '').replace(/\n/g, '<br>')
+  const logoUrl    = client?.logoUrl || ''
+
+  const thanksParas = String(copy.bodyText || '').split(/\n{2,}/).map(s => s.trim()).filter(Boolean)
+  const offerParas  = String(copy.bodyBlock2 || '').split(/\n{2,}/).map(s => s.trim()).filter(Boolean)
+
+  const pageBg    = footerData?.bgColor || '#ffffff'
+  const accent    = footerData?.buttonColor || '#1a73e8'
+  const btnText   = wfButtonText(accent)
+  const secondary = footerData?.secondaryColor || accent
+
+  const _rgb = pageBg.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i)
+  const _lum = _rgb
+    ? (0.299*parseInt(_rgb[1],16) + 0.587*parseInt(_rgb[2],16) + 0.114*parseInt(_rgb[3],16))/255
+    : 1
+  const lightBg      = _lum > 0.55
+  const textCol      = lightBg ? '#1a1a1a' : '#ffffff'
+  const mutedTextCol = lightBg ? '#595959' : '#d4d4d4'
+  const cardBorder   = lightBg ? '#e6e6e6' : '#3a3a3a'
+
+  const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
+  const logoBlock = logoUrl
+    ? `<img src="${logoUrl}" alt="${client?.name || ''}" style="height:${logoSize}px;width:auto;max-width:220px;display:inline-block;border:0;outline:none;filter:${logoFilter};"/>`
+    : `<div style="font-family:Arial,sans-serif;font-size:18px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:${textCol};">${client?.name || ''}</div>`
+
+  const ctaBtnHtml = (label, imgUrl) => imgUrl
+    ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="rb1-btn-img" src="${imgUrl}" alt="${label}" width="343" style="width:343px;max-width:100%;height:auto;display:block;margin:0 auto;border:0;outline:none;"/></a>`
+    : `<table class="rb1-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="rb1-cta" href="${copy.ctaUrl||'#'}" style="display:block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:${btnText}!important;-webkit-text-fill-color:${btnText};text-decoration:none!important;text-align:center;">${label} &rarr;</a></td></tr></table>`
+
+  return `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{margin:0;padding:0;color:#1a1a1a;}
+  table{border-collapse:collapse;}
+  .rb1-outer { width:100%!important; max-width:600px!important; }
+  ${SHARED_MOBILE_CSS}
+  @media only screen and (max-width:600px){
+    .rb1-section    { padding-left:24px!important; padding-right:24px!important; }
+    .rb1-headline   { font-size:32px!important; line-height:38px!important; }
+    .rb1-offertitle { font-size:20px!important; line-height:30px!important; }
+    .rb1-btn-img    { width:100%!important; max-width:100%!important; }
+    .rb1-btnwrap    { width:100%!important; }
+    .rb1-cta        { padding:12px 20px!important; }
+  }
+</style></head>
+<body style="margin:0;padding:32px 0 48px;background-color:#ffffff;">
+
+<table class="rb1-outer" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="width:100%;max-width:600px;margin:0 auto;background-color:${pageBg};border-collapse:collapse;border-radius:20px;overflow:hidden;">
+<tr><td style="background-color:${pageBg};">
+
+  <!-- MASTHEAD — logo, the campaign eyebrow, then the headline, all live text on the page -->
+  <div class="rb1-section" style="padding:${logoTop}px 48px 0;background-color:${pageBg};text-align:center;line-height:normal;">
+    ${logoBlock}
+  </div>
+  ${copy.campaignEyebrow ? `<div class="rb1-section" style="padding:26px 48px 0;background-color:${pageBg};text-align:center;">
+    <div style="font-family:Arial,sans-serif;font-size:14px;line-height:20px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:${secondary};">${copy.campaignEyebrow}</div>
+  </div>` : ''}
+  ${copy.headlineText ? `<div class="rb1-section" style="padding:${copy.campaignEyebrow ? 10 : 26}px 48px 0;background-color:${pageBg};">
+    <div class="rb1-headline" style="font-family:Arial,sans-serif;font-size:${textSize}px;line-height:44px;font-weight:700;color:${textCol};letter-spacing:-0.01em;text-align:center;">${copy.headlineText}</div>
+  </div>` : ''}
+
+  <!-- THE STRIP — three photos, the hero in the middle; one flat PNG once generated -->
+  ${heroImg ? `<div style="padding:26px 0 0;background-color:${pageBg};line-height:0;font-size:0;">
+    ${isHeroGenerated
+      ? `<img src="${heroImg}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;border:0;outline:none;"/>`
+      : `<div style="position:relative;width:100%;max-width:600px;aspect-ratio:600/340;margin:0 auto;overflow:hidden;">
+      ${stripL ? `<div style="position:absolute;left:-15%;top:11%;width:30%;height:78%;border-radius:14px;overflow:hidden;">
+        <img src="${stripL}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;${stripTfL}"/>
+      </div>` : ''}
+      ${stripR ? `<div style="position:absolute;left:85%;top:11%;width:30%;height:78%;border-radius:14px;overflow:hidden;">
+        <img src="${stripR}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;${stripTfR}"/>
+      </div>` : ''}
+      <div style="position:absolute;left:17.5%;top:0;width:65%;height:100%;border-radius:14px;overflow:hidden;">
+        <img src="${heroImg}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>
+      </div>
+    </div>`}
+  </div>` : ''}
+
+  <!-- THANK-YOU BLOCK -->
+  ${thanksParas.length ? `<div class="rb1-section" style="padding:26px 48px 0;background-color:${pageBg};">
+    ${thanksParas.map((para, i) => `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${textCol};${i ? 'margin-top:14px;' : ''}">${para}</div>`).join('')}
+  </div>` : ''}
+
+  <!-- OFFER BLOCK — small label, the title (Heading 3), then the paragraph -->
+  ${(copy.sectionEyebrow || copy.bodyBlock2Title || offerParas.length) ? `<div class="rb1-section" style="padding:30px 48px 0;background-color:${pageBg};">
+    ${copy.sectionEyebrow ? `<div style="font-family:Arial,sans-serif;font-size:14px;line-height:20px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:${secondary};">${copy.sectionEyebrow}</div>` : ''}
+    ${copy.bodyBlock2Title ? `<div class="rb1-offertitle" style="font-family:Arial,sans-serif;font-size:24px;line-height:32px;font-weight:700;color:${textCol};margin-top:${copy.sectionEyebrow ? 8 : 0}px;">${copy.bodyBlock2Title}</div>` : ''}
+    ${offerParas.map((para, i) => `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${textCol};margin-top:${i || copy.bodyBlock2Title || copy.sectionEyebrow ? 12 : 0}px;">${para}</div>`).join('')}
+  </div>` : ''}
+
+  <!-- THE CODE — standalone, in the design system's neutral greys -->
+  ${copy.codeDisplay ? `<div class="rb1-section" style="padding:24px 48px 0;background-color:${pageBg};text-align:center;">
+    <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;border-collapse:separate;"><tr><td style="background:#F0F0F0;border:1px solid #DEDEDE;border-radius:999px;padding:12px 28px;">
+      <span style="display:inline-block;font-family:Arial,sans-serif;font-size:18px;line-height:22px;font-weight:400;letter-spacing:.02em;color:#3A3A3A;white-space:nowrap;">Code: <span style="font-weight:700;">${copy.codeDisplay}</span></span>
+    </td></tr></table>
+  </div>` : ''}
+
+  <!-- THE PAIR OF CIRCLES — one flat PNG once generated -->
+  ${(circleA || circleB) ? `<div style="padding:34px 0 0;background-color:${pageBg};line-height:0;font-size:0;text-align:center;">
+    ${gridImgUrl
+      ? `<img src="${gridImgUrl}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;margin:0 auto;border:0;outline:none;"/>`
+      : `<div style="position:relative;width:100%;max-width:600px;aspect-ratio:600/360;margin:0 auto;">
+      ${circleB ? `<div style="position:absolute;left:10%;top:41.67%;width:33.33%;aspect-ratio:1;border-radius:50%;overflow:hidden;border:6px solid ${pageBg};">
+        <img src="${circleB}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;${circleTfB}"/>
+      </div>` : ''}
+      ${circleA ? `<div style="position:absolute;left:36.67%;top:5.56%;width:53.33%;aspect-ratio:1;border-radius:50%;overflow:hidden;border:6px solid ${pageBg};">
+        <img src="${circleA}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;${circleTfA}"/>
+      </div>` : ''}
+    </div>`}
+  </div>` : ''}
+
+  <!-- CLOSING, then the sign-off -->
+  ${closing ? `<div class="rb1-section" style="padding:30px 48px 0;background-color:${pageBg};">
+    <div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${mutedTextCol};">${closing}</div>
+  </div>` : ''}
+  ${signOff ? `<div class="rb1-section" style="padding:${closing ? 12 : 30}px 48px 0;background-color:${pageBg};">
+    <div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;font-weight:700;color:${textCol};">${signOff}</div>
+  </div>` : ''}
+
+  <!-- THE ONE CTA — last -->
+  ${copy.ctaText ? `<div class="rb1-section" style="padding:24px 48px 0;background-color:${pageBg};text-align:center;">
+    ${ctaBtnHtml(copy.ctaText, btnImgUrl)}
+  </div>` : ''}
+
   <div style="padding-top:26px;background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true, wfFooter: true, leadLine: footerLine })}</div>
 
 </td></tr>
 </table>
+</body></html>`
+}
+
+/* ─────────────────────── Repeat Booking Email 2 — code ending soon ─────────
+   A duplicate of Email 1 WF (id 31), renamed so the two can change
+   independently: the full-bleed hero with logo, campaign eyebrow and headline
+   on the photo (baked, and cropped to 560 on a phone), the stay cards with
+   their photos baked flat, the design-system button. What differs follows
+   the email's own brief: the reminder takes the intro's place; the stay types
+   are the cards (up to five with photos, Sub 1-5, so the story circles are
+   gone) with no button on any card, since the email has one button; the code
+   and its terms line follow the cards; a sign-off under the closing; ONE
+   button, last. The section title sits on the design system's Heading 3.  */
+function buildTemplateRB2({ client, copy, images, footerData, isHeroGenerated = false,
+  heroScale=1, heroX=0, heroY=0,
+  textSize=44, textTop=34, textLeft=52,
+  logoColor='original', logoTop=64, logoSize=44,
+  img1Scale=1, img1X=0, img1Y=0,
+  img2Scale=1, img2X=0, img2Y=0,
+  img3Scale=1, img3X=0, img3Y=0,
+  img4Scale=1, img4X=0, img4Y=0,
+  img5Scale=1, img5X=0, img5Y=0,
+  btnImgUrl = null, cardBtnImgUrl = null,
+  cardsGenerated = [false, false, false, false, false],
+}) {
+  const heroImg = images?.[0]?.url || ''
+  const cardImgs = [1, 2, 3, 4, 5].map(i => images?.[i]?.url || '')
+  const cardTf = [
+    wfCrop(img1X, img1Y, img1Scale),
+    wfCrop(img2X, img2Y, img2Scale),
+    wfCrop(img3X, img3Y, img3Scale),
+    wfCrop(img4X, img4Y, img4Scale),
+    wfCrop(img5X, img5Y, img5Scale),
+  ]
+
+  const body    = (copy.bodyText    || '').replace(/\n/g, '<br>')
+  const closing = (copy.closingLine || '').replace(/\n/g, '<br>')
+  const signOff = (copy.signOff     || '').replace(/\n/g, '<br>')
+  const footerLine = (copy.footerLine || '').replace(/\n/g, '<br>')
+  const logoUrl = client?.logoUrl || ''
+
+  const pageBg    = footerData?.bgColor || '#ffffff'
+  const accent    = footerData?.buttonColor || '#1a73e8'
+  const btnText   = wfButtonText(accent)
+  const secondary = footerData?.secondaryColor || accent
+
+  const _rgb = pageBg.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i)
+  const _r = _rgb ? parseInt(_rgb[1],16) : 255
+  const _g = _rgb ? parseInt(_rgb[2],16) : 255
+  const _b = _rgb ? parseInt(_rgb[3],16) : 255
+  const _lum = (0.299*_r + 0.587*_g + 0.114*_b)/255
+  const lightBg      = _lum > 0.55
+  const textCol      = lightBg ? '#1a1a1a' : '#ffffff'
+  const mutedTextCol = lightBg ? '#595959' : '#d4d4d4'
+  const cardBorder   = lightBg ? '#e6e6e6' : '#3a3a3a'
+  const pillBg       = lightBg ? '#f1f3f4' : 'rgba(255,255,255,0.10)'
+
+  const _mix = (hex, ratio) => {
+    const m = (hex || '').match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i)
+    if (!m) return pageBg
+    const to = (a, b) => Math.round(b + (a - b) * ratio).toString(16).padStart(2, '0')
+    return `#${to(parseInt(m[1],16), _r)}${to(parseInt(m[2],16), _g)}${to(parseInt(m[3],16), _b)}`
+  }
+  const cardTint = _mix(secondary, 0.16)
+
+  const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
+  const logoOverlayOnHero = logoUrl
+    ? `<img src="${logoUrl}" alt="${client?.name||''}" style="display:inline-block;height:${logoSize}px;width:auto;max-width:100%;filter:${logoFilter};"/>`
+    : `<div style="font-family:Arial,sans-serif;font-size:20px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#ffffff;text-shadow:0 1px 6px rgba(0,0,0,.4);">${client?.name||''}</div>`
+
+  const cards = Array.isArray(copy.propertyCards) ? copy.propertyCards.filter(c => c && (c.name || c.description)) : []
+
+  /* One full-width card per stay type, as Email 1's. A stay past the fifth has
+     no photo slot, so it shows as name and line only rather than a grey box. */
+  const cardBlock = (card, i) => {
+    const hasSlot = i < cardImgs.length
+    const img = hasSlot ? cardImgs[i] : ''
+    const baked = cardsGenerated[i]
+    const photo = !hasSlot ? '' : img
+      ? (baked
+          ? `<img src="${img}" alt="${card.name||''}" width="600" style="width:100%;height:320px;object-fit:cover;display:block;border-radius:12px;border:0;outline:none;"/>`
+          : `<div style="position:relative;width:100%;height:320px;overflow:hidden;border-radius:12px;"><img src="${img}" alt="${card.name||''}" style="position:absolute;top:0;left:0;width:100%;height:320px;object-fit:cover;display:block;${cardTf[i]}"/></div>`)
+      : `<div style="width:100%;height:320px;background:${pillBg};border-radius:12px;"></div>`
+    /* Email 1 WF's card button. "View Dates" unless the copy sets a label;
+       a blank label hides it. Baked as one PNG for every card, as in Email 1 WF. */
+    const cardCta = card.ctaText === undefined ? 'View Dates' : card.ctaText
+    const cardHref = card.ctaUrl || copy.ctaUrl || '#'
+    return `<div class="rb2-cardbox" style="background-color:${cardTint};border-radius:16px;padding:14px;margin-bottom:16px;">
+      ${photo ? `<div style="line-height:0;font-size:0;">${photo}</div>` : ''}
+      <div style="padding:${photo ? '14px' : '4px'} 6px 4px;">
+        ${card.name ? `<div style="font-family:Arial,sans-serif;font-size:18px;line-height:28px;font-weight:700;color:${textCol};">${card.name}</div>` : ''}
+        ${card.description ? `<div style="font-family:Arial,sans-serif;font-size:16px;color:${textCol};line-height:24px;margin-top:8px;">${card.description}</div>` : ''}
+        ${cardCta ? `<div style="margin-top:14px;">${cardBtnImgUrl
+          ? `<a href="${cardHref}" style="display:block;text-decoration:none;outline:none;border:none;"><img src="${cardBtnImgUrl}" alt="${cardCta}" width="240" height="40" style="width:240px;height:40px;max-width:100%;display:block;border:0;outline:none;"/></a>`
+          : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0;max-width:100%;"><tr><td style="background:${accent};border-radius:999px;">
+              <a href="${cardHref}" style="display:inline-block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;color:${btnText}!important;-webkit-text-fill-color:${btnText};text-decoration:none!important;">${cardCta} &rarr;</a>
+            </td></tr></table>`
+        }</div>` : ''}
+      </div>
+    </div>`
+  }
+
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@700&display=swap" rel="stylesheet"/>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{margin:0;padding:0;color:#1a1a1a;}
+  table{border-collapse:collapse;}
+  .rb2-outer { width:100%!important; max-width:600px!important; }
+  ${SHARED_MOBILE_CSS}
+  @media only screen and (max-width:600px){
+    .rb2-section   { padding-left:24px!important; padding-right:24px!important; }
+    .rb2-hero      { height:560px!important; }
+    .rb2-unittitle { font-size:20px!important; line-height:30px!important; }
+    .rb2-btn-img   { width:100%!important; max-width:100%!important; }
+    .rb2-btnwrap   { width:100%!important; }
+    .rb2-cta       { display:block!important; padding:12px 20px!important; font-size:16px!important; line-height:16px!important; }
+    .rb2-cardbox   { padding:14px!important; }
+  }
+</style></head>
+<body style="margin:0;padding:32px 0 48px;background-color:#ffffff;">
+
+<table class="rb2-outer" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="width:100%;max-width:600px;margin:0 auto;background-color:${pageBg};border-collapse:collapse;border-radius:20px;overflow:hidden;">
+<tr><td style="background-color:${pageBg};">
+
+  <!-- HERO: full-bleed 600×772, logo, campaign eyebrow and headline on the photo; baked whole once generated -->
+  ${isHeroGenerated
+    ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${heroImg}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;border:0;outline:none;"/></a></div>`
+    : `<div style="line-height:0;font-size:0;background-color:${pageBg};">
+    <div class="rb2-hero" style="position:relative;width:100%;max-width:600px;height:772px;overflow:hidden;">
+      ${heroImg
+        ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
+        : `<div style="width:100%;height:100%;background:${pillBg};"></div>`}
+      <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.34) 0%,rgba(0,0,0,0.16) 45%,rgba(0,0,0,0.05) 70%,rgba(0,0,0,0) 100%);">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
+          <tr><td valign="top" align="center" style="vertical-align:top;text-align:center;padding:${logoTop}px ${textLeft}px 0;line-height:normal;">
+            ${logoOverlayOnHero}
+            ${copy.campaignEyebrow ? `<div style="font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#ffffff;margin-top:30px;text-shadow:0 1px 6px rgba(0,0,0,.4);">${copy.campaignEyebrow}</div>` : ''}
+            ${copy.headlineText ? `<div style="font-family:'Lora',Georgia,serif;font-size:${textSize}px;font-weight:700;color:#ffffff;line-height:1.16;text-shadow:0 2px 12px rgba(0,0,0,.4);margin-top:${textTop}px;display:inline-block;max-width:100%;">${copy.headlineText}</div>` : ''}
+          </td></tr>
+        </table>
+      </div>
+    </div>
+  </div>`}
+
+  <!-- REMINDER -->
+  ${copy.bodyText ? `<div class="rb2-section" style="padding:26px 48px 4px;background-color:${pageBg};"><div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${textCol};">${body}</div></div>` : ''}
+
+  <!-- STAY AGAIN OR TRY SOMETHING NEW: the title, then a card per stay type -->
+  ${copy.sectionHeadline && cards.length ? `<div class="rb2-section" style="padding:30px 48px 14px;text-align:center;background-color:${pageBg};"><div class="rb2-unittitle" style="font-family:'Lora',Georgia,serif;font-size:24px;line-height:32px;font-weight:700;color:${secondary};">${copy.sectionHeadline}</div></div>` : ''}
+  ${cards.length ? `<div class="rb2-section" style="padding:${copy.sectionHeadline ? 4 : 26}px 48px 8px;background-color:${pageBg};">${cards.map((c, i) => cardBlock(c, i)).join('')}</div>` : ''}
+
+  <!-- THE CODE, then its terms -->
+  ${copy.codeDisplay ? `<div class="rb2-section" style="padding:22px 48px 0;background-color:${pageBg};text-align:center;">
+    <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;border-collapse:separate;"><tr><td style="background:#F0F0F0;border:1px solid #DEDEDE;border-radius:999px;padding:12px 28px;">
+      <span style="display:inline-block;font-family:Arial,sans-serif;font-size:18px;line-height:22px;font-weight:400;letter-spacing:.02em;color:#3A3A3A;white-space:nowrap;">Code: <span style="font-weight:700;">${copy.codeDisplay}</span></span>
+    </td></tr></table>
+  </div>` : ''}
+  ${copy.termsLine ? `<div class="rb2-section" style="padding:12px 48px 0;background-color:${pageBg};text-align:center;"><div style="font-family:Arial,sans-serif;font-size:14px;line-height:20px;color:${mutedTextCol};">${copy.termsLine}</div></div>` : ''}
+
+  <!-- CLOSING, then the sign-off -->
+  ${closing ? `<div class="rb2-section" style="padding:26px 48px 0;background-color:${pageBg};"><div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${mutedTextCol};">${closing}</div></div>` : ''}
+  ${signOff ? `<div class="rb2-section" style="padding:${closing ? 12 : 26}px 48px 0;background-color:${pageBg};"><div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;font-weight:700;color:${textCol};">${signOff}</div></div>` : ''}
+
+  <!-- THE ONE CTA, last -->
+  ${copy.ctaText ? `<div class="rb2-section" style="padding:22px 48px 34px;text-align:center;background-color:${pageBg};">${btnImgUrl
+    ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="rb2-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="343" style="width:343px;max-width:100%;display:block;margin:0 auto;border:0;outline:none;"/></a>`
+    : `<table class="rb2-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;max-width:100%;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="rb2-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:${btnText}!important;-webkit-text-fill-color:${btnText};text-decoration:none!important;">${copy.ctaText} &rarr;</a></td></tr></table>`
+  }</div>` : ''}
+
+  <div style="background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true, wfFooter: true, leadLine: footerLine })}</div>
+
+</td></tr></table>
+</body></html>`
+}
+
+/* ─────────────────────── Repeat Booking Email 3 — anniversary ──────────────
+   Two designs joined: Email 3 WF's hero on top (the photo with rounded foot
+   corners, the logo, the split headline in Lora with an italic first and last
+   word, baked transparent), then Email 1 WF's body as Repeat Booking Email 2
+   has it (the stay cards with photos baked flat, the code and its terms, the
+   design-system button). The campaign eyebrow sits on the photo just above
+   the headline. No pill on the hero: the email's one button is last. Reads
+   in the brief's order: memory, offer, stay types, code and terms, closing,
+   sign-off, "Book your return".                                           */
+function buildTemplateRB3({ client, copy, images, footerData, isHeroGenerated = false,
+  heroScale=1, heroX=0, heroY=0,
+  textSize=44, textTop=34, textLeft=52,
+  logoColor='original', logoTop=64, logoSize=44,
+  img1Scale=1, img1X=0, img1Y=0,
+  img2Scale=1, img2X=0, img2Y=0,
+  img3Scale=1, img3X=0, img3Y=0,
+  img4Scale=1, img4X=0, img4Y=0,
+  img5Scale=1, img5X=0, img5Y=0,
+  btnImgUrl = null, cardBtnImgUrl = null,
+  cardsGenerated = [false, false, false, false, false],
+}) {
+  const heroImg = images?.[0]?.url || ''
+  const cardImgs = [1, 2, 3, 4, 5].map(i => images?.[i]?.url || '')
+  const cardTf = [
+    wfCrop(img1X, img1Y, img1Scale),
+    wfCrop(img2X, img2Y, img2Scale),
+    wfCrop(img3X, img3Y, img3Scale),
+    wfCrop(img4X, img4Y, img4Scale),
+    wfCrop(img5X, img5Y, img5Scale),
+  ]
+
+  const memoryParas = String(copy.bodyText   || '').split(/\n{2,}/).map(s => s.trim()).filter(Boolean)
+  const offerParas  = String(copy.bodyBlock2 || '').split(/\n{2,}/).map(s => s.trim()).filter(Boolean)
+  const closing    = (copy.closingLine || '').replace(/\n/g, '<br>')
+  const signOff    = (copy.signOff     || '').replace(/\n/g, '<br>')
+  const footerLine = (copy.footerLine  || '').replace(/\n/g, '<br>')
+  const logoUrl = client?.logoUrl || ''
+
+  const pageBg    = footerData?.bgColor || '#ffffff'
+  const accent    = footerData?.buttonColor || '#1a73e8'
+  const btnText   = wfButtonText(accent)
+  const secondary = footerData?.secondaryColor || accent
+
+  const _rgb = pageBg.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i)
+  const _r = _rgb ? parseInt(_rgb[1],16) : 255
+  const _g = _rgb ? parseInt(_rgb[2],16) : 255
+  const _b = _rgb ? parseInt(_rgb[3],16) : 255
+  const _lum = (0.299*_r + 0.587*_g + 0.114*_b)/255
+  const lightBg      = _lum > 0.55
+  const textCol      = lightBg ? '#1a1a1a' : '#ffffff'
+  const mutedTextCol = lightBg ? '#595959' : '#d4d4d4'
+  const cardBorder   = lightBg ? '#e6e6e6' : '#3a3a3a'
+  const pillBg       = lightBg ? '#f1f3f4' : 'rgba(255,255,255,0.10)'
+
+  const _mix = (hex, ratio) => {
+    const m = (hex || '').match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i)
+    if (!m) return pageBg
+    const to = (a, b) => Math.round(b + (a - b) * ratio).toString(16).padStart(2, '0')
+    return `#${to(parseInt(m[1],16), _r)}${to(parseInt(m[2],16), _g)}${to(parseInt(m[3],16), _b)}`
+  }
+  const cardTint = _mix(secondary, 0.16)
+
+  const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
+  const logoOverlayOnHero = logoUrl
+    ? `<img src="${logoUrl}" alt="${client?.name||''}" style="display:inline-block;height:${logoSize}px;width:auto;max-width:100%;filter:${logoFilter};"/>`
+    : `<div style="font-family:Arial,sans-serif;font-size:20px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#ffffff;text-shadow:0 1px 6px rgba(0,0,0,.4);">${client?.name||''}</div>`
+
+  /* Email 3 WF's split headline: the first word italic, the middle in heavy
+     uppercase, the last word italic again. */
+  const hw = (copy.headlineText || '').trim().split(/\s+/).filter(Boolean)
+  const hwFirst = hw.length >= 2 ? hw[0] : ''
+  const hwLast  = hw.length >= 3 ? hw[hw.length - 1] : ''
+  const hwMain  = hw.length >= 3 ? hw.slice(1, -1).join(' ') : hw.length === 2 ? hw[1] : hw[0] || ''
+
+  const cards = Array.isArray(copy.propertyCards) ? copy.propertyCards.filter(c => c && (c.name || c.description)) : []
+  const cardBlock = (card, i) => {
+    const hasSlot = i < cardImgs.length
+    const img = hasSlot ? cardImgs[i] : ''
+    const baked = cardsGenerated[i]
+    const photo = !hasSlot ? '' : img
+      ? (baked
+          ? `<img src="${img}" alt="${card.name||''}" width="600" style="width:100%;height:320px;object-fit:cover;display:block;border-radius:12px;border:0;outline:none;"/>`
+          : `<div style="position:relative;width:100%;height:320px;overflow:hidden;border-radius:12px;"><img src="${img}" alt="${card.name||''}" style="position:absolute;top:0;left:0;width:100%;height:320px;object-fit:cover;display:block;${cardTf[i]}"/></div>`)
+      : `<div style="width:100%;height:320px;background:${pillBg};border-radius:12px;"></div>`
+    /* Email 1 WF's card button, as on Repeat Booking Email 2's cards. */
+    const cardCta = card.ctaText === undefined ? 'View Dates' : card.ctaText
+    const cardHref = card.ctaUrl || copy.ctaUrl || '#'
+    return `<div class="rb3-cardbox" style="background-color:${cardTint};border-radius:16px;padding:14px;margin-bottom:16px;">
+      ${photo ? `<div style="line-height:0;font-size:0;">${photo}</div>` : ''}
+      <div style="padding:${photo ? '14px' : '4px'} 6px 4px;">
+        ${card.name ? `<div style="font-family:Arial,sans-serif;font-size:18px;line-height:28px;font-weight:700;color:${textCol};">${card.name}</div>` : ''}
+        ${card.description ? `<div style="font-family:Arial,sans-serif;font-size:16px;color:${textCol};line-height:24px;margin-top:8px;">${card.description}</div>` : ''}
+        ${cardCta ? `<div style="margin-top:14px;">${cardBtnImgUrl
+          ? `<a href="${cardHref}" style="display:block;text-decoration:none;outline:none;border:none;"><img src="${cardBtnImgUrl}" alt="${cardCta}" width="240" height="40" style="width:240px;height:40px;max-width:100%;display:block;border:0;outline:none;"/></a>`
+          : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0;max-width:100%;"><tr><td style="background:${accent};border-radius:999px;">
+              <a href="${cardHref}" style="display:inline-block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;color:${btnText}!important;-webkit-text-fill-color:${btnText};text-decoration:none!important;">${cardCta} &rarr;</a>
+            </td></tr></table>`
+        }</div>` : ''}
+      </div>
+    </div>`
+  }
+
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{margin:0;padding:0;color:#1a1a1a;}
+  table{border-collapse:collapse;}
+  .rb3-outer { width:100%!important; max-width:600px!important; }
+  ${SHARED_MOBILE_CSS}
+  @media only screen and (max-width:600px){
+    .rb3-section   { padding-left:24px!important; padding-right:24px!important; }
+    .rb3-hero      { height:560px!important; }
+    .rb3-unittitle { font-size:20px!important; line-height:30px!important; }
+    .rb3-btn-img   { width:100%!important; max-width:100%!important; }
+    .rb3-btnwrap   { width:100%!important; }
+    .rb3-cta       { display:block!important; padding:12px 20px!important; font-size:16px!important; line-height:16px!important; }
+    .rb3-cardbox   { padding:14px!important; }
+  }
+</style></head>
+<body style="margin:0;padding:32px 0 48px;background-color:#ffffff;">
+
+<table class="rb3-outer" cellpadding="0" cellspacing="0" bgcolor="${pageBg}" style="width:100%;max-width:600px;margin:0 auto;background-color:${pageBg};border-collapse:collapse;border-radius:20px;overflow:hidden;">
+<tr><td style="background-color:${pageBg};">
+
+  <!-- HERO (Email 3 WF): logo centred, then the eyebrow and the split headline set left, low on the photo -->
+  ${isHeroGenerated
+    ? `<div style="line-height:0;font-size:0;background-color:${pageBg};"><a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;"><img src="${heroImg}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;border:0;outline:none;"/></a></div>`
+    : `<div style="line-height:0;font-size:0;background-color:${pageBg};">
+    <div class="rb3-hero" style="position:relative;width:100%;max-width:600px;height:772px;overflow:hidden;border-radius:0 0 20px 20px;">
+      ${heroImg
+        ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
+        : `<div style="width:100%;height:100%;background:${pillBg};"></div>`}
+      <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.25) 40%,rgba(0,0,0,0.45) 100%);">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
+          <tr><td valign="top" align="center" style="vertical-align:top;text-align:center;padding:${logoTop}px ${textLeft}px 0;line-height:normal;">
+            ${logoOverlayOnHero}
+            ${(copy.campaignEyebrow || copy.headlineText) ? `<div style="text-align:left;margin-top:${textTop + 210}px;">
+              ${copy.campaignEyebrow ? `<div style="font-family:Arial,sans-serif;font-size:15px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#ffffff;margin-bottom:14px;text-shadow:0 1px 6px rgba(0,0,0,.4);">${copy.campaignEyebrow}</div>` : ''}
+              ${hwFirst ? `<div style="font-family:'Lora',serif;font-size:${Math.round(textSize * 0.8)}px;font-style:italic;font-weight:400;color:#ffffff;line-height:1;text-shadow:0 2px 12px rgba(0,0,0,.35);margin-bottom:2px;">${hwFirst}</div>` : ''}
+              ${hwMain ? `<div style="font-family:'Lora',serif;font-size:${textSize}px;font-weight:700;text-transform:uppercase;color:#ffffff;line-height:1.02;text-shadow:0 2px 20px rgba(0,0,0,.3);">${hwMain}${hwLast ? ` <span style="font-family:'Lora',serif;font-style:italic;font-weight:400;text-transform:capitalize;font-size:${Math.round(textSize * 0.9)}px;">${hwLast}</span>` : ''}</div>` : ''}
+            </div>` : ''}
+          </td></tr>
+        </table>
+      </div>
+    </div>
+  </div>`}
+
+  <!-- MEMORY, then the OFFER -->
+  ${memoryParas.length ? `<div class="rb3-section" style="padding:26px 48px 0;background-color:${pageBg};">
+    ${memoryParas.map((p, i) => `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${textCol};${i ? 'margin-top:14px;' : ''}">${p}</div>`).join('')}
+  </div>` : ''}
+  ${offerParas.length ? `<div class="rb3-section" style="padding:16px 48px 0;background-color:${pageBg};">
+    ${offerParas.map((p, i) => `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${textCol};${i ? 'margin-top:14px;' : ''}">${p}</div>`).join('')}
+  </div>` : ''}
+
+  <!-- STAY AGAIN OR TRY SOMETHING NEW (Email 1 WF's cards): a rule, the title, a card per stay type -->
+  ${cards.length ? `<div class="rb3-section" style="padding:30px 48px 0;background-color:${pageBg};">
+    <div style="height:0;border-top:1px solid ${cardBorder};line-height:0;font-size:0;">&nbsp;</div>
+  </div>` : ''}
+  ${copy.sectionHeadline && cards.length ? `<div class="rb3-section" style="padding:26px 48px 14px;text-align:center;background-color:${pageBg};"><div class="rb3-unittitle" style="font-family:'Lora',Georgia,serif;font-size:24px;line-height:32px;font-weight:700;color:${secondary};">${copy.sectionHeadline}</div></div>` : ''}
+  ${cards.length ? `<div class="rb3-section" style="padding:${copy.sectionHeadline ? 4 : 26}px 48px 8px;background-color:${pageBg};">${cards.map((c, i) => cardBlock(c, i)).join('')}</div>` : ''}
+
+  <!-- THE CODE, then its terms -->
+  ${copy.codeDisplay ? `<div class="rb3-section" style="padding:22px 48px 0;background-color:${pageBg};text-align:center;">
+    <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;border-collapse:separate;"><tr><td style="background:#F0F0F0;border:1px solid #DEDEDE;border-radius:999px;padding:12px 28px;">
+      <span style="display:inline-block;font-family:Arial,sans-serif;font-size:18px;line-height:22px;font-weight:400;letter-spacing:.02em;color:#3A3A3A;white-space:nowrap;">Code: <span style="font-weight:700;">${copy.codeDisplay}</span></span>
+    </td></tr></table>
+  </div>` : ''}
+  ${copy.termsLine ? `<div class="rb3-section" style="padding:12px 48px 0;background-color:${pageBg};text-align:center;"><div style="font-family:Arial,sans-serif;font-size:14px;line-height:20px;color:${mutedTextCol};">${copy.termsLine}</div></div>` : ''}
+
+  <!-- CLOSING, then the sign-off -->
+  ${closing ? `<div class="rb3-section" style="padding:26px 48px 0;background-color:${pageBg};"><div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${mutedTextCol};">${closing}</div></div>` : ''}
+  ${signOff ? `<div class="rb3-section" style="padding:${closing ? 12 : 26}px 48px 0;background-color:${pageBg};"><div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;font-weight:700;color:${textCol};">${signOff}</div></div>` : ''}
+
+  <!-- THE ONE CTA, last -->
+  ${copy.ctaText ? `<div class="rb3-section" style="padding:22px 48px 34px;text-align:center;background-color:${pageBg};">${btnImgUrl
+    ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="rb3-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="343" style="width:343px;max-width:100%;display:block;margin:0 auto;border:0;outline:none;"/></a>`
+    : `<table class="rb3-btnwrap" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;max-width:100%;"><tr><td align="center" style="background:${accent};border-radius:999px;"><a class="rb3-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:12px 40px;font-family:Arial,sans-serif;font-size:16px;line-height:16px;font-weight:700;letter-spacing:.04em;color:${btnText}!important;-webkit-text-fill-color:${btnText};text-decoration:none!important;">${copy.ctaText} &rarr;</a></td></tr></table>`
+  }</div>` : ''}
+
+  <div style="background-color:${pageBg};">${buildFooter(client, footerData, { defaultBg: pageBg, textColor: mutedTextCol, dividerColor: cardBorder, secondaryColor: secondary, compactMobile: true, wfFooter: true, leadLine: footerLine })}</div>
+
+</td></tr></table>
 </body></html>`
 }
 
@@ -3723,6 +4341,11 @@ const TEMPLATES = [
   { id:37, label:'✅ Email 7 WF', build:(a) => linkAllImages(buildTemplateWeek7WF(a), a?.copy?.ctaUrl || a?.footerData?.websiteUrl || '#'), welcomeFlowOnly:true },
   { id:38, label:'✅ Email 8 WF', build:(a) => linkAllImages(buildTemplateWeek8WF(a), a?.copy?.ctaUrl || a?.footerData?.websiteUrl || '#'), welcomeFlowOnly:true },
   { id:39, label:'✅ Email 9 WF', build:(a) => linkAllImages(buildTemplateWeek9WF(a), a?.copy?.ctaUrl || a?.footerData?.websiteUrl || '#'), welcomeFlowOnly:true },
+  { id:41, label:'Repeat Booking Email 1', build:(a) => linkAllImages(buildTemplateRB1(a), a?.copy?.ctaUrl || a?.footerData?.websiteUrl || '#'), repeatBookingOnly:true },
+  /* Not through linkAllImages: the brief allows no links inside the stay
+     cards. The baked hero carries its own link to the CTA. */
+  { id:42, label:'Repeat Booking Email 2', build:buildTemplateRB2, repeatBookingOnly:true },
+  { id:43, label:'Repeat Booking Email 3', build:buildTemplateRB3, repeatBookingOnly:true },
   { id:20, label:'🧪 Test',   build:buildTemplateTest,  adminOnly:true },
 ]
 
@@ -3755,11 +4378,13 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
      someone render a Week 2 email with Week 1's template and push it. If the
      week has no template yet, fall back to the whole welcome-flow set rather
      than showing an empty picker. */
+  /* The repeat booking flow renders through this same welcomeFlow path; its
+     templates are offered only when its page names one by templateId. */
   const wfTemplates = TEMPLATES.filter(t => t.welcomeFlowOnly)
-  const wfForWeek   = templateId ? wfTemplates.filter(t => t.id === templateId) : []
+  const wfForWeek   = templateId ? TEMPLATES.filter(t => t.id === templateId && (t.welcomeFlowOnly || t.repeatBookingOnly)) : []
   const visibleTemplates = welcomeFlow
     ? (wfForWeek.length ? wfForWeek : wfTemplates)
-    : TEMPLATES.filter(t => !t.welcomeFlowOnly && (!t.adminOnly || isAdmin))
+    : TEMPLATES.filter(t => !t.welcomeFlowOnly && !t.repeatBookingOnly && (!t.adminOnly || isAdmin))
 
   /* Welcome Flow fixes the template when the week is picked on the brief, so
      open on that one rather than on whatever happens to be first. Without this
@@ -3801,7 +4426,7 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
   // ── Hero editor — all week templates ─────────────────────────────────────────
   /* Templates that take the editor's sliders (hero scale/offset, text size and
      position, logo). Same set as isWeekTemplate / isHeroGenerated. */
-  const isEditable = [10, 11, 13, 16, 17, 18, 19, 20, 23, 24, 25, 31, 32, 33, 34, 35, 36, 37, 38, 39].includes(tpl?.id)
+  const isEditable = [10, 11, 13, 16, 17, 18, 19, 20, 23, 24, 25, 31, 32, 33, 34, 35, 36, 37, 38, 39, 41, 42, 43].includes(tpl?.id)
   const [heroScale,   setHeroScale]   = useState(1)
   const [heroX,       setHeroX]       = useState(0)
   const [heroY,       setHeroY]       = useState(0)
@@ -3868,6 +4493,12 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
     if (tpl?.id === 25) { setTextSize(48); setTextTop(108); setTextLeft(28); setLogoColor('white');    setLogoTop(28); setLogoRight(28);  setLogoSize(40) }
     if (tpl?.id === 23) { setTextSize(68); setTextTop(80);  setTextLeft(64); setLogoColor('white');    setLogoTop(28); setLogoRight(28);  setLogoSize(44) }
     if (tpl?.id === 31 || tpl?.id === 32 || tpl?.id === 33 || tpl?.id === 35 || tpl?.id === 36) { setTextSize(44); setTextTop(34);  setTextLeft(52); setLogoColor('original'); setLogoTop(64); setLogoRight(200); setLogoSize(44) }
+    // Repeat Booking Email 1 opens on its own build defaults: Heading 1 at 38, logo 44 high, 40 down
+    if (tpl?.id === 41) { setTextSize(38); setLogoColor('original'); setLogoTop(40); setLogoSize(44) }
+    // Repeat Booking Email 2 is Email 1 WF's design, so it opens on Email 1 WF's defaults
+    if (tpl?.id === 42) { setTextSize(44); setTextTop(34); setTextLeft(52); setLogoColor('original'); setLogoTop(64); setLogoRight(200); setLogoSize(44) }
+    // Repeat Booking Email 3's hero is Email 3 WF's, so it opens on Email 3 WF's defaults
+    if (tpl?.id === 43) { setTextSize(44); setTextTop(34); setTextLeft(52); setLogoColor('original'); setLogoTop(64); setLogoRight(200); setLogoSize(44) }
     /* A welcome flow email reopens with its sliders where they were left. The
        positions were saved with the email and handed over through the store;
        applied after the defaults above, and only for the template they were
@@ -3900,7 +4531,7 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
   // ── Week template image generation ───────────────────────────────────────────
   /* Every template with a Generate Images pipeline. Emails 4 and 5 were built
      with bakes but never added here, so their button was missing. */
-  const isWeekTemplate = [10, 11, 13, 16, 17, 18, 19, 20, 23, 24, 25, 31, 32, 33, 34, 35, 36, 37, 38, 39].includes(tpl?.id)
+  const isWeekTemplate = [10, 11, 13, 16, 17, 18, 19, 20, 23, 24, 25, 31, 32, 33, 34, 35, 36, 37, 38, 39, 41, 42, 43].includes(tpl?.id)
   /* Seeded from the store and mirrored back into it, so the baked PNGs outlive
      this component: the welcome flow saves them with the email and hands them
      back when it is reopened. */
@@ -3921,7 +4552,7 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
     if (!tpl.build) return null  // HCTI template uses image generation, not HTML build
     let effectiveImages = selectedImages
     const tplUrls = (bakedImages ? weekGenUrls[tpl?.id] : null) || {}
-    if (isWeekTemplate && (tplUrls.hero || tplUrls.sec || tplUrls.ter || tplUrls.card1 || tplUrls.card2 || tplUrls.card3)) {
+    if (isWeekTemplate && (tplUrls.hero || tplUrls.sec || tplUrls.ter || tplUrls.card1 || tplUrls.card2 || tplUrls.card3 || tplUrls.card4 || tplUrls.card5)) {
       effectiveImages = [...(selectedImages || [])]
       if (tplUrls.hero)  effectiveImages[0] = { url: tplUrls.hero,  focalX: 50, focalY: 50 }
       /* Email 2 (32) uses card1/card2 for its square phone crops and passes them
@@ -3936,26 +4567,33 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
          so swapping slot 4 would drop a composite into the fourth cell. It used
          to bake circles into that slot, so a stale one can still be sitting in
          weekGenUrls from before the grid replaced them. */
-      const usesBakedSecTer = tpl?.id !== 32 && tpl?.id !== 33 && tpl?.id !== 35 && tpl?.id !== 36 && tpl?.id !== 37 && tpl?.id !== 38 && tpl?.id !== 39
+      const usesBakedSecTer = tpl?.id !== 32 && tpl?.id !== 33 && tpl?.id !== 35 && tpl?.id !== 36 && tpl?.id !== 37 && tpl?.id !== 38 && tpl?.id !== 39 && tpl?.id !== 41 && tpl?.id !== 42 && tpl?.id !== 43
+      /* Repeat Booking Emails 2 and 3 have stay cards in Sub 4 and 5 as well, baked as card4/card5 */
+      if (tpl?.id === 42 || tpl?.id === 43) {
+        if (tplUrls.card4) effectiveImages[4] = { url: tplUrls.card4, focalX: 50, focalY: 50 }
+        if (tplUrls.card5) effectiveImages[5] = { url: tplUrls.card5, focalX: 50, focalY: 50 }
+      }
       if (usesBakedSecTer && tplUrls.sec) effectiveImages[4] = { url: tplUrls.sec, focalX: 50, focalY: 50 }
       if (usesBakedSecTer && tplUrls.ter) effectiveImages[5] = { url: tplUrls.ter, focalX: 50, focalY: 50 }
     }
     const editorProps = isEditable ? { heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y, img5Scale, img5X, img5Y } : {}
     /* Same list as isWeekTemplate — every template whose hero is baked. A template
        missing here renders its live hero over its own baked PNG: two headlines. */
-    const isHeroGenerated = [10, 11, 13, 16, 17, 18, 19, 20, 23, 24, 25, 31, 32, 33, 34, 35, 36, 37, 38].includes(tpl?.id) && !!tplUrls.hero
+    const isHeroGenerated = [10, 11, 13, 16, 17, 18, 19, 20, 23, 24, 25, 31, 32, 33, 34, 35, 36, 37, 38, 41, 42, 43].includes(tpl?.id) && !!tplUrls.hero
     // Week 1 WF bakes its two overlapping story circles into one PNG at slot 4
     const isStoryGenerated = (tpl?.id === 31 || tpl?.id === 34) && !!tplUrls.sec
     // ...and each stay photo into its own flat crop, so cardsGenerated[i] tells
     // the builder that images[i+1] is already cropped/zoomed and should render
     // as a plain <img> rather than re-applying position:absolute + a transform
-    const cardsGenerated = (tpl?.id === 31 || tpl?.id === 34) ? [!!tplUrls.card1, !!tplUrls.card2, !!tplUrls.card3] : [false, false, false]
+    const cardsGenerated = (tpl?.id === 31 || tpl?.id === 34) ? [!!tplUrls.card1, !!tplUrls.card2, !!tplUrls.card3]
+      : (tpl?.id === 42 || tpl?.id === 43) ? [!!tplUrls.card1, !!tplUrls.card2, !!tplUrls.card3, !!tplUrls.card4, !!tplUrls.card5]
+      : [false, false, false]
     const effectiveFooterData = clientFooter
       ? { ...clientFooter, logoColor: footerLogoColor, footerLogoSize }
       : clientFooter
     console.log('[baseHtml] tplId:', tpl?.id, 'isHeroGenerated:', isHeroGenerated, 'tplUrls:', tplUrls, 'effectiveImages[4]:', effectiveImages?.[4], 'effectiveImages[5]:', effectiveImages?.[5])
     const effectiveCopy = generatedCopy ? withBoldMarks({ ...generatedCopy, headlineText: (generatedCopy.headlineText || '').replace(/\.$/, '') }) : generatedCopy
-    return tpl.build({ client:selectedClient, copy:effectiveCopy, images:effectiveImages, headerStyle, imageStyle, footerData: effectiveFooterData, isHeroGenerated, isStoryGenerated, cardsGenerated, btnImgUrl: tplUrls.btn || null, introBtnImgUrl: tplUrls.introBtn || null, cardBtnImgUrl: tplUrls.cardBtn || null, stampImgUrl: tplUrls.sec || null, pinImgUrl: tplUrls.ter || null, gridImgUrl: ((tpl?.id === 33 || tpl?.id === 35 || tpl?.id === 36 || tpl?.id === 37 || tpl?.id === 38 || tpl?.id === 39) ? tplUrls.sec : null) || null, iconImgUrls: tplUrls.icons || [], heroMobileImgUrl: tplUrls.heroMobile || null, dayImgUrls: tpl?.id === 32 ? [tplUrls.sec || null, tplUrls.ter || null] : [], dayImgMobUrls: tpl?.id === 32 ? [tplUrls.card1 || null, tplUrls.card2 || null] : [], closingImgUrl: tpl?.id === 32 ? (tplUrls.closing || null) : null, ...editorProps })
+    return tpl.build({ client:selectedClient, copy:effectiveCopy, images:effectiveImages, headerStyle, imageStyle, footerData: effectiveFooterData, isHeroGenerated, isStoryGenerated, cardsGenerated, btnImgUrl: tplUrls.btn || null, introBtnImgUrl: tplUrls.introBtn || null, cardBtnImgUrl: tplUrls.cardBtn || null, stampImgUrl: tplUrls.sec || null, pinImgUrl: tplUrls.ter || null, gridImgUrl: ((tpl?.id === 33 || tpl?.id === 35 || tpl?.id === 36 || tpl?.id === 37 || tpl?.id === 38 || tpl?.id === 39 || tpl?.id === 41) ? tplUrls.sec : null) || null, iconImgUrls: tplUrls.icons || [], heroMobileImgUrl: tplUrls.heroMobile || null, btnMobileImgUrl: tplUrls.btnMobile || null, dayImgUrls: tpl?.id === 32 ? [tplUrls.sec || null, tplUrls.ter || null] : [], dayImgMobUrls: tpl?.id === 32 ? [tplUrls.card1 || null, tplUrls.card2 || null] : [], closingImgUrl: tpl?.id === 32 ? (tplUrls.closing || null) : null, ...editorProps })
   }, [active, selectedClient, generatedCopy, selectedImages, headerStyle, imageStyle, clientFooter, footerLogoColor, footerLogoSize, weekGenUrls, bakedImages, heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y, img5Scale, img5X, img5Y])
 
   // Keep store in sync so ApprovalPanel always has the latest HTML
@@ -4249,11 +4887,18 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
     const isWeek8WF  = tpl?.id === 38
     const isWeek9WF  = tpl?.id === 39
     const isWeek4WF  = tpl?.id === 34
+    // Repeat Booking Email 1: Email 7 WF's design, so it takes the welcome-flow buttons too
+    const isRB1      = tpl?.id === 41
+    // Repeat Booking Email 2: Email 1 WF's design, so it takes its hero, card and button bakes
+    const isRB2      = tpl?.id === 42
+    // Repeat Booking Email 3: Email 3 WF's hero over Email 1 WF's cards
+    const isRB3      = tpl?.id === 43
+    const isRBCards  = isRB2 || isRB3
     /* All three welcome templates share the hero and the buttons, so those bakes
        gate on isWFAny. Only Week 1 carries stay cards and the story circles —
        Week 2 is an itinerary and Week 3 is reviews plus a plain photo grid, and
        neither renders either — so those gate on isWFCards. */
-    const isWFAny    = isWeek1WF || isWeek2WF || isWeek3WF || isWeek4WF || isWeek5WF || isWeek6WF || isWeek7WF || isWeek8WF || isWeek9WF
+    const isWFAny    = isWeek1WF || isWeek2WF || isWeek3WF || isWeek4WF || isWeek5WF || isWeek6WF || isWeek7WF || isWeek8WF || isWeek9WF || isRB1 || isRB2 || isRB3
     const isWFCards  = isWeek1WF
     const isTest     = tpl?.id === 20
     const renderLogoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
@@ -4337,6 +4982,28 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
   </div>
 </div>
 </body></html>`
+
+    /* Repeat Booking Email 2's hero: a copy of Email 1 WF's bake above, its own
+       so either can change alone. No pill: the email's one button is last. */
+    const rb2HeroHtml = isRB2 ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@700&display=swap" rel="stylesheet"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:${week1wfBg};}</style>
+</head><body>
+<div style="width:600px;background:${week1wfBg};box-sizing:border-box;line-height:0;font-size:0;">
+  <div style="position:relative;width:600px;height:772px;overflow:hidden;">
+    ${heroImgUrl
+      ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:600px;height:772px;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
+      : `<div style="width:600px;height:772px;background:#e8eaed;"></div>`}
+    <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.34) 0%,rgba(0,0,0,0.16) 45%,rgba(0,0,0,0.05) 70%,rgba(0,0,0,0) 100%);">
+      <div style="position:absolute;top:${logoTop}px;left:0;right:0;text-align:center;padding:0 ${textLeft}px;line-height:normal;">
+        ${week1wfLogoHtml}
+        ${week1wfEyebrow ? `<div style="font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#fff;margin-top:30px;text-shadow:0 1px 6px rgba(0,0,0,.4);">${week1wfEyebrow}</div>` : ''}
+        ${headline ? `<div style="font-family:'Lora',Georgia,serif;font-size:${textSize}px;font-weight:700;color:#fff;line-height:1.16;text-shadow:0 2px 12px rgba(0,0,0,.4);margin-top:${textTop}px;display:inline-block;">${headline}</div>` : ''}
+      </div>
+    </div>
+  </div>
+</div>
+</body></html>` : null
 
     /* Two overlapping circles baked flat. Transparent background, and the ring
        around each circle is drawn in the page colour so the smaller one reads as
@@ -4456,6 +5123,12 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
        sits in normal flow below the logo — so the bake has to add the logo's
        own offset and height to land in the same place. Without that the text
        jumps 108px the moment Generate Images runs. */
+    /* The pill's size for each canvas, from the same helper the live hero uses.
+       The phone bake swaps one string for the other, so both come from here. */
+    const w3bd = w3PillFit(week1wfHeroCta, 600 - 2 * textLeft, 18, 24, 13)
+    const w3bm = w3PillFit(week1wfHeroCta, 600 - 2 * textLeft, 23, 26, 16)
+    const w3PillDesk = `border:2px solid #ffffff;border-radius:999px;padding:10px 24px;font-family:Arial,sans-serif;font-size:${w3bd.fs}px;line-height:22px;white-space:${w3bd.wrap ? 'normal' : 'nowrap'};`
+    const w3PillMob  = `border:3px solid #ffffff;border-radius:999px;padding:13px 26px;font-family:Arial,sans-serif;font-size:${w3bm.fs}px;line-height:30px;white-space:${w3bm.wrap ? 'normal' : 'nowrap'};`
     const week3wfHeroHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
@@ -4471,7 +5144,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
         ${w3First ? `<div style="font-family:'Lora',serif;font-size:${Math.round(textSize * 0.8)}px;font-style:italic;font-weight:400;color:#fff;line-height:1;text-shadow:0 2px 12px rgba(0,0,0,.35);margin-bottom:2px;">${w3First}</div>` : ''}
         <div style="font-family:'Lora',serif;font-size:${textSize}px;font-weight:700;text-transform:uppercase;color:#fff;line-height:1.02;text-shadow:0 2px 20px rgba(0,0,0,.3);">${w3Main}${w3Last ? ` <span style="font-family:'Lora',serif;font-style:italic;font-weight:400;text-transform:capitalize;font-size:${Math.round(textSize * 0.9)}px;">${w3Last}</span>` : ''}</div>
         ${week1wfHeroCta ? `<div style="margin-top:26px;">
-          <span style="display:inline-block;border:2px solid #ffffff;border-radius:999px;padding:10px 28px;font-family:Arial,sans-serif;font-size:18px;line-height:22px;font-weight:700;color:#ffffff;white-space:nowrap;">${week1wfHeroCta}</span>
+          <span style="display:inline-block;${w3PillDesk}font-weight:700;color:#ffffff;background:rgba(0,0,0,0.32);text-align:center;max-width:100%;">${week1wfHeroCta}</span>
         </div>` : ''}
       </div>
     </div>
@@ -4481,9 +5154,33 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 
     /* The same hero for a phone, with the pill at its former size: shown at
        0.65 scale a 600-wide PNG made the small desktop pill hard to read. */
-    const week3wfHeroMobileHtml = week3wfHeroHtml.replace(
-      'border:2px solid #ffffff;border-radius:999px;padding:10px 28px;font-family:Arial,sans-serif;font-size:18px;line-height:22px;',
-      'border:3px solid #ffffff;border-radius:999px;padding:13px 52px;font-family:Arial,sans-serif;font-size:23px;line-height:26px;')
+    const week3wfHeroMobileHtml = week3wfHeroHtml.replace(w3PillDesk, w3PillMob)
+
+    /* Repeat Booking Email 3's hero: a copy of Email 3 WF's bake above, its own
+       so either can change alone, with the campaign eyebrow above the split
+       headline and no pill. One bake serves the phone too: Email 3 WF's phone
+       bake exists only to enlarge its pill. Same offset as the on-screen hero:
+       the logo's top and height, then textTop + 210. */
+    const rb3HeroHtml = isRB3 ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
+</head><body>
+<div style="width:600px;background:transparent;box-sizing:border-box;line-height:0;font-size:0;">
+  <div style="position:relative;width:600px;height:772px;overflow:hidden;border-radius:0 0 20px 20px;">
+    ${heroImgUrl
+      ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:600px;height:772px;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
+      : `<div style="width:600px;height:772px;background:#e8eaed;"></div>`}
+    <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.25) 40%,rgba(0,0,0,0.45) 100%);">
+      <div style="position:absolute;top:${logoTop}px;left:0;right:0;text-align:center;line-height:normal;">${week1wfLogoHtml}</div>
+      <div style="position:absolute;left:${textLeft}px;right:${textLeft}px;top:${logoTop + logoSize + textTop + 210}px;text-align:left;line-height:normal;">
+        ${week1wfEyebrow ? `<div style="font-family:Arial,sans-serif;font-size:15px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#fff;margin-bottom:14px;text-shadow:0 1px 6px rgba(0,0,0,.4);">${week1wfEyebrow}</div>` : ''}
+        ${w3First ? `<div style="font-family:'Lora',serif;font-size:${Math.round(textSize * 0.8)}px;font-style:italic;font-weight:400;color:#fff;line-height:1;text-shadow:0 2px 12px rgba(0,0,0,.35);margin-bottom:2px;">${w3First}</div>` : ''}
+        ${w3Main ? `<div style="font-family:'Lora',serif;font-size:${textSize}px;font-weight:700;text-transform:uppercase;color:#fff;line-height:1.02;text-shadow:0 2px 20px rgba(0,0,0,.3);">${w3Main}${w3Last ? ` <span style="font-family:'Lora',serif;font-style:italic;font-weight:400;text-transform:capitalize;font-size:${Math.round(textSize * 0.9)}px;">${w3Last}</span>` : ''}</div>` : ''}
+      </div>
+    </div>
+  </div>
+</div>
+</body></html>` : null
 
     /* Week 3's 2x2 photo grid, baked flat. Transparent, so the 12px corner on
        each cell shows the page through instead of a filled square — the same
@@ -4658,6 +5355,46 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </div>
 </body></html>` : null
 
+    /* Repeat Booking Email 1's strip and circles: duplicates of Email 7's two
+       bakes above, kept as their own copies so either email can change alone. */
+    const rb1StripL = img3Url || img1Url || heroImgUrl
+    const rb1StripR = img4Url || img2Url || heroImgUrl
+    const rb1HeroHtml = isRB1 ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
+</head><body>
+<div style="position:relative;width:600px;height:340px;overflow:hidden;line-height:0;font-size:0;">
+  ${rb1StripL ? `<div style="position:absolute;left:-90px;top:37px;width:180px;height:265px;border-radius:14px;overflow:hidden;">
+    <img src="${rb1StripL}" style="width:100%;height:100%;object-fit:cover;display:block;${wfCrop(img3X, img3Y, img3Scale)}"/>
+  </div>` : ''}
+  ${rb1StripR ? `<div style="position:absolute;left:510px;top:37px;width:180px;height:265px;border-radius:14px;overflow:hidden;">
+    <img src="${rb1StripR}" style="width:100%;height:100%;object-fit:cover;display:block;${wfCrop(img4X, img4Y, img4Scale)}"/>
+  </div>` : ''}
+  <div style="position:absolute;left:105px;top:0;width:390px;height:340px;border-radius:14px;overflow:hidden;">
+    ${heroImgUrl
+      ? `<img src="${heroImgUrl}" style="width:100%;height:100%;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
+      : `<div style="width:100%;height:100%;background:#e8eaed;"></div>`}
+  </div>
+</div>
+</body></html>` : null
+
+    /* Same fallback as the template: an empty circle borrows its side's strip photo. */
+    const rb1CircleA = img1Url || img3Url
+    const rb1CircleB = img2Url || img4Url
+    const rb1CircleTfA = img1Url ? wfCrop(img1X, img1Y, img1Scale) : wfCrop(img3X, img3Y, img3Scale)
+    const rb1CircleTfB = img2Url ? wfCrop(img2X, img2Y, img2Scale) : wfCrop(img4X, img4Y, img4Scale)
+    const rb1CirclesHtml = (isRB1 && (rb1CircleA || rb1CircleB)) ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
+</head><body>
+<div style="position:relative;width:600px;height:360px;background:transparent;">
+  ${rb1CircleB ? `<div style="position:absolute;left:60px;top:150px;width:200px;height:200px;border-radius:50%;overflow:hidden;border:6px solid ${week1wfPageBg};">
+    <img src="${rb1CircleB}" style="width:100%;height:100%;object-fit:cover;display:block;${rb1CircleTfB}"/>
+  </div>` : ''}
+  ${rb1CircleA ? `<div style="position:absolute;left:220px;top:20px;width:320px;height:320px;border-radius:50%;overflow:hidden;border:6px solid ${week1wfPageBg};">
+    <img src="${rb1CircleA}" style="width:100%;height:100%;object-fit:cover;display:block;${rb1CircleTfA}"/>
+  </div>` : ''}
+</div>
+</body></html>` : null
+
     /* Email 8's hero: the photo alone, inset 48 and rounded, on a transparent
        ground so the page shows around it. 600 x 348 = 24 above, 300 of photo, 24 below. */
     const week8wfHeroHtml = isWeek8WF ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
@@ -4752,6 +5489,12 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
       ? week8wfHeroHtml
       : isWeek7WF
       ? week7wfHeroHtml
+      : isRB1
+      ? rb1HeroHtml
+      : isRB2
+      ? rb2HeroHtml
+      : isRB3
+      ? rb3HeroHtml
       : isWeek4WF
       ? week4wfHeroHtml
       : isWeek6WF
@@ -4885,14 +5628,43 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
        its full-width pill cannot alter Weeks 2, 4 and 6, which still use the
        centred inline-block version. */
     /* Email 9 asks for a reply: no CTA text means no button, not a stand-in. */
-    const week1wfMainCtaText = renderBoldMarks(generatedCopy?.ctaText || (isWeek9WF ? 'Book Your Stay' : 'Book Now'))
+    /* Email 9: a web address in the CTA box bakes as "Book Your Stay", the same
+       as the live button, never as the address itself. */
+    const wfCtaRaw = (generatedCopy?.ctaText || '').trim()
+    const week1wfMainCtaText = renderBoldMarks(
+      (isWeek9WF && /^(https?:\/\/|www\.)\S+$/i.test(wfCtaRaw) ? '' : wfCtaRaw) || (isWeek9WF ? 'Book Your Stay' : 'Book Now'))
+    /* Email 3 keeps clear space either side of its label; the rest unchanged. */
+    const mainBtnW = isWeek3WF ? w3BtnCanvas(week1wfMainCtaText) : 600
+    const mainBtnSide = isWeek3WF ? 56 : 24
     const week1wfMainBtnHtml = isWFAny ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:${mainBtnW}px;background:transparent;}</style>
 </head><body>
-<div style="width:600px;">
-  <div style="display:block;background:${w2v2AccentColor};border-radius:999px;padding:23px 24px;text-align:center;">
+<div style="width:${mainBtnW}px;">
+  <div style="display:block;background:${w2v2AccentColor};border-radius:999px;padding:23px ${mainBtnSide}px;text-align:center;">
     <span style="font-family:Arial,sans-serif;font-size:28px;font-weight:700;color:${wfButtonText(w2v2AccentColor)};white-space:nowrap;">${week1wfMainCtaText} &rarr;</span>
   </div>
+</div>
+</body></html>` : null
+
+    /* Email 3's phone button: the same button drawn for a phone, where the
+       image fills the screen (about 352px of this 600 canvas). The type is set
+       to read about 18px there, and a long label wraps onto a second line with
+       the button growing to hold it, rather than the type shrinking. Only past
+       two lines' worth does the type step down. Desktop keeps the button above. */
+    const w3MobBtn = isWeek3WF ? (() => {
+      const label = String(week1wfMainCtaText || '').replace(/<[^>]*>/g, '')
+      const len = label.length + 2, side = 40, inner = 600 - 2 * side, lineH = 38
+      const fs = Math.min(31, Math.floor((2 * inner) / (len * 0.6)))
+      /* Arial bold measures nearer 0.55em a character than the cautious 0.6
+         used for the size cap, so a label that fits gets a one-line button. */
+      const lines = len * fs * 0.55 > inner ? 2 : 1
+      return { fs, side, lineH, h: lines * lineH + 2 * 25 }
+    })() : null
+    const week3wfBtnMobileHtml = (w3MobBtn && week1wfMainCtaText) ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
+</head><body>
+<div style="width:600px;height:${w3MobBtn.h}px;display:flex;align-items:center;justify-content:center;text-align:center;background:${w2v2AccentColor};border-radius:999px;padding:0 ${w3MobBtn.side}px;">
+  <span style="font-family:Arial,sans-serif;font-size:${w3MobBtn.fs}px;line-height:${w3MobBtn.lineH}px;font-weight:700;color:${wfButtonText(w2v2AccentColor)};">${week1wfMainCtaText} &rarr;</span>
 </div>
 </body></html>` : null
 
@@ -4909,8 +5681,11 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 
     // identical wording on every card by design (TEMPLATE spec), so one baked
     // image serves all three cards — same idea as Week 2 reusing one button PNG
-    const week1wfCardCtaText = renderBoldMarks(generatedCopy?.propertyCards?.[0]?.ctaText || '')
-    const week1wfCardBtnHtml = (isWFCards && week1wfCardCtaText) ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+    /* Repeat Booking Emails 2 and 3's cards carry this button too, labelled "View
+       Dates" unless the copy sets one, the same default as its template. */
+    const rb2CardCta = generatedCopy?.propertyCards?.[0]?.ctaText
+    const week1wfCardCtaText = renderBoldMarks(isRBCards ? (rb2CardCta === undefined ? 'View Dates' : rb2CardCta) : (generatedCopy?.propertyCards?.[0]?.ctaText || ''))
+    const week1wfCardBtnHtml = ((isWFCards || isRBCards) && week1wfCardCtaText) ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:480px;background:transparent;}</style>
 </head><body>
 <div style="width:480px;text-align:left;line-height:0;font-size:0;">
@@ -4935,6 +5710,14 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     const week1wfCard1Html = isWFCards ? week1wfCardHtml(img1Url, img1Scale, img1X, img1Y) : null
     const week1wfCard2Html = isWFCards ? week1wfCardHtml(img2Url, img2Scale, img2X, img2Y) : null
     const week1wfCard3Html = isWFCards ? week1wfCardHtml(img3Url, img3Scale, img3X, img3Y) : null
+    /* Repeat Booking Emails 2 and 3's stay photos: the same 600x320 crop as Email 1 WF's
+       cards, one per stay type it shows, up to five (Sub 1-5). */
+    const rbCardCount = Math.min(5, Array.isArray(generatedCopy?.propertyCards) ? generatedCopy.propertyCards.filter(c => c && (c.name || c.description)).length : 0)
+    const rbCardHtmls = isRBCards
+      ? [[img1Url, img1Scale, img1X, img1Y], [img2Url, img2Scale, img2X, img2Y], [img3Url, img3Scale, img3X, img3Y],
+         [img4Url, img4Scale, img4X, img4Y], [img5Url, img5Scale, img5X, img5Y]]
+          .map(([u, s, x, y], i) => (i < rbCardCount ? week1wfCardHtml(u, s, x, y) : null))
+      : [null, null, null, null, null]
 
     const w8v2ButtonHtml  = isWeek8v2 ? `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
@@ -5433,7 +6216,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 </div>
 </body></html>` : null
 
-    const heroHeight = isWeek9 ? 720 : isWeek2 ? 580 : isWeek8WF ? 300 : isWeek7WF ? 340 : isWeek4WF ? week4wfHeroH : isWeek2WF ? (logoTop + logoSize + 18 + 680) : isWFAny ? 772 : isWeek8v2 ? 680 : isWeek7v2 ? ((img1Url || img2Url || img3Url) ? 988 : 720) : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : isTest ? 520 : 400
+    const heroHeight = isWeek9 ? 720 : isWeek2 ? 580 : isWeek8WF ? 300 : (isWeek7WF || isRB1) ? 340 :isWeek4WF ? week4wfHeroH : isWeek2WF ? (logoTop + logoSize + 18 + 680) : isWFAny ? 772 : isWeek8v2 ? 680 : isWeek7v2 ? ((img1Url || img2Url || img3Url) ? 988 : 720) : isWeek2v2 ? (logoTop + logoSize + 18 + 680) : (isWeek3 || isWeek3v2) ? 600 : isWeek5 ? 720 : isWeek6v2 ? 820 : isWeek4v2b ? 740 : isTest ? 520 : 400
     const secondaryPromise = isWeek4WF && img4Url
       ? renderImage({ html: week4wfPhotoHtml(img4Url, 552, 240, 16, img4X, img4Y, img4Scale), width: 552, height: 240, transparent: true })
       : isWeek2WF && img1Url
@@ -5442,6 +6225,8 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
       ? renderImage({ html: week8wfCirclesHtml, width: 600, height: 360, transparent: true })
       : isWeek7WF && week7wfCirclesHtml
       ? renderImage({ html: week7wfCirclesHtml, width: 600, height: 360, transparent: true })
+      : isRB1 && rb1CirclesHtml
+      ? renderImage({ html: rb1CirclesHtml, width: 600, height: 360, transparent: true })
       : isWeek6WF && week6wfStackedHtml
       ? renderImage({ html: week6wfStackedHtml, width: 600, height: 420, transparent: true })
       : isWeek5WF && week5wfMosaicHtml
@@ -5489,7 +6274,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
           : Promise.resolve(null)
 
     const buttonPromise = isWFAny && week1wfMainBtnHtml && week1wfMainCtaText
-      ? renderImage({ html: week1wfMainBtnHtml, width: 600, height: 88, transparent: true })
+      ? renderImage({ html: week1wfMainBtnHtml, width: mainBtnW, height: 88, transparent: true })
       : isWeek8v2 && w8v2ButtonHtml
       ? renderImage({ html: w8v2ButtonHtml, width: 600, height: 88, transparent: true })
       : isWeek7v2 && w7v2ButtonHtml
@@ -5514,7 +6299,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     const introBtnThunk = () => isWFAny && week1wfIntroBtnHtml
       ? renderImage({ html: week1wfIntroBtnHtml, width: 600, height: 88, transparent: true })
       : Promise.resolve(null)
-    const cardBtnThunk = () => isWFCards && week1wfCardBtnHtml
+    const cardBtnThunk = () => (isWFCards || isRBCards) && week1wfCardBtnHtml
       ? renderImage({ html: week1wfCardBtnHtml, width: 480, height: 80, transparent: true })
       : Promise.resolve(null)
     /* Email 2's closing photo: the one after the days. It went into the email
@@ -5543,6 +6328,8 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
       ? renderImage({ html: week4wfStackHtml([0, 1, 2]), width: 340, height: 340, transparent: true })
       : isWFCards && week1wfCard1Html
       ? renderImage({ html: week1wfCard1Html, width: 600, height: 320, transparent: false })
+      : isRBCards && rbCardHtmls[0]
+      ? renderImage({ html: rbCardHtmls[0], width: 600, height: 320, transparent: false })
       : Promise.resolve(null)
     const card2Thunk = () => isWeek2WF && img2Url
       ? renderImage({ html: week2wfDayHtml(img2Url, img2X, img2Y, img2Scale, W2_MOB, W2_MOB), width: W2_MOB, height: W2_MOB, transparent: true })
@@ -5550,11 +6337,22 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
       ? renderImage({ html: week4wfStackHtml([1, 2, 0]), width: 340, height: 340, transparent: true })
       : isWFCards && week1wfCard2Html
       ? renderImage({ html: week1wfCard2Html, width: 600, height: 320, transparent: false })
+      : isRBCards && rbCardHtmls[1]
+      ? renderImage({ html: rbCardHtmls[1], width: 600, height: 320, transparent: false })
       : Promise.resolve(null)
     const card3Thunk = () => isWeek4WF && img3Url
       ? renderImage({ html: week4wfStackHtml([2, 0, 1]), width: 340, height: 340, transparent: true })
       : isWFCards && week1wfCard3Html
       ? renderImage({ html: week1wfCard3Html, width: 600, height: 320, transparent: false })
+      : isRBCards && rbCardHtmls[2]
+      ? renderImage({ html: rbCardHtmls[2], width: 600, height: 320, transparent: false })
+      : Promise.resolve(null)
+    // Repeat Booking Emails 2 and 3 only: their fourth and fifth stay photos
+    const card4Thunk = () => isRBCards && rbCardHtmls[3]
+      ? renderImage({ html: rbCardHtmls[3], width: 600, height: 320, transparent: false })
+      : Promise.resolve(null)
+    const card5Thunk = () => isRBCards && rbCardHtmls[4]
+      ? renderImage({ html: rbCardHtmls[4], width: 600, height: 320, transparent: false })
       : Promise.resolve(null)
 
     const heroHtmlToUse = isWeek9 ? week9HeroHtml : isWeek8v2 ? week8v2HeroHtml : isWeek7v2 ? week7v2HeroHtml : isTest ? testHeroHtml : isWeek5 ? week5HeroHtml : isWeek6v2 ? week6HeroHtml : isWeek4v2b ? week4v2bHeroHtml : heroHtml
@@ -5563,14 +6361,14 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
       try {
         // wave 1 — unchanged from every other template: hero, story/stamp/pin, main CTA
         const [heroRes, secRes, terRes, btnRes] = await Promise.all([
-          isWeek9WF ? Promise.resolve(null) : renderImage({ html: heroHtmlToUse, width: 600, height: heroHeight, transparent: isWeek7v2 || isWeek3v2 || isWeek5 || isWeek6v2 || isWeek4v2b || isWeek3WF || isWeek4WF || isWeek5WF || isWeek6WF || isWeek7WF || isWeek8WF }),
+          isWeek9WF ? Promise.resolve(null) : renderImage({ html: heroHtmlToUse, width: 600, height: heroHeight, transparent: isWeek7v2 || isWeek3v2 || isWeek5 || isWeek6v2 || isWeek4v2b || isWeek3WF || isWeek4WF || isWeek5WF || isWeek6WF || isWeek7WF || isWeek8WF || isRB1 || isRB3 }),
           secondaryPromise,
           tertiaryPromise,
           buttonPromise,
         ])
 
         // wave 2 — Week 1 WF only, and only started once wave 1 has finished
-        const [introBtnRes, cardBtnRes, card1Res, card2Res, card3Res, heroMobileRes, iconRes, closingRes] = isWFAny
+        const [introBtnRes, cardBtnRes, card1Res, card2Res, card3Res, heroMobileRes, iconRes, closingRes, card4Res, card5Res, btnMobileRes] = isWFAny
           ? await Promise.all([introBtnThunk(), cardBtnThunk(), card1Thunk(), card2Thunk(), card3Thunk(),
               isWeek5WF ? renderImage({ html: week5wfHeroMobileHtml, width: 600, height: heroHeight, transparent: true })
                 : isWeek3WF ? renderImage({ html: week3wfHeroMobileHtml, width: 600, height: heroHeight, transparent: true })
@@ -5580,15 +6378,19 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
               week6wfIconKeys.length
                 ? Promise.all(week6wfIconKeys.map(key => renderImage({ html: week6wfIconHtml(key, clientFooter?.secondaryColor || clientFooter?.buttonColor || '#1a73e8'), width: 32, height: 32, transparent: true })))
                 : Promise.resolve(null),
-              week2wfClosingHtml ? renderImage({ html: week2wfClosingHtml, width: 552, height: 306, transparent: true }) : Promise.resolve(null)])
-          : [null, null, null, null, null, null, null, null]
+              week2wfClosingHtml ? renderImage({ html: week2wfClosingHtml, width: 552, height: 306, transparent: true }) : Promise.resolve(null),
+              card4Thunk(), card5Thunk(),
+              week3wfBtnMobileHtml ? renderImage({ html: week3wfBtnMobileHtml, width: 600, height: w3MobBtn.h, transparent: true }) : Promise.resolve(null)])
+          : [null, null, null, null, null, null, null, null, null, null, null]
 
         console.log('[WeekGen] both waves resolved:', { tplId: tpl?.id, heroRes, secRes, terRes, btnRes })
         const urls = {
           hero: heroRes?.url || null, sec: secRes?.url || null, ter: terRes?.url || null, btn: btnRes?.url || null,
           introBtn: introBtnRes?.url || null, cardBtn: cardBtnRes?.url || null,
           card1: card1Res?.url || null, card2: card2Res?.url || null, card3: card3Res?.url || null,
+          card4: card4Res?.url || null, card5: card5Res?.url || null,
           heroMobile: heroMobileRes?.url || null,
+          btnMobile: btnMobileRes?.url || null,
           closing: closingRes?.url || null,
           icons: Array.isArray(iconRes) ? iconRes.map(r => r?.url || null) : null,
         }
@@ -5903,7 +6705,10 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
               key: 'headline', label: 'Headline', color: '#059669', bg: dark ? 'rgba(5,150,105,0.15)' : '#ecfdf5',
               controls: [
                 { name: 'Size',  min: 18, max: 56,  step: 1, val: textSize, set: setTextSize, unit: 'px' },
-                { name: 'Top',   min: 10, max: 500, step: 4, val: textTop,  set: setTextTop,  unit: 'px' },
+                /* Email 3 WF places its headline 210px below the logo plus this value,
+                   so its range reaches below zero: at -200 the headline sits just
+                   under the logo. Every other template keeps 10-500. */
+                { name: 'Top',   min: (tpl?.id === 33 || tpl?.id === 43) ? -200 : 10, max: 500, step: 4, val: textTop,  set: setTextTop,  unit: 'px' },
                 { name: 'Left',  min: 0,  max: 580, step: 4, val: textLeft, set: setTextLeft, unit: 'px' },
               ]
             },
@@ -6064,8 +6869,8 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
           {/* Sub-image adjusters — shown for templates that have sub-images. A welcome
               flow email lists exactly the photos it has, named as the image picker
               names them, from the same list; the weekly templates keep theirs. */}
-          {[10, 11, 13, 16, 17, 18, 24, 25, 31, 32, 33, 34, 35, 36, 37, 38, 39].includes(tpl?.id) && ((tpl?.id >= 31 && tpl?.id <= 39)
-            ? wfImageSlots(tpl.id - 30, generatedCopy).filter(sl => sl.index > 0).map(sl => {
+          {[10, 11, 13, 16, 17, 18, 24, 25, 31, 32, 33, 34, 35, 36, 37, 38, 39, 41, 42, 43].includes(tpl?.id) && ((tpl?.id >= 31 && tpl?.id <= 43)
+            ? (tpl.id >= 41 ? rbImageSlots(tpl.id - 40, generatedCopy) : wfImageSlots(tpl.id - 30, generatedCopy)).filter(sl => sl.index > 0).map(sl => {
                 const [color, darkBg, lightBg] = ({
                   1: ['#7c3aed', 'rgba(124,58,237,0.15)', '#f5f3ff'], 2: ['#db2777', 'rgba(219,39,119,0.15)', '#fdf2f8'],
                   3: ['#ea580c', 'rgba(234,88,12,0.15)', '#fff7ed'],  4: ['#0891b2', 'rgba(8,145,178,0.15)', '#ecfeff'],
