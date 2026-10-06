@@ -92,6 +92,12 @@ function docText(doc) {
   return text.replace(/\n{3,}/g, '\n\n').trim()
 }
 
+/** Any Google Doc the service account can read, every tab, as plain text. */
+export async function fetchGoogleDocText(docId) {
+  const doc = await googleGet(`https://docs.googleapis.com/v1/documents/${docId}?includeTabsContent=true`)
+  return { title: doc.title || '', text: docText(doc) }
+}
+
 /* ── 1. copy brief ─────────────────────────────────────────────────────── */
 
 export async function fetchCopyBrief(clientName) {

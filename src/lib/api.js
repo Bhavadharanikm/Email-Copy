@@ -50,6 +50,12 @@ async function get(path, params = {}) {
 // Runs for a minute or two: netlify dev answers a -background function with 202
 // at once, Vercel holds the request open. Either way the result is polled from
 // copy-callback, and a rejected start (400/401/500) is surfaced straight away.
+export const fetchSavedSuggestions = ({ locationId, month }) =>
+  get('/campaign-suggestions', { locationId, month })
+
+export const fetchSuggestionStatus = ({ month }) =>
+  get('/campaign-suggestions', { month })
+
 export async function suggestCampaigns({ locationId, month }) {
   const jobId = crypto.randomUUID()
   let startError = null

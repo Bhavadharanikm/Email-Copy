@@ -31,6 +31,7 @@ import { handler as rbClaudeCopy }       from '../netlify/functions/rb-claude-co
 import { handler as rbSaveEmail }        from '../netlify/functions/rb-save-email.js'
 import { handler as wfPushEmail }        from '../netlify/functions/wf-push-email.js'
 import { handler as wfEmails }           from '../netlify/functions/wf-emails.js'
+import { handler as campaignSuggestions } from '../netlify/functions/campaign-suggestions.js'
 import { handler as suggestCampaigns }   from '../netlify/functions/suggest-campaigns-background.js'
 
 export const config = {
@@ -74,6 +75,7 @@ const HANDLERS = {
   'wf-emails':           wfEmails,
   'wf-submit-feedback':  wfSubmitFeedback,
   'suggest-campaigns-background': suggestCampaigns,
+  'campaign-suggestions': campaignSuggestions,
 }
 
 export default async function handler(req, res) {
