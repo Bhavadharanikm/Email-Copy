@@ -1,14 +1,15 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { suggestCampaigns, fetchSavedSuggestions, fetchSuggestionStatus } from '../lib/api'
+import { suggestCampaigns, fetchSavedSuggestions, fetchSuggestionStatus, fetchClientSuggestionMonths } from '../lib/api'
 
 const fmtStamp = (ts) => new Date(ts).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
 const fmtDate = (d) => d ? new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : ''
-const pct = (v) => v == null ? '–' : `${v}%`
+const pct = (v) => v == null ? '\u2013' : `${v}%`
 
+/* This month and the five after it. */
 function monthOptions() {
   const now = new Date()
-  return [0, 1, 2].map(i => {
+  return [0, 1, 2, 3, 4, 5].map(i => {
     const d = new Date(now.getFullYear(), now.getMonth() + i, 1)
     return { value: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`, label: d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) }
   })
@@ -19,11 +20,15 @@ export default function SuggestionsView({ dark, clients }) {
   const [locationId, setLocationId] = useState('')
   const [month, setMonth]           = useState(months[0].value)
   const [loading, setLoading]       = useState(false)
+  const [progress, setProgress]     = useState(null)
   const [loadingSaved, setLoadingSaved] = useState(false)
   const [error, setError]           = useState('')
   const [sets, setSets]             = useState([])
   const [shown, setShown]           = useState(0)
   const [generated, setGenerated]   = useState({})
+  const [clientMonths, setClientMonths] = useState({})
+  const view = useRef({ locationId, month })
+  view.current = { locationId, month }
 
   const c = {
     text:   dark ? 'rgba(255,255,255,0.88)' : '#111827',
@@ -37,12 +42,22 @@ export default function SuggestionsView({ dark, clients }) {
   const active = clients.filter(cl => cl.isActive && cl.ghl?.locationId).sort((a, b) => a.name.localeCompare(b.name))
   const doneCount = active.filter(cl => generated[cl.ghl.locationId]).length
   const result = sets[shown] || null
+  const monthLabel = (v) => months.find(m => m.value === v)?.label || v
+  const nextThree = months.slice(months.findIndex(m => m.value === month)).slice(0, 3).map(m => m.value)
 
   useEffect(() => {
     let live = true
     fetchSuggestionStatus({ month }).then(d => { if (live) setGenerated(d.generated || {}) }).catch(() => { if (live) setGenerated({}) })
     return () => { live = false }
   }, [month])
+
+  useEffect(() => {
+    setClientMonths({})
+    if (!locationId) return
+    let live = true
+    fetchClientSuggestionMonths({ locationId }).then(d => { if (live) setClientMonths(d.months || {}) }).catch(() => {})
+    return () => { live = false }
+  }, [locationId])
 
   useEffect(() => {
     setSets([]); setShown(0); setError('')
@@ -56,22 +71,36 @@ export default function SuggestionsView({ dark, clients }) {
     return () => { live = false }
   }, [locationId, month])
 
-  async function generate() {
-    if (!locationId) return
+  /* One month after another, never side by side: each run reads the plans
+     already saved for the months before it, so the rhythm holds across them. */
+  async function generate(list) {
+    const loc = locationId
+    if (!loc) return
     setLoading(true); setError('')
     try {
-      const data = await suggestCampaigns({ locationId, month })
-      setSets(prev => [data, ...prev]); setShown(0)
-      if (data.generatedAt) setGenerated(g => ({ ...g, [locationId]: data.generatedAt }))
+      for (const [i, m] of list.entries()) {
+        setProgress({ month: m, i: i + 1, n: list.length })
+        let data
+        try { data = await suggestCampaigns({ locationId: loc, month: m }) }
+        catch (err) { throw new Error(`${monthLabel(m)}: ${err.message}${i ? ' The months before it are saved.' : ''}`) }
+        if (data.generatedAt) setClientMonths(prev => ({ ...prev, [m]: data.generatedAt }))
+        if (view.current.locationId === loc && view.current.month === m) {
+          setSets(prev => [data, ...prev]); setShown(0)
+          if (data.generatedAt) setGenerated(g => ({ ...g, [loc]: data.generatedAt }))
+        }
+      }
     } catch (err) {
       setError(err.message)
     } finally {
-      setLoading(false)
+      setLoading(false); setProgress(null)
     }
   }
 
   const select = { padding: '10px 14px', borderRadius: 10, border: `1px solid ${c.border}`, background: c.card, color: c.text, fontSize: 14, fontFamily: 'Inter, sans-serif', outline: 'none', cursor: 'pointer' }
   const busy = loading || loadingSaved
+  const button = (primary) => ({ padding: '10px 18px', borderRadius: 10, fontSize: 14, fontWeight: 700, fontFamily: 'Inter, sans-serif',
+    border: primary ? 'none' : `1px solid ${c.border}`, background: primary ? c.accent : c.card, color: primary ? (dark ? '#111827' : '#fff') : c.text,
+    cursor: !locationId || busy ? 'not-allowed' : 'pointer', opacity: !locationId || busy ? 0.5 : 1 })
 
   return (
     <div>
@@ -85,13 +114,17 @@ export default function SuggestionsView({ dark, clients }) {
           ))}
         </select>
         <select aria-label="Month" value={month} onChange={e => setMonth(e.target.value)} style={select}>
-          {months.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
+          {months.map(m => <option key={m.value} value={m.value}>{clientMonths[m.value] ? '\u2713 ' : '\u2003 '}{m.label}</option>)}
         </select>
-        <button onClick={generate} disabled={!locationId || busy}
-          style={{ padding: '10px 20px', borderRadius: 10, border: 'none', background: c.accent, color: dark ? '#111827' : '#fff', fontSize: 14, fontWeight: 700, fontFamily: 'Inter, sans-serif',
-            cursor: !locationId || busy ? 'not-allowed' : 'pointer', opacity: !locationId || busy ? 0.5 : 1 }}>
-          {loading ? 'Analysing\u2026' : sets.length ? 'Regenerate' : 'Generate Suggestions'}
+        <button onClick={() => generate([month])} disabled={!locationId || busy} style={button(true)}>
+          {sets.length ? 'Regenerate' : 'Generate'} {monthLabel(month).split(' ')[0]}
         </button>
+        {nextThree.length > 1 && (
+          <button onClick={() => generate(nextThree)} disabled={!locationId || busy} style={button(false)}
+            title={nextThree.map(monthLabel).join(', ')}>
+            Generate {nextThree.length} months
+          </button>
+        )}
         {sets.length > 1 && (
           <select aria-label="Version" value={shown} onChange={e => setShown(Number(e.target.value))} style={select}>
             {sets.map((st, i) => (
@@ -110,9 +143,10 @@ export default function SuggestionsView({ dark, clients }) {
       )}
       {!result && <div style={{ marginBottom: 16 }} />}
 
-      {loading && (
-        <div role="status" style={{ padding: '48px 0', textAlign: 'center', color: c.sub, fontSize: 14 }}>
-          Reading every send for this client and working out what to send next. This takes a minute or two.
+      {loading && progress && (
+        <div role="status" style={{ padding: '48px 0', textAlign: 'center', color: c.sub, fontSize: 14, lineHeight: 1.7 }}>
+          Generating {monthLabel(progress.month)}{progress.n > 1 ? ` (${progress.i} of ${progress.n})` : ''}. Each month takes about three minutes.
+          {progress.n > 1 && <div style={{ color: c.faint, fontSize: 13 }}>Each month is saved as it finishes, and each one plans around the month before it. Keep this page open until the last one is done.</div>}
         </div>
       )}
       {loadingSaved && !loading && (

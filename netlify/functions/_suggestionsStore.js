@@ -41,3 +41,7 @@ export const listSuggestionSets = (token, locationId, month) =>
 /** Which clients already have suggestions for a month. */
 export const clientsWithSets = (token, month) =>
   call(token, `${TABLE}?month=eq.${encodeURIComponent(month)}&select=location_id,generated_at&order=generated_at.desc&limit=1000`)
+
+/** The months a client already has suggestions saved for. */
+export const monthsWithSets = (token, locationId) =>
+  call(token, `${TABLE}?location_id=eq.${encodeURIComponent(locationId)}&select=month,generated_at&order=generated_at.desc&limit=1000`)

@@ -17,7 +17,7 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { withAuth } from './_auth.js'
 import { fetchCopyBrief, fetchGoogleDocText } from './_wfSources.js'
-import { bearerOf, saveSuggestionSet } from './_suggestionsStore.js'
+import { bearerOf, saveSuggestionSet, listSuggestionSets } from './_suggestionsStore.js'
 import { loadPms, pmsInsights, bookingsAfterSends } from './_pmsInsights.js'
 
 const MODEL = 'claude-opus-5-5'
@@ -143,6 +143,7 @@ Reading this client's history (on top of the document's own thresholds):
 - Look for patterns rather than single sends: which categories, angles, subject-line styles and holidays beat this client's median and which fell under it, and how the client's sends did in the months now inside the booking window in previous years.
 - Use the client's location from the brief for which holidays and which seasonal imagery apply. With no brief, say so and keep seasonal claims to what the client's own sends show.
 - Don't duplicate anything already on the content calendar for this client.
+- <planned_sends> lists the Primaries already planned for the months between now and the target month, oldest first. They will go out before this month's sends, so count them as this client's most recent sends in the rhythm checks (DIRECT in a row, categories in the last 3 sends), after the real send history, and don't repeat their themes.
 
 Shape of the answer: the document's Step 5 output, given for each of the month's two sends. First send covers the 1st to the 15th, second send the 16th to the end of the month. Exactly four suggestions, all required: slot first rank 1 (Primary) and rank 2 (Backup), slot second rank 1 and rank 2. A send's Primary and Backup take genuinely different angles or categories; the two Primaries together pass the rhythm checks with the client's recent sends.
 - evidence: ids of 1-4 past sends behind the suggestion, from the send list only. The figures are filled in from the data, so never type a figure you were not given.
@@ -222,7 +223,7 @@ const rawHandler = async (event) => {
   if (!locationId) return json(400, { error: 'locationId is required' })
 
   try {
-    const suggestions = await generate(locationId, body.month)
+    const suggestions = await generate(locationId, body.month, bearerOf(event))
     /* Saved before the page hears it is done, so a set that shows up is a set
        that exists. A failed save still hands the set back, with the reason. */
     try {
@@ -244,7 +245,18 @@ const rawHandler = async (event) => {
   }
 }
 
-async function generate(locationId, month) {
+/* The Primaries already saved for the months between now and the target month,
+   latest set per month, so a later month's rhythm checks see what is planned. */
+async function plannedBefore(token, locationId, ty, tm, today) {
+  const months = []
+  for (let d = utc(today.getUTCFullYear(), today.getUTCMonth(), 1); d < utc(ty, tm - 1, 1); d = utc(d.getUTCFullYear(), d.getUTCMonth() + 1, 1)) months.push(iso(d).slice(0, 7))
+  const sets = await Promise.all(months.map(m => listSuggestionSets(token, locationId, m).then(r => r[0] || null).catch(() => null)))
+  return sets.filter(Boolean).flatMap(row => (row.result.suggestions || [])
+    .filter(x => x.rank === 1)
+    .map(x => `${row.result.monthLabel}, ${x.slot === 'first' ? '1st-15th' : '16th-end'}\t${x.type}\t${x.category}\t${x.title}\t${x.subjectLine}`))
+}
+
+async function generate(locationId, month, token) {
   if (!process.env.PLATFORM_SUPABASE_URL || !process.env.PLATFORM_SUPABASE_SERVICE_KEY) throw new Error('PLATFORM_SUPABASE_URL / PLATFORM_SUPABASE_SERVICE_KEY are not set')
   if (!process.env.ANTHROPIC_API_KEY) throw new Error('ANTHROPIC_API_KEY is not set')
 
@@ -260,12 +272,13 @@ async function generate(locationId, month) {
     const name = client.client_name
 
     const since = iso(utc(today.getUTCFullYear() - 2, today.getUTCMonth(), 1))
-    const [sends, pmsRaw, calendar, brief, brain] = await Promise.all([
+    const [sends, pmsRaw, calendar, brief, brain, planned] = await Promise.all([
       loadSends(locationId, since),
       loadPms(platform, locationId, name).catch(err => ({ available: false, reason: `PMS data could not be read: ${err.message}` })),
       app(`${encodeURIComponent('Email Content Calendar')}?select=subject,theme,campaign_type,send_month,calendar_date,idea_status,entry_status&client_name=eq.${encodeURIComponent(name)}&order=id.desc&limit=60`).catch(() => []),
       fetchCopyBrief(name).catch(err => ({ error: err.message })),
       fetchGoogleDocText(BRAIN_DOC_ID).catch(err => { throw new Error(`Could not read the suggestions brain doc: ${err.message}`) }),
+      plannedBefore(token, locationId, ty, tm, today),
     ])
     const stats = summarise(sends, today)
     const holidays = holidaysBetween(monthStart, utc(ty, tm + 8, 0))
@@ -280,6 +293,7 @@ async function generate(locationId, month) {
       `<baseline>${JSON.stringify(stats.baseline)}</baseline>`,
       `<month_by_month>\n${stats.byMonth.map(m => `${m.month}\t${m.sends} sends\tavg CTR ${m.avgCtr}%\tavg CTOR ${m.avgCtor}%`).join('\n')}\n</month_by_month>`,
       `<sends count="${sends.length}">\nid\tdate\tsegment\taudience\topen%\tCTR%\tCTOR%\tbookings in 7 days after\tusual bookings per 7 days\tcampaign name\tsubject line\n${sends.slice(0, 200).map(sendLine).join('\n')}\n</sends>`,
+      `<planned_sends>\n${planned.join('\n') || 'None saved for the months before this one.'}\n</planned_sends>`,
       `<content_calendar>\n${calendar.map(c => [c.calendar_date || c.send_month || '', c.idea_status || c.entry_status || '', c.campaign_type || '', c.subject || c.theme || ''].join('\t')).join('\n') || 'Nothing on the calendar.'}\n</content_calendar>`,
       `<upcoming_holidays>\n${holidays.map(h => h.line).join('\n')}\n</upcoming_holidays>`,
       `<pms>\n${JSON.stringify(pms)}\n</pms>`,

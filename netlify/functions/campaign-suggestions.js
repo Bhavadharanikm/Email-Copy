@@ -1,20 +1,28 @@
 /**
- * GET /.netlify/functions/campaign-suggestions?month=YYYY-MM[&locationId=…]
+ * GET /.netlify/functions/campaign-suggestions?month=YYYY-MM[&locationId=…]  or  ?locationId=… alone
  *
  * With locationId: every saved suggestion set for that client and month,
  * newest first. Without: { generated: { [locationId]: lastGeneratedAt } } for
  * the month, so the client picker can mark who already has suggestions.
+ * locationId alone: { months: { [YYYY-MM]: lastGeneratedAt } } for that client.
  */
 import { withAuth } from './_auth.js'
-import { bearerOf, listSuggestionSets, clientsWithSets } from './_suggestionsStore.js'
+import { bearerOf, listSuggestionSets, clientsWithSets, monthsWithSets } from './_suggestionsStore.js'
 
 const json = (statusCode, body) => ({ statusCode, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
 
 const rawHandler = async (event) => {
   if (event.httpMethod !== 'GET') return json(405, { error: 'GET only' })
   const { month, locationId } = event.queryStringParameters || {}
-  if (!/^\d{4}-\d{2}$/.test(month || '')) return json(400, { error: 'month (YYYY-MM) is required' })
   const token = bearerOf(event)
+  if (locationId && !month) {
+    try {
+      const months = {}
+      for (const r of await monthsWithSets(token, locationId)) months[r.month] ||= r.generated_at
+      return json(200, { months })
+    } catch (err) { return json(500, { error: err.message }) }
+  }
+  if (!/^\d{4}-\d{2}$/.test(month || '')) return json(400, { error: 'month (YYYY-MM) is required' })
 
   try {
     if (locationId) {
