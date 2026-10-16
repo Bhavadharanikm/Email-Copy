@@ -62,6 +62,34 @@ async function callHtml2Image(apiKey, html, width, height, transparent) {
   return { res, data }
 }
 
+// ── Inline photos for html2image.net ──────────────────────────────────────
+/* html2image.net screenshots before remote photos finish loading, which baked
+   empty photo frames and half-drawn photos into live emails (Cohost, Week 3 and
+   Week 5, Oct 2026). Embedding each photo as a data URI leaves it nothing to
+   load. A photo that cannot be fetched, or would push the page past the cap,
+   stays a link. */
+const INLINE_CAP = 12 * 1024 * 1024
+async function inlineImages(html) {
+  const urls = [...new Set([...html.matchAll(/src="(https?:\/\/[^"]+)"|url\(['"]?(https?:\/\/[^'")]+)['"]?\)/g)].map(m => m[1] || m[2]))]
+  let total = 0, inlined = 0
+  let out = html
+  for (const url of urls) {
+    try {
+      const res = await fetch(url, { signal: AbortSignal.timeout(10_000) })
+      const type = res.headers.get('content-type') || ''
+      if (!res.ok || !type.startsWith('image/')) continue
+      const buf = Buffer.from(await res.arrayBuffer())
+      if (total + buf.length > INLINE_CAP) continue
+      total += buf.length; inlined++
+      out = out.split(url).join(`data:${type.split(';')[0]};base64,${buf.toString('base64')}`)
+    } catch (err) {
+      console.warn('[html-to-image] could not inline', url.slice(0, 80), err.message)
+    }
+  }
+  console.log(`[html-to-image] inlined ${inlined}/${urls.length} photos (${Math.round(total / 1024)} KB) for html2image.net`)
+  return out
+}
+
 // ── GHL Media Library upload ──────────────────────────────────────────────
 
 async function uploadToGHL(apiKey, locationId, buffer) {
@@ -173,13 +201,20 @@ const rawHandler = async (event) => {
     }
 
     // ── 2. Local Puppeteer (always used for transparent renders) ────────────
-    try {
-      const url = await callPuppeteer(html, width, height, locationId, ghlKey, transparent)
-      console.log('[html-to-image] Puppeteer OK (transparent:', !!transparent, '):', url)
-      return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) }
-    } catch (puppeteerErr) {
-      console.warn('[html-to-image] Puppeteer failed:', puppeteerErr.message, '— trying html2image.net fallback')
+    /* Generate Images bakes several sections at once, and Chromium sometimes
+       dies mid-screenshot ("Target closed"). A second launch almost always
+       works, and is far better than the html2image.net fallback. */
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      try {
+        const url = await callPuppeteer(html, width, height, locationId, ghlKey, transparent)
+        console.log('[html-to-image] Puppeteer OK (transparent:', !!transparent, ', attempt', attempt, '):', url)
+        return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) }
+      } catch (puppeteerErr) {
+        console.warn(`[html-to-image] Puppeteer failed (attempt ${attempt}/2):`, puppeteerErr.message)
+        if (attempt === 1) await sleep(1200)
+      }
     }
+    console.warn('[html-to-image] Puppeteer gave up — trying html2image.net fallback')
 
     // ── 3. html2image.net fallback ───────────────────────────────────────
     // Transparency is not guaranteed here. Returning an opaque PNG when a
@@ -189,24 +224,44 @@ const rawHandler = async (event) => {
     if (!h2iKey) throw new Error('No renderer available — Puppeteer failed and HTML2IMAGE_API_KEY not set')
     if (transparent) console.warn('[html-to-image] transparent render falling back to html2image.net — background may not be transparent')
 
+    /* Embedded photos first; if html2image.net refuses that (it may cap the
+       request size), the page as it was, so the fallback never ends up worse. */
+    const inlinedHtml = await inlineImages(html)
+    const pages = inlinedHtml === html ? [html] : [inlinedHtml, html]
     const MAX_RETRIES = 4
-    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
-      if (attempt > 1) { await sleep(attempt * 800); console.log(`[html-to-image] Retry ${attempt}/${MAX_RETRIES}`) }
-      let res, data
-      try {
-        ;({ res, data } = await callHtml2Image(h2iKey, html, width, height, transparent))
-      } catch (fetchErr) {
-        console.warn('[html-to-image] html2image.net fetch error:', fetchErr.message)
-        break
+    for (const [pageNo, page] of pages.entries()) {
+      if (pageNo > 0) console.warn('[html-to-image] html2image.net refused the embedded page — retrying with linked photos')
+      for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+        if (attempt > 1) { await sleep(attempt * 800); console.log(`[html-to-image] Retry ${attempt}/${MAX_RETRIES}`) }
+        let res, data
+        try {
+          ;({ res, data } = await callHtml2Image(h2iKey, page, width, height, transparent))
+        } catch (fetchErr) {
+          console.warn('[html-to-image] html2image.net fetch error:', fetchErr.message)
+          break
+        }
+        if (res.ok && data.Status === 'OK') {
+          console.log('[html-to-image] html2image.net OK (attempt', attempt, '):', data.Link)
+          /* html2image.net links expire after a few days, and an email that
+             points at one loses the picture. Keep a copy in the client's GHL
+             media library, as the other tiers do. */
+          let url = data.Link
+          if (ghlKey && locationId) {
+            try {
+              const png = Buffer.from(await (await fetch(data.Link, { signal: AbortSignal.timeout(15_000) })).arrayBuffer())
+              url = await uploadToGHL(ghlKey, locationId, png)
+              console.log('[html-to-image] html2image.net copy saved to GHL:', url)
+            } catch (copyErr) {
+              console.warn('[html-to-image] could not copy html2image.net PNG to GHL, using its temporary link:', copyErr.message)
+            }
+          }
+          return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) }
+        }
+        console.warn(`[html-to-image] html2image.net (attempt ${attempt}):`, JSON.stringify(data))
+        const details = data?.Details || ''
+        const retryable = details.includes('mkdir') || details.includes('File exists') || details.includes('errno=28')
+        if (!retryable) break
       }
-      if (res.ok && data.Status === 'OK') {
-        console.log('[html-to-image] html2image.net OK (attempt', attempt, '):', data.Link)
-        return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: data.Link }) }
-      }
-      console.warn(`[html-to-image] html2image.net (attempt ${attempt}):`, JSON.stringify(data))
-      const details = data?.Details || ''
-      const retryable = details.includes('mkdir') || details.includes('File exists') || details.includes('errno=28')
-      if (!retryable) break
     }
     throw new Error('All renderers failed')
 

@@ -29,6 +29,7 @@ shape — *Symptom → What we did → Why it broke → Fix → How to check*. K
 | A title/section renders twice | [11. Ported section brought its own title](#11-something-renders-twice) |
 | A fluid template still overflows on mobile by a few px | [12. `white-space:nowrap` on the CTA](#12-fluid-card-still-overflows-a-little) |
 | Media library / images fail with a 401 in one workflow only | [13. `undefined` serialised into a query string](#13-undefined-sent-as-an-api-key) |
+| Baked section shows empty photo frames, or a photo cut short / half drawn | [14. Puppeteer crash → html2image.net shot before photos loaded](#14-empty-or-half-drawn-photos-in-a-baked-section) |
 
 ---
 
@@ -361,6 +362,37 @@ Remove the title from the B2 inner box; leave that box as body2 + closing + CTA.
 ### How to check
 Count `class="mobile-b2title"` **elements** in the template. Should be exactly 1. (The
 `@media` rule `.mobile-b2title { }` also matches a naive grep — don't count it.)
+
+---
+
+## 14. Empty or half-drawn photos in a baked section
+
+### Symptom
+Live site, weekly emails (The Cohost Company, 16 Oct 2026). After Generate Images, Week 3's
+two tilted cards baked as empty white frames, and in Week 5's 2×2 grid the bottom-right
+photo stopped short of its tile.
+
+### Why it broke
+The Vercel logs had it. In each batch one render hit
+`Puppeteer failed: Protocol error (Page.captureScreenshot): Target closed` (Chromium died
+mid-shot while several sections baked at once) and fell through to **html2image.net**.
+html2image.net takes its screenshot before remote photos finish loading: the Week 3 PNG
+was two blank cards with a few rows of photo at the top of one; the Week 5 photo was only
+partly decoded. Its links also expire after a few days, so the email would have lost the
+picture anyway. It was **not** the photo sliders: the tile was short because the photo
+had not finished drawing.
+
+### Fix
+`html-to-image.js`: Puppeteer gets a second launch before giving up. If html2image.net is
+still needed, every photo is fetched and embedded as a data URI first (up to 12 MB), so
+there is nothing left to load; if it refuses the bigger page, the old linked page is
+tried. Its PNG is then copied into the client's GHL media library.
+
+### How to check
+In the function logs, a bake should read `Puppeteer OK (... attempt 2)` after a crash,
+or `inlined N/N photos` then `html2image.net copy saved to GHL`. Open the returned PNG:
+every photo filled to its frame. An `html2image.net/api/tmp/` URL in a template means
+the GHL copy failed.
 
 ---
 
