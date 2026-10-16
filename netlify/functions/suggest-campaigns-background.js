@@ -16,15 +16,18 @@
  */
 import Anthropic from '@anthropic-ai/sdk'
 import { withAuth } from './_auth.js'
-import { fetchCopyBrief, fetchGoogleDocText } from './_wfSources.js'
-import { bearerOf, saveSuggestionSet, listSuggestionSets } from './_suggestionsStore.js'
+import { fetchGoogleDocText } from './_wfSources.js'
+import { bearerOf, saveSuggestionSet, listSuggestionSets, feedbackForClient } from './_suggestionsStore.js'
 import { loadPms, pmsInsights, bookingsAfterSends } from './_pmsInsights.js'
 
 const MODEL = 'claude-opus-5-5'
 /* The doc's ten INDIRECT categories, plus three for DIRECT sends, which the doc does not name. */
-const CATEGORIES = ['Social Proof', 'Experience / Lifestyle', 'Seasonal Atmosphere', 'Local Guide', 'Amenity Spotlight',
+/* The doc's INDIRECT categories less Amenity Spotlight, plus two for DIRECT
+   sends, which the doc does not name. No offer category: HiddenGem does not
+   want discounts suggested at all. */
+const CATEGORIES = ['Social Proof', 'Experience / Lifestyle', 'Seasonal Atmosphere', 'Local Guide',
   'Audience-Specific', 'Educational', 'Visual-First', 'Host / Brand Voice', 'Planning & Imagination',
-  'Holiday / Date Promotion', 'Availability / Booking Window', 'Approved Offer']
+  'Holiday / Date Promotion', 'Availability / Booking Window']
 
 const json = (statusCode, body) => ({ statusCode, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
 
@@ -88,7 +91,9 @@ async function loadSends(locationId, since) {
   const rows = await platform(
     `ghl_email_campaigns?select=date_sent,campaign_name,subject_line,audience_size,delivered,opened,clicked,open_rate,ctr,ctor,unsubscribe_rate`
     + `&location_id=eq.${encodeURIComponent(locationId)}&date_sent=gte.${since}&order=date_sent.desc&limit=1000`)
-  return rows.filter(r => r.date_sent && (r.delivered || 0) > 0).map((r, i) => ({
+  /* Under 50 delivered is a one-off (an inquiry reply, a test), not a newsletter,
+     and its 0% would drag the client's medians down. */
+  return rows.filter(r => r.date_sent && (r.delivered || 0) >= 50).map((r, i) => ({
     id: `S${i + 1}`, date: r.date_sent, name: r.campaign_name || '', subject: r.subject_line || '',
     segment: segmentOf(r.campaign_name), audience: r.audience_size, delivered: r.delivered, clicked: r.clicked,
     openRate: r.open_rate, ctr: r.ctr, ctor: r.ctor, unsub: r.unsubscribe_rate,
@@ -122,48 +127,59 @@ The document above is your brain: follow it. These notes do not change its rules
 Data in this run, for ONE client:
 - Email send history from GoHighLevel: date, campaign name, subject line, audience size, CTR, CTOR. Each send has an id (S1 is the most recent).
 - Server-computed figures: the client's baseline (median CTR and CTOR) and a month-by-month table.
-- The client's copy brief, when one exists (property type, sleeps, guest profile, amenities, location, approved offers).
 - What is already on HiddenGem's content calendar for this client.
 - Upcoming holidays with exact dates, marked [US], [CA] or [US/CA].
-- PMS figures computed from the client's bookings (<pms>), when the client has a PMS connected: occupancy on the books and same time last year (STLY) for 0-30, 31-60, 61-90 and 91-180 days, the final occupancy those windows reached last year, median booking lead time (last 12 months and by stay month), monthly occupancy with the client's own Peak / Shoulder / Low months, how much of the business is open each weekend in the next 60 days, how much is open on each upcoming holiday, party size, and where the properties are. Owner blocks count as unsellable, not booked. All of it is for the client as a whole business. If <pms> says unavailable, the client has no usable PMS data.
+- PMS figures computed from the client's bookings (<pms>), when the client has a PMS connected: occupancy on the books and same time last year (STLY) for 0-30, 31-60, 61-90 and 91-180 days, the final occupancy those windows reached last year, median booking lead time (last 12 months and by stay month), monthly occupancy with the client's own Peak / Shoulder / Low months (seasons: each calendar month averaged over up to 24 months, ranked into thirds as Section 5 says), how full each upcoming holiday was last year against the same weekdays around it (holidayHistory), the booking window already worked out as Step 1 says (bookingWindow), how much of the business is open each weekend in the next 60 days, how much is open on each upcoming holiday, party size, and where the properties are. Owner blocks count as unsellable, not booked. All of it is for the client as a whole business. If <pms> says unavailable, the client has no usable PMS data.
 
-One business, never one property: HiddenGem's instruction, which overrides the document's multi-property rule. Read the client as a whole, and never name, single out or compare individual properties in any field.
+HiddenGem's standing rules. They override the document wherever the two differ:
+- One business, never one property. Read the client as a whole, and never name, single out or compare individual properties in any field (this replaces the document's multi-property rule).
+- No discounts or offers of any kind: no codes, no percent or dollar off, no free nights, no giveaways, no "deal" or "sale" angle, even when the brief approves an offer and even when past offer emails did well. Never build a theme, hook, subject line or preview text around one.
+- No Meta data. HiddenGem does not use it for suggestions: ignore every mention of Meta in the document, never list it as missing, and never lower confidence because of it.
+- No client brief. It is not used for suggestions: ignore the document's brief references, never list it as missing, classify the audience type from PMS party size, and never lower confidence because of it.
+- No amenity-led emails. Never build a theme, hook, subject line or preview text around a particular amenity or facility (hot tub, fire pit, pool, sauna, a named lodge or cabin feature). The theme is the season, the occasion, the trip, the people or the place, not a feature of the property.
 
-Not in this run: Meta data and the HiddenGem Promotional Marketing Calendar; PMS too when <pms> says unavailable. Apply the document's Missing Data rule for whatever is missing and set confidence as the document says. Use the PMS figures exactly as given: any scarcity or availability claim must match them, and when there is no PMS data never claim scarcity or pace and never use the Book Your Stay CTA.
+Not in this run: the HiddenGem Promotional Marketing Calendar, and PMS data when <pms> says unavailable. Apply the document's Missing Data rule for PMS and email data only and set confidence as the document says. Use the PMS figures exactly as given: any scarcity or availability claim must match them, and when there is no PMS data never claim scarcity or pace and never use the Book Your Stay CTA.
 
-Look ahead. The month an email is sent is not the month it sells. Set the booking window as Step 1 says: the client's own median lead time from <pms> (by stay month for the season being promoted, when that differs from the annual figure), and the audience benchmark only when the PMS history is under 12 months or missing. For example, with benchmark lead times a couples property sent in October is promoting November and December stays; a large group property sent in October may be promoting the holidays and spring or summer next year. Stay dates promoted, calendar anchors and seasonal imagery belong to the stays inside that window, not to the send month: do not lead an October send with fall foliage unless fall stays are still inside the window. INDIRECT emails also build desire for the season the client is selling next. Say the window in bookingWindow.
+Timing is the point of these suggestions. Lead time decides when a theme should go out: a theme selling stays that start on a date should reach the list about one lead time before it. For every suggestion give targetStayStart, the first night of the stays or season it sells (for INDIRECT, the start of the season it builds desire for), and holiday: the exact name from <upcoming_holidays> when the email is about that holiday, otherwise "none". Holiday stays have their own lead times in <pms> holidayLeadTimes, often longer than the year's average; the server uses them for holiday emails. The server works out from it whether this send is on time, too late (should go out earlier) or too early (should wait), so choose themes whose timing fits each send, and never one whose stays have already started.
+
+Look ahead. The month an email is sent is not the month it sells. Set the booking window as Step 1 says. When <pms> has bookingWindow, it is Step 1 already done: use its leadTimeDays and promoteThrough exactly, and quote its basis and reason in bookingWindow; do not recompute it. Only with no PMS data, apply Step 1 yourself with the audience benchmark. For example, with benchmark lead times a couples property sent in October is promoting November and December stays; a large group property sent in October may be promoting the holidays and spring or summer next year. Stay dates promoted, calendar anchors and seasonal imagery belong to the stays inside that window, not to the send month: do not lead an October send with fall foliage unless fall stays are still inside the window. INDIRECT emails also build desire for the season the client is selling next. Say the window in bookingWindow.
 
 Reading this client's history (on top of the document's own thresholds):
 - Rank angles on CTR and CTOR. Open rate is inflated by Apple Mail Privacy, so never treat it as a true read rate; but between subject lines sent to the same segment around the same time, a clearly higher open rate is still a fair signal of which subject-line style earns the open. Use it that way when you write subjectLine, and name the subject lines it came from.
-- Bookings after a send: each send carries the bookings the client took in the 7 days from the send date, and the client's usual bookings per 7 days (the average of the 28 days before). This is timing, not proof the email caused them: sends within a week of each other share the same bookings, and a holiday or an ad can lift bookings too. Use it as a second signal beside CTR and CTOR, especially to see which themes and holidays were followed by bookings last year, and say "followed by" rather than "drove". Blank means no PMS data or too recent.
-- Look at the last two years of sends in the months that are now inside the booking window (what was sent ahead of those stays last year, and how it did), not only the latest sends.
-- Campaign names ending (RE) or (AC) appear to be different audience segments: they come with very different audience sizes. Compare CTOR across segments; compare CTR only within one segment.
+- Bookings after a send: each send carries the bookings the client took in the 14 days from the send date (one bi-weekly cycle), and the client's usual bookings per 14 days (from the 28 days before). This is timing, not proof the email caused them: sends within two weeks of each other share the same bookings, and a holiday or an ad can lift bookings too. Use it as a second signal beside CTR and CTOR, especially to see which themes and holidays were followed by bookings last year, and say "followed by" rather than "drove". Blank means no PMS data or too recent.
+- Theme from the same season last year. <same_season_last_year> lists what this client sent in the target month and the two months after it, one and two years ago, with how each did. The theme of each suggestion comes from there, checked against the PMS figures: what was sent at this time of year, which of those themes earned clicks and bookings, and what the bookings say the business needs now. Sends from other months may only inform style (subject-line form, length, question or statement, emoji), never the theme; when you cite one, its role is style. If <same_season_last_year> is empty because the client's history is too short, say so in dataGaps and take the theme from the PMS figures and the document's seasonal guidance.
+- Campaign names ending (RE) went to Recent Engagers and (AC) to All Contacts, per the document's Audience rule. The lists differ a lot in size, so compare CTOR across them and CTR only within one.
 - Many clients sit under the document's 1.5% CTR / 3% CTOR bar on most sends, so also judge each send against this client's own median and say which yardstick you used.
 - Classify each past send you use as DIRECT or INDIRECT and give it a category, from its campaign name and subject line. The name often says Direct or Indirect outright; trust that.
 - Look for patterns rather than single sends: which categories, angles, subject-line styles and holidays beat this client's median and which fell under it, and how the client's sends did in the months now inside the booking window in previous years.
-- Use the client's location from the brief for which holidays and which seasonal imagery apply. With no brief, say so and keep seasonal claims to what the client's own sends show.
+- Before leaning on a holiday, check holidayHistory: a holiday that ran clearly above the weekdays around it last year is one guests book around; one that ran level or below is not, whatever the calendar says. Say which.
+- Use where the properties are (<pms> locations) for which holidays and which seasonal imagery apply. With no PMS data, keep seasonal claims to what the client's own sends show.
 - Don't duplicate anything already on the content calendar for this client.
+- <team_feedback> is HiddenGem's own ratings (1 to 5) and notes on earlier suggestions for this client, newest first, with feedback on the target month first. It is the team's judgement of whether the suggestions were the right call, so it outranks your own reading of the data wherever the two disagree, short of inventing numbers or breaking the document's accuracy rules. Do what the notes ask. Keep what was rated 4 or 5 working for you and steer away from what was rated 1 or 2. Never repeat a suggestion the team rated low or criticised. In analysis.feedbackActedOn, say in one or two lines what feedback you acted on and how, or that there was none.
 - <planned_sends> lists the Primaries already planned for the months between now and the target month, oldest first. They will go out before this month's sends, so count them as this client's most recent sends in the rhythm checks (DIRECT in a row, categories in the last 3 sends), after the real send history, and don't repeat their themes.
 
-Shape of the answer: the document's Step 5 output, given for each of the month's two sends. First send covers the 1st to the 15th, second send the 16th to the end of the month. Exactly four suggestions, all required: slot first rank 1 (Primary) and rank 2 (Backup), slot second rank 1 and rank 2. A send's Primary and Backup take genuinely different angles or categories; the two Primaries together pass the rhythm checks with the client's recent sends.
-- evidence: ids of 1-4 past sends behind the suggestion, from the send list only. The figures are filled in from the data, so never type a figure you were not given.
+Shape of the answer: one suggestion per send, so exactly two: slot first (the send between the 1st and the 15th) and slot second (the 16th to the end of the month), both with rank 1. No backups. Each is the single best call for that send, and the two together pass the rhythm checks with the client's recent sends.
+- reasoning: the one thing the account manager reads, so it carries the whole case: two or three plain sentences on why this theme, why at this time, and which of the client's numbers decided it (pace, lead time, what this send did last year). No jargon, no ids, no restating the title.
+- targetStayStart: YYYY-MM-DD. holiday: a name from <upcoming_holidays>, or "none".
+- bookingWindow: never empty. The lead time used, where it came from, and the last stay date being promoted.
+- evidence: ids of 1-4 past sends behind the suggestion, from the send list only, same-season sends first. The figures are filled in from the data, so never type a figure you were not given.
 - whatsWorking names those sends by what they were, not by id.
 - previewText: up to 90 characters, adding to the subject line rather than repeating it.
 - expires: YYYY-MM-DD.
-analysis is what an account manager reads first: this client's history in plain language they can check in 30 seconds, with the ids of the sends behind each point in its evidence.
+analysis is what an account manager reads first, so keep it short: summary in at most three sentences, at most three points each in whatsWorking and whatsNotWorking, recentSends only the last three sends, dataGaps only real gaps that change the call (at most three), and every other field one or two sentences. Plain language they can check in 30 seconds, with the ids of the sends behind each point in its evidence.
 </this_run>`
 
 const strArr = { type: 'array', items: { type: 'string' } }
 const finding = { type: 'object', additionalProperties: false, required: ['insight', 'evidence'], properties: { insight: { type: 'string' }, evidence: strArr } }
 const SUGGESTION = {
   type: 'object', additionalProperties: false,
-  required: ['slot', 'rank', 'title', 'type', 'category', 'priority', 'hook', 'calendarAnchor', 'bookingWindow', 'stayDatesPromoted', 'whyNow', 'whatsWorking', 'evidence', 'subjectLine', 'previewText', 'cta', 'confidence', 'confidenceNote', 'expires'],
+  required: ['slot', 'rank', 'title', 'type', 'category', 'priority', 'reasoning', 'hook', 'calendarAnchor', 'targetStayStart', 'holiday', 'bookingWindow', 'stayDatesPromoted', 'whyNow', 'whatsWorking', 'evidence', 'subjectLine', 'previewText', 'cta', 'confidence', 'confidenceNote', 'expires'],
   properties: {
     slot: { type: 'string', enum: ['first', 'second'] },
-    rank: { type: 'integer', enum: [1, 2] },
-    title: { type: 'string' }, type: { type: 'string', enum: ['DIRECT', 'INDIRECT'] },
+    rank: { type: 'integer', enum: [1] },
+    title: { type: 'string' }, reasoning: { type: 'string' }, type: { type: 'string', enum: ['DIRECT', 'INDIRECT'] },
     category: { type: 'string', enum: CATEGORIES }, priority: { type: 'string', enum: ['High', 'Medium', 'Low'] },
-    hook: { type: 'string' }, calendarAnchor: { type: 'string' }, bookingWindow: { type: 'string' }, stayDatesPromoted: { type: 'string' },
+    hook: { type: 'string' }, calendarAnchor: { type: 'string' }, targetStayStart: { type: 'string' }, holiday: { type: 'string' }, bookingWindow: { type: 'string' }, stayDatesPromoted: { type: 'string' },
     whyNow: { type: 'string' }, whatsWorking: { type: 'string' }, evidence: strArr,
     subjectLine: { type: 'string' }, previewText: { type: 'string' },
     cta: { type: 'string', enum: ['Check Availability', 'Book Your Stay', 'Plan Your Getaway'] },
@@ -177,7 +193,7 @@ const SCHEMA = {
   properties: {
     analysis: {
       type: 'object', additionalProperties: false,
-      required: ['summary', 'audienceType', 'audienceReason', 'yardstick', 'whatsWorking', 'whatsNotWorking', 'seasonalHistory', 'recentSends', 'rhythmNote', 'directVsIndirect', 'dataGaps'],
+      required: ['summary', 'audienceType', 'audienceReason', 'yardstick', 'whatsWorking', 'whatsNotWorking', 'seasonalHistory', 'recentSends', 'rhythmNote', 'directVsIndirect', 'dataGaps', 'feedbackActedOn'],
       properties: {
         summary: { type: 'string' },
         audienceType: { type: 'string', enum: ['Couples / Small Stays', 'Families / Mid-Size Groups', 'Large Groups', 'Mixed / Unclear'] },
@@ -191,6 +207,7 @@ const SCHEMA = {
         rhythmNote: { type: 'string' },
         directVsIndirect: { type: 'string' },
         dataGaps: strArr,
+        feedbackActedOn: { type: 'string' },
       },
     },
     suggestions: { type: 'array', items: SUGGESTION },
@@ -200,7 +217,7 @@ const SCHEMA = {
 const clean = (v) => typeof v === 'string' ? v.replace(/\s*[—]\s*/g, ', ').replace(/–/g, '-')
   : Array.isArray(v) ? v.map(clean) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, clean(x)])) : v
 
-const sendLine = (s) => [s.id, s.date, s.segment || '-', s.audience ?? '', s.openRate ?? '', s.ctr ?? '', s.ctor ?? '', s.bookings7d ?? '', s.usual7d ?? '', s.name, s.subject].join('\t')
+const sendLine = (s) => [s.id, s.date, s.segment || '-', s.audience ?? '', s.openRate ?? '', s.ctr ?? '', s.ctor ?? '', s.bookings14d ?? '', s.usual14d ?? '', s.name, s.subject].join('\t')
 
 /* ── handler ───────────────────────────────────────────────────────────── */
 
@@ -245,6 +262,48 @@ const rawHandler = async (event) => {
   }
 }
 
+/* Lead times for the timing check, as [median, early planners] in days: the
+   holiday's own (from the last one or two years' stays over it) for a holiday
+   email, else the Step 1 window, else the brain doc's audience benchmark. */
+function leadForTiming(pms, audienceType, holiday) {
+  const h = holiday && holiday !== 'none' ? pms?.holidayLeadTimes?.find(x => x.holiday === holiday) : null
+  if (h?.medianDays != null) return { days: h.medianDays, early: h.earlyPlannersDays, basis: `${holiday} stays, ${h.stays} bookings over ${h.years} year${h.years === 1 ? '' : 's'}` }
+  if (pms?.bookingWindow) return { days: pms.bookingWindow.leadTimeDays, early: pms.bookingWindow.earlyPlannersDays, basis: pms.bookingWindow.basis }
+  const [days, early] = { 'Families / Mid-Size Groups': [60, 90], 'Large Groups': [180, 270] }[audienceType] || [35, 56]
+  return { days, early, basis: 'benchmark' }
+}
+
+/* Is this send the right time for the theme? The best moment runs from when
+   the early planners (the first quarter of guests) book to when the median
+   guest books: stay start minus each lead time. A week's grace either side of
+   the send's own dates still counts as on time. */
+function timingFor(s, lead, ty, tm, today) {
+  const start = /^\d{4}-\d{2}-\d{2}$/.test(s.targetStayStart || '') ? s.targetStayStart : null
+  const from = iso(utc(ty, tm - 1, s.slot === 'first' ? 1 : 16))
+  const to = s.slot === 'first' ? iso(utc(ty, tm - 1, 15)) : iso(utc(ty, tm, 0))
+  const base = { sendWindow: `${from} to ${to}`, leadTimeDays: lead.days, earlyPlannersDays: lead.early, leadBasis: lead.basis }
+  if (!start) return { verdict: 'unknown', ...base }
+  const shift = (d, n) => iso(new Date(Date.parse(d) + n * 86400000))
+  const latest = shift(start, -lead.days)
+  const earliest = lead.early != null && lead.early > lead.days ? shift(start, -lead.early) : latest
+  const verdict = start <= iso(today) ? 'too-late'
+    : latest < shift(from, -7) ? 'earlier'
+    : earliest > shift(to, 7) ? 'later'
+    : 'on-time'
+  return { verdict, bestFrom: earliest, bestBy: latest, idealSendDate: latest, targetStayStart: start, ...base }
+}
+
+/* The team's ratings and notes on this client's earlier suggestions, the
+   target month's first, each with what it was about. */
+function feedbackLines(rows, month) {
+  const sorted = [...rows].sort((a, b) => (b.month === month) - (a.month === month))
+  return sorted.map(f => {
+    const a = f.about || {}
+    const what = a.part === 'analysis' ? 'the analysis' : `${a.part}: "${a.title || ''}" (${a.type || ''}, ${a.category || ''}), subject "${a.subjectLine || ''}"`
+    return `${f.month} | ${what} | ${f.rating ? `${f.rating}/5` : 'no rating'}${f.comment ? ` | "${f.comment}"` : ''} | ${f.created_by || 'team'}, ${String(f.created_at).slice(0, 10)}`
+  }).join('\n')
+}
+
 /* The Primaries already saved for the months between now and the target month,
    latest set per month, so a later month's rhythm checks see what is planned. */
 async function plannedBefore(token, locationId, ty, tm, today) {
@@ -272,27 +331,32 @@ async function generate(locationId, month, token) {
     const name = client.client_name
 
     const since = iso(utc(today.getUTCFullYear() - 2, today.getUTCMonth(), 1))
-    const [sends, pmsRaw, calendar, brief, brain, planned] = await Promise.all([
+    const [sends, pmsRaw, calendar, brain, planned, feedback] = await Promise.all([
       loadSends(locationId, since),
       loadPms(platform, locationId, name).catch(err => ({ available: false, reason: `PMS data could not be read: ${err.message}` })),
       app(`${encodeURIComponent('Email Content Calendar')}?select=subject,theme,campaign_type,send_month,calendar_date,idea_status,entry_status&client_name=eq.${encodeURIComponent(name)}&order=id.desc&limit=60`).catch(() => []),
-      fetchCopyBrief(name).catch(err => ({ error: err.message })),
       fetchGoogleDocText(BRAIN_DOC_ID).catch(err => { throw new Error(`Could not read the suggestions brain doc: ${err.message}`) }),
       plannedBefore(token, locationId, ty, tm, today),
+      feedbackForClient(token, locationId).catch(err => { console.error('[suggest-campaigns] feedback read', err.message); return [] }),
     ])
     const stats = summarise(sends, today)
     const holidays = holidaysBetween(monthStart, utc(ty, tm + 8, 0))
-    const pms = pmsRaw.available ? pmsInsights(pmsRaw, iso(today), holidays) : { unavailable: pmsRaw.reason }
+    /* The target month and the two after it, one and two years back. */
+    const seasonMonths = [1, 2].flatMap(back => [0, 1, 2].map(k => iso(utc(ty - back, tm - 1 + k, 1)).slice(0, 7)))
+    const holidaysLastYear = holidaysBetween(utc(ty - 1, tm - 1, 1), utc(ty - 1, tm + 8, 0))
+    const holidaysTwoYearsAgo = holidaysBetween(utc(ty - 2, tm - 1, 1), utc(ty - 2, tm + 8, 0))
+    const pms = pmsRaw.available ? pmsInsights(pmsRaw, iso(today), holidays, holidaysLastYear, holidaysTwoYearsAgo) : { unavailable: pmsRaw.reason }
     const after = pmsRaw.available ? bookingsAfterSends(pmsRaw, sends) : {}
     for (const s of sends) Object.assign(s, after[s.id] || {})
 
     const content = [
       `Today: ${iso(today)}. Target month: ${monthLabel}. First send covers ${iso(monthStart)} to ${iso(utc(ty, tm - 1, 15))}; second send ${iso(utc(ty, tm - 1, 16))} to ${iso(monthEnd)}.`,
       `Client: ${name}`,
-      brief.text ? `<copy_brief>\n${brief.text.slice(0, 14000)}\n</copy_brief>` : `<copy_brief>None available (${brief.error}).</copy_brief>`,
       `<baseline>${JSON.stringify(stats.baseline)}</baseline>`,
       `<month_by_month>\n${stats.byMonth.map(m => `${m.month}\t${m.sends} sends\tavg CTR ${m.avgCtr}%\tavg CTOR ${m.avgCtor}%`).join('\n')}\n</month_by_month>`,
-      `<sends count="${sends.length}">\nid\tdate\tsegment\taudience\topen%\tCTR%\tCTOR%\tbookings in 7 days after\tusual bookings per 7 days\tcampaign name\tsubject line\n${sends.slice(0, 200).map(sendLine).join('\n')}\n</sends>`,
+      `<same_season_last_year months="${seasonMonths.join(', ')}">\nid\tdate\tsegment\taudience\topen%\tCTR%\tCTOR%\tbookings in 14 days after\tusual bookings per 14 days\tcampaign name\tsubject line\n${sends.filter(x => seasonMonths.includes(x.date.slice(0, 7))).map(sendLine).join('\n') || 'None: no sends in these months.'}\n</same_season_last_year>`,
+      `<sends count="${sends.length}">\nid\tdate\tsegment\taudience\topen%\tCTR%\tCTOR%\tbookings in 14 days after\tusual bookings per 14 days\tcampaign name\tsubject line\n${sends.slice(0, 200).map(sendLine).join('\n')}\n</sends>`,
+      `<team_feedback>\n${feedbackLines(feedback, `${ty}-${String(tm).padStart(2, '0')}`) || 'No feedback on this client yet.'}\n</team_feedback>`,
       `<planned_sends>\n${planned.join('\n') || 'None saved for the months before this one.'}\n</planned_sends>`,
       `<content_calendar>\n${calendar.map(c => [c.calendar_date || c.send_month || '', c.idea_status || c.entry_status || '', c.campaign_type || '', c.subject || c.theme || ''].join('\t')).join('\n') || 'Nothing on the calendar.'}\n</content_calendar>`,
       `<upcoming_holidays>\n${holidays.map(h => h.line).join('\n')}\n</upcoming_holidays>`,
@@ -315,7 +379,7 @@ async function generate(locationId, month, token) {
     }
     /* The schema cannot require exactly four (strict output caps minItems at 1),
        so a short answer gets one retry that says exactly what is missing. */
-    const missing = (o) => [['first', 1], ['first', 2], ['second', 1], ['second', 2]]
+    const missing = (o) => [['first', 1], ['second', 1]]
       .filter(([slot, rank]) => !o.suggestions.some(x => x.slot === slot && x.rank === rank))
       .map(([slot, rank]) => `${slot === 'first' ? 'first' : 'second'} send ${rank === 1 ? 'Primary' : 'Backup'}`)
     const first = await ask([{ role: 'user', content }])
@@ -324,15 +388,15 @@ async function generate(locationId, month, token) {
       const retry = await ask([
         { role: 'user', content },
         { role: 'assistant', content: first.text },
-        { role: 'user', content: `Your answer is missing: ${missing(out).join(', ')}. Give the full answer again with all four suggestions: a Primary and a Backup for each of the two sends.` },
+        { role: 'user', content: `Your answer is missing: ${missing(out).join(', ')}. Give the full answer again with both suggestions: one for the first send and one for the second.` },
       ])
       out = retry.out
-      if (missing(out).length) throw new Error(`Claude did not return all four suggestions (missing ${missing(out).join(', ')}). Try again.`)
+      if (missing(out).length) throw new Error(`Claude did not return both suggestions (missing ${missing(out).join(', ')}). Try again.`)
     }
 
     const byId = Object.fromEntries(sends.map(s => [s.id, s]))
     const cite = (ids) => (ids || []).map(id => byId[id]).filter(Boolean)
-      .map(({ date, name, subject, segment, audience, ctr, ctor, bookings7d, usual7d }) => ({ date, name, subject, segment, audience, ctr, ctor, bookings7d, usual7d }))
+      .map(({ date, name, subject, segment, audience, ctr, ctor, bookings14d, usual14d }) => ({ date, name, subject, segment, audience, ctr, ctor, bookings14d, usual14d }))
     const a = out.analysis
     const analysis = {
       ...a,
@@ -341,15 +405,17 @@ async function generate(locationId, month, token) {
       seasonalHistory: { insight: a.seasonalHistory.insight, evidence: cite(a.seasonalHistory.evidence) },
       recentSends: a.recentSends.filter(r => byId[r.id]).map(r => ({ ...cite([r.id])[0], type: r.type, category: r.category })),
     }
-    const suggestions = [['first', 1], ['first', 2], ['second', 1], ['second', 2]]
+    const suggestions = [['first', 1], ['second', 1]]
       .map(([slot, rank]) => out.suggestions.find(x => x.slot === slot && x.rank === rank))
-      .map(s => ({ ...s, evidence: cite(s.evidence), subjectLength: [...s.subjectLine].length }))
+      .map(s => ({ ...s, evidence: cite(s.evidence), subjectLength: [...s.subjectLine].length,
+        audience: s.type === 'DIRECT' ? 'Recent Engagers' : 'All Contacts',
+        timing: timingFor(s, leadForTiming(pms, a.audienceType, s.holiday), ty, tm, today) }))
 
     return {
       client: name, month: `${ty}-${String(tm).padStart(2, '0')}`, monthLabel, dataPulled: new Date().toISOString(),
       stats: { ...stats.baseline, totalSends: stats.total, firstSend: stats.firstSend, lastSend: stats.lastSend, byMonth: stats.byMonth.slice(0, 24) },
-      briefFound: Boolean(brief.text), analysis, suggestions,
-      pms: pms.unavailable ? { unavailable: pms.unavailable } : { provider: pms.pmsProvider, lastSync: pms.lastSync, properties: pms.propertyCount, historyMonths: pms.historyMonths, pace: pms.pace, leadTimeDays: pms.leadTime.medianDaysLast12Months, medianGuests: pms.partySize.medianGuests },
+      analysis, suggestions,
+      pms: pms.unavailable ? { unavailable: pms.unavailable } : { provider: pms.pmsProvider, lastSync: pms.lastSync, properties: pms.propertyCount, historyMonths: pms.historyMonths, pace: pms.pace, leadTimeDays: pms.leadTime.medianDaysLast12Months, bookingWindow: pms.bookingWindow, holidayLeadTimes: pms.holidayLeadTimes, seasons: pms.seasons, holidayHistory: pms.holidayHistory, medianGuests: pms.partySize.medianGuests },
     }
   }
 }

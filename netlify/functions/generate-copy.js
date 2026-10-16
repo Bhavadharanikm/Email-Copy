@@ -17,8 +17,9 @@
 import { withAuth } from './_auth.js'
 import { randomUUID, createSign } from 'crypto'
 
-const SPREADSHEET_ID = '14HEBZ9DPckY9jJRq-DYUZYI6bz2WJHhec9LTmP8FP54'
-const SHEET_NAME     = 'Sheet1'
+/* One spreadsheet for every email flow: "Email, Reel, Carousel & Story Automation". */
+const SPREADSHEET_ID = '1Bw-tihbhF0EQzqEoYyLf7NLjhTnrAJPe_Yxqe17znxQ'
+const SHEET_NAME     = "'Email Branding & Components'"
 
 async function getGoogleToken() {
   const email      = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL

@@ -12,8 +12,11 @@
  */
 import { createSign } from 'crypto'
 
-const BRIEF_SHEET_ID   = '1Ho4qPghhieT8hs9ftypRhPTb2wTemZwTi4p2jSXzELk'
-const BRAND_SHEET_ID   = '14HEBZ9DPckY9jJRq-DYUZYI6bz2WJHhec9LTmP8FP54'
+/* One spreadsheet for every email flow: "Email, Reel, Carousel & Story Automation". */
+const BRIEF_SHEET_ID   = '1Bw-tihbhF0EQzqEoYyLf7NLjhTnrAJPe_Yxqe17znxQ'
+const BRIEF_TAB        = 'Welcome flow Copy Brief'
+const BRAND_SHEET_ID   = '1Bw-tihbhF0EQzqEoYyLf7NLjhTnrAJPe_Yxqe17znxQ'
+const BRAND_TAB        = 'Email Branding & Components'
 const FEEDBACK_DOC_ID  = '1RmcWUUC-Gr0MO3LvBEsVp5jB47RM13TL-LLfLneMRdE'
 
 const SCOPES = [
@@ -101,7 +104,7 @@ export async function fetchGoogleDocText(docId) {
 /* ── 1. copy brief ─────────────────────────────────────────────────────── */
 
 export async function fetchCopyBrief(clientName) {
-  const [header = [], ...rows] = await sheetRows(BRIEF_SHEET_ID, 'A1:Z500')
+  const [header = [], ...rows] = await sheetRows(BRIEF_SHEET_ID, `'${BRIEF_TAB}'!A1:Z1000`)
   const col  = (name) => header.findIndex(h => norm(h) === norm(name))
   const iName = col('Client Name'), iDoc = col('Email Copy Brief'), iSite = col('Client Website')
   const row  = rows.find(r => norm(r[iName]) === norm(clientName))
@@ -130,7 +133,7 @@ export async function fetchCopyBrief(clientName) {
 /* ── 2. brand board row ────────────────────────────────────────────────── */
 
 export async function fetchBrandRow(clientName) {
-  const rows = await sheetRows(BRAND_SHEET_ID, 'Sheet1!A:K')
+  const rows = await sheetRows(BRAND_SHEET_ID, `'${BRAND_TAB}'!A:K`)
   const row  = rows.find(r => norm(r[0]) === norm(clientName))
   if (!row) return null
   return {

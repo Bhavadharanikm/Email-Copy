@@ -59,6 +59,9 @@ export const fetchSuggestionStatus = ({ month }) =>
 export const fetchClientSuggestionMonths = ({ locationId }) =>
   get('/campaign-suggestions', { locationId })
 
+export const postSuggestionFeedback = ({ setId, target, rating, comment }) =>
+  post('/campaign-suggestions', { setId, target, rating, comment })
+
 export async function suggestCampaigns({ locationId, month }) {
   const jobId = crypto.randomUUID()
   let startError = null

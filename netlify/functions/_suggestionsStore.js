@@ -45,3 +45,31 @@ export const clientsWithSets = (token, month) =>
 /** The months a client already has suggestions saved for. */
 export const monthsWithSets = (token, locationId) =>
   call(token, `${TABLE}?location_id=eq.${encodeURIComponent(locationId)}&select=month,generated_at&order=generated_at.desc&limit=1000`)
+
+/* ── Ratings and feedback: public.campaign_suggestion_feedback ─────────────
+   One row per rating or note, never edited, so the history of what the team
+   thought stays intact. `about` is a snapshot of what was rated, taken from
+   the saved set, so the next run knows what each note refers to. */
+const FEEDBACK = `${AUTH_URL}/rest/v1/campaign_suggestion_feedback`
+
+export const TARGETS = ['analysis', 'first-1', 'first-2', 'second-1', 'second-2']
+
+export async function getSuggestionSet(token, id) {
+  const rows = await call(token, `${TABLE}?id=eq.${Number(id)}&select=id,location_id,month,result`)
+  return rows?.[0] || null
+}
+
+export async function saveFeedback(token, row) {
+  const rows = await call(token, FEEDBACK, { method: 'POST', headers: { Prefer: 'return=representation' }, body: JSON.stringify(row) })
+  if (!rows?.[0]?.id) throw new Error('The database did not confirm the feedback was saved.')
+  return rows[0]
+}
+
+/** Feedback on these saved sets, oldest first. */
+export const feedbackForSets = (token, ids) => ids.length
+  ? call(token, `${FEEDBACK}?set_id=in.(${ids.map(Number).join(',')})&select=id,set_id,target,rating,comment,created_by,created_at&order=created_at.asc`)
+  : Promise.resolve([])
+
+/** Everything the team has said about this client's suggestions, newest first. */
+export const feedbackForClient = (token, locationId) =>
+  call(token, `${FEEDBACK}?location_id=eq.${encodeURIComponent(locationId)}&select=month,target,rating,comment,about,created_by,created_at&order=created_at.desc&limit=80`)

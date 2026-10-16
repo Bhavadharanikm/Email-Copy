@@ -4,7 +4,7 @@
  *
  * Reads the brand board Google Sheet and returns footer data for the given client.
  *
- * Brand board sheet: 14HEBZ9DPckY9jJRq-DYUZYI6bz2WJHhec9LTmP8FP54
+ * Brand board: the "Email Branding & Components" tab of 1Bw-tihbhF0EQzqEoYyLf7NLjhTnrAJPe_Yxqe17znxQ
  *   Col A: Client Name
  *   Col B: BG Colour
  *   Col C: Button Colour
@@ -20,8 +20,9 @@
 import { withAuth } from './_auth.js'
 import { createSign } from 'crypto'
 
-const SPREADSHEET_ID = '14HEBZ9DPckY9jJRq-DYUZYI6bz2WJHhec9LTmP8FP54'
-const SHEET_NAME     = 'Sheet1'
+/* One spreadsheet for every email flow: "Email, Reel, Carousel & Story Automation". */
+const SPREADSHEET_ID = '1Bw-tihbhF0EQzqEoYyLf7NLjhTnrAJPe_Yxqe17znxQ'
+const SHEET_NAME     = "'Email Branding & Components'"
 
 async function getAccessToken() {
   const email      = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { suggestCampaigns, fetchSavedSuggestions, fetchSuggestionStatus, fetchClientSuggestionMonths } from '../lib/api'
+import { suggestCampaigns, fetchSavedSuggestions, fetchSuggestionStatus, fetchClientSuggestionMonths, postSuggestionFeedback } from '../lib/api'
 
 const fmtStamp = (ts) => new Date(ts).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
 const fmtDate = (d) => d ? new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : ''
@@ -128,7 +128,7 @@ export default function SuggestionsView({ dark, clients }) {
         {sets.length > 1 && (
           <select aria-label="Version" value={shown} onChange={e => setShown(Number(e.target.value))} style={select}>
             {sets.map((st, i) => (
-              <option key={st.id ?? i} value={i}>{i === 0 ? 'Latest' : `Version ${sets.length - i}`} \u00b7 {st.generatedAt ? fmtStamp(st.generatedAt) : 'unsaved'}</option>
+              <option key={st.id ?? i} value={i}>{`${i === 0 ? 'Latest' : `Version ${sets.length - i}`} \u00b7 ${st.generatedAt ? fmtStamp(st.generatedAt) : 'unsaved'}`}</option>
             ))}
           </select>
         )}
@@ -165,24 +165,46 @@ export default function SuggestionsView({ dark, clients }) {
         </div>
       )}
 
-      {!busy && result && <Result r={result} c={c} />}
+      {!busy && result && (
+        <Result r={result} c={c} onFeedback={fb => setSets(prev => prev.map(st => st.id === fb.setId ? { ...st, feedback: [...(st.feedback || []), fb] } : st))} />
+      )}
     </div>
   )
 }
 
-function Result({ r, c }) {
+function Result({ r, c, onFeedback }) {
+  const [details, setDetails] = useState(false)
   const a = r.analysis
+  const fbFor = (target) => (r.feedback || []).filter(f => f.target === target)
   const slots = [
     { key: 'first',  label: `Send 1 · ${r.monthLabel.split(' ')[0]} 1–15` },
     { key: 'second', label: `Send 2 · ${r.monthLabel.split(' ')[0]} 16–end` },
   ]
   return (
     <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
+      {slots.map(slot => (
+        <div key={slot.key} style={{ marginTop: 28 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: c.faint, marginBottom: 12 }}>{slot.label}</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: 14 }}>
+            {r.suggestions.filter(s => s.slot === slot.key).map((s, i) => (
+              <SuggestionCard key={i} c={c} s={s} details={details} hasBackups={r.suggestions.some(x => x.rank === 2)}
+                feedback={<Feedback c={c} setId={r.id} target={`${s.slot}-${s.rank}`} label="Rate this suggestion" items={fbFor(`${s.slot}-${s.rank}`)} onSaved={onFeedback} />} />
+            ))}
+          </div>
+        </div>
+      ))}
+
+      <button type="button" onClick={() => setDetails(d => !d)} aria-expanded={details}
+        style={{ marginTop: 24, background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: 13, fontWeight: 600, color: c.sub, fontFamily: 'Inter, sans-serif' }}>
+        {details ? '\u25BE Hide the data behind this' : '\u25B8 Show the data behind this'}
+      </button>
+      {details && (
+        <div style={{ marginTop: 16 }}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 10, marginBottom: 24 }}>
         <Stat c={c} label="Sends analysed" value={r.stats.totalSends} hint={r.stats.firstSend ? `${fmtDate(r.stats.firstSend)} – ${fmtDate(r.stats.lastSend)}` : 'No sends found'} />
         <Stat c={c} label="Median CTR" value={pct(r.stats.medianCtr)} hint={r.stats.window} />
         <Stat c={c} label="Median CTOR" value={pct(r.stats.medianCtor)} hint={r.stats.window} />
-        <Stat c={c} label="Audience type" value={a.audienceType} small hint={r.briefFound ? 'From the copy brief' : 'No copy brief found'} />
+        <Stat c={c} label="Audience type" value={a.audienceType} small hint={r.pms?.medianGuests ? `Median party ${r.pms.medianGuests} guests` : 'From the audience benchmarks'} />
       </div>
 
       {r.pms && <PmsPanel c={c} p={r.pms} />}
@@ -194,10 +216,7 @@ function Result({ r, c }) {
           <Block c={c} title="What's not">{a.whatsNotWorking.map((f, i) => <Finding key={i} c={c} f={f} />)}</Block>
         </Grid>
         <Block c={c} title={`This time last year`}><Finding c={c} f={a.seasonalHistory} /></Block>
-        <Grid>
-          <Block c={c} title="Who books">{a.audienceReason}</Block>
-          <Block c={c} title="Direct vs indirect">{a.directVsIndirect}</Block>
-        </Grid>
+        <Block c={c} title="Direct vs indirect">{a.directVsIndirect}</Block>
         <Block c={c} title="Recent sends and rhythm">
           <p style={{ margin: '0 0 10px' }}>{a.rhythmNote}</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -211,22 +230,17 @@ function Result({ r, c }) {
             ))}
           </div>
         </Block>
-        <Block c={c} title="Yardstick">{a.yardstick}</Block>
         {a.dataGaps.length > 0 && (
           <Block c={c} title="Not used / missing">
             <ul style={{ margin: 0, paddingLeft: 18 }}>{a.dataGaps.map((g, i) => <li key={i}>{g}</li>)}</ul>
           </Block>
         )}
+        {a.feedbackActedOn && <Block c={c} title="Feedback acted on">{a.feedbackActedOn}</Block>}
+        <Feedback c={c} setId={r.id} target="analysis" label="Rate this analysis" items={fbFor('analysis')} onSaved={onFeedback} />
       </Section>
 
-      {slots.map(slot => (
-        <div key={slot.key} style={{ marginTop: 28 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: c.faint, marginBottom: 12 }}>{slot.label}</div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: 14 }}>
-            {r.suggestions.filter(s => s.slot === slot.key).map((s, i) => <SuggestionCard key={i} c={c} s={s} />)}
-          </div>
         </div>
-      ))}
+      )}
 
       <div style={{ marginTop: 20, fontSize: 11, color: c.faint }}>Data pulled {new Date(r.dataPulled).toLocaleString()}</div>
     </motion.div>
@@ -246,6 +260,12 @@ function PmsPanel({ c, p }) {
           {p.properties} {p.properties === 1 ? 'property' : 'properties'} · {p.provider} · {p.historyMonths} months of history · median lead time {p.leadTimeDays ?? '–'} days · median party {p.medianGuests ?? '–'} guests
           {p.lastSync && <> · synced {fmtStamp(p.lastSync)}</>}
         </div>
+        {p.bookingWindow && (
+          <div style={{ fontSize: 13, color: c.text, marginBottom: 12, lineHeight: 1.55 }}>
+            <strong>Booking window:</strong> {p.bookingWindow.leadTimeDays}-day lead time ({p.bookingWindow.basis}), so promoting stays through {fmtDate(p.bookingWindow.promoteThrough)}.
+            <span style={{ color: c.sub }}> {p.bookingWindow.reason.charAt(0).toUpperCase() + p.bookingWindow.reason.slice(1)}.</span>
+          </div>
+        )}
         <div style={{ overflowX: 'auto' }}>
           <table style={{ borderCollapse: 'collapse', width: '100%', minWidth: 520 }}>
             <thead><tr>{['Window', 'On the books', 'Same time last year', 'Pace', 'Last year ended at', 'Open nights'].map(h => <th key={h} style={{ ...head, textAlign: h === 'Window' ? 'left' : 'right' }}>{h}</th>)}</tr></thead>
@@ -270,38 +290,139 @@ function PmsPanel({ c, p }) {
   )
 }
 
-function SuggestionCard({ c, s }) {
+/* The point of a suggestion: is this send the right moment for the theme? */
+const span = (t) => t.bestFrom && t.bestFrom !== t.bestBy ? `between ${fmtDate(t.bestFrom)} and ${fmtDate(t.bestBy)}` : `by ${fmtDate(t.bestBy || t.idealSendDate)}`
+
+function Timing({ c, t }) {
+  const look = {
+    'on-time':  { label: 'On time', color: '#059669', text: `Best sent ${span(t)}, which this send covers.` },
+    'earlier':  { label: 'Send earlier', color: '#d97706', text: `Best sent ${span(t)}, before this send.` },
+    'later':    { label: 'Send later', color: '#2563eb', text: `Best sent ${span(t)}, after this send.` },
+    'too-late': { label: 'Too late', color: '#dc2626', text: 'The stays this sells have already started.' },
+    'unknown':  { label: 'Timing not checked', color: c.faint, text: 'No stay start date was given for this theme.' },
+  }[t.verdict] || null
+  if (!look) return null
+  return (
+    <div style={{ border: `1px solid ${c.border}`, borderLeft: `3px solid ${look.color}`, borderRadius: 10, padding: '10px 12px', fontSize: 13, lineHeight: 1.55, color: c.text }}>
+      <strong style={{ color: look.color }}>{look.label}.</strong> {look.text}
+      <div style={{ fontSize: 12, color: c.sub, marginTop: 2 }}>
+        {t.targetStayStart && <>Sells stays from {fmtDate(t.targetStayStart)} · </>}{t.earlyPlannersDays && t.earlyPlannersDays > t.leadTimeDays ? `guests book ${t.earlyPlannersDays} to ${t.leadTimeDays} days ahead` : `${t.leadTimeDays}-day lead time`} ({t.leadBasis}) · this send {t.sendWindow.split(' to ').map(fmtDate).join(' – ')}
+      </div>
+    </div>
+  )
+}
+
+function SuggestionCard({ c, s, feedback, hasBackups, details }) {
   const rows = [
-    ['Hook', s.hook], ['Booking window', s.bookingWindow], ['Stay dates promoted', s.stayDatesPromoted], ['Calendar anchor', s.calendarAnchor],
+    ['Hook', s.hook], ['Stay dates promoted', s.stayDatesPromoted],
     ['Why now', s.whyNow], ["What's working", s.whatsWorking],
   ]
   return (
     <div style={{ background: c.card, border: `1px solid ${c.border}`, borderRadius: 14, padding: 20, display: 'flex', flexDirection: 'column', gap: 14 }}>
       <div>
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
-          <Tag c={c} strong>{s.rank === 1 ? 'Primary' : 'Backup'}</Tag>
-          <Tag c={c}>{s.type}</Tag><Tag c={c}>{s.category}</Tag><Tag c={c}>{s.priority} priority</Tag>
+          {hasBackups && <Tag c={c} strong>{s.rank === 1 ? 'Primary' : 'Backup'}</Tag>}
+          <Tag c={c}>{s.type}</Tag>{s.audience && <Tag c={c}>To {s.audience}</Tag>}
         </div>
         <div style={{ fontSize: 17, fontWeight: 700, color: c.text, letterSpacing: '-0.01em' }}>{s.title}</div>
       </div>
+      {s.timing && <Timing c={c} t={s.timing} />}
       <div style={{ background: c.soft, border: `1px solid ${c.border}`, borderRadius: 10, padding: '12px 14px' }}>
         <div style={{ fontSize: 14, fontWeight: 600, color: c.text }}>{s.subjectLine}</div>
         <div style={{ fontSize: 13, color: c.sub, marginTop: 4 }}>{s.previewText}</div>
-        <div style={{ fontSize: 11, color: s.subjectLength < 28 || s.subjectLength > 40 ? '#d97706' : c.faint, marginTop: 6 }}>
-          {s.subjectLength} characters · CTA: {s.cta}
-        </div>
+        {details && (
+          <div style={{ fontSize: 11, color: s.subjectLength < 28 || s.subjectLength > 40 ? '#d97706' : c.faint, marginTop: 6 }}>
+            {s.subjectLength} characters · CTA: {s.cta}
+          </div>
+        )}
       </div>
-      {rows.map(([label, text]) => (
+      <div>
+        <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: c.faint, marginBottom: 3 }}>Why this</div>
+        <div style={{ fontSize: 13, lineHeight: 1.6, color: c.text }}>{s.reasoning || s.whyNow}</div>
+      </div>
+      {details && rows.map(([label, text]) => (
         <div key={label}>
           <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: c.faint, marginBottom: 3 }}>{label}</div>
           <div style={{ fontSize: 13, lineHeight: 1.6, color: c.text }}>{text}</div>
         </div>
       ))}
-      {s.evidence.length > 0 && <Evidence c={c} items={s.evidence} />}
-      <div style={{ borderTop: `1px solid ${c.border}`, paddingTop: 12, fontSize: 12, color: c.sub, lineHeight: 1.55 }}>
-        <strong style={{ color: c.text }}>{s.confidence} confidence.</strong> {s.confidenceNote}
-        <div style={{ color: c.faint, marginTop: 4 }}>Expires {fmtDate(s.expires)}</div>
-      </div>
+      {details && (
+        <>
+          <div style={{ fontSize: 12, color: c.sub }}>{s.category} · {s.priority} priority</div>
+          {s.evidence.length > 0 && <Evidence c={c} items={s.evidence} />}
+          <div style={{ borderTop: `1px solid ${c.border}`, paddingTop: 12, fontSize: 12, color: c.sub, lineHeight: 1.55 }}>
+            <strong style={{ color: c.text }}>{s.confidence} confidence.</strong> {s.confidenceNote}
+            <div style={{ color: c.faint, marginTop: 4 }}>Expires {fmtDate(s.expires)}</div>
+          </div>
+        </>
+      )}
+      {feedback}
+    </div>
+  )
+}
+
+/* Ratings and notes are saved per part of a saved set and read by the next
+   generation for this client. Each save adds a row; nothing is overwritten. */
+function Feedback({ c, setId, target, label, items, onSaved }) {
+  const [rating, setRating] = useState(0)
+  const [hover, setHover] = useState(0)
+  const [comment, setComment] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
+  const canSave = setId && !saving && (rating || comment.trim())
+
+  async function save() {
+    setSaving(true); setError('')
+    try {
+      const { feedback } = await postSuggestionFeedback({ setId, target, rating: rating || null, comment })
+      onSaved(feedback); setRating(0); setComment('')
+    } catch (err) { setError(err.message) }
+    finally { setSaving(false) }
+  }
+
+  return (
+    <div style={{ borderTop: `1px solid ${c.border}`, paddingTop: 12, marginTop: 4 }}>
+      {items.length > 0 && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 10 }}>
+          {items.map(f => (
+            <div key={f.id} style={{ fontSize: 12, lineHeight: 1.5, color: c.text }}>
+              {f.rating && <span style={{ color: '#d97706', letterSpacing: 1 }} aria-label={`${f.rating} out of 5`}>{'\u2605'.repeat(f.rating)}<span style={{ color: c.border }}>{'\u2605'.repeat(5 - f.rating)}</span> </span>}
+              {f.comment}
+              <span style={{ color: c.faint }}>{` \u00b7 ${(f.createdBy || '').split('@')[0]}, ${fmtStamp(f.createdAt)}`}</span>
+            </div>
+          ))}
+        </div>
+      )}
+      {!setId ? (
+        <div style={{ fontSize: 12, color: c.faint }}>This set was not saved, so it cannot be rated.</div>
+      ) : (
+        <>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+            <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: c.faint }}>{label}</span>
+            <div role="radiogroup" aria-label={label} style={{ display: 'flex' }} onMouseLeave={() => setHover(0)}>
+              {[1, 2, 3, 4, 5].map(n => (
+                <button key={n} type="button" role="radio" aria-checked={rating === n} aria-label={`${n} out of 5`}
+                  onClick={() => setRating(rating === n ? 0 : n)} onMouseEnter={() => setHover(n)}
+                  style={{ background: 'none', border: 'none', padding: '2px 3px', cursor: 'pointer', fontSize: 18, lineHeight: 1,
+                    color: n <= (hover || rating) ? '#f59e0b' : c.border }}>
+                  {'\u2605'}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+            <textarea value={comment} onChange={e => setComment(e.target.value)} rows={2} aria-label={`${label}: feedback`}
+              placeholder="What's right or wrong about this? The next generation reads it."
+              style={{ flex: 1, minWidth: 0, resize: 'vertical', padding: '8px 10px', borderRadius: 8, border: `1px solid ${c.border}`, background: c.soft, color: c.text, fontSize: 13, fontFamily: 'Inter, sans-serif', lineHeight: 1.5 }} />
+            <button type="button" onClick={save} disabled={!canSave}
+              style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: c.accent, color: c.accent === '#111827' ? '#fff' : '#111827',
+                fontSize: 13, fontWeight: 700, fontFamily: 'Inter, sans-serif', cursor: canSave ? 'pointer' : 'not-allowed', opacity: canSave ? 1 : 0.45 }}>
+              {saving ? 'Saving\u2026' : 'Save'}
+            </button>
+          </div>
+          {error && <div role="alert" style={{ fontSize: 12, color: '#dc2626', marginTop: 6 }}>{error}</div>}
+        </>
+      )}
     </div>
   )
 }
@@ -323,10 +444,10 @@ function Evidence({ c, items }) {
           <span style={{ color: c.faint, whiteSpace: 'nowrap' }}>{fmtDate(e.date)}</span>
           <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{e.name}</span>
           <span style={{ whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>CTR {pct(e.ctr)} · CTOR {pct(e.ctor)}</span>
-          {e.bookings7d != null && (
-            <span title="Bookings taken in the 7 days after this send, against the usual 7 days before it. Timing, not proof the email caused them."
-              style={{ whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums', color: e.usual7d && e.bookings7d >= e.usual7d * 1.25 ? '#059669' : c.sub }}>
-              · {e.bookings7d} {e.bookings7d === 1 ? 'booking' : 'bookings'} in the next 7 days (usual {e.usual7d})
+          {e.bookings14d != null && (
+            <span title="Bookings taken in the 14 days after this send (one bi-weekly cycle), against a usual 14 days before it. Timing, not proof the email caused them."
+              style={{ whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums', color: e.usual14d && e.bookings14d >= e.usual14d * 1.25 ? '#059669' : c.sub }}>
+              · {e.bookings14d} {e.bookings14d === 1 ? 'booking' : 'bookings'} in the next 14 days (usual {e.usual14d})
             </span>
           )}
         </div>

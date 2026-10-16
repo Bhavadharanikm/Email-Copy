@@ -30,8 +30,9 @@ import { withAuth } from './_auth.js'
 import { randomUUID, createSign } from 'crypto'
 import { claudeEnabledFor } from './_wfClaude.js'
 
-const SPREADSHEET_ID = '14HEBZ9DPckY9jJRq-DYUZYI6bz2WJHhec9LTmP8FP54'
-const SHEET_NAME     = 'Sheet1'
+/* One spreadsheet for every email flow: "Email, Reel, Carousel & Story Automation". */
+const SPREADSHEET_ID = '1Bw-tihbhF0EQzqEoYyLf7NLjhTnrAJPe_Yxqe17znxQ'
+const SHEET_NAME     = "'Email Branding & Components'"
 
 const json = (statusCode, body) => ({
   statusCode,
@@ -69,7 +70,7 @@ async function fetchBrandData(clientName) {
     const token = await getGoogleToken()
     if (!token) return null
     const res = await fetch(
-      `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_NAME}!A:K`,
+      `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(`${SHEET_NAME}!A:K`)}`,
       { headers: { Authorization: `Bearer ${token}` } }
     )
     const data = await res.json()
