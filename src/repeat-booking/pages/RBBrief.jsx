@@ -1,9 +1,10 @@
 /**
  * Repeat Booking — email brief (step 1).
  *
- * The client and the email are fixed by the route. The prompt box is seeded
- * with the email prompt's PER-RUN INPUT fields; whatever is typed goes to
- * Claude as written, alongside the client's copy brief doc and brand row.
+ * The client and the email are fixed by the route. The prompt box is seeded,
+ * as on the welcome flow, with Client Name, Theme and Audience; whatever is
+ * typed goes to Claude as written. Claude reads everything else from the
+ * client's copy brief doc and brand row.
  *
  * Claude runs in its own request (rb-claude-copy-background) and writes its
  * result to copy_jobs; this page polls copy-callback for it, as the welcome
@@ -15,7 +16,7 @@ import { useNavigate } from 'react-router-dom'
 import { IconArrowLeft } from '@tabler/icons-react'
 import { useRepeatBookingStore } from '../store/repeatBookingStore'
 import { useWfTheme, WfCard, WfButton, WfInput, WfStepNav } from '../../welcome-flow/components/wfUi'
-import { rbEmail, rbEmailDetail, rbBriefTemplate } from '../rbEmails'
+import { rbEmail, rbEmailDetail, rbBriefFor } from '../rbEmails'
 import { authFetch } from '../../lib/session'
 import { useRbEmail, rbPath, RBMissing } from '../components/rbShared'
 
@@ -47,12 +48,6 @@ export default function RBBrief() {
   const t = useWfTheme()
   const { clientId, emailId, client, email, navEmail } = useRbEmail()
   const { updateClient, updateEmail } = useRepeatBookingStore()
-  /* The earlier emails' briefs, latest first, so a later email starts with the
-     same client facts, code and terms, and stay types. */
-  const earlierBriefs = useRepeatBookingStore(s => (s.emails[clientId] || [])
-    .filter(e => e.brief && e.email < (s.emails[clientId] || []).find(x => x.id === emailId)?.email)
-    .sort((a, b) => b.email - a.email).map(e => e.brief).join('\n'))
-
   const [folderUrl, setFolderUrl]   = useState('')
   const [prompt, setPrompt]         = useState('')
   const [generating, setGenerating] = useState(false)
@@ -62,7 +57,10 @@ export default function RBBrief() {
   useEffect(() => {
     if (!client || !email) return
     setFolderUrl(client.folderUrl || '')
-    setPrompt(email.brief || rbBriefTemplate(client.name, email.email, earlierBriefs))
+    /* A new email starts with the audience the client's other emails used. */
+    const others = useRepeatBookingStore.getState().getEmails(clientId)
+      .filter(e => e.id !== emailId).sort((a, b) => a.email - b.email)
+    setPrompt(rbBriefFor(client.name, email, others))
   }, [client?.id, email?.id])   // eslint-disable-line react-hooks/exhaustive-deps
 
   /* A run in progress is saved with the email, so a page reload, or leaving
@@ -113,8 +111,8 @@ export default function RBBrief() {
   const info     = rbEmail(email.email)
   const folderId = folderIdFrom(folderUrl)
   const persist  = () => {
-    updateClient(clientId, { folderUrl, folderId })
-    updateEmail(clientId, emailId, { brief: prompt })
+    if (folderUrl !== (client.folderUrl || '')) updateClient(clientId, { folderUrl, folderId })
+    if (prompt !== (email.brief || '')) updateEmail(clientId, emailId, { brief: prompt })
   }
 
   function handleGenerate() {
@@ -185,19 +183,21 @@ export default function RBBrief() {
 
         <div style={{ marginBottom: 18 }}>
           <label style={label}>
-            This send's details <span style={{ fontWeight: 400, color: t.muted }}>sent to Claude as written</span>
+            Prompt <span style={{ fontWeight: 400, color: t.muted }}>the brief the copy is written from</span>
           </label>
           <textarea
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             onBlur={persist}
-            rows={14}
-            style={{ width: '100%', padding: '11px 12px', borderRadius: 10, border: `1px solid ${t.border}`,
-                     background: t.inputBg, color: t.text, fontSize: 13, fontFamily: 'ui-monospace, Menlo, monospace',
-                     lineHeight: 1.6, outline: 'none', resize: 'vertical' }}
+            rows={7}
+            style={{
+              width: '100%', padding: '11px 12px', borderRadius: 10,
+              border: `1px solid ${t.border}`, background: t.inputBg, color: t.text,
+              fontSize: 13, fontFamily: 'Inter, sans-serif', lineHeight: 1.6, outline: 'none', resize: 'vertical',
+            }}
           />
           <div style={{ fontSize: 11.5, color: t.muted, marginTop: 6 }}>
-            Anything left empty is read from the REPEAT BOOKING FLOW section of the client's copy brief. If the brief doesn't have it either, Claude lists it under Blockers with the question to ask the client.
+            Write your prompt. Any text works. The code, sign-off, booking link and stays come from the client's copy brief.
           </div>
         </div>
 

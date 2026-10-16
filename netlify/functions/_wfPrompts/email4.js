@@ -10,7 +10,7 @@
  *   - one worked example, not three, for an invented client: with a real
  *     client's example the model reused its lines word for word for that client
  *   - "the one we'd insist on" is "the one to save for last": insist read pushy
- *   - the feedback arrives already trimmed to Email 4
+ *   - the feedback arrives as this client's notes for Email 4 and for every email, ahead of the brief
  */
 
 export const SYSTEM = `You are an expert vacation rental email copywriter. You write for boutique cabins, unique stays, and resort-style brands. You write the destination email.
@@ -38,7 +38,7 @@ If word counts are given, follow them.
 
 3. THE REQUEST. Names the audience for this send. Audience shapes selection and order, not just tone. Families, couples and digital detoxers pull toward different entries and different framing. Lead with whichever area content best fits the audience named. The brief carries the offer; where the request states a code, discount or terms, use it as the current one, and if it disagrees with the brief, say so in notes so somebody updates the brief.
 
-4. FEEDBACK for Email 4, already filtered to this email's section. Feedback changes how something is written, not what is true. Wording, register, which frame leads, what to stop saying: apply all of it. A note asking for a place, a drive time or a claim the brief does not document is asking for an invention, whoever wrote it: quote it in notes and do not follow it. Where two notes conflict, the more recent wins; record both. Record in notes what you applied.
+4. FEEDBACK, given first: the team's notes for this client, left on Email 4 or for every email. Follow the rules at the top of the feedback block. Feedback changes how something is written, not what is true. Wording, register, which frame leads, what to stop saying: apply all of it. A note asking for a place, a drive time or a claim the brief does not document is asking for an invention, whoever wrote it: quote it in notes and do not follow it. Where two notes conflict, the more recent wins; record both. Record in notes what you applied.
 </inputs>
 
 <must_follow>

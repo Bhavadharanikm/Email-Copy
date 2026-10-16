@@ -3,7 +3,8 @@
  * one email at a time. Two passes:
  *
  *   1. write   — the email's own prompt, the copy brief, the client details,
- *                the request and this email's feedback → three variations
+ *                the request and the team's feedback for this client → three
+ *                variations
  *   2. review  — the draft checked against the same brief and the prompt's
  *                rules. Returns only the fixes, applied here, so it writes a
  *                few lines rather than all three variations again. Replaces
@@ -14,7 +15,8 @@
  * no Markdown to parse and no field-name guessing.
  */
 import Anthropic from '@anthropic-ai/sdk'
-import { fetchCopyBrief, fetchBrandRow, fetchFeedbackSection } from './_wfSources.js'
+import { fetchCopyBrief, fetchBrandRow } from './_wfSources.js'
+import { fetchFeedbackFor, feedbackText } from './_wfFeedback.js'
 import * as email1 from './_wfPrompts/email1.js'
 import * as email2 from './_wfPrompts/email2.js'
 import * as email3 from './_wfPrompts/email3.js'
@@ -75,6 +77,7 @@ const REVIEW_SYSTEM = `You are the reviewer for vacation rental marketing emails
 Read the subject line, preview text and hero headline of each variation first: each must be a clear, complete sentence a reader understands on the first read.
 
 Find the lines that need changing:
+- First, the feedback block: every note that applies to this email must be carried out in every variation. A variation that misses one, or only half does it, needs a fix that carries it out in full. A note scoped to another email or client is left alone.
 - Any place, amenity, figure, drive time, distance, price, hour or claim that the brief and client details do not state.
 - Any line that breaks a rule in the writer's instructions.
 - Any line reused from the writer's examples, any subject line, preview text, headline or opening line shared between two variations, or two variations whose points of view are really the same.
@@ -143,7 +146,7 @@ function setPath(obj, path, value) {
   if (parent) parent[/^\d+$/.test(last) ? Number(last) : last] = value
 }
 
-const normForMatch = (t) => String(t).toLowerCase()
+const normForMatch = (t) => String(t).replace(/\*\*/g, '').toLowerCase()
   .replace(/[\u2018\u2019\u02bc]/g, "'").replace(/[\u201c\u201d"]/g, '')
   .replace(/[\u2013\u2014]/g, '-').replace(/\s+/g, ' ').trim()
 
@@ -202,9 +205,13 @@ function stringLeaves(obj, prefix = '') {
 }
 
 const PLAN_SCHEMA = {
-  type: 'object', additionalProperties: false, required: ['blocked', 'angles', 'shared', 'notes'],
+  type: 'object', additionalProperties: false, required: ['blocked', 'feedback', 'angles', 'shared', 'notes'],
   properties: {
     blocked: { type: 'boolean' },
+    feedback: { type: 'array', items: {
+      type: 'object', additionalProperties: false, required: ['note', 'applies', 'change'],
+      properties: { note: { type: 'string' }, applies: { type: 'boolean' }, change: { type: 'string' } },
+    } },
     angles: { type: 'array', items: {
       type: 'object', additionalProperties: false, required: ['name', 'case'],
       properties: { name: { type: 'string' }, case: { type: 'string' } },
@@ -216,24 +223,49 @@ const PLAN_SCHEMA = {
 
 const PLAN_ASK = (week) => `Plan Email ${week} before it is written. Write no copy. Return:
 - blocked: true only where these instructions say the email cannot be written for this client; otherwise false.
+- feedback: one item per note in the feedback block, in order, decided before anything else. applies: false only when the note's own words scope it to another email or client, or it asks for something no copy can do (a different photo, a layout change). change: for a note that applies, exactly what every variation does to carry it out, field by field; otherwise why it does not apply. Empty when there is no feedback.
 - angles: the three angles, points of view or cases, as these instructions define them for this email, each with one or two sentences on the case it makes. Genuinely different from each other, and each supported by the brief.
 - shared: every decision all three variations must use identically, so they can be written separately and still agree: which items are featured and in what order (stays, reviews, moments, blocks and entries, benefits, sweep facts, questions), the exact figure to use wherever the brief gives more than one, the offer terms, and the exact wording of every field these instructions say is identical across variations.
 - notes: what belongs in the email's notes (the checks and questions these instructions ask for).`
+
+/* Feedback leads, before the brief: it is the team's word on this client's
+   copy, so it is read first and decides wherever it and the brief's tone or
+   the prompt's style disagree. */
+const FEEDBACK_RULES = `Read these notes first and carry out every one that applies to this email, in every variation, before anything else is decided. They come from the team that sends this client's emails, and they decide wherever they disagree with the brief's tone, the examples or the email's own style guidance.
+- Follow a note's own scope: a note that names another email ("only for Email 2") or another client does not apply here; a note that says it is for every email does.
+- A later note overrides an earlier one on the same point.
+- Notes still cannot make you invent facts: brief facts stay exactly as the brief has them.
+- A note asking for words in bold is a copy change: wrap exactly those words in double asterisks, **like this**, in every variation, in the body copy only. The email prints them bold. Never in the subject line, preview text or button text: the first two reach the inbox as plain text and buttons are bold already.
+- A note about photos, layout, colours or buttons is not a copy change. Leave the copy as it is and say in notes that it needs a design change.
+- In notes, say which notes you applied and which you did not, with why.`
 
 function assembleContext({ brief, brand, feedback, request, clientName }) {
   const brandLines = brand
     ? Object.entries(brand).filter(([, v]) => v).map(([k, v]) => `${k}: ${v}`).join('\n')
     : '(no brand board row for this client)'
   return [
+    feedback
+      ? `<feedback>\n${FEEDBACK_RULES}\n\n${feedback}\n</feedback>`
+      : '<feedback>\n(no feedback left for this client and email)\n</feedback>',
     `<copy_brief client="${clientName}">\n${brief.text}\n</copy_brief>`,
     `<client_details>\n${brandLines}${brief.website ? `\nwebsite (brief sheet): ${brief.website}` : ''}\n</client_details>`,
-    `<feedback>\n${feedback || '(no feedback filed for this email)'}\n</feedback>`,
     `<request>\n${request}\n</request>`,
   ].join('\n\n')
 }
 
 function stripDashes(s) {
   return s.replace(/\s*[—–]\s*/g, ', ').replace(/,\s*,/g, ',')
+}
+
+/* Bold marks print only in the email body. The subject line and preview text
+   go to the inbox as plain text, where ** would show, and buttons are bold
+   already, so the marks come off those fields. */
+const PLAIN_FIELD = (key) => /^(subjectLine|previewText)$/i.test(key) || (/cta/i.test(key) && !/url$/i.test(key))
+function stripBoldMarks(v, key = '') {
+  if (typeof v === 'string') return PLAIN_FIELD(key) ? v.replace(/\*\*/g, '') : v
+  if (Array.isArray(v)) return v.map(x => stripBoldMarks(x, key))
+  if (v && typeof v === 'object') return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, stripBoldMarks(x, k)]))
+  return v
 }
 
 function deepClean(v) {
@@ -265,16 +297,19 @@ async function runJson(client, { system, content, schema, effort }) {
 /**
  * @returns {{ variations: object[], markdown: string, notes: string, sources: object }}
  */
-export async function generateWfCopy({ week, request, clientName, parallel = true }) {
+export async function generateWfCopy({ week, request, clientName, authToken = '', parallel = true }) {
   const prompt = PROMPTS[week]
   if (!prompt) throw new Error(`Email ${week} has not been moved to Claude yet`)
 
   const sourceClient = sourceClientFor(clientName)
-  const [brief, brand, feedback] = await Promise.all([
+  /* Feedback is filed under the client the page shows, so the test client's
+     notes stay its own even while it borrows another client's brief. */
+  const [brief, brand, feedbackRows] = await Promise.all([
     fetchCopyBrief(sourceClient),
     fetchBrandRow(sourceClient).catch(() => null),
-    fetchFeedbackSection(week).catch(() => ''),
+    fetchFeedbackFor(authToken, clientName, week).catch(() => []),
   ])
+  const feedback = feedbackText(feedbackRows)
   /* The request names the client too; for the stand-in it names the test
      client, so say which client the copy is for. */
   const requestText = sourceClient === clientName ? request
@@ -305,7 +340,10 @@ export async function generateWfCopy({ week, request, clientName, parallel = tru
     if (plan.data?.blocked) throw blockedError(plan.data.notes)
     const angles = (plan.data.angles || []).slice(0, 3)
     if (angles.length < 3) throw new Error(`Claude planned ${angles.length} of the 3 variations. Try again.`)
-    const planText = `<plan>\nAngles:\n${angles.map((x, k) => `${k + 1}. ${x.name}: ${x.case}`).join('\n')}\n\nShared, identical in every variation:\n${plan.data.shared}\n</plan>`
+    const feedbackPlan = (plan.data.feedback || []).filter(f => f.applies && f.change)
+    const planText = `<plan>\n${feedbackPlan.length
+      ? `Feedback, carried out first and in every variation:\n${feedbackPlan.map((f, k) => `${k + 1}. "${f.note}": ${f.change}`).join('\n')}\n\n`
+      : ''}Angles:\n${angles.map((x, k) => `${k + 1}. ${x.name}: ${x.case}`).join('\n')}\n\nShared, identical in every variation:\n${plan.data.shared}\n</plan>`
     const writeOne = (n) => runJson(client, {
       system, schema: prompt.SCHEMA, effort: effort.write,
       content: `${context}\n\n${planText}\n\nWrite variation ${n} only, angle "${angles[n - 1].name}": ${angles[n - 1].case} The other two variations take the other angles in the plan and are being written at the same time, so this one's subject line, preview text, headline and opening are its own. Use the shared plan exactly. Return exactly one variation, in full, in variations, and notes only for anything specific to this variation.`,
@@ -321,7 +359,12 @@ export async function generateWfCopy({ week, request, clientName, parallel = tru
     const variations = parts.map(r => r.data?.variations?.[0]).filter(Boolean)
     if (variations.length < 3) throw new Error(`Claude returned ${variations.length} of the 3 variations. Try again.`)
     for (const v of variations.slice(1)) for (const k of sharedPaths) if (k in variations[0]) v[k] = structuredClone(variations[0][k])
-    draft = { data: { variations, notes: [plan.data.notes, ...parts.map((r, k) => r.data.notes ? `V${k + 1}: ${r.data.notes}` : '')].filter(Boolean).join('\n\n') } }
+    /* What was done with each note, at the top of the notes, so the account
+       manager sees it before anything else. */
+    const feedbackNote = (plan.data.feedback || []).length
+      ? `Feedback:\n${plan.data.feedback.map(f => `- "${f.note}": ${f.applies ? 'applied. ' : 'not applied. '}${f.change}`).join('\n')}`
+      : ''
+    draft = { data: { variations, notes: [feedbackNote, plan.data.notes, ...parts.map((r, k) => r.data.notes ? `V${k + 1}: ${r.data.notes}` : '')].filter(Boolean).join('\n\n') } }
   } else {
     const ask = { system, schema: prompt.SCHEMA, effort: effort.write,
       content: `${context}\n\nWrite the three variations of Email ${week}, each one in full.` }
@@ -377,7 +420,7 @@ export async function generateWfCopy({ week, request, clientName, parallel = tru
     protectedFixes.length ? `REVIEW FIXES NOT APPLIED (verbatim from the brief, left as written):\n${protectedFixes.map(f => `- V${f.variation || 'all'} ${f.path}: ${f.reason}`).join('\n')}` : '',
   ].filter(Boolean).join('\n\n')
 
-  const clean = deepClean(final)
+  const clean = stripBoldMarks(deepClean(final))
   /* The dash cleanup is for copy we write. Verbatim fields go back exactly as
      the writer copied them from the brief. */
   clean.variations.forEach((v, i) => verbatimOf(final.variations[i]).forEach(path => setPath(v, path, getPath(final.variations[i], path))))
@@ -477,7 +520,7 @@ export async function generateWfCopy({ week, request, clientName, parallel = tru
     variations,
     markdown: prompt.toMarkdown ? prompt.toMarkdown(variations) : '',
     notes: clean.notes || '',
-    sources: { briefDoc: brief.title, writtenFor: sourceClient, feedbackUsed: Boolean(feedback) },
+    sources: { briefDoc: brief.title, writtenFor: sourceClient, feedbackUsed: feedbackRows.length },
     briefMismatches: mismatches.length,
     negativeLines: negFound.length,
     figureIssues: numberIssues.length,

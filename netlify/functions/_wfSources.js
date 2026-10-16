@@ -5,10 +5,10 @@
  *      the "Welcome Email Copy Brief" sheet (the same sheet and doc the n8n
  *      workflow reads)
  *   2. the client's brand board row — website, contact, footer, socials
- *   3. the feedback document, trimmed to the section for this one email
  *
- * All three are read-only. The service account needs viewer access to the
- * sheet and to each client's brief doc.
+ * Both are read-only. The service account needs viewer access to the sheet
+ * and to each client's brief doc. Feedback lives in the database instead
+ * (_wfFeedback.js).
  */
 import { createSign } from 'crypto'
 
@@ -17,7 +17,6 @@ const BRIEF_SHEET_ID   = '1Bw-tihbhF0EQzqEoYyLf7NLjhTnrAJPe_Yxqe17znxQ'
 const BRIEF_TAB        = 'Welcome flow Copy Brief'
 const BRAND_SHEET_ID   = '1Bw-tihbhF0EQzqEoYyLf7NLjhTnrAJPe_Yxqe17znxQ'
 const BRAND_TAB        = 'Email Branding & Components'
-const FEEDBACK_DOC_ID  = '1RmcWUUC-Gr0MO3LvBEsVp5jB47RM13TL-LLfLneMRdE'
 
 const SCOPES = [
   'https://www.googleapis.com/auth/spreadsheets.readonly',
@@ -145,26 +144,4 @@ export async function fetchBrandRow(clientName) {
     websiteUrl:    row[9] || '',
     contactNumber: row[10] || '',
   }
-}
-
-/* ── 3. feedback for one email ─────────────────────────────────────────── */
-
-/**
- * Only the text under this email's own "Email N" heading. The heading decides,
- * never the content: a note filed under Email 6 can look relevant to Email 2
- * and still be about different copy.
- */
-export async function fetchFeedbackSection(week) {
-  const doc = await googleGet(`https://docs.googleapis.com/v1/documents/${FEEDBACK_DOC_ID}`)
-  const lines = []
-  let inSection = false
-  for (const el of doc.body?.content || []) {
-    if (!el.paragraph) continue
-    const text  = paragraphText(el.paragraph).trim()
-    const style = el.paragraph.paragraphStyle?.namedStyleType || ''
-    const m     = text.match(/^Email\s+(\d)\b/i)
-    if (style.startsWith('HEADING') && m) { inSection = Number(m[1]) === Number(week); continue }
-    if (inSection && text) lines.push(text)
-  }
-  return lines.join('\n')
 }

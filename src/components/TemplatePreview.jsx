@@ -4291,13 +4291,6 @@ function buildTemplateRB3({ client, copy, images, footerData, isHeroGenerated = 
     ${offerParas.map((p, i) => `<div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${textCol};${i ? 'margin-top:14px;' : ''}">${p}</div>`).join('')}
   </div>` : ''}
 
-  <!-- STAY AGAIN OR TRY SOMETHING NEW (Email 1 WF's cards): a rule, the title, a card per stay type -->
-  ${cards.length ? `<div class="rb3-section" style="padding:30px 48px 0;background-color:${pageBg};">
-    <div style="height:0;border-top:1px solid ${cardBorder};line-height:0;font-size:0;">&nbsp;</div>
-  </div>` : ''}
-  ${copy.sectionHeadline && cards.length ? `<div class="rb3-section" style="padding:26px 48px 14px;text-align:center;background-color:${pageBg};"><div class="rb3-unittitle" style="font-family:'Lora',Georgia,serif;font-size:24px;line-height:32px;font-weight:700;color:${secondary};">${copy.sectionHeadline}</div></div>` : ''}
-  ${cards.length ? `<div class="rb3-section" style="padding:${copy.sectionHeadline ? 4 : 26}px 48px 8px;background-color:${pageBg};">${cards.map((c, i) => cardBlock(c, i)).join('')}</div>` : ''}
-
   <!-- THE CODE, then its terms -->
   ${copy.codeDisplay ? `<div class="rb3-section" style="padding:22px 48px 0;background-color:${pageBg};text-align:center;">
     <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;border-collapse:separate;"><tr><td style="background:#F0F0F0;border:1px solid #DEDEDE;border-radius:999px;padding:12px 28px;">
@@ -4305,6 +4298,13 @@ function buildTemplateRB3({ client, copy, images, footerData, isHeroGenerated = 
     </td></tr></table>
   </div>` : ''}
   ${copy.termsLine ? `<div class="rb3-section" style="padding:12px 48px 0;background-color:${pageBg};text-align:center;"><div style="font-family:Arial,sans-serif;font-size:14px;line-height:20px;color:${mutedTextCol};">${copy.termsLine}</div></div>` : ''}
+
+  <!-- STAY AGAIN OR TRY SOMETHING NEW (Email 1 WF's cards): a rule, the title, a card per stay type -->
+  ${cards.length ? `<div class="rb3-section" style="padding:30px 48px 0;background-color:${pageBg};">
+    <div style="height:0;border-top:1px solid ${cardBorder};line-height:0;font-size:0;">&nbsp;</div>
+  </div>` : ''}
+  ${copy.sectionHeadline && cards.length ? `<div class="rb3-section" style="padding:26px 48px 14px;text-align:center;background-color:${pageBg};"><div class="rb3-unittitle" style="font-family:'Lora',Georgia,serif;font-size:24px;line-height:32px;font-weight:700;color:${secondary};">${copy.sectionHeadline}</div></div>` : ''}
+  ${cards.length ? `<div class="rb3-section" style="padding:${copy.sectionHeadline ? 4 : 26}px 48px 8px;background-color:${pageBg};">${cards.map((c, i) => cardBlock(c, i)).join('')}</div>` : ''}
 
   <!-- CLOSING, then the sign-off -->
   ${closing ? `<div class="rb3-section" style="padding:26px 48px 0;background-color:${pageBg};"><div style="font-family:Arial,sans-serif;font-size:16px;line-height:24px;color:${mutedTextCol};">${closing}</div></div>` : ''}

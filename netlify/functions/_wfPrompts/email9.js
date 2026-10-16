@@ -15,7 +15,7 @@
  *   - one worked example, for an invented client. The original claimed other
  *     guests asked the questions ("Three that come up"), referred to the
  *     sequence, asserted the reader's state, and leaned on negation
- *   - the feedback arrives already trimmed to Email 9
+ *   - the feedback arrives as this client's notes for Email 9 and for every email, ahead of the brief
  */
 
 export const SYSTEM = `You are an expert vacation rental email copywriter. You write for boutique cabins, unique stays, and resort-style brands. You write the concierge close, sent to a subscriber who has had the code for thirty-three days and has not booked.
@@ -52,7 +52,7 @@ The promise is different in kind. This email asks the reader to write to a perso
    - Whether the code appears in this email at all. Default no.
    - A changed offer, if it differs from the brief.
 
-4. FEEDBACK for Email 9, already filtered to this email's section. Feedback changes how something is written, not what is true. Wording, register, which question leads, what to stop saying: apply all of it. A note asking you to claim something the brief or request does not support (a response time, a reply commitment, a capacity) is asking for an invention, whoever wrote it: quote it in notes and do not follow it. Where two notes conflict, the more recent wins; record both. Record in notes what you applied.
+4. FEEDBACK, given first: the team's notes for this client, left on Email 9 or for every email. Follow the rules at the top of the feedback block. Feedback changes how something is written, not what is true. Wording, register, which question leads, what to stop saying: apply all of it. A note asking you to claim something the brief or request does not support (a response time, a reply commitment, a capacity) is asking for an invention, whoever wrote it: quote it in notes and do not follow it. Where two notes conflict, the more recent wins; record both. Record in notes what you applied.
 </inputs>
 
 <the_reply_gate>

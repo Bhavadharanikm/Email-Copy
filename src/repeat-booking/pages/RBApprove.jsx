@@ -38,7 +38,6 @@ export default function RBApprove() {
   const copy = email.copy || {}
   const info = rbEmail(email.email)
   const templateLabel = `Repeat Booking Email ${email.email} - ${info?.name || ''}`.trim()
-  const blockers = email.notes?.blockers || []
 
   const saveToDb = () => rbSaveEmail({
     clientName: client.name, locationId: client.locationId,
@@ -159,15 +158,6 @@ export default function RBApprove() {
           ))}
         </dl>
       </WfCard>
-
-      {blockers.length > 0 && (
-        <WfCard style={{ padding: 16, marginTop: 14, borderColor: 'rgba(180,83,9,0.35)' }}>
-          <div style={{ fontSize: 12.5, fontWeight: 700, color: '#b45309', marginBottom: 6 }}>
-            Claude listed {blockers.length} blocker{blockers.length === 1 ? '' : 's'} for this email
-          </div>
-          {blockers.map((b, i) => <div key={i} style={{ fontSize: 12.5, color: t.text, lineHeight: 1.6 }}>• {b}</div>)}
-        </WfCard>
-      )}
 
       {!email.renderedHtml && (
         <WfCard style={{ padding: 16, marginTop: 14, borderColor: 'rgba(180,83,9,0.35)' }}>

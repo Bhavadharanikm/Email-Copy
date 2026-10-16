@@ -33,6 +33,12 @@ async function storeJob(jobId, result) {
   if (!res.ok) console.error('[wf-claude-copy] copy_jobs write failed', res.status, await res.text())
 }
 
+const bearer = (event) => {
+  const h = event.headers || {}
+  const v = h.authorization || h.Authorization || ''
+  return v.startsWith('Bearer ') ? v.slice(7) : ''
+}
+
 const rawHandler = async (event) => {
   if (event.httpMethod !== 'POST') return json(405, { error: 'Method Not Allowed' })
 
@@ -50,7 +56,11 @@ const rawHandler = async (event) => {
   if (!claudeEnabledFor(week)) return json(400, { error: `Email ${week} is not set up to be written by Claude` })
 
   try {
-    const { variations, markdown, notes, sources } = await generateWfCopy({ week, request: prompt, clientName })
+    const { variations, markdown, notes, sources } = await generateWfCopy({
+      week, request: prompt, clientName,
+      /* the person's own session reads this client's feedback from the database */
+      authToken: bearer(event),
+    })
     await storeJob(jobId, {
       status: 'done', engine: 'claude', emailNumber: week, completedAt: Date.now(),
       copy: { variations, markdown, copywriterNotes: notes, sources },

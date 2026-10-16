@@ -8,7 +8,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { IconArrowLeft, IconMail } from '@tabler/icons-react'
+import { IconArrowLeft, IconMail, IconMessageCircle, IconX } from '@tabler/icons-react'
 import { useWelcomeFlowStore } from '../store/welcomeFlowStore'
 import { useWfTheme, WfCard, WfButton, WfStatusPill } from '../components/wfUi'
 import { WF_WEEKS, wfWeekLabel } from '../wfWeeks'
@@ -23,6 +23,90 @@ export function buildRows(emails) {
   const fixed = WF_WEEKS.map(w => ({ week: w.week, templateId: w.templateId, email: list.find(e => e.week === w.week) || null }))
   const weekless = list.filter(e => !e.week).map(e => ({ week: null, templateId: null, email: e }))
   return [...fixed, ...weekless]
+}
+
+/** The client's feedback on one email as a list of notes. The client's
+    platform writes the column: a JSON list is one note per item (a string, or
+    an object with its text under feedback/text/comment/message), anything
+    else is one note. Exported for tests. */
+export function clientFeedbackItems(raw) {
+  const text = typeof raw === 'string' ? raw.trim() : ''
+  if (!text) return []
+  try {
+    const parsed = JSON.parse(text)
+    const list = Array.isArray(parsed) ? parsed : [parsed]
+    const items = list.map(x => {
+      if (typeof x === 'string') return { text: x.trim() }
+      if (x && typeof x === 'object') {
+        return {
+          text: String(x.feedback ?? x.text ?? x.comment ?? x.message ?? '').trim(),
+          by:   x.author || x.by || x.name || '',
+          at:   x.created_at || x.createdAt || x.date || '',
+        }
+      }
+      return { text: String(x ?? '').trim() }
+    }).filter(i => i.text)
+    if (items.length) return items
+  } catch { /* plain text */ }
+  return [{ text }]
+}
+
+/* A bare date ("2026-10-03") is read as UTC midnight, so show it in UTC or
+   it lands a day early west of Greenwich. */
+function feedbackDate(at) {
+  if (!at) return ''
+  const d = new Date(at)
+  if (isNaN(d)) return String(at)
+  const dateOnly = /^\d{4}-\d{2}-\d{2}$/.test(String(at).trim())
+  return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric', ...(dateOnly ? { timeZone: 'UTC' } : {}) })
+}
+
+function FeedbackPopup({ title, items, onClose }) {
+  const t = useWfTheme()
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose])
+  return (
+    <div
+      onClick={onClose}
+      style={{ position: 'fixed', inset: 0, zIndex: 300, background: 'rgba(15,23,42,0.35)',
+               display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
+    >
+      <div
+        role="dialog" aria-label={title}
+        onClick={e => e.stopPropagation()}
+        style={{ width: 'min(520px, 100%)', maxHeight: '80vh', overflowY: 'auto',
+                 background: t.dark ? '#141414' : '#fff', border: `1px solid ${t.border}`, borderRadius: 14,
+                 boxShadow: '0 20px 60px rgba(0,0,0,0.18)', padding: '18px 20px 20px', fontFamily: 'Inter, sans-serif' }}
+      >
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 14 }}>
+          <div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: t.text }}>Client feedback</div>
+            <div style={{ fontSize: 12.5, color: t.muted, marginTop: 3 }}>{title}</div>
+          </div>
+          <button onClick={onClose} aria-label="Close"
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: t.muted, display: 'flex' }}>
+            <IconX size={16} stroke={2} />
+          </button>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {items.map((item, i) => (
+            <div key={i} style={{ padding: '11px 13px', borderRadius: 10, border: `1px solid ${t.border}`,
+                                   background: t.dark ? 'rgba(255,255,255,0.03)' : '#f9fafb' }}>
+              <div style={{ fontSize: 13.5, color: t.text, lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{item.text}</div>
+              {(item.by || item.at) && (
+                <div style={{ fontSize: 11.5, color: t.faint, marginTop: 6 }}>
+                  {[item.by, feedbackDate(item.at)].filter(Boolean).join(' · ')}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
 }
 
 function relative(iso) {
@@ -61,6 +145,7 @@ export default function WFClientDetail() {
   const { getClient, getEmails, counts, addEmail, ensureClients, ensureEmails, loadingClients, clientsLoaded, loadedEmails } = useWelcomeFlowStore()
   const [filter, setFilter] = useState('all')
   const [creating, setCreating] = useState(null)   // the week being created on first open, so a double click cannot make two
+  const [feedbackFor, setFeedbackFor] = useState(null)   // { title, items } shown in the client-feedback pop-up
 
   // clients are not persisted — refetch after a reload on this deep route
   useEffect(() => { ensureClients() }, [ensureClients])
@@ -187,8 +272,16 @@ export default function WFClientDetail() {
               {!loadedEmails[clientId] ? 'Reading this client’s emails from the database.' : 'Try a different filter.'}
             </div>
           </div>
-        ) : (
-          shown.map((row, i) => { const e = row.email; return (
+        ) : (<>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '8px 18px', borderBottom: `1px solid ${t.border}`,
+                        fontSize: 11, fontWeight: 600, color: t.faint, textTransform: 'uppercase', letterSpacing: '0.07em' }}>
+            <span style={{ width: 22, flexShrink: 0 }} />
+            <span style={{ flex: 1 }}>Email</span>
+            <span style={{ width: 64, textAlign: 'center', flexShrink: 0 }}>Feedback</span>
+            <span style={{ width: 104, textAlign: 'center', flexShrink: 0 }}>Status</span>
+            <span style={{ width: 74, textAlign: 'right', flexShrink: 0 }}>Updated</span>
+          </div>
+          {shown.map((row, i) => { const e = row.email; return (
             <div
               key={row.week ? `week-${row.week}` : e.id}
               onClick={() => openRow(row)}
@@ -219,14 +312,36 @@ export default function WFClientDetail() {
                     : <span style={{ fontStyle: 'italic', color: t.faint }}>No email picked yet</span>}
                 </div>
               </div>
-              {e ? <WfStatusPill status={e.status} /> : <span style={{ fontSize: 12, color: t.faint }}>Not started</span>}
+              {/* the client's own feedback on this email, from their platform */}
+              {(() => {
+                const items = clientFeedbackItems(e?.clientFeedback)
+                if (!items.length) return <span style={{ width: 64, flexShrink: 0 }} />
+                const title = row.week ? wfWeekLabel(row.week) : (e.subject || 'Email')
+                return (
+                  <button
+                    onClick={ev => { ev.stopPropagation(); setFeedbackFor({ title: `${client.name} · ${title}`, items }) }}
+                    title={`${items.length} client feedback note${items.length === 1 ? '' : 's'}`}
+                    style={{ width: 64, flexShrink: 0, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 5,
+                             padding: '5px 0', borderRadius: 999, cursor: 'pointer', fontFamily: 'Inter, sans-serif',
+                             border: `1px solid ${t.dark ? 'rgba(245,158,11,0.35)' : '#fcd34d'}`,
+                             background: t.dark ? 'rgba(245,158,11,0.12)' : '#fffbeb',
+                             color: t.dark ? '#fbbf24' : '#b45309', fontSize: 12.5, fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}
+                  >
+                    <IconMessageCircle size={14} stroke={2} /> {items.length}
+                  </button>
+                )
+              })()}
+              <span style={{ width: 104, flexShrink: 0, display: 'flex', justifyContent: 'center' }}>
+                {e ? <WfStatusPill status={e.status} /> : <span style={{ fontSize: 12, color: t.faint }}>Not started</span>}
+              </span>
               <span style={{ fontSize: 12, color: t.faint, width: 74, textAlign: 'right', flexShrink: 0 }}>
                 {e ? relative(e.updatedAt) : ''}
               </span>
             </div>
-          )})
-        )}
+          )})}
+        </>)}
       </WfCard>
+      {feedbackFor && <FeedbackPopup title={feedbackFor.title} items={feedbackFor.items} onClose={() => setFeedbackFor(null)} />}
     </div>
   )
 }

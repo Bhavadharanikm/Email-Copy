@@ -54,6 +54,9 @@ export function rowToEmail(r) {
     previewHtml:       r.preview_html || '',
     renderedHtml:      r.rendered_html || '',
     ghlTemplateId:     r.ghl_template_id || null,
+    /* Left by the client on their own platform, which writes this column.
+       Read-only here: wf-push-email never writes it. */
+    clientFeedback:    r.feedback || '',
     pushedAt:          r.pushed_at || null,
     createdAt:         r.created_at,
     updatedAt:         r.updated_at,

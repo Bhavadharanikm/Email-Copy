@@ -1,8 +1,8 @@
 /**
  * Repeat Booking Flow — clients list.
  *
- * Its own roster, separate from the welcome flow's (kept in this browser for
- * now, see the store). A client is added by picking it from the client
+ * Its own roster, separate from the welcome flow's, kept in the shared
+ * database so every teammate sees the same list (see the store). A client is added by picking it from the client
  * database rather than typing a location ID: every client there is already set
  * up with its GHL key and logo.
  */
@@ -120,8 +120,10 @@ function AddClientPicker({ takenLocations, onCancel, onPick }) {
 export default function RBClients() {
   const navigate = useNavigate()
   const t = useWfTheme()
-  const { clients, addClient, counts } = useRepeatBookingStore()
+  const { clients, addClient, counts, load } = useRepeatBookingStore()
   const [q, setQ] = useState('')
+  /* Back on the list: pick up what teammates added since this visit began. */
+  useEffect(() => { load() }, [load])
   const [adding, setAdding] = useState(false)
 
   const takenLocations = useMemo(() => new Set(clients.map(c => c.locationId)), [clients])

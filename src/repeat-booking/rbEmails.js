@@ -27,88 +27,38 @@ export const rbEmailDetail = (n) => {
 }
 
 /**
- * The brief each email seeds into the prompt box: the prompt's own PER-RUN
- * INPUT block, so the writer fills exactly what the prompt asks for. Sent as
- * typed. An empty line is a blocker the copy will ask the client about.
+ * The brief is one free-text prompt, seeded like the welcome flow's with the
+ * three things typed per send: the client, a theme (any angle, occasion or
+ * extra facts) and the audience. Everything else the prompts ask for (property
+ * name, sign-off, codes and terms, CTA URL, stays) is read from the client's
+ * copy brief, its REPEAT BOOKING FLOW section first; see sourcesRule in
+ * netlify/functions/_rbClaude.js. Sent to Claude as typed.
  */
-const RB_BRIEF_LINES = {
-  1: [
-    'PROPERTY_NAME: ',
-    'TARGET_AUDIENCE: ',
-    'HOST_SIGN_OFF: ',
-    'RETURN_CODE: ',
-    'RETURN_DISCOUNT: ',
-    'RETURN_MINIMUM_NIGHTS: ',
-    'CODE_VALIDITY: ',
-    'CODE_EXPIRY_MERGE_TAG: NOT AVAILABLE',
-    'BOOKING_CHANNEL: direct',
-    'CTA_URL: ',
-    'UNIVERSAL_AMENITIES: ',
-    'APPROVED_INFERENCES: none',
-  ],
-  2: [
-    'PROPERTY_NAME: ',
-    'TARGET_AUDIENCE: ',
-    'HOST_SIGN_OFF: ',
-    'RETURN_CODE: ',
-    'RETURN_DISCOUNT: ',
-    'RETURN_MINIMUM_NIGHTS: ',
-    'EXPIRY_DATE_MERGE_TAG: NOT AVAILABLE',
-    'SEND_OFFSET_DAYS: 3',
-    'CODE_APPLIES_TO: UNKNOWN',
-    'BOOKING_CHANNEL: direct',
-    'CTA_URL: ',
-    'MULTI_UNIT: ',
-    'UNIT_ROSTER: ',
-    'UNIT_PHOTOS: available per unit',
-    'UNIT_LINKS: NOT AVAILABLE',
-    'UNIVERSAL_AMENITIES: ',
-    'APPROVED_INFERENCES: none',
-  ],
-  3: [
-    'PROPERTY_NAME: ',
-    'TARGET_AUDIENCE: ',
-    'HOST_SIGN_OFF: ',
-    'STAY_MONTH_MERGE_TAG: NOT AVAILABLE',
-    'STAY_SEASON_MERGE_TAG: NOT AVAILABLE',
-    'STAY_FIELD_ALWAYS_FILLED: UNKNOWN',
-    'ANNIVERSARY_CODE: ',
-    'ANNIVERSARY_DISCOUNT: ',
-    'ANNIVERSARY_MINIMUM_NIGHTS: ',
-    'CODE_VALIDITY: ',
-    'EARLY_ACCESS: NONE',
-    'BOOKING_CHANNEL: direct',
-    'CTA_URL: ',
-    'MULTI_UNIT: ',
-    'UNIT_ROSTER: ',
-    'UNIT_PHOTOS: available per unit',
-    'UNIT_LINKS: NOT AVAILABLE',
-    'UNIVERSAL_AMENITIES: ',
-    'APPROVED_INFERENCES: none',
-  ],
-}
+export const rbBriefTemplate = (clientName, { theme = '', audience = '' } = {}) =>
+  `Client Name: ${clientName || ''}\nTheme: ${theme}\nAudience: ${audience}`
 
-/* Fields a later email carries over from an earlier one's brief: the client
-   facts, Email 1's code and terms (Email 2 must match them), and the stay
-   types (Emails 2 and 3 show the same roster). Email 3's anniversary code is
-   its own, so it is never carried. */
-const CARRIED = new Set(['PROPERTY_NAME', 'TARGET_AUDIENCE', 'HOST_SIGN_OFF', 'RETURN_CODE', 'RETURN_DISCOUNT',
-  'RETURN_MINIMUM_NIGHTS', 'BOOKING_CHANNEL', 'CTA_URL', 'UNIVERSAL_AMENITIES',
-  'MULTI_UNIT', 'UNIT_ROSTER', 'UNIT_PHOTOS', 'UNIT_LINKS'])
-
-/** The seeded brief: CLIENT, then this email's fields, with any value an
-    earlier email's brief already holds for a carried field filled in. */
-export const rbBriefTemplate = (clientName, email, earlierBriefs = '') => {
-  const known = {}
-  for (const line of [].concat(earlierBriefs).join('\n').split('\n')) {
-    const m = line.match(/^\s*([A-Z_]+):\s*(.*)$/)
-    if (m && CARRIED.has(m[1]) && m[2].trim() && !known[m[1]]) known[m[1]] = m[2].trim()
+const lineValue = (text, keys) => {
+  for (const key of keys) {
+    const v = String(text || '').match(new RegExp(`^\\s*${key}:[ \\t]*(.*)$`, 'mi'))?.[1]?.trim()
+    if (v) return v
   }
-  const lines = (RB_BRIEF_LINES[Number(email)] || []).map(l => {
-    const key = l.split(':')[0]
-    return known[key] ? `${key}: ${known[key]}` : l
-  })
-  return [`CLIENT: ${clientName || ''}`, ...lines].join('\n')
+  return ''
+}
+const AUDIENCE = ['Audience', 'TARGET_AUDIENCE']
+const THEME    = ['Theme']
+
+/* Briefs written in an earlier, longer form of this page. */
+const isOldForm = (brief) => /^\s*(CLIENT|TARGET_AUDIENCE|PROPERTY_NAME):/m.test(brief || '')
+
+/** The prompt an email opens with: its own; for one written in the old long
+    form, the new form with its audience and theme carried over; for a new one,
+    the template with the audience the client's other emails already used. */
+export function rbBriefFor(clientName, email, otherEmails = []) {
+  const brief = email?.brief || ''
+  if (brief && !isOldForm(brief)) return brief
+  const audience = lineValue(brief, AUDIENCE)
+    || otherEmails.map(e => lineValue(e.brief, AUDIENCE)).find(Boolean) || ''
+  return rbBriefTemplate(clientName, { theme: lineValue(brief, THEME), audience })
 }
 
 /* Sample copy so the design shows before an email has copy of its own. From

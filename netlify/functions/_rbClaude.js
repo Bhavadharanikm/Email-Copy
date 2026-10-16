@@ -164,20 +164,34 @@ export function repeatBookingSection(text) {
 /* Where each per-run field comes from. Added to every email's prompt so a
    field left blank on the Brief page is read from the brief's own section
    rather than treated as missing. */
+/* What the per-run fields default to when neither the brief nor the theme
+   states them: the values the old per-send form came pre-filled with. */
+const FIELD_DEFAULTS = {
+  1: 'CODE_EXPIRY_MERGE_TAG: NOT AVAILABLE; BOOKING_CHANNEL: direct; APPROVED_INFERENCES: none',
+  2: 'EXPIRY_DATE_MERGE_TAG: NOT AVAILABLE; SEND_OFFSET_DAYS: 3; CODE_APPLIES_TO: UNKNOWN; BOOKING_CHANNEL: direct; UNIT_PHOTOS: available per unit; UNIT_LINKS: NOT AVAILABLE; APPROVED_INFERENCES: none',
+  3: 'STAY_MONTH_MERGE_TAG: NOT AVAILABLE; STAY_SEASON_MERGE_TAG: NOT AVAILABLE; STAY_FIELD_ALWAYS_FILLED: UNKNOWN; EARLY_ACCESS: NONE; BOOKING_CHANNEL: direct; UNIT_PHOTOS: available per unit; UNIT_LINKS: NOT AVAILABLE; APPROVED_INFERENCES: none',
+}
+
 const sourcesRule = (email) => `=====================================================================
 WHERE THE PER-RUN FIELDS COME FROM (applies above every other input rule)
 =====================================================================
 
-The per-run fields have two documented sources, in this order:
-1. The PER-RUN INPUT typed for this send. A value typed there always wins.
-2. The REPEAT BOOKING FLOW section of the client's copy brief, given in <repeat_booking_section>. A field left empty, or left at its placeholder, in the per-run input is taken from this section when the section states it. That is a documented value, not an inference: use it exactly as written and tag it [V: §Repeat Booking Flow].
-A field neither source states is a blocker, as the rules above say. A blocked field is left as an empty string: never write a placeholder such as "[CODE PENDING]" or "TBD" into any field, since every field is printed in the email as it stands. Provenance tags belong in "flags" only, never inside the copy.
+The per-run input is a short free-text prompt the team typed for this send, usually three lines:
+- Client Name: the client.
+- Theme: optional notes for this send: an angle to lead with, an occasion, or extra facts. Follow its direction on what to emphasise wherever that does not break a rule in these instructions. A fact stated in the prompt counts as documented for this send: use it as written and tag it [V: Prompt]. The prompt never overrides a code, discount or term the brief documents.
+- Audience: who this send is for, which populates TARGET_AUDIENCE. When it is blank, use the audience the copy brief documents.
+Anything else typed in the prompt is read the same way as Theme. A field named in the prompt with a value (for example a code typed there) is the per-run value for that field.
+
+Every other per-run field the instructions above list (property name, host sign-off, codes and their terms, CTA URL, universal amenities, the unit fields and the rest) is read from these sources, in this order:
+1. The REPEAT BOOKING FLOW section of the client's copy brief, given in <repeat_booking_section>. Use what it states exactly as written and tag it [V: §Repeat Booking Flow].
+2. The rest of the copy brief and <client_details>: the property name, the sign-off, the booking URL and the audience as the brief documents them, tagged with the section they came from.
+3. These defaults, for a field neither source states: ${FIELD_DEFAULTS[Number(email)] || 'none'}.
+Reading a field from the brief this way is taking a documented value, not an inference. A field none of these supplies is a blocker, as the rules above say. A blocked field is left as an empty string: never write a placeholder such as "[CODE PENDING]" or "TBD" into any field, since every field is printed in the email as it stands. Provenance tags belong in "flags" only, never inside the copy.
 
 ${Number(email) === 3
     ? 'This is Email 3: use the ANNIVERSARY code and its terms. Never use the returning-guest code from Emails 1 and 2, even if the section lists it first.'
     : `This is Email ${email}: use the RETURNING-GUEST code and its terms (the same code for Emails 1 and 2). Never use the anniversary code meant for Email 3.`}
-Featured stays, the unit roster, the host sign-off and the CTA URL may also come from the section, exactly as it writes them.
-For the stay types (UNIT_ROSTER, MULTI_UNIT): when the per-run input leaves them blank, use the featured stays the REPEAT BOOKING FLOW section lists; if it lists none, use the stay types the brief documents in its own section on its stays or units (for example "Focus Units"). A brief that documents more than one stay type means MULTI_UNIT is yes. Their names and descriptions are copied word for word from the brief.`
+For the stay types (UNIT_ROSTER, MULTI_UNIT): use the featured stays the REPEAT BOOKING FLOW section lists; if it lists none, use the stay types the brief documents in its own section on its stays or units (for example "Focus Units"). A brief that documents more than one stay type means MULTI_UNIT is yes. Their names and descriptions are copied word for word from the brief.`
 
 function assembleContext({ brief, brand, request, clientName }) {
   const brandLines = brand

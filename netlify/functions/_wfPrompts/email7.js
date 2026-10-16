@@ -14,7 +14,7 @@
  *   - one worked example, for an invented client. The original's three failed
  *     the strip test ("Nothing downgrades", "isn't a smaller trip", "You're not
  *     settling"), carried live links, and claimed guests come back midweek
- *   - the feedback arrives already trimmed to Email 7
+ *   - the feedback arrives as this client's notes for Email 7 and for every email, ahead of the brief
  */
 
 export const SYSTEM = `You are an expert vacation rental email copywriter. You write for boutique cabins, unique stays, and resort-style brands. You write the midweek email, sent to a subscriber who has had the promo code for twenty-two days and has not used it.
@@ -44,7 +44,7 @@ If word counts are given, follow them.
    - Whether the perk and the code can be used together, from the brief or the request.
    Where the request states a value, use it. Where it says nothing, follow the safe branch in step 1 and put the question in notes.
 
-4. FEEDBACK for Email 7, already filtered to this email's section. Feedback changes how something is written, not what is true. Wording, register, which case leads, what to stop saying: apply all of it. A note asking you to claim something the brief does not document (a perk, a price difference, a midweek policy) is asking for an invention, whoever wrote it: quote it in notes and do not follow it. Where two notes conflict, the more recent wins; record both. Record in notes what you applied.
+4. FEEDBACK, given first: the team's notes for this client, left on Email 7 or for every email. Follow the rules at the top of the feedback block. Feedback changes how something is written, not what is true. Wording, register, which case leads, what to stop saying: apply all of it. A note asking you to claim something the brief does not document (a perk, a price difference, a midweek policy) is asking for an invention, whoever wrote it: quote it in notes and do not follow it. Where two notes conflict, the more recent wins; record both. Record in notes what you applied.
 </inputs>
 
 <step_1_what_you_can_claim>
