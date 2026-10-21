@@ -30,14 +30,17 @@ export default function RBPreview() {
   const snapshot = useRef(null)
 
   /* 'preview' draws from the photos (re-crop, generate again); 'rendered' draws
-     with the baked PNGs, which is what Approve pushes. */
-  const [mode, setMode] = useState('preview')
+     with the baked PNGs, which is what Approve pushes. The page always opens on
+     Rendered; an email with nothing baked yet has only the live design, which
+     is where Generate is. */
+  const [mode, setMode] = useState('rendered')
   const genUrls = useCampaignStore(st => st.generatedUrls)
   const bakedForThis = genUrls?.[templateId] || null
   const hasBaked = !!bakedForThis && Object.values(bakedForThis).some(Boolean)
-  const modeRef = useRef(mode)
+  const view = hasBaked ? mode : 'preview'
+  const modeRef = useRef(view)
   const hasBakedRef = useRef(hasBaked)
-  useEffect(() => { modeRef.current = mode }, [mode])
+  useEffect(() => { modeRef.current = view }, [view])
   useEffect(() => { hasBakedRef.current = hasBaked }, [hasBaked])
 
   /* A fresh bake landing after the page settled switches to the rendered view. */
@@ -128,20 +131,20 @@ export default function RBPreview() {
               ['rendered', 'Rendered', 'The generated images, exactly as Approve will push them']].map(([id, label, hint]) => (
               <button key={id} onClick={() => setMode(id)} title={hint}
                 style={{ padding: '6px 16px', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: 'Inter, sans-serif',
-                         fontSize: 12.5, fontWeight: 700, background: mode === id ? t.cardBg : 'transparent',
-                         color: mode === id ? t.text : t.muted, boxShadow: mode === id ? '0 1px 4px rgba(0,0,0,0.12)' : 'none' }}>
+                         fontSize: 12.5, fontWeight: 700, background: view === id ? t.cardBg : 'transparent',
+                         color: view === id ? t.text : t.muted, boxShadow: view === id ? '0 1px 4px rgba(0,0,0,0.12)' : 'none' }}>
                 {label}
               </button>
             ))}
           </div>
           <span style={{ fontSize: 12, color: t.muted }}>
-            {mode === 'preview' ? 'Showing the live design. Generate images to bake it again.' : 'Showing the generated images, as Approve will push them.'}
+            {view === 'preview' ? 'Showing the live design. Generate images to bake it again.' : 'Showing the generated images, as Approve will push them.'}
           </span>
         </div>
       )}
 
       {ready ? (
-        <TemplatePreview welcomeFlow templateId={templateId} bakedImages={mode === 'rendered'} allowGenerate={mode === 'preview'} />
+        <TemplatePreview welcomeFlow templateId={templateId} bakedImages={view === 'rendered'} allowGenerate={view === 'preview'} />
       ) : (
         <WfCard style={{ padding: 40, textAlign: 'center' }}>
           <div style={{ fontSize: 13, color: t.muted }}>Loading the template…</div>

@@ -47,17 +47,20 @@ export default function WFPreview() {
   /* Two ways to look at a generated email. 'preview' draws it from the photos
      themselves, so the hero can be re-cropped and the images generated again.
      'rendered' draws it with the PNGs already baked and sitting in the client's
-     media library, which is what Approve pushes. Copy edits show in both. */
-  const [mode, setMode] = useState('preview')
+     media library, which is what Approve pushes. Copy edits show in both.
+     The page always opens on Rendered, what Approve will push. An email with
+     nothing baked yet has only the live design, which is where Generate is. */
+  const [mode, setMode] = useState('rendered')
   const genUrls = useCampaignStore(st => st.generatedUrls)
   const bakedForThis = genUrls?.[wfWeekTemplateId] || null
   const hasBaked = !!bakedForThis && Object.values(bakedForThis).some(Boolean)
+  const view = hasBaked ? mode : 'preview'
 
   /* The cleanup below runs from an effect that cannot see later renders, so the
      two things it has to know are kept in refs. */
-  const modeRef = useRef(mode)
+  const modeRef = useRef(view)
   const hasBakedRef = useRef(hasBaked)
-  useEffect(() => { modeRef.current = mode }, [mode])
+  useEffect(() => { modeRef.current = view }, [view])
   useEffect(() => { hasBakedRef.current = hasBaked }, [hasBaked])
 
   /* Pressing Generate should show what it produced. The baked set changing
@@ -211,9 +214,9 @@ export default function WFPreview() {
                 style={{
                   padding: '6px 16px', borderRadius: 8, border: 'none', cursor: 'pointer',
                   fontFamily: 'Inter, sans-serif', fontSize: 12.5, fontWeight: 700,
-                  background: mode === id ? t.cardBg : 'transparent',
-                  color: mode === id ? t.text : t.muted,
-                  boxShadow: mode === id ? '0 1px 4px rgba(0,0,0,0.12)' : 'none',
+                  background: view === id ? t.cardBg : 'transparent',
+                  color: view === id ? t.text : t.muted,
+                  boxShadow: view === id ? '0 1px 4px rgba(0,0,0,0.12)' : 'none',
                   transition: 'all 0.15s',
                 }}
               >
@@ -222,7 +225,7 @@ export default function WFPreview() {
             ))}
           </div>
           <span style={{ fontSize: 12, color: t.muted }}>
-            {mode === 'preview'
+            {view === 'preview'
               ? 'Showing the live design. Generate images to bake it again.'
               : 'Showing the generated images. Edit the copy and they stay as they are.'}
           </span>
@@ -233,8 +236,8 @@ export default function WFPreview() {
         <TemplatePreview
           welcomeFlow
           templateId={wfWeekTemplateId}
-          bakedImages={mode === 'rendered'}
-          allowGenerate={mode === 'preview'}
+          bakedImages={view === 'rendered'}
+          allowGenerate={view === 'preview'}
         />
       ) : (
         <WfCard style={{ padding: 40, textAlign: 'center' }}>

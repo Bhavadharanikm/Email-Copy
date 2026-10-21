@@ -27,6 +27,16 @@ function AutoTextarea({ value, onChange, onBlur, onKeyDown, style }) {
     rows={1} style={{ ...style, resize: 'none', overflow: 'hidden' }} />
 }
 
+/* The markers hug the words: spaces at either end of the selection stay
+   outside them, and a selection across lines gets a pair on each line, since
+   "** word**" or a pair spanning a line break would print as plain stars. */
+function wrapBold(picked) {
+  return picked.split('\n').map(line => {
+    const m = line.match(/^(\s*)(.*?)(\s*)$/)
+    return m[2] ? `${m[1]}**${m[2]}**${m[3]}` : line
+  }).join('\n')
+}
+
 /* Cmd/Ctrl+B wraps the selection in ** markers, which the template prints bold. */
 function toggleBold(el, onChange) {
   const value = el.value || ''
@@ -38,7 +48,8 @@ function toggleBold(el, onChange) {
   let next, from, to
   if (already)     { next = value.slice(0, start) + picked.slice(2, -2) + value.slice(end); from = start; to = end - 4 }
   else if (around) { next = value.slice(0, start - 2) + picked + value.slice(end + 2);      from = start - 2; to = end - 2 }
-  else             { next = value.slice(0, start) + `**${picked}**` + value.slice(end);      from = start + 2; to = end + 2 }
+  else             { const w = wrapBold(picked); if (w === picked) return false
+                     next = value.slice(0, start) + w + value.slice(end);                   from = start; to = start + w.length }
   onChange(next)
   requestAnimationFrame(() => { try { el.setSelectionRange(from, to) } catch { /* unmounted */ } })
   return true

@@ -147,6 +147,23 @@ function renderBoldMarks(text) {
   return String(text ?? '').replace(WF_BOLD, '<strong>$1</strong>')
 }
 
+/* The last word on **marks** for the welcome flow and Repeat Booking: run over
+   the finished HTML, every email and every bake, so a mark that reached the
+   page by any route prints bold, and a lone ** with no partner is dropped.
+   Only text between tags and alt/title text is touched, never markup or URLs.
+   Weekly emails do not go through this. */
+function finishBoldMarks(html) {
+  if (!html || !String(html).includes('**')) return html
+  /* "** word**", saved before the shortcut kept spaces outside the marks, is
+     still meant as bold: the closing pair hugging the word decides it. */
+  const fixText = (t) => renderBoldMarks(t)
+    .replace(/\*\*\s+([^*\n]*?\S)\*\*/g, ' <strong>$1</strong>')
+    .replace(/\*\*/g, '')
+  return String(html)
+    .replace(/>([^<]*\*\*[^<]*)</g, (_, t) => `>${fixText(t)}<`)
+    .replace(/\b(alt|title)="([^"]*\*\*[^"]*)"/g, (_, a, v) => `${a}="${v.replace(/\*\*/g, '')}"`)
+}
+
 /** The same, over every string in a copy object. URLs are left alone. */
 function withBoldMarks(value, key = '') {
   if (typeof value === 'string') return /url$/i.test(key) ? value : renderBoldMarks(value)
@@ -419,7 +436,7 @@ function buildTemplateWeek2v2({ client, copy, images, footerData, isHeroGenerate
   <!-- CTA -->
   ${copy.ctaText ? `<div class="w2-section" style="padding:24px 48px 28px;text-align:center;background-color:${pageBg};">${btnImgUrl
     ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;outline:none;border:none;"><img class="w2-btn-img" src="${btnImgUrl}" alt="${copy.ctaText}" width="375" style="width:375px;max-width:375px;display:block;margin:0 auto;border:0;outline:none;"/></a>`
-    : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accent};border-radius:999px;"><a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${copy.ctaText}</a></td></tr></table>`
+    : `<table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td style="background:${accent};border-radius:999px;"><a class="mobile-cta" href="${copy.ctaUrl||'#'}" style="display:inline-block;padding:15px 40px;font-family:Arial,sans-serif;font-size:17px;font-weight:700;letter-spacing:.04em;color:#ffffff!important;-webkit-text-fill-color:#ffffff;text-decoration:none!important;white-space:nowrap;">${copy.ctaText} &rarr;</a></td></tr></table>`
   }</div>` : ''}
 
   <!-- LONG IMAGE (img1): transparent PNG above body text -->
@@ -4593,8 +4610,9 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
       : clientFooter
     console.log('[baseHtml] tplId:', tpl?.id, 'isHeroGenerated:', isHeroGenerated, 'tplUrls:', tplUrls, 'effectiveImages[4]:', effectiveImages?.[4], 'effectiveImages[5]:', effectiveImages?.[5])
     const effectiveCopy = generatedCopy ? withBoldMarks({ ...generatedCopy, headlineText: (generatedCopy.headlineText || '').replace(/\.$/, '') }) : generatedCopy
-    return tpl.build({ client:selectedClient, copy:effectiveCopy, images:effectiveImages, headerStyle, imageStyle, footerData: effectiveFooterData, isHeroGenerated, isStoryGenerated, cardsGenerated, btnImgUrl: tplUrls.btn || null, introBtnImgUrl: tplUrls.introBtn || null, cardBtnImgUrl: tplUrls.cardBtn || null, stampImgUrl: tplUrls.sec || null, pinImgUrl: tplUrls.ter || null, gridImgUrl: ((tpl?.id === 33 || tpl?.id === 35 || tpl?.id === 36 || tpl?.id === 37 || tpl?.id === 38 || tpl?.id === 39 || tpl?.id === 41) ? tplUrls.sec : null) || null, iconImgUrls: tplUrls.icons || [], heroMobileImgUrl: tplUrls.heroMobile || null, btnMobileImgUrl: tplUrls.btnMobile || null, dayImgUrls: tpl?.id === 32 ? [tplUrls.sec || null, tplUrls.ter || null] : [], dayImgMobUrls: tpl?.id === 32 ? [tplUrls.card1 || null, tplUrls.card2 || null] : [], closingImgUrl: tpl?.id === 32 ? (tplUrls.closing || null) : null, ...editorProps })
-  }, [active, selectedClient, generatedCopy, selectedImages, headerStyle, imageStyle, clientFooter, footerLogoColor, footerLogoSize, weekGenUrls, bakedImages, heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y, img5Scale, img5X, img5Y])
+    const built = tpl.build({ client:selectedClient, copy:effectiveCopy, images:effectiveImages, headerStyle, imageStyle, footerData: effectiveFooterData, isHeroGenerated, isStoryGenerated, cardsGenerated, btnImgUrl: tplUrls.btn || null, introBtnImgUrl: tplUrls.introBtn || null, cardBtnImgUrl: tplUrls.cardBtn || null, stampImgUrl: tplUrls.sec || null, pinImgUrl: tplUrls.ter || null, gridImgUrl: ((tpl?.id === 33 || tpl?.id === 35 || tpl?.id === 36 || tpl?.id === 37 || tpl?.id === 38 || tpl?.id === 39 || tpl?.id === 41) ? tplUrls.sec : null) || null, iconImgUrls: tplUrls.icons || [], heroMobileImgUrl: tplUrls.heroMobile || null, btnMobileImgUrl: tplUrls.btnMobile || null, dayImgUrls: tpl?.id === 32 ? [tplUrls.sec || null, tplUrls.ter || null] : [], dayImgMobUrls: tpl?.id === 32 ? [tplUrls.card1 || null, tplUrls.card2 || null] : [], closingImgUrl: tpl?.id === 32 ? (tplUrls.closing || null) : null, ...editorProps })
+    return welcomeFlow ? finishBoldMarks(built) : built
+  }, [active, welcomeFlow, selectedClient, generatedCopy, selectedImages, headerStyle, imageStyle, clientFooter, footerLogoColor, footerLogoSize, weekGenUrls, bakedImages, heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y, img5Scale, img5X, img5Y])
 
   // Keep store in sync so ApprovalPanel always has the latest HTML
   useEffect(() => {
@@ -4838,8 +4856,9 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
 
   // Calls html2image.net first; falls back to Puppeteer + GHL upload
   const renderImage = useCallback(async ({ html, width, height, transparent }) => {
-    return await htmlToImage({ html, width, height, locationId, apiKey: selectedClient?.ghlApiKey, transparent })
-  }, [locationId, selectedClient?.ghlApiKey])
+    const page = welcomeFlow ? finishBoldMarks(html) : html
+    return await htmlToImage({ html: page, width, height, locationId, apiKey: selectedClient?.ghlApiKey, transparent })
+  }, [locationId, selectedClient?.ghlApiKey, welcomeFlow])
 
   // Week template image generation effect
   useEffect(() => {
@@ -5047,8 +5066,10 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
        top bar above it stays live HTML, so the bake is only the photo. Every
        number here matches the on-screen hero or the layout shifts when
        Generate Images runs. */
-    const week4wfSubhead = generatedCopy?.sectionSubhead || generatedCopy?.subhead || ''
-    const week4wfCta     = generatedCopy?.ctaText || ''
+    /* **marks** print bold in the bake too, as they do in the live design. */
+    const week4wfSubRaw  = generatedCopy?.sectionSubhead || generatedCopy?.subhead || ''
+    const week4wfSubhead = renderBoldMarks(week4wfSubRaw)
+    const week4wfCta     = renderBoldMarks(generatedCopy?.ctaText || '')
     /* The hero is as tall as its content: the photo card, then the subhead, which
        wraps, then the button and its little drop line. It used to be baked at a
        fixed 600, which sliced the button in half whenever the subhead ran on.
@@ -5065,7 +5086,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     const week4wfBandH    = logoTop + Math.max(logoSize, 20) + 18
 
     const week4wfSubLines = week4wfSubhead
-      ? Math.max(1, Math.ceil(String(week4wfSubhead).length / 70))
+      ? Math.max(1, Math.ceil(String(week4wfSubRaw).replace(/\*\*/g, '').length / 70))
       : 0
     const week4wfBlurH = 22 + 480
       + (week4wfSubhead ? 26 + week4wfSubLines * 28 : 0)
@@ -5261,7 +5282,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 
     /* Email 6's hero: logo, headline and subhead on the photo, centred, no
        pill. Same offsets as the on-screen hero so nothing shifts on Generate. */
-    const week6wfSubhead = generatedCopy?.sectionSubhead || generatedCopy?.subhead || ''
+    const week6wfSubhead = renderBoldMarks(generatedCopy?.sectionSubhead || generatedCopy?.subhead || '')
     const week6wfHeroHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <link href="https://fonts.googleapis.com/css2?family=Lora:wght@700&display=swap" rel="stylesheet"/>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{width:600px;background:transparent;}</style>
