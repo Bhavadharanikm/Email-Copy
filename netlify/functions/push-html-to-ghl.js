@@ -65,10 +65,25 @@ const rawHandler = async (event) => {
     let method
     let url
 
-    if (templateId) {
+    /* A saved template ID can point at an email that was since deleted in
+       GHL, and GHL still answers 200 to a PATCH on it, so the push "works"
+       and nothing appears (Red White & Blue Views, Oct 2026). Check it exists
+       first; if it is gone, create a new one and hand its ID back to be saved. */
+    let existingId = templateId || null
+    if (existingId) {
+      const check = await fetch(`${GHL_BASE}/emails/public/v2/locations/${locationId}/templates/${existingId}`, { headers: ghlHeaders(apiKey) })
+      if (check.status === 404) {
+        console.warn(`[push-html-to-ghl] saved template ${existingId} no longer exists in GHL, creating a new one`)
+        existingId = null
+      } else if (!check.ok) {
+        console.warn(`[push-html-to-ghl] could not check template ${existingId} (${check.status}), updating it as before`)
+      }
+    }
+
+    if (existingId) {
       // Update existing template
       method = 'PATCH'
-      url    = `${GHL_BASE}/emails/public/v2/locations/${locationId}/templates/${templateId}`
+      url    = `${GHL_BASE}/emails/public/v2/locations/${locationId}/templates/${existingId}`
     } else {
       // Create new template
       method = 'POST'
@@ -95,7 +110,7 @@ const rawHandler = async (event) => {
     }
 
     const data = JSON.parse(responseText)
-    newTemplateId = data?.id || data?.template?.id || data?.data?.id || templateId || ''
+    newTemplateId = data?.id || data?.template?.id || data?.data?.id || existingId || ''
     console.log(`[push-html-to-ghl] newTemplateId=${newTemplateId}`)
 
     // GHL ignores folderId in POST body — move to folder via separate PATCH
