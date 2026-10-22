@@ -85,7 +85,10 @@ const rawHandler = async (event) => {
          reopening the email puts every photo back where it was framed. Kept
          under one key so nothing that reads the bakes has to know. */
       generated_urls: { ...(email.generatedUrls || {}), ...(email.editorSettings ? { _editor: email.editorSettings } : {}) },
-      preview_html:   email.previewHtml || email.renderedHtml || '',
+      /* The current email first. email.previewHtml is only ever the value loaded
+         back from this row, so preferring it froze every email's preview at its
+         first push (45 of 98 rows were stale, Oct 2026). */
+      preview_html:   email.renderedHtml || email.previewHtml || '',
       rendered_html:  email.renderedHtml || '',
       ghl_template_id: email.ghlTemplateId || null,
       pushed_at:      email.pushedAt || null,

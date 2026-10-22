@@ -30,6 +30,7 @@ shape — *Symptom → What we did → Why it broke → Fix → How to check*. K
 | A fluid template still overflows on mobile by a few px | [12. `white-space:nowrap` on the CTA](#12-fluid-card-still-overflows-a-little) |
 | Media library / images fail with a 401 in one workflow only | [13. `undefined` serialised into a query string](#13-undefined-sent-as-an-api-key) |
 | Baked section shows empty photo frames, or a photo cut short / half drawn | [14. Puppeteer crash → html2image.net shot before photos loaded](#14-empty-or-half-drawn-photos-in-a-baked-section) |
+| Two side-by-side photos baked at unequal widths (one wide, one narrow) | [15. Strip table with no cell widths](#15-side-by-side-photos-bake-at-unequal-widths) |
 
 ---
 
@@ -393,6 +394,28 @@ In the function logs, a bake should read `Puppeteer OK (... attempt 2)` after a 
 or `inlined N/N photos` then `html2image.net copy saved to GHL`. Open the returned PNG:
 every photo filled to its frame. An `html2image.net/api/tmp/` URL in a template means
 the GHL copy failed.
+
+---
+
+## 15. Side-by-side photos bake at unequal widths
+
+### Symptom
+Weekly Week 2, Bison Ridge Retreat (Oct 2026): the Sub 2 / Sub 3 photo strip came out
+one wide photo and one narrow one (about 72% / 28%) instead of two equal halves.
+
+### Why it broke
+The live email's strip gives each cell `width="49%"`, but the baked copy
+(`week2StripHtml`, 600x244) had no cell widths at all. A table with no widths lets the
+browser share the space by each photo's own size, so two photos of different shapes
+split it unevenly. The preview shows the live strip, so it looked right until baked.
+
+### Fix
+`week2StripHtml`: `table-layout:fixed` and `width:50%` on each cell (100% when there is
+only Sub 2). The cell paddings mirror each other, so both photos come out the same width.
+
+### How to check
+Bake two photos of very different shapes (a landscape and a square). Both images should
+measure 260px wide in the 600px strip.
 
 ---
 
