@@ -591,7 +591,7 @@ function buildTemplateWeek6v2({ client, copy, images, footerData, isHeroGenerate
   </div>`}
 
   <!-- BODY BLOCK -->
-  ${copy.bodyText ? `<div class="w6v2-section" style="padding:24px 48px 16px;background-color:${pageBg};"><div class="mobile-body" style="font-size:20px;line-height:1.6;color:${mutedTextCol};font-family:Arial,sans-serif;">${body}</div></div>` : ''}
+  ${copy.bodyText ? `<div class="w6v2-section" style="padding:24px 48px 16px;background-color:${pageBg};"><div class="mobile-body" style="font-size:17px;line-height:1.6;color:${mutedTextCol};font-family:Arial,sans-serif;">${body}</div></div>` : ''}
 
   <!-- DIVIDER + BODY BLOCK 2 TITLE -->
   ${copy.bodyBlock2Title ? `<div style="padding:8px 48px 0;background-color:${pageBg};"><div style="height:1px;background:${dividerCol};font-size:0;line-height:0;"></div></div><div class="w6v2-section" style="padding:20px 48px 12px;background-color:${pageBg};"><div class="mobile-b2title" style="font-size:22px;font-weight:700;font-family:'Lora',Georgia,serif;letter-spacing:0;color:${secondary};text-align:center;">${copy.bodyBlock2Title}</div></div>` : ''}
@@ -610,7 +610,7 @@ function buildTemplateWeek6v2({ client, copy, images, footerData, isHeroGenerate
     : ''}
 
   <!-- BODY BLOCK 2 TEXT -->
-  ${copy.bodyBlock2 ? `<div class="w6v2-section" style="padding:16px 48px 0;background-color:${pageBg};"><div class="mobile-body" style="font-size:20px;line-height:1.6;color:${mutedTextCol};font-family:Arial,sans-serif;">${b2body}</div></div>` : ''}
+  ${copy.bodyBlock2 ? `<div class="w6v2-section" style="padding:16px 48px 0;background-color:${pageBg};"><div class="mobile-body" style="font-size:17px;line-height:1.6;color:${mutedTextCol};font-family:Arial,sans-serif;">${b2body}</div></div>` : ''}
 
   <!-- CLOSING LINE -->
   ${copy.closingLine ? `<div class="w6v2-section" style="padding:16px 48px 0;background-color:${pageBg};"><div class="mobile-closing" style="font-size:17px;line-height:1.7;color:${mutedTextCol};font-style:italic;font-family:Georgia,serif;">${copy.closingLine}</div></div>` : ''}
@@ -729,7 +729,7 @@ function buildTemplateWeek4v2b({ client, copy, images, footerData, isHeroGenerat
     : ''}
 
   <!-- BODY BLOCK -->
-  ${copy.bodyText ? `<div class="w6v2-section" style="padding:24px 48px 16px;background-color:${pageBg};"><div class="mobile-body" style="font-size:20px;line-height:1.6;color:${mutedTextCol};font-family:Arial,sans-serif;">${body}</div></div>` : ''}
+  ${copy.bodyText ? `<div class="w6v2-section" style="padding:24px 48px 16px;background-color:${pageBg};"><div class="mobile-body" style="font-size:17px;line-height:1.6;color:${mutedTextCol};font-family:Arial,sans-serif;">${body}</div></div>` : ''}
 
   <!-- DIVIDER + BODY BLOCK 2 TITLE -->
   ${copy.bodyBlock2Title ? `<div style="padding:8px 48px 0;background-color:${pageBg};"><div style="height:1px;background:${dividerCol};font-size:0;line-height:0;"></div></div><div class="w6v2-section" style="padding:20px 48px 12px;background-color:${pageBg};"><div class="mobile-b2title" style="font-size:22px;font-weight:700;font-family:'Lora',Georgia,serif;letter-spacing:0;color:${secondary};text-align:center;">${copy.bodyBlock2Title}</div></div>` : ''}
@@ -751,7 +751,7 @@ function buildTemplateWeek4v2b({ client, copy, images, footerData, isHeroGenerat
     : ''}
 
   <!-- BODY BLOCK 2 TEXT -->
-  ${copy.bodyBlock2 ? `<div class="w6v2-section" style="padding:16px 48px 0;background-color:${pageBg};"><div class="mobile-body" style="font-size:20px;line-height:1.6;color:${mutedTextCol};font-family:Arial,sans-serif;">${b2body}</div></div>` : ''}
+  ${copy.bodyBlock2 ? `<div class="w6v2-section" style="padding:16px 48px 0;background-color:${pageBg};"><div class="mobile-body" style="font-size:17px;line-height:1.6;color:${mutedTextCol};font-family:Arial,sans-serif;">${b2body}</div></div>` : ''}
 
   <!-- CLOSING LINE (above bottom CTA) -->
   ${copy.closingLine ? `<div class="w6v2-section" style="padding:28px 48px 0;text-align:center;background-color:${pageBg};"><div class="mobile-closing" style="font-size:17px;line-height:1.7;color:${mutedTextCol};font-style:italic;font-family:Georgia,serif;">${copy.closingLine}</div></div>` : ''}
