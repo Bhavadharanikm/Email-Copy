@@ -49,15 +49,30 @@ export const WF_STAGE = {
   draft:        { label: 'Draft',                 tone: 'neutral' },
 }
 
+/* Any baked image at all. generatedUrls is { templateId: { hero, btn, … } },
+   so an empty set for a template is not a bake. */
+const hasBake = (v) => typeof v === 'string' ? !!v.trim()
+  : Array.isArray(v) ? v.some(hasBake)
+  : v && typeof v === 'object' ? Object.values(v).some(hasBake) : false
+
+/* Pushed to GHL before pushes were fingerprinted (23 Oct 2026). For those the
+   stored status cannot be trusted (Approve flipped it to needs_update a moment
+   after a good push), and neither can the row's last-changed time (opening a
+   page writes the email back). A GHL template and a push time say it went to
+   GHL; that is what the page shows until the next push records a fingerprint. */
+function pushedBeforeMarks(email) {
+  return email.status === 'pushed' || !!(email.ghlTemplateId && email.pushedAt)
+}
+
 /** The stage key for one email. openFeedback: client notes not yet fixed. */
 export function wfStage(email, openFeedback = 0) {
   if (!email) return 'draft'
   if (openFeedback > 0) return 'needs_update'
   const marks = email.pushMarks || {}
   const sig = emailSig(email)
-  if (marks.ghlSig ? marks.ghlSig === sig : email.status === 'pushed') return 'in_ghl'
+  if (marks.ghlSig ? marks.ghlSig === sig : pushedBeforeMarks(email)) return 'in_ghl'
   if (marks.dbSig && marks.dbSig === sig) return 'in_database'
-  if (Object.values(email.generatedUrls || {}).some(Boolean)) return 'rendered'
+  if (hasBake(email.generatedUrls)) return 'rendered'
   if (Array.isArray(email.variations) && email.variations.length) return 'copy_ready'
   return 'draft'
 }
