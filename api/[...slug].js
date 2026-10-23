@@ -22,6 +22,7 @@ import { handler as recommendTemplate }  from '../netlify/functions/recommend-te
 import { handler as sendTestEmail }      from '../netlify/functions/send-test-email.js'
 import { handler as submitFeedback }     from '../netlify/functions/submit-feedback.js'
 import { handler as wfSubmitFeedback }   from '../netlify/functions/wf-submit-feedback.js'
+import { handler as wfFeedbackFixed }    from '../netlify/functions/wf-feedback-fixed.js'
 import { handler as uploadLogo }         from '../netlify/functions/upload-logo.js'
 import { handler as uploadScreenshot }   from '../netlify/functions/upload-screenshot.js'
 import { handler as wfClients }          from '../netlify/functions/wf-clients.js'
@@ -76,6 +77,7 @@ const HANDLERS = {
   'wf-push-email':       wfPushEmail,
   'wf-emails':           wfEmails,
   'wf-submit-feedback':  wfSubmitFeedback,
+  'wf-feedback-fixed':   wfFeedbackFixed,
   'suggest-campaigns-background': suggestCampaigns,
   'campaign-suggestions': campaignSuggestions,
 }

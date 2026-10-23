@@ -289,3 +289,8 @@ export const submitFeedback = ({ section, feedback, clientName }) =>
 // ── Welcome-flow feedback → its own Sheet / Doc ──────────────────
 export const submitWfFeedback = (payload) =>
   post('/wf-submit-feedback', payload)
+
+// ── Welcome-flow client feedback marked fixed (shared project) ──
+export const wfFeedbackFixedList = (clientName) => get('/wf-feedback-fixed', { clientName })
+export const wfMarkFeedbackFixed = ({ wfEmailId, clientName, emailNumber, noteText, fixed }) =>
+  post('/wf-feedback-fixed', { wfEmailId, clientName, emailNumber, noteText, fixed })

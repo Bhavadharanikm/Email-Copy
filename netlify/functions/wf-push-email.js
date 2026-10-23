@@ -84,7 +84,11 @@ const rawHandler = async (event) => {
       /* The slider positions that produced the bakes ride along with them, so
          reopening the email puts every photo back where it was framed. Kept
          under one key so nothing that reads the bakes has to know. */
-      generated_urls: { ...(email.generatedUrls || {}), ...(email.editorSettings ? { _editor: email.editorSettings } : {}) },
+      /* _pushes: when and with what fingerprint the email was last pushed to
+         the database and to GHL, so the client page can say where the latest
+         version is (src/welcome-flow/wfStage.js). Same idea as _editor. */
+      generated_urls: { ...(email.generatedUrls || {}), ...(email.editorSettings ? { _editor: email.editorSettings } : {}),
+                        ...(email.pushMarks ? { _pushes: email.pushMarks } : {}) },
       /* The current email first. email.previewHtml is only ever the value loaded
          back from this row, so preferring it froze every email's preview at its
          first push (45 of 98 rows were stale, Oct 2026). */

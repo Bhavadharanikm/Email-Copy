@@ -23,6 +23,34 @@ import { IconCheck, IconFlask, IconDatabase } from '@tabler/icons-react'
 import { useWelcomeFlowStore } from '../store/welcomeFlowStore'
 import { useWfTheme, WfCard, WfButton, WfStepNav } from '../components/wfUi'
 import { pushHtmlToGHL, notifyChat, wfPushEmail } from '../../lib/api'
+import { emailSig } from '../wfStage'
+
+/* A note that shows at once on hover or keyboard focus (a title attribute waits
+   about a second), above the button it explains. */
+function HoverTip({ id, text, children, style }) {
+  const [show, setShow] = useState(false)
+  return (
+    <div
+      style={{ position: 'relative', display: 'flex', ...style }}
+      onMouseEnter={() => setShow(true)} onMouseLeave={() => setShow(false)}
+      onFocus={() => setShow(true)} onBlur={() => setShow(false)}
+    >
+      {children}
+      <div
+        id={id} role="tooltip"
+        style={{
+          position: 'absolute', bottom: 'calc(100% + 8px)', left: '50%', transform: 'translateX(-50%)',
+          width: 'max-content', maxWidth: 300, padding: '8px 11px', borderRadius: 8,
+          background: '#111827', color: '#fff', fontSize: 12, lineHeight: 1.45, textAlign: 'center',
+          boxShadow: '0 6px 20px rgba(0,0,0,0.18)', pointerEvents: 'none', zIndex: 20,
+          opacity: show ? 1 : 0, visibility: show ? 'visible' : 'hidden',
+        }}
+      >
+        {text}
+      </div>
+    </div>
+  )
+}
 
 export default function WFApprove() {
   const { clientId, emailId } = useParams()
@@ -46,7 +74,6 @@ export default function WFApprove() {
   const [previewUrl, setPreviewUrl] = useState('')
   const [testing, setTesting]   = useState(false)
   const [testMsg, setTestMsg]   = useState(null)   // { ok, text, url }
-  const [testTip, setTestTip]   = useState(false)  // the test push's hover note, shown at once (a title waits ~1s)
 
   /* Still fetching: the client list, or this client's emails from the database.
      Not the 'not found' screen — that is only right once loading has finished. */
@@ -80,15 +107,19 @@ export default function WFApprove() {
   async function handlePushDatabase() {
     setDbSaving(true); setDbErr(''); setDbMsg('')
     try {
+      /* Marked before sending, so the row itself records that this version
+         went to the database. The status is passed through unchanged: pushing
+         to the database says nothing about GHL. */
+      const pushMarks = { ...(email.pushMarks || {}), dbAt: new Date().toISOString(), dbSig: emailSig(email) }
       const res = await wfPushEmail({
         clientId:   clientId,
         clientName: client.name,
         position:   email.position,
         week:       email.week ?? null,
         dbId:       email.dbId || null,
-        email,
+        email:      { ...email, pushMarks },
       })
-      updateEmail(clientId, emailId, { dbId: res.id })
+      updateEmail(clientId, emailId, { dbId: res.id, pushMarks, status: email.status })
       setDbMsg(`${res.action === 'updated' ? 'Updated' : 'Saved'}: ${res.variations} variations, ${(res.renderedBytes/1024).toFixed(1)} KB of HTML`)
     } catch (e) {
       setDbErr(e.message)
@@ -110,10 +141,13 @@ export default function WFApprove() {
         templateLabel: email.templateLabel || `Email ${email.position}`,
       })
       const pushedAt = new Date().toISOString()
+      /* GHL now has this exact version; Approve saves it to the database too. */
+      const sig = emailSig(email)
+      const pushMarks = { ...(email.pushMarks || {}), ghlAt: pushedAt, ghlSig: sig, dbAt: pushedAt, dbSig: sig }
       updateEmail(clientId, emailId, {
         status: 'pushed',
         ghlTemplateId: result.templateId || email.ghlTemplateId || null,
-        pushedAt,
+        pushedAt, pushMarks,
       })
 
       /* Approving also stores the work, so a client page always has something
@@ -131,10 +165,10 @@ export default function WFApprove() {
           position:   email.position,
           week:       email.week ?? null,
           dbId:       email.dbId || null,
-          email: { ...email, status: 'pushed', pushedAt,
+          email: { ...email, status: 'pushed', pushedAt, pushMarks,
                    ghlTemplateId: result.templateId || email.ghlTemplateId || null },
         })
-        updateEmail(clientId, emailId, { dbId: saved.id })
+        updateEmail(clientId, emailId, { dbId: saved.id, status: 'pushed' })
       } catch (dbe) {
         console.warn('[WFApprove] GHL push succeeded but the database save did not:', dbe.message)
         setDbErr(`Pushed to GHL, but saving to the database failed: ${dbe.message}`)
@@ -275,14 +309,17 @@ export default function WFApprove() {
       {/* Save to the Welcome Flow database — independent of the GHL push, so
           the copy and HTML can be stored without publishing anything. */}
       <div style={{ marginTop: 16 }}>
-        <WfButton
-          variant="ghost"
-          onClick={handlePushDatabase}
-          disabled={dbSaving}
-          style={{ width: '100%', justifyContent: 'center', padding: '12px 16px' }}
-        >
-          <IconDatabase size={15} stroke={2} /> {dbSaving ? 'Saving to database…' : 'Push to Database'}
-        </WfButton>
+        <HoverTip id="wf-db-push-tip" text="Pushes to the database only, not to GoHighLevel. You can then view it in the client portal.">
+          <WfButton
+            variant="ghost"
+            onClick={handlePushDatabase}
+            disabled={dbSaving}
+            aria-describedby="wf-db-push-tip"
+            style={{ width: '100%', justifyContent: 'center', padding: '12px 16px' }}
+          >
+            <IconDatabase size={15} stroke={2} /> {dbSaving ? 'Saving to database…' : 'Push to Database'}
+          </WfButton>
+        </HoverTip>
         {dbMsg && <div style={{ fontSize: 12, color: '#16a34a', marginTop: 8, textAlign: 'center' }}>✓ {dbMsg}</div>}
         {dbErr && <div style={{ fontSize: 12, color: '#dc2626', marginTop: 8, textAlign: 'center' }}>⚠ {dbErr}</div>}
         <div style={{ fontSize: 11.5, color: t.muted, marginTop: 8, textAlign: 'center' }}>
@@ -291,18 +328,19 @@ export default function WFApprove() {
       </div>
 
       <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
-        <WfButton
-          onClick={handleApprove}
-          disabled={loading || !email.renderedHtml}
-          style={{ flex: 1, justifyContent: 'center', padding: '12px 16px' }}
-        >
-          <IconCheck size={15} stroke={2.4} /> {loading ? 'Pushing to GHL…' : 'Approve & Push to GHL'}
-        </WfButton>
-        <div
-          style={{ flex: 1, position: 'relative', display: 'flex' }}
-          onMouseEnter={() => setTestTip(true)} onMouseLeave={() => setTestTip(false)}
-          onFocus={() => setTestTip(true)} onBlur={() => setTestTip(false)}
-        >
+        <HoverTip id="wf-push-both-tip" style={{ flex: 1 }}
+                  text="Pushes to the database and to GoHighLevel at the same time.">
+          <WfButton
+            onClick={handleApprove}
+            disabled={loading || !email.renderedHtml}
+            aria-describedby="wf-push-both-tip"
+            style={{ flex: 1, justifyContent: 'center', padding: '12px 16px' }}
+          >
+            <IconCheck size={15} stroke={2.4} /> {loading ? 'Pushing to database and GoHighLevel…' : 'Push to Database & GoHighLevel'}
+          </WfButton>
+        </HoverTip>
+        <HoverTip id="wf-test-push-tip" style={{ flex: 1 }}
+                  text="This is not saved. It's only for testing. To save and send it, click Push to Database & GoHighLevel.">
           <WfButton
             variant="ghost"
             onClick={handleTestPush}
@@ -312,19 +350,7 @@ export default function WFApprove() {
           >
             <IconFlask size={15} stroke={2.2} /> {testing ? 'Pushing test…' : 'Test Push to GHL'}
           </WfButton>
-          <div
-            id="wf-test-push-tip" role="tooltip"
-            style={{
-              position: 'absolute', bottom: 'calc(100% + 8px)', left: '50%', transform: 'translateX(-50%)',
-              width: 'max-content', maxWidth: 300, padding: '8px 11px', borderRadius: 8,
-              background: '#111827', color: '#fff', fontSize: 12, lineHeight: 1.45, textAlign: 'center',
-              boxShadow: '0 6px 20px rgba(0,0,0,0.18)', pointerEvents: 'none', zIndex: 20,
-              opacity: testTip ? 1 : 0, visibility: testTip ? 'visible' : 'hidden',
-            }}
-          >
-            This is not saved. It's only for testing. To save and run it, click Approve &amp; Push to GHL.
-          </div>
-        </div>
+        </HoverTip>
       </div>
       {testMsg && (
         <div style={{ fontSize: 12, color: testMsg.ok ? '#16a34a' : '#dc2626', marginTop: 10, textAlign: 'center' }}>

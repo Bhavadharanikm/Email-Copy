@@ -82,9 +82,11 @@ export function WfInput({ style = {}, ...rest }) {
   )
 }
 
-export function WfStatusPill({ status }) {
+/* meta overrides the stored status's label and tone: the client page passes
+   where the email actually is (wfStage.js). */
+export function WfStatusPill({ status, meta: shown = null }) {
   const t = useWfTheme()
-  const meta = WF_STATUS[status] || WF_STATUS.draft
+  const meta = shown || WF_STATUS[status] || WF_STATUS.draft
   const tones = {
     good:    { fg: '#16a34a', bg: t.dark ? 'rgba(22,163,74,0.16)'  : 'rgba(22,163,74,0.10)'  },
     warn:    { fg: '#b45309', bg: t.dark ? 'rgba(180,83,9,0.18)'   : 'rgba(245,158,11,0.14)' },

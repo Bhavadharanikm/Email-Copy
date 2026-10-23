@@ -8,10 +8,12 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { IconArrowLeft, IconMail, IconMessageCircle, IconX } from '@tabler/icons-react'
+import { IconArrowLeft, IconMail, IconMessageCircle, IconX, IconCheck } from '@tabler/icons-react'
 import { useWelcomeFlowStore } from '../store/welcomeFlowStore'
 import { useWfTheme, WfCard, WfButton, WfStatusPill } from '../components/wfUi'
 import { WF_WEEKS, wfWeekLabel } from '../wfWeeks'
+import { wfFeedbackFixedList, wfMarkFeedbackFixed } from '../../lib/api'
+import { wfStage, WF_STAGE } from '../wfStage'
 
 const DONE = new Set(['approved', 'pushed'])
 
@@ -61,8 +63,13 @@ function feedbackDate(at) {
   return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric', ...(dateOnly ? { timeZone: 'UTC' } : {}) })
 }
 
-function FeedbackPopup({ title, items, onClose }) {
+/* Fixed notes stay in the list, in green, so it is clear what was done and by
+   whom; Undo puts one back as open. */
+const GREEN = { light: { bg: '#f0fdf4', border: '#86efac', text: '#15803d' }, dark: { bg: 'rgba(34,197,94,0.10)', border: 'rgba(34,197,94,0.35)', text: '#4ade80' } }
+
+function FeedbackPopup({ title, items, onClose, onToggle, error }) {
   const t = useWfTheme()
+  const g = t.dark ? GREEN.dark : GREEN.light
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') onClose() }
     window.addEventListener('keydown', onKey)
@@ -93,17 +100,42 @@ function FeedbackPopup({ title, items, onClose }) {
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {items.map((item, i) => (
-            <div key={i} style={{ padding: '11px 13px', borderRadius: 10, border: `1px solid ${t.border}`,
-                                   background: t.dark ? 'rgba(255,255,255,0.03)' : '#f9fafb' }}>
+            <div key={i} style={{ padding: '11px 13px', borderRadius: 10,
+                                   border: `1px solid ${item.fixed ? g.border : t.border}`,
+                                   background: item.fixed ? g.bg : (t.dark ? 'rgba(255,255,255,0.03)' : '#f9fafb') }}>
               <div style={{ fontSize: 13.5, color: t.text, lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{item.text}</div>
               {(item.by || item.at) && (
                 <div style={{ fontSize: 11.5, color: t.faint, marginTop: 6 }}>
                   {[item.by, feedbackDate(item.at)].filter(Boolean).join(' · ')}
                 </div>
               )}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginTop: 10 }}>
+                {item.fixed ? (
+                  <>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 12.5, fontWeight: 700, color: g.text }}>
+                      <IconCheck size={14} stroke={2.4} /> Fixed
+                      <span style={{ fontWeight: 400, color: t.muted }}>
+                        {[item.fixedBy && String(item.fixedBy).split('@')[0], feedbackDate(item.fixedAt)].filter(Boolean).join(' · ')}
+                      </span>
+                    </span>
+                    <button onClick={() => onToggle(item, false)} disabled={item.saving}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: 12, color: t.muted, textDecoration: 'underline', fontFamily: 'Inter, sans-serif' }}>
+                      Undo
+                    </button>
+                  </>
+                ) : (
+                  <button onClick={() => onToggle(item, true)} disabled={item.saving}
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '5px 12px', borderRadius: 999,
+                                   border: `1px solid ${g.border}`, background: g.bg, color: g.text, cursor: item.saving ? 'wait' : 'pointer',
+                                   fontSize: 12.5, fontWeight: 700, fontFamily: 'Inter, sans-serif' }}>
+                    <IconCheck size={14} stroke={2.4} /> {item.saving ? 'Saving…' : 'Mark as fixed'}
+                  </button>
+                )}
+              </div>
             </div>
           ))}
         </div>
+        {error && <div style={{ fontSize: 12, color: '#dc2626', marginTop: 12 }}>{error}</div>}
       </div>
     </div>
   )
@@ -145,13 +177,46 @@ export default function WFClientDetail() {
   const { getClient, getEmails, counts, addEmail, ensureClients, ensureEmails, loadingClients, clientsLoaded, loadedEmails } = useWelcomeFlowStore()
   const [filter, setFilter] = useState('all')
   const [creating, setCreating] = useState(null)   // the week being created on first open, so a double click cannot make two
-  const [feedbackFor, setFeedbackFor] = useState(null)   // { title, items } shown in the client-feedback pop-up
+  const [feedbackFor, setFeedbackFor] = useState(null)   // { title, emailId, week } shown in the client-feedback pop-up
+  const [fixedNotes, setFixedNotes] = useState([])        // [{ wfEmailId, noteText, fixedBy, fixedAt }] marked fixed
+  const [savingNote, setSavingNote] = useState(null)      // `${emailId}|${text}` while its mark saves
+  const [fixError, setFixError] = useState('')
 
   // clients are not persisted — refetch after a reload on this deep route
   useEffect(() => { ensureClients() }, [ensureClients])
   useEffect(() => { ensureEmails(clientId) }, [ensureEmails, clientId])
 
   const client = getClient(clientId)
+
+  /* Which of this client's notes are already marked fixed. A failed read leaves
+     every note open, which is the safe way to be wrong. */
+  useEffect(() => {
+    if (!client?.name) return
+    let live = true
+    wfFeedbackFixedList(client.name)
+      .then(d => { if (live) setFixedNotes(d.fixed || []) })
+      .catch(err => console.warn('[WFClientDetail] fixed feedback not loaded:', err.message))
+    return () => { live = false }
+  }, [client?.name])
+
+  /* A client's notes on one email, each with its fixed mark if it has one. */
+  const notesFor = (e) => clientFeedbackItems(e?.clientFeedback).map(item => {
+    const mark = fixedNotes.find(f => f.wfEmailId === e.id && String(f.noteText).trim() === item.text.trim())
+    return { ...item, fixed: !!mark, fixedBy: mark?.fixedBy, fixedAt: mark?.fixedAt, saving: savingNote === `${e.id}|${item.text}` }
+  })
+
+  const toggleFixed = async (e, item, fixed) => {
+    const key = `${e.id}|${item.text}`
+    setSavingNote(key); setFixError('')
+    try {
+      await wfMarkFeedbackFixed({ wfEmailId: e.id, clientName: client.name, emailNumber: e.week, noteText: item.text, fixed })
+      setFixedNotes(list => fixed
+        ? [...list, { wfEmailId: e.id, noteText: item.text, fixedBy: null, fixedAt: new Date().toISOString() }]
+        : list.filter(f => !(f.wfEmailId === e.id && String(f.noteText).trim() === item.text.trim())))
+    } catch (err) {
+      setFixError(`Could not save that: ${err.message}`)
+    } finally { setSavingNote(null) }
+  }
   const emails = getEmails(clientId)
   const c = counts(clientId)
 
@@ -278,7 +343,7 @@ export default function WFClientDetail() {
             <span style={{ width: 22, flexShrink: 0 }} />
             <span style={{ flex: 1 }}>Email</span>
             <span style={{ width: 64, textAlign: 'center', flexShrink: 0 }}>Feedback</span>
-            <span style={{ width: 104, textAlign: 'center', flexShrink: 0 }}>Status</span>
+            <span style={{ width: 168, textAlign: 'center', flexShrink: 0 }}>Status</span>
             <span style={{ width: 74, textAlign: 'right', flexShrink: 0 }}>Updated</span>
           </div>
           {shown.map((row, i) => { const e = row.email; return (
@@ -314,25 +379,33 @@ export default function WFClientDetail() {
               </div>
               {/* the client's own feedback on this email, from their platform */}
               {(() => {
-                const items = clientFeedbackItems(e?.clientFeedback)
+                const items = e ? notesFor(e) : []
                 if (!items.length) return <span style={{ width: 64, flexShrink: 0 }} />
+                const open = items.filter(i => !i.fixed).length
                 const title = row.week ? wfWeekLabel(row.week) : (e.subject || 'Email')
+                const g = t.dark ? GREEN.dark : GREEN.light
+                const tone = open
+                  ? { border: t.dark ? 'rgba(245,158,11,0.35)' : '#fcd34d', bg: t.dark ? 'rgba(245,158,11,0.12)' : '#fffbeb', text: t.dark ? '#fbbf24' : '#b45309' }
+                  : { border: g.border, bg: g.bg, text: g.text }
                 return (
                   <button
-                    onClick={ev => { ev.stopPropagation(); setFeedbackFor({ title: `${client.name} · ${title}`, items }) }}
-                    title={`${items.length} client feedback note${items.length === 1 ? '' : 's'}`}
-                    style={{ width: 64, flexShrink: 0, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 5,
+                    onClick={ev => { ev.stopPropagation(); setFixError(''); setFeedbackFor({ title: `${client.name} · ${title}`, emailId: e.id }) }}
+                    title={open ? `${open} open client feedback note${open === 1 ? '' : 's'}` : 'All client feedback on this email is fixed'}
+                    style={{ width: 64, flexShrink: 0, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 4,
                              padding: '5px 0', borderRadius: 999, cursor: 'pointer', fontFamily: 'Inter, sans-serif',
-                             border: `1px solid ${t.dark ? 'rgba(245,158,11,0.35)' : '#fcd34d'}`,
-                             background: t.dark ? 'rgba(245,158,11,0.12)' : '#fffbeb',
-                             color: t.dark ? '#fbbf24' : '#b45309', fontSize: 12.5, fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}
+                             border: `1px solid ${tone.border}`, background: tone.bg,
+                             color: tone.text, fontSize: 12.5, fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}
                   >
-                    <IconMessageCircle size={14} stroke={2} /> {items.length}
+                    {open
+                      ? <><IconMessageCircle size={14} stroke={2} /> {open}</>
+                      : <><IconCheck size={14} stroke={2.4} /> Fixed</>}
                   </button>
                 )
               })()}
-              <span style={{ width: 104, flexShrink: 0, display: 'flex', justifyContent: 'center' }}>
-                {e ? <WfStatusPill status={e.status} /> : <span style={{ fontSize: 12, color: t.faint }}>Not started</span>}
+              <span style={{ width: 168, flexShrink: 0, display: 'flex', justifyContent: 'center' }}>
+                {e
+                  ? <WfStatusPill status={e.status} meta={WF_STAGE[wfStage(e, notesFor(e).filter(n => !n.fixed).length)]} />
+                  : <span style={{ fontSize: 12, color: t.faint }}>Not started</span>}
               </span>
               <span style={{ fontSize: 12, color: t.faint, width: 74, textAlign: 'right', flexShrink: 0 }}>
                 {e ? relative(e.updatedAt) : ''}
@@ -341,7 +414,12 @@ export default function WFClientDetail() {
           )})}
         </>)}
       </WfCard>
-      {feedbackFor && <FeedbackPopup title={feedbackFor.title} items={feedbackFor.items} onClose={() => setFeedbackFor(null)} />}
+      {feedbackFor && (() => {
+        const e = emails.find(x => x.id === feedbackFor.emailId)
+        return e ? <FeedbackPopup title={feedbackFor.title} items={notesFor(e)} error={fixError}
+                                  onToggle={(item, fixed) => toggleFixed(e, item, fixed)}
+                                  onClose={() => setFeedbackFor(null)} /> : null
+      })()}
     </div>
   )
 }

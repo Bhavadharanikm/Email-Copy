@@ -48,8 +48,9 @@ export function rowToEmail(r) {
       /* generated_urls carries the slider positions under _editor alongside the
          bakes. Split here so the pages see the bakes on their own, as before. */
       const gu = r.generated_urls && typeof r.generated_urls === 'object' ? r.generated_urls : {}
-      const { _editor, ...generatedUrls } = gu
-      return { generatedUrls, editorSettings: _editor && typeof _editor === 'object' ? _editor : null }
+      const { _editor, _pushes, ...generatedUrls } = gu
+      return { generatedUrls, editorSettings: _editor && typeof _editor === 'object' ? _editor : null,
+               pushMarks: _pushes && typeof _pushes === 'object' ? _pushes : null }
     })(),
     previewHtml:       r.preview_html || '',
     renderedHtml:      r.rendered_html || '',
