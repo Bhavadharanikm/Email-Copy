@@ -125,13 +125,13 @@ export default function RBPreview() {
         </div>
       )}
       {ready && hasBaked && (
-        /* Centred and roomy, so which view this is cannot be missed; the line
-           under it says what the view is for. */
+        /* Centred and roomy, so which view this is cannot be missed. The tab
+           names say what each view is for. */
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, margin: '6px 0 22px' }}>
           <div style={{ display: 'inline-flex', gap: 4, padding: 4, borderRadius: 12, background: t.inputBg, border: `1px solid ${t.border}` }}>
-            {[['preview', 'Preview', 'Make changes here, then generate the images again'],
-              ['rendered', 'Rendered', 'The final version, exactly as it will be pushed']].map(([id, label, hint]) => (
-              <button key={id} onClick={() => setMode(id)} title={hint}
+            {[['preview', 'Want to make changes?', ''],
+              ['rendered', 'Final output. No changes can be done.', 'Exactly as it will be pushed']].map(([id, label, hint]) => (
+              <button key={id} onClick={() => setMode(id)} title={hint || undefined}
                 style={{ padding: '10px 26px', borderRadius: 9, border: 'none', cursor: 'pointer', fontFamily: 'Inter, sans-serif',
                          fontSize: 13.5, fontWeight: 700, background: view === id ? (t.dark ? '#3b82f6' : '#2563eb') : 'transparent',
                          color: view === id ? '#ffffff' : t.muted, boxShadow: view === id ? '0 1px 4px rgba(37,99,235,0.35)' : 'none' }}>
@@ -139,9 +139,6 @@ export default function RBPreview() {
               </button>
             ))}
           </div>
-          <span style={{ fontSize: 12.5, color: t.muted, textAlign: 'center' }}>
-            {view === 'preview' ? 'Want to make changes?' : 'Final output. No changes can be made.'}
-          </span>
         </div>
       )}
 

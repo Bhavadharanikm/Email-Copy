@@ -6549,7 +6549,10 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
           >
             {weekGenLoading ? '🎨 Generating…' : '🎨 Generate Images'}
           </button>
-          {weekGenUrls[tpl?.id]?.hero && !weekGenLoading && (
+          {/* Weekly only. In the welcome flow and Repeat Booking this bar sits on the
+              live design, where nothing is generated yet; what was generated
+              shows on the Final output tab, so a leftover tick here misleads. */}
+          {weekGenUrls[tpl?.id]?.hero && !weekGenLoading && !welcomeFlow && (
             <span style={{ fontSize: 11, color: dark ? 'rgba(255,255,255,0.4)' : '#9ca3af', fontFamily: 'Inter, sans-serif' }}>
               ✅ Hero
               {weekGenUrls[tpl?.id]?.sec ? ' · Card 1' : ''}
