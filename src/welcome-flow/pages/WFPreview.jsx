@@ -201,8 +201,10 @@ export default function WFPreview() {
         </div>
       )}
       {ready && hasBaked && (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 10, margin: '0 0 14px' }}>
-          <div style={{ display: 'inline-flex', padding: 3, borderRadius: 10, background: t.inputBg, border: `1px solid ${t.border}` }}>
+        /* Centred and roomy, so which view this is cannot be missed; the line
+           under it says what the view is for. */
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, margin: '6px 0 22px' }}>
+          <div style={{ display: 'inline-flex', gap: 4, padding: 4, borderRadius: 12, background: t.inputBg, border: `1px solid ${t.border}` }}>
             {[
               ['preview',  'Preview',  'Make changes here, then generate the images again'],
               ['rendered', 'Rendered', 'The final version, exactly as it will be pushed'],
@@ -212,8 +214,8 @@ export default function WFPreview() {
                 onClick={() => setMode(id)}
                 title={hint}
                 style={{
-                  padding: '6px 16px', borderRadius: 8, border: 'none', cursor: 'pointer',
-                  fontFamily: 'Inter, sans-serif', fontSize: 12.5, fontWeight: 700,
+                  padding: '10px 26px', borderRadius: 9, border: 'none', cursor: 'pointer',
+                  fontFamily: 'Inter, sans-serif', fontSize: 13.5, fontWeight: 700,
                   /* the tab in use is blue, so which view this is reads at a glance */
                   background: view === id ? (t.dark ? '#3b82f6' : '#2563eb') : 'transparent',
                   color: view === id ? '#ffffff' : t.muted,
@@ -225,10 +227,8 @@ export default function WFPreview() {
               </button>
             ))}
           </div>
-          <span style={{ fontSize: 12, color: t.muted }}>
-            {view === 'preview'
-              ? 'Make any changes here, then generate the images again so the final version has them.'
-              : 'This is the final version, exactly as it will be pushed. No changes can be made here.'}
+          <span style={{ fontSize: 12.5, color: t.muted, textAlign: 'center' }}>
+            {view === 'preview' ? 'Want to make changes?' : 'Final output. No changes can be made.'}
           </span>
         </div>
       )}
