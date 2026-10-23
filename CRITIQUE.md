@@ -31,6 +31,7 @@ shape — *Symptom → What we did → Why it broke → Fix → How to check*. K
 | Media library / images fail with a 401 in one workflow only | [13. `undefined` serialised into a query string](#13-undefined-sent-as-an-api-key) |
 | Baked section shows empty photo frames, or a photo cut short / half drawn | [14. Puppeteer crash → html2image.net shot before photos loaded](#14-empty-or-half-drawn-photos-in-a-baked-section) |
 | Two side-by-side photos baked at unequal widths (one wide, one narrow) | [15. Strip table with no cell widths](#15-side-by-side-photos-bake-at-unequal-widths) |
+| Weekly photo goes black at the edge when moved, or a weekly hero will not move at all | [16. Pixel shift instead of panning inside the photo](#16-weekly-photos-show-black-when-moved) |
 
 ---
 
@@ -416,6 +417,33 @@ only Sub 2). The cell paddings mirror each other, so both photos come out the sa
 ### How to check
 Bake two photos of very different shapes (a landscape and a square). Both images should
 measure 260px wide in the 600px strip.
+
+---
+
+## 16. Weekly photos show black when moved
+
+### Symptom
+Weekly campaign photos (Oct 2026): dragging Left or Top pulled the photo's edge into
+the frame and showed black. The heroes of Weeks 3 to 9 did not move at all until zoomed
+in. The welcome flow's photos did neither.
+
+### Why it broke
+The weekly templates shifted each photo by pixels (`transform:translate(Xpx,Ypx)`). The
+photo was already cropped to its frame by `object-fit:cover`, so any shift dragged an
+edge into view. The heroes were instead sized to the frame times the zoom and clamped,
+so at 1.00x there was nothing to move. The welcome flow moved to panning in Sept 2026
+(`wfCrop`); the weekly templates never did.
+
+### Fix
+`weeklyCrop(focal, x, y, zoom)`: Left and Top set `object-position` from the photo's focal
+point (slider / 4 percent, clamped 0 to 100), and zoom is a `scale` about that same point.
+Applied to every weekly photo and hero, in the live templates and in the bake HTML.
+Saved slider values now mean a different crop; already baked images are unchanged until
+Generate Images runs again.
+
+### How to check
+On a weekly email, drag a photo's Left and Top to both ends at 1.00x and at 2.00x. The
+frame must never show black; at 1.00x the photo moves along its longer side only.
 
 ---
 
