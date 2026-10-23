@@ -4,9 +4,11 @@
  * #f59e0b dark, 14px radius cards, translucent surfaces.
  */
 
+import { useState } from 'react'
 import { useTheme } from '../../context/ThemeContext'
 import { WF_STATUS } from '../store/welcomeFlowStore'
 import { wfWeekLabel } from '../wfWeeks'
+import { IconMessageCircle } from '@tabler/icons-react'
 
 export function useWfTheme() {
   const { theme } = useTheme()
@@ -79,6 +81,55 @@ export function WfInput({ style = {}, ...rest }) {
         ...style,
       }}
     />
+  )
+}
+
+/* A note that shows at once on hover or keyboard focus (a title attribute waits
+   about a second), above the button it explains. */
+export function WfHoverTip({ id, text, children, style }) {
+  const [show, setShow] = useState(false)
+  return (
+    <div
+      style={{ position: 'relative', display: 'flex', ...style }}
+      onMouseEnter={() => setShow(true)} onMouseLeave={() => setShow(false)}
+      onFocus={() => setShow(true)} onBlur={() => setShow(false)}
+    >
+      {children}
+      <div
+        id={id} role="tooltip"
+        style={{
+          position: 'absolute', bottom: 'calc(100% + 8px)', left: '50%', transform: 'translateX(-50%)',
+          width: 'max-content', maxWidth: 300, padding: '8px 11px', borderRadius: 8,
+          background: '#111827', color: '#fff', fontSize: 12, lineHeight: 1.45, textAlign: 'center',
+          boxShadow: '0 6px 20px rgba(0,0,0,0.18)', pointerEvents: 'none', zIndex: 20,
+          opacity: show ? 1 : 0, visibility: show ? 'visible' : 'hidden',
+        }}
+      >
+        {text}
+      </div>
+    </div>
+  )
+}
+
+/** Open client feedback notes, shown next to a client's name. Nothing when 0. */
+export function WfFeedbackCount({ count, size = 'sm' }) {
+  const t = useWfTheme()
+  if (!count) return null
+  const big = size === 'lg'
+  return (
+    <span
+      title={`${count} open client feedback note${count === 1 ? '' : 's'}`}
+      style={{
+        display: 'inline-flex', alignItems: 'center', gap: 4, flexShrink: 0,
+        padding: big ? '4px 10px' : '2px 8px', borderRadius: 999,
+        border: `1px solid ${t.dark ? 'rgba(245,158,11,0.35)' : '#fcd34d'}`,
+        background: t.dark ? 'rgba(245,158,11,0.12)' : '#fffbeb',
+        color: t.dark ? '#fbbf24' : '#b45309',
+        fontSize: big ? 13 : 11.5, fontWeight: 700, letterSpacing: 0, fontVariantNumeric: 'tabular-nums', lineHeight: 1.3,
+      }}
+    >
+      <IconMessageCircle size={big ? 15 : 13} stroke={2} /> {count}
+    </span>
   )
 }
 

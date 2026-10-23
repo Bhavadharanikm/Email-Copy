@@ -14,9 +14,11 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { IconSearch, IconPlus, IconChevronRight, IconUsers, IconCheck, IconAlertCircle } from '@tabler/icons-react'
 import { useWelcomeFlowStore } from '../store/welcomeFlowStore'
-import { useWfTheme, WfCard, WfButton, WfInput, WfPageHeader } from '../components/wfUi'
+import { useWfTheme, WfCard, WfButton, WfInput, WfPageHeader, WfFeedbackCount } from '../components/wfUi'
+import { wfFeedbackFixedList } from '../../lib/api'
+import { openNoteCount } from '../wfClientFeedback'
 
-function ClientCard({ client, counts, onOpen }) {
+function ClientCard({ client, counts, openFeedback = 0, onOpen }) {
   const t = useWfTheme()
   const [hover, setHover] = useState(false)
   return (
@@ -29,8 +31,12 @@ function ClientCard({ client, counts, onOpen }) {
     >
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
         <div style={{ minWidth: 0 }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: t.text, letterSpacing: '-0.01em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {client.name}
+          {/* the client's open feedback sits beside the name, so it is clear whose it is */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+            <div style={{ fontSize: 15, fontWeight: 700, color: t.text, letterSpacing: '-0.01em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {client.name}
+            </div>
+            <WfFeedbackCount count={openFeedback} />
           </div>
           {client.email && (
             <div style={{ fontSize: 12, color: t.faint, marginTop: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -144,6 +150,17 @@ export default function WFClients() {
   /* The Done / In progress counts on the cards come from each client's emails,
      which live in the database, so load them for every client shown. */
   useEffect(() => { clients.forEach(c => ensureEmails(c.id)) }, [clients, ensureEmails])
+  /* Which client feedback is already marked fixed, for every client at once.
+     A failed read counts every note as open, the safe way to be wrong. */
+  const [fixedMarks, setFixedMarks] = useState([])
+  useEffect(() => {
+    let live = true
+    wfFeedbackFixedList()
+      .then(d => { if (live) setFixedMarks(d.fixed || []) })
+      .catch(err => console.warn('[WFClients] fixed feedback not loaded:', err.message))
+    return () => { live = false }
+  }, [])
+  const emailsByClient = useWelcomeFlowStore(s => s.emails)
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase()
     if (!needle) return clients
@@ -209,6 +226,7 @@ export default function WFClients() {
               key={c.id}
               client={c}
               counts={counts(c.id)}
+              openFeedback={openNoteCount(emailsByClient[c.id], fixedMarks)}
               onOpen={() => navigate(`/welcome-flow/${c.id}`)}
             />
           ))}

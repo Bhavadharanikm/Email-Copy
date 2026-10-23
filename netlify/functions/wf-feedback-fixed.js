@@ -1,6 +1,7 @@
 /**
  * GET  /.netlify/functions/wf-feedback-fixed?clientName=X
  *        → { fixed: [{ wfEmailId, noteText, fixedBy, fixedAt }] }
+ *        Without clientName: every client's marks, for the clients page.
  * POST /.netlify/functions/wf-feedback-fixed
  *        Body: { wfEmailId, clientName, emailNumber, noteText, fixed }
  *        → { ok: true }
@@ -41,8 +42,8 @@ const rawHandler = async (event) => {
   try {
     if (event.httpMethod === 'GET') {
       const clientName = String(event.queryStringParameters?.clientName || '').trim()
-      if (!clientName) return json(400, { error: 'clientName is required' })
-      const q = `client_name=ilike.${encodeURIComponent(clientName.replace(/[%_*]/g, '\\$&'))}&select=wf_email_id,note_text,fixed_by,fixed_at`
+      const q = (clientName ? `client_name=ilike.${encodeURIComponent(clientName.replace(/[%_*]/g, '\\$&'))}&` : '')
+        + 'select=wf_email_id,note_text,fixed_by,fixed_at&limit=5000'
       const res = await fetch(`${TABLE}?${q}`, { headers })
       if (!res.ok) throw new Error(`Read failed (${res.status}): ${(await res.text()).slice(0, 200)}`)
       const rows = await res.json()

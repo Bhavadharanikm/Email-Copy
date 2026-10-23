@@ -14,7 +14,8 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { IconCheck, IconRotate, IconDatabase } from '@tabler/icons-react'
 import { useRepeatBookingStore } from '../store/repeatBookingStore'
-import { useWfTheme, WfCard, WfButton, WfStepNav } from '../../welcome-flow/components/wfUi'
+import { useWfTheme, WfCard, WfButton, WfStepNav, WfHoverTip } from '../../welcome-flow/components/wfUi'
+import { emailSig } from '../../welcome-flow/wfStage'
 import { pushHtmlToGHL, notifyChat, rbSaveEmail } from '../../lib/api'
 import { rbEmail } from '../rbEmails'
 import { useRbEmail, rbPath, RBMissing } from '../components/rbShared'
@@ -48,6 +49,9 @@ export default function RBApprove() {
     setDbSaving(true); setDbErr(''); setDbMsg('')
     try {
       const res = await saveToDb()
+      /* This version is now in the database: the client page says so until it
+         changes. Not a status change, and nothing to do with GHL. */
+      updateEmail(clientId, emailId, { pushMarks: { ...(email.pushMarks || {}), dbAt: new Date().toISOString(), dbSig: emailSig(email) } })
       setDbMsg(`${res.action === 'updated' ? 'Updated' : 'Saved'}: Email ${email.email} for ${client.name}`)
     } catch (e) {
       setDbErr(e.message)
@@ -68,9 +72,12 @@ export default function RBApprove() {
         folderId:      client.folderId || null,
         templateLabel,
       })
+      const pushedAt = new Date().toISOString()
+      const sig = emailSig(email)
       updateEmail(clientId, emailId, {
         status: 'pushed', ghlTemplateId: result.templateId || email.ghlTemplateId || null,
-        pushedAt: new Date().toISOString(), approveNotes: notes, reviewNotes: '',
+        pushedAt, approveNotes: notes, reviewNotes: '',
+        pushMarks: { ...(email.pushMarks || {}), ghlAt: pushedAt, ghlSig: sig, dbAt: pushedAt, dbSig: sig },
       })
       let dbSaved = false
       try { await saveToDb(); dbSaved = true } catch (dbe) {
@@ -180,22 +187,31 @@ export default function RBApprove() {
 
       {/* Save the finished HTML without publishing anything to GHL. */}
       <div style={{ marginTop: 16 }}>
-        <WfButton variant="ghost" onClick={handleSaveDb} disabled={dbSaving || !email.renderedHtml}
-          style={{ width: '100%', justifyContent: 'center', padding: '12px 16px' }}>
-          <IconDatabase size={15} stroke={2} /> {dbSaving ? 'Saving to database…' : 'Save to Database'}
-        </WfButton>
+        <WfHoverTip id="rb-db-push-tip" text="Pushes to the database only, not to GoHighLevel.">
+          <WfButton variant="ghost" onClick={handleSaveDb} disabled={dbSaving || !email.renderedHtml}
+            aria-describedby="rb-db-push-tip"
+            style={{ width: '100%', justifyContent: 'center', padding: '12px 16px' }}>
+            <IconDatabase size={15} stroke={2} /> {dbSaving ? 'Saving to database…' : 'Push to Database'}
+          </WfButton>
+        </WfHoverTip>
         {dbMsg && <div style={{ fontSize: 12, color: '#16a34a', marginTop: 8, textAlign: 'center' }}>✓ {dbMsg}</div>}
         {dbErr && <div style={{ fontSize: 12, color: '#dc2626', marginTop: 8, textAlign: 'center' }}>⚠ {dbErr}</div>}
         <div style={{ fontSize: 11.5, color: t.muted, marginTop: 8, textAlign: 'center' }}>
-          Stores the client, the email number and the finished HTML. Approving saves it too.
+          Stores the client, the email number and the finished HTML. Push to Database &amp; GoHighLevel saves it too.
         </div>
       </div>
 
       <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
-        <WfButton onClick={handleApprove} disabled={loading || !email.renderedHtml}
-          style={{ flex: 1, justifyContent: 'center', padding: '12px 16px' }}>
-          <IconCheck size={15} stroke={2.4} /> {loading ? 'Pushing to GHL…' : email.ghlTemplateId ? 'Approve & Update in GHL' : 'Approve & Push to GHL'}
-        </WfButton>
+        <WfHoverTip id="rb-push-both-tip" style={{ flex: 1 }}
+          text={email.ghlTemplateId
+            ? 'Pushes to the database and updates the same template in GoHighLevel, at the same time.'
+            : 'Pushes to the database and to GoHighLevel at the same time.'}>
+          <WfButton onClick={handleApprove} disabled={loading || !email.renderedHtml}
+            aria-describedby="rb-push-both-tip"
+            style={{ flex: 1, justifyContent: 'center', padding: '12px 16px' }}>
+            <IconCheck size={15} stroke={2.4} /> {loading ? 'Pushing to database and GoHighLevel…' : 'Push to Database & GoHighLevel'}
+          </WfButton>
+        </WfHoverTip>
         <WfButton variant="ghost" disabled={loading || !notes.trim()}
           title={notes.trim() ? '' : 'Write what needs changing first'}
           onClick={() => updateEmail(clientId, emailId, { status: 'needs_update', reviewNotes: notes })}

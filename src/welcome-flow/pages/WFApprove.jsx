@@ -21,36 +21,9 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { IconCheck, IconFlask, IconDatabase } from '@tabler/icons-react'
 import { useWelcomeFlowStore } from '../store/welcomeFlowStore'
-import { useWfTheme, WfCard, WfButton, WfStepNav } from '../components/wfUi'
+import { useWfTheme, WfCard, WfButton, WfStepNav, WfHoverTip } from '../components/wfUi'
 import { pushHtmlToGHL, notifyChat, wfPushEmail } from '../../lib/api'
 import { emailSig } from '../wfStage'
-
-/* A note that shows at once on hover or keyboard focus (a title attribute waits
-   about a second), above the button it explains. */
-function HoverTip({ id, text, children, style }) {
-  const [show, setShow] = useState(false)
-  return (
-    <div
-      style={{ position: 'relative', display: 'flex', ...style }}
-      onMouseEnter={() => setShow(true)} onMouseLeave={() => setShow(false)}
-      onFocus={() => setShow(true)} onBlur={() => setShow(false)}
-    >
-      {children}
-      <div
-        id={id} role="tooltip"
-        style={{
-          position: 'absolute', bottom: 'calc(100% + 8px)', left: '50%', transform: 'translateX(-50%)',
-          width: 'max-content', maxWidth: 300, padding: '8px 11px', borderRadius: 8,
-          background: '#111827', color: '#fff', fontSize: 12, lineHeight: 1.45, textAlign: 'center',
-          boxShadow: '0 6px 20px rgba(0,0,0,0.18)', pointerEvents: 'none', zIndex: 20,
-          opacity: show ? 1 : 0, visibility: show ? 'visible' : 'hidden',
-        }}
-      >
-        {text}
-      </div>
-    </div>
-  )
-}
 
 export default function WFApprove() {
   const { clientId, emailId } = useParams()
@@ -309,7 +282,7 @@ export default function WFApprove() {
       {/* Save to the Welcome Flow database — independent of the GHL push, so
           the copy and HTML can be stored without publishing anything. */}
       <div style={{ marginTop: 16 }}>
-        <HoverTip id="wf-db-push-tip" text="Pushes to the database only, not to GoHighLevel. You can then view it in the client portal.">
+        <WfHoverTip id="wf-db-push-tip" text="Pushes to the database only, not to GoHighLevel. You can then view it in the client portal.">
           <WfButton
             variant="ghost"
             onClick={handlePushDatabase}
@@ -319,7 +292,7 @@ export default function WFApprove() {
           >
             <IconDatabase size={15} stroke={2} /> {dbSaving ? 'Saving to database…' : 'Push to Database'}
           </WfButton>
-        </HoverTip>
+        </WfHoverTip>
         {dbMsg && <div style={{ fontSize: 12, color: '#16a34a', marginTop: 8, textAlign: 'center' }}>✓ {dbMsg}</div>}
         {dbErr && <div style={{ fontSize: 12, color: '#dc2626', marginTop: 8, textAlign: 'center' }}>⚠ {dbErr}</div>}
         <div style={{ fontSize: 11.5, color: t.muted, marginTop: 8, textAlign: 'center' }}>
@@ -328,7 +301,7 @@ export default function WFApprove() {
       </div>
 
       <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
-        <HoverTip id="wf-push-both-tip" style={{ flex: 1 }}
+        <WfHoverTip id="wf-push-both-tip" style={{ flex: 1 }}
                   text="Pushes to the database and to GoHighLevel at the same time.">
           <WfButton
             onClick={handleApprove}
@@ -338,8 +311,8 @@ export default function WFApprove() {
           >
             <IconCheck size={15} stroke={2.4} /> {loading ? 'Pushing to database and GoHighLevel…' : 'Push to Database & GoHighLevel'}
           </WfButton>
-        </HoverTip>
-        <HoverTip id="wf-test-push-tip" style={{ flex: 1 }}
+        </WfHoverTip>
+        <WfHoverTip id="wf-test-push-tip" style={{ flex: 1 }}
                   text="This is not saved. It's only for testing. To save and send it, click Push to Database & GoHighLevel.">
           <WfButton
             variant="ghost"
@@ -350,7 +323,7 @@ export default function WFApprove() {
           >
             <IconFlask size={15} stroke={2.2} /> {testing ? 'Pushing test…' : 'Test Push to GHL'}
           </WfButton>
-        </HoverTip>
+        </WfHoverTip>
       </div>
       {testMsg && (
         <div style={{ fontSize: 12, color: testMsg.ok ? '#16a34a' : '#dc2626', marginTop: 10, textAlign: 'center' }}>

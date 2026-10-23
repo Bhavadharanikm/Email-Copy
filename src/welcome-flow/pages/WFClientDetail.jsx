@@ -10,10 +10,11 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { IconArrowLeft, IconMail, IconMessageCircle, IconX, IconCheck } from '@tabler/icons-react'
 import { useWelcomeFlowStore } from '../store/welcomeFlowStore'
-import { useWfTheme, WfCard, WfButton, WfStatusPill } from '../components/wfUi'
+import { useWfTheme, WfCard, WfButton, WfStatusPill, WfFeedbackCount } from '../components/wfUi'
 import { WF_WEEKS, wfWeekLabel } from '../wfWeeks'
 import { wfFeedbackFixedList, wfMarkFeedbackFixed } from '../../lib/api'
 import { wfStage, WF_STAGE } from '../wfStage'
+import { clientFeedbackItems, isNoteFixed, openNoteCount } from '../wfClientFeedback'
 
 const DONE = new Set(['approved', 'pushed'])
 
@@ -25,32 +26,6 @@ export function buildRows(emails) {
   const fixed = WF_WEEKS.map(w => ({ week: w.week, templateId: w.templateId, email: list.find(e => e.week === w.week) || null }))
   const weekless = list.filter(e => !e.week).map(e => ({ week: null, templateId: null, email: e }))
   return [...fixed, ...weekless]
-}
-
-/** The client's feedback on one email as a list of notes. The client's
-    platform writes the column: a JSON list is one note per item (a string, or
-    an object with its text under feedback/text/comment/message), anything
-    else is one note. Exported for tests. */
-export function clientFeedbackItems(raw) {
-  const text = typeof raw === 'string' ? raw.trim() : ''
-  if (!text) return []
-  try {
-    const parsed = JSON.parse(text)
-    const list = Array.isArray(parsed) ? parsed : [parsed]
-    const items = list.map(x => {
-      if (typeof x === 'string') return { text: x.trim() }
-      if (x && typeof x === 'object') {
-        return {
-          text: String(x.feedback ?? x.text ?? x.comment ?? x.message ?? '').trim(),
-          by:   x.author || x.by || x.name || '',
-          at:   x.created_at || x.createdAt || x.date || '',
-        }
-      }
-      return { text: String(x ?? '').trim() }
-    }).filter(i => i.text)
-    if (items.length) return items
-  } catch { /* plain text */ }
-  return [{ text }]
 }
 
 /* A bare date ("2026-10-03") is read as UTC midnight, so show it in UTC or
@@ -201,7 +176,7 @@ export default function WFClientDetail() {
 
   /* A client's notes on one email, each with its fixed mark if it has one. */
   const notesFor = (e) => clientFeedbackItems(e?.clientFeedback).map(item => {
-    const mark = fixedNotes.find(f => f.wfEmailId === e.id && String(f.noteText).trim() === item.text.trim())
+    const mark = isNoteFixed(fixedNotes, e.id, item.text)
     return { ...item, fixed: !!mark, fixedBy: mark?.fixedBy, fixedAt: mark?.fixedAt, saving: savingNote === `${e.id}|${item.text}` }
   })
 
@@ -284,7 +259,10 @@ export default function WFClientDetail() {
             fontSize: 14, fontWeight: 700, color: t.muted, letterSpacing: '0.02em',
           }}>{initials}</div>
           <div>
-            <h1 style={{ fontSize: 24, fontWeight: 700, color: t.text, letterSpacing: '-0.02em', margin: 0 }}>{client.name}</h1>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+              <h1 style={{ fontSize: 24, fontWeight: 700, color: t.text, letterSpacing: '-0.02em', margin: 0 }}>{client.name}</h1>
+              <WfFeedbackCount count={openNoteCount(emails, fixedNotes)} size="lg" />
+            </div>
             {client.email && (
               <div style={{ fontSize: 12.5, color: t.muted, marginTop: 3 }}>{client.email}</div>
             )}

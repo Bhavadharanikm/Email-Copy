@@ -11,6 +11,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { IconArrowLeft } from '@tabler/icons-react'
 import { useRepeatBookingStore } from '../store/repeatBookingStore'
 import { useWfTheme, WfCard, WfButton, WfStatusPill } from '../../welcome-flow/components/wfUi'
+import { wfStage, WF_STAGE } from '../../welcome-flow/wfStage'
 import { RB_EMAILS, rbEmailDetail } from '../rbEmails'
 import { rbPath } from '../components/rbShared'
 
@@ -154,7 +155,9 @@ export default function RBClientDetail() {
                   <strong style={{ fontWeight: 700, color: t.text }}>Email {def.email}</strong> · {rbEmailDetail(def.email)}
                 </div>
               </div>
-              {e ? <WfStatusPill status={e.status} /> : <span style={{ fontSize: 12, color: t.faint }}>{opens ? 'Not started' : 'Coming soon'}</span>}
+              {/* Where the email is, as in the welcome flow. Needs update means it
+                  was sent back for revision with notes. */}
+              {e ? <WfStatusPill status={e.status} meta={WF_STAGE[wfStage(e, e.status === 'needs_update' && e.reviewNotes ? 1 : 0)]} /> : <span style={{ fontSize: 12, color: t.faint }}>{opens ? 'Not started' : 'Coming soon'}</span>}
               <span style={{ fontSize: 12, color: t.faint, width: 74, textAlign: 'right', flexShrink: 0 }}>{e ? relative(e.updatedAt) : ''}</span>
             </div>
           )
