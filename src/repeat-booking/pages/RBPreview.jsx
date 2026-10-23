@@ -127,18 +127,18 @@ export default function RBPreview() {
       {ready && hasBaked && (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 10, margin: '0 0 14px' }}>
           <div style={{ display: 'inline-flex', padding: 3, borderRadius: 10, background: t.inputBg, border: `1px solid ${t.border}` }}>
-            {[['preview', 'Preview', 'Drawn from the photos. Re-crop and generate again'],
-              ['rendered', 'Rendered', 'The generated images, exactly as Approve will push them']].map(([id, label, hint]) => (
+            {[['preview', 'Preview', 'Make changes here, then generate the images again'],
+              ['rendered', 'Rendered', 'The final version, exactly as it will be pushed']].map(([id, label, hint]) => (
               <button key={id} onClick={() => setMode(id)} title={hint}
                 style={{ padding: '6px 16px', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: 'Inter, sans-serif',
-                         fontSize: 12.5, fontWeight: 700, background: view === id ? t.cardBg : 'transparent',
-                         color: view === id ? t.text : t.muted, boxShadow: view === id ? '0 1px 4px rgba(0,0,0,0.12)' : 'none' }}>
+                         fontSize: 12.5, fontWeight: 700, background: view === id ? (t.dark ? '#3b82f6' : '#2563eb') : 'transparent',
+                         color: view === id ? '#ffffff' : t.muted, boxShadow: view === id ? '0 1px 4px rgba(37,99,235,0.35)' : 'none' }}>
                 {label}
               </button>
             ))}
           </div>
           <span style={{ fontSize: 12, color: t.muted }}>
-            {view === 'preview' ? 'Showing the live design. Generate images to bake it again.' : 'Showing the generated images, as Approve will push them.'}
+            {view === 'preview' ? 'Make any changes here, then generate the images again so the final version has them.' : 'This is the final version, exactly as it will be pushed. No changes can be made here.'}
           </span>
         </div>
       )}
