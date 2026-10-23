@@ -1892,7 +1892,7 @@ function buildTemplateWeek1WF({ client, copy, images, footerData, isHeroGenerate
     : `<div style="line-height:0;font-size:0;background-color:${pageBg};">
     <div class="w1wf-hero" style="position:relative;width:100%;max-width:600px;height:772px;overflow:hidden;">
       ${heroImg
-        ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
+        ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;${wfCrop(heroX, heroY, heroScale)}"/>`
         : `<div style="width:100%;height:100%;background:${pillBg};"></div>`}
       <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.34) 0%,rgba(0,0,0,0.16) 45%,rgba(0,0,0,0.05) 70%,rgba(0,0,0,0) 100%);">
         <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
@@ -2180,7 +2180,7 @@ function buildTemplateWeek2WF({ client, copy, images, footerData, isHeroGenerate
   <div style="line-height:0;font-size:0;padding:0 36px;background-color:${pageBg};">
     <div class="w2wf-hero" style="position:relative;width:100%;max-width:528px;height:680px;margin:0 auto;border-radius:999px 999px 0 0;overflow:hidden;">
       ${heroImg
-        ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
+        ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;${wfCrop(heroX, heroY, heroScale)}"/>`
         : `<div style="width:100%;height:100%;background:${pillBg};"></div>`}
       <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0) 0%,rgba(0,0,0,0) 50%,rgba(0,0,0,0.45) 100%);">
         <table width="100%" height="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;height:100%;border-collapse:collapse;">
@@ -2468,7 +2468,7 @@ function buildTemplateWeek3WF({ client, copy, images, footerData, isHeroGenerate
     : `<div style="line-height:0;font-size:0;background-color:${pageBg};">
     <div class="w3wf-hero" style="position:relative;width:100%;max-width:600px;height:772px;overflow:hidden;border-radius:0 0 20px 20px;">
       ${heroImg
-        ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
+        ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;${wfCrop(heroX, heroY, heroScale)}"/>`
         : `<div style="width:100%;height:100%;background:${pillBg};"></div>`}
       <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.25) 40%,rgba(0,0,0,0.45) 100%);">
         <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
@@ -2747,7 +2747,7 @@ function buildTemplateWeek4WF({ client, copy, images, footerData, isHeroGenerate
         : `<div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(160deg,#7ab5d8,#6ba87a);"></div>`}
       <div style="position:relative;padding:22px 28px 0;line-height:normal;font-size:initial;">
         <div class="w4wf-herocard" style="position:relative;width:100%;height:480px;overflow:hidden;border-radius:20px;box-shadow:0 6px 40px rgba(0,0,0,0.3);border:2px solid rgba(255,255,255,0.55);">
-          ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>` : ''}
+          ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;${wfCrop(heroX, heroY, heroScale)}"/>` : ''}
           <div style="position:absolute;top:0;left:0;right:0;height:72%;background:linear-gradient(to bottom,rgba(0,0,0,0.52) 0%,rgba(0,0,0,0.16) 65%,rgba(0,0,0,0) 100%);"></div>
           <div style="position:absolute;top:0;left:0;right:0;padding:${textTop}px ${textLeft}px 0;line-height:normal;text-align:center;">
             <div class="w4wf-headline" style="font-family:'Lora',Georgia,serif;font-size:${textSize}px;font-weight:700;color:#ffffff;line-height:1.08;text-shadow:0 2px 16px rgba(0,0,0,.3);">${copy.headlineText||''}</div>
@@ -2949,7 +2949,7 @@ function buildTemplateWeek5WF({ client, copy, images, footerData, isHeroGenerate
     : `<div style="line-height:0;font-size:0;background-color:${pageBg};">
     <div class="w5wf-hero" style="position:relative;width:100%;max-width:600px;height:772px;overflow:hidden;border-radius:0 0 20px 20px;">
       ${heroImg
-        ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
+        ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;${wfCrop(heroX, heroY, heroScale)}"/>`
         : `<div style="width:100%;height:100%;background:${pillBg};"></div>`}
       <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.25) 40%,rgba(0,0,0,0.45) 100%);">
         <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
@@ -3233,7 +3233,7 @@ function buildTemplateWeek6WF({ client, copy, images, footerData, isHeroGenerate
     : `<div style="line-height:0;font-size:0;background-color:${pageBg};">
     <div class="w6wf-hero" style="position:relative;width:100%;max-width:600px;height:772px;overflow:hidden;clip-path:polygon(0 0,100% 0,100% calc(100% - 40px),74% calc(100% - 40px),68% 100%,0 100%);">
       ${heroImg
-        ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
+        ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;${wfCrop(heroX, heroY, heroScale)}"/>`
         : `<div style="width:100%;height:100%;background:${pillBg};"></div>`}
       <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.25) 40%,rgba(0,0,0,0.45) 100%);">
         <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
@@ -3427,7 +3427,7 @@ function buildTemplateWeek7WF({ client, copy, images, footerData, isHeroGenerate
         <img src="${stripR}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;${stripTfR}"/>
       </div>` : ''}
       <div style="position:absolute;left:17.5%;top:0;width:65%;height:100%;border-radius:14px;overflow:hidden;">
-        <img src="${heroImg}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>
+        <img src="${heroImg}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;${wfCrop(heroX, heroY, heroScale)}"/>
       </div>
     </div>`}
   </div>` : ''}
@@ -3605,7 +3605,7 @@ function buildTemplateWeek8WF({ client, copy, images, footerData, isHeroGenerate
       ? `<img class="w8wf-hero-desk" src="${heroImg}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:block;border:0;outline:none;"/>${heroMobileImgUrl ? `<img class="w8wf-hero-mob" src="${heroMobileImgUrl}" alt="" width="600" style="width:100%;max-width:600px;height:auto;display:none;border:0;outline:none;"/>` : ''}`
       : `<div class="w8wf-section" style="padding:0 48px;">
         <div class="w8wf-herobox" style="position:relative;width:100%;aspect-ratio:504/300;border-radius:14px;overflow:hidden;">
-          <img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>
+          <img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;${wfCrop(heroX, heroY, heroScale)}"/>
         </div>
       </div>`}
   </div>` : ''}
@@ -3933,7 +3933,7 @@ function buildTemplateRB1({ client, copy, images, footerData, isHeroGenerated = 
         <img src="${stripR}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;${stripTfR}"/>
       </div>` : ''}
       <div style="position:absolute;left:17.5%;top:0;width:65%;height:100%;border-radius:14px;overflow:hidden;">
-        <img src="${heroImg}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>
+        <img src="${heroImg}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;${wfCrop(heroX, heroY, heroScale)}"/>
       </div>
     </div>`}
   </div>` : ''}
@@ -4120,7 +4120,7 @@ function buildTemplateRB2({ client, copy, images, footerData, isHeroGenerated = 
     : `<div style="line-height:0;font-size:0;background-color:${pageBg};">
     <div class="rb2-hero" style="position:relative;width:100%;max-width:600px;height:772px;overflow:hidden;">
       ${heroImg
-        ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
+        ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;${wfCrop(heroX, heroY, heroScale)}"/>`
         : `<div style="width:100%;height:100%;background:${pillBg};"></div>`}
       <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.34) 0%,rgba(0,0,0,0.16) 45%,rgba(0,0,0,0.05) 70%,rgba(0,0,0,0) 100%);">
         <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
@@ -4297,7 +4297,7 @@ function buildTemplateRB3({ client, copy, images, footerData, isHeroGenerated = 
     : `<div style="line-height:0;font-size:0;background-color:${pageBg};">
     <div class="rb3-hero" style="position:relative;width:100%;max-width:600px;height:772px;overflow:hidden;border-radius:0 0 20px 20px;">
       ${heroImg
-        ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
+        ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;${wfCrop(heroX, heroY, heroScale)}"/>`
         : `<div style="width:100%;height:100%;background:${pillBg};"></div>`}
       <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.25) 40%,rgba(0,0,0,0.45) 100%);">
         <table width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
@@ -5000,7 +5000,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 <div style="width:600px;background:${week1wfBg};box-sizing:border-box;line-height:0;font-size:0;">
   <div style="position:relative;width:600px;height:772px;overflow:hidden;">
     ${heroImgUrl
-      ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:600px;height:772px;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
+      ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:600px;height:772px;object-fit:cover;display:block;${wfCrop(heroX, heroY, heroScale)}"/>`
       : `<div style="width:600px;height:772px;background:#e8eaed;"></div>`}
     <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.34) 0%,rgba(0,0,0,0.16) 45%,rgba(0,0,0,0.05) 70%,rgba(0,0,0,0) 100%);">
       <div style="position:absolute;top:${logoTop}px;left:0;right:0;text-align:center;padding:0 ${textLeft}px;line-height:normal;">
@@ -5025,7 +5025,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 <div style="width:600px;background:${week1wfBg};box-sizing:border-box;line-height:0;font-size:0;">
   <div style="position:relative;width:600px;height:772px;overflow:hidden;">
     ${heroImgUrl
-      ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:600px;height:772px;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
+      ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:600px;height:772px;object-fit:cover;display:block;${wfCrop(heroX, heroY, heroScale)}"/>`
       : `<div style="width:600px;height:772px;background:#e8eaed;"></div>`}
     <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.34) 0%,rgba(0,0,0,0.16) 45%,rgba(0,0,0,0.05) 70%,rgba(0,0,0,0) 100%);">
       <div style="position:absolute;top:${logoTop}px;left:0;right:0;text-align:center;padding:0 ${textLeft}px;line-height:normal;">
@@ -5065,7 +5065,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 <div style="width:600px;padding:0 36px;background:${week1wfBg};box-sizing:border-box;line-height:0;font-size:0;">
   <div style="position:relative;width:528px;height:680px;border-radius:999px 999px 0 0;overflow:hidden;">
     ${heroImgUrl
-      ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:528px;height:680px;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
+      ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:528px;height:680px;object-fit:cover;display:block;${wfCrop(heroX, heroY, heroScale)}"/>`
       : `<div style="width:528px;height:680px;background:#e8eaed;"></div>`}
     <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0) 0%,rgba(0,0,0,0) 50%,rgba(0,0,0,0.45) 100%);">
       <div style="position:absolute;bottom:${textTop}px;left:0;right:0;text-align:center;padding:0 ${textLeft}px;line-height:normal;">
@@ -5128,7 +5128,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     : `<div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(160deg,#7ab5d8,#6ba87a);"></div>`}
   <div style="position:relative;padding:22px 28px 0;line-height:normal;font-size:initial;">
     <div style="position:relative;width:544px;height:480px;overflow:hidden;border-radius:20px;box-shadow:0 6px 40px rgba(0,0,0,0.3);border:2px solid rgba(255,255,255,0.55);">
-      ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;top:${Math.min(0,Math.max(480*(1-heroScale),-(480*(heroScale-1)/2)+heroY))}px;left:${Math.min(0,Math.max(544*(1-heroScale),-(544*(heroScale-1)/2)+heroX))}px;width:${544*heroScale}px;height:${480*heroScale}px;object-fit:cover;display:block;"/>` : ''}
+      ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:544px;height:480px;object-fit:cover;${wfCrop(heroX, heroY, heroScale)}display:block;"/>` : ''}
       <div style="position:absolute;top:0;left:0;right:0;height:72%;background:linear-gradient(to bottom,rgba(0,0,0,0.52) 0%,rgba(0,0,0,0.16) 65%,rgba(0,0,0,0) 100%);"></div>
       <div style="position:absolute;top:0;left:0;right:0;padding:${textTop}px ${textLeft}px 0;line-height:normal;text-align:center;">
         <div style="font-family:'Lora',Georgia,serif;font-size:${textSize}px;font-weight:700;color:#ffffff;line-height:1.08;text-shadow:0 2px 16px rgba(0,0,0,.3);">${headline}</div>
@@ -5171,7 +5171,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 <div style="width:600px;background:transparent;box-sizing:border-box;line-height:0;font-size:0;">
   <div style="position:relative;width:600px;height:772px;overflow:hidden;border-radius:0 0 20px 20px;">
     ${heroImgUrl
-      ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:600px;height:772px;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
+      ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:600px;height:772px;object-fit:cover;display:block;${wfCrop(heroX, heroY, heroScale)}"/>`
       : `<div style="width:600px;height:772px;background:#e8eaed;"></div>`}
     <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.25) 40%,rgba(0,0,0,0.45) 100%);">
       <div style="position:absolute;top:${logoTop}px;left:0;right:0;text-align:center;line-height:normal;">${week1wfLogoHtml}</div>
@@ -5203,7 +5203,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 <div style="width:600px;background:transparent;box-sizing:border-box;line-height:0;font-size:0;">
   <div style="position:relative;width:600px;height:772px;overflow:hidden;border-radius:0 0 20px 20px;">
     ${heroImgUrl
-      ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:600px;height:772px;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
+      ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:600px;height:772px;object-fit:cover;display:block;${wfCrop(heroX, heroY, heroScale)}"/>`
       : `<div style="width:600px;height:772px;background:#e8eaed;"></div>`}
     <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.25) 40%,rgba(0,0,0,0.45) 100%);">
       <div style="position:absolute;top:${logoTop}px;left:0;right:0;text-align:center;line-height:normal;">${week1wfLogoHtml}</div>
@@ -5247,7 +5247,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 <div style="width:600px;background:transparent;box-sizing:border-box;line-height:0;font-size:0;">
   <div style="position:relative;width:600px;height:772px;overflow:hidden;border-radius:0 0 20px 20px;">
     ${heroImgUrl
-      ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:600px;height:772px;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
+      ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:600px;height:772px;object-fit:cover;display:block;${wfCrop(heroX, heroY, heroScale)}"/>`
       : `<div style="width:600px;height:772px;background:#e8eaed;"></div>`}
     <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.25) 40%,rgba(0,0,0,0.45) 100%);">
       <div style="position:absolute;top:${logoTop}px;left:0;right:0;text-align:center;line-height:normal;">${week1wfLogoHtml}</div>
@@ -5304,7 +5304,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 <div style="width:600px;background:transparent;box-sizing:border-box;line-height:0;font-size:0;">
   <div style="position:relative;width:600px;height:772px;overflow:hidden;clip-path:polygon(0 0,100% 0,100% calc(100% - 40px),74% calc(100% - 40px),68% 100%,0 100%);">
     ${heroImgUrl
-      ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:600px;height:772px;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
+      ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:600px;height:772px;object-fit:cover;display:block;${wfCrop(heroX, heroY, heroScale)}"/>`
       : `<div style="width:600px;height:772px;background:#e8eaed;"></div>`}
     <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.25) 40%,rgba(0,0,0,0.45) 100%);">
       <div style="position:absolute;top:${logoTop}px;left:0;right:0;text-align:center;line-height:normal;">${week1wfLogoHtml}</div>
@@ -5369,7 +5369,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
   </div>` : ''}
   <div style="position:absolute;left:105px;top:0;width:390px;height:340px;border-radius:14px;overflow:hidden;">
     ${heroImgUrl
-      ? `<img src="${heroImgUrl}" style="width:100%;height:100%;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
+      ? `<img src="${heroImgUrl}" style="width:100%;height:100%;object-fit:cover;display:block;${wfCrop(heroX, heroY, heroScale)}"/>`
       : `<div style="width:100%;height:100%;background:#e8eaed;"></div>`}
   </div>
 </div>
@@ -5406,7 +5406,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
   </div>` : ''}
   <div style="position:absolute;left:105px;top:0;width:390px;height:340px;border-radius:14px;overflow:hidden;">
     ${heroImgUrl
-      ? `<img src="${heroImgUrl}" style="width:100%;height:100%;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
+      ? `<img src="${heroImgUrl}" style="width:100%;height:100%;object-fit:cover;display:block;${wfCrop(heroX, heroY, heroScale)}"/>`
       : `<div style="width:100%;height:100%;background:#e8eaed;"></div>`}
   </div>
 </div>
@@ -5438,7 +5438,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
 <div style="width:600px;height:300px;padding:0 48px;line-height:0;font-size:0;">
   <div style="position:relative;width:504px;height:300px;border-radius:14px;overflow:hidden;">
     ${heroImgUrl
-      ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:504px;height:300px;object-fit:cover;display:block;transform:translate(${heroX}px,${heroY}px) scale(${heroScale});transform-origin:center center;"/>`
+      ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:504px;height:300px;object-fit:cover;display:block;${wfCrop(heroX, heroY, heroScale)}"/>`
       : `<div style="width:504px;height:300px;background:#e8eaed;"></div>`}
   </div>
 </div>
