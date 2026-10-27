@@ -32,6 +32,7 @@ shape — *Symptom → What we did → Why it broke → Fix → How to check*. K
 | Baked section shows empty photo frames, or a photo cut short / half drawn | [14. Puppeteer crash → html2image.net shot before photos loaded](#14-empty-or-half-drawn-photos-in-a-baked-section) |
 | Two side-by-side photos baked at unequal widths (one wide, one narrow) | [15. Strip table with no cell widths](#15-side-by-side-photos-bake-at-unequal-widths) |
 | Weekly photo goes black at the edge when moved, or a weekly hero will not move at all | [16. Pixel shift instead of panning inside the photo](#16-weekly-photos-show-black-when-moved) |
+| Logo is black in the studio and GHL but white (original) in the test email | [17. CSS filter dropped by inboxes](#17-logo-colour-reverts-in-the-test-email) |
 
 ---
 
@@ -444,6 +445,31 @@ Generate Images runs again.
 ### How to check
 On a weekly email, drag a photo's Left and Top to both ends at 1.00x and at 2.00x. The
 frame must never show black; at 1.00x the photo moves along its longer side only.
+
+---
+
+## 17. Logo colour reverts in the test email
+
+### Symptom
+Welcome flow (Oct 2026, Columbia Gorge Getaways Email 7): logo colour set to black, the
+logo shows black in the studio and in GHL's editor, but the test email shows the
+client's white logo on the white page. 10 welcome-flow emails were affected.
+
+### Why it broke
+The black and white logo options were a CSS `filter` (`brightness(0)`, plus `invert(1)`
+for white) on the original logo. Browsers apply it, so the studio and GHL's editor look
+right; Gmail, Outlook and most other inboxes drop `filter` and show the logo as uploaded.
+
+### Fix
+Generate Images bakes each recoloured logo (hero and footer) as a transparent PNG,
+stored in the template's baked URLs as `logos` (keyed "colour|src"). The rendered
+welcome-flow HTML swaps each filtered logo for its PNG with `filter:none`
+(`swapBakedLogos`). Emails baked before this keep the filter until Generate Images runs
+again and they are pushed again.
+
+### How to check
+Set a white logo to black, Generate Images, push, then send a test email to Gmail. The
+logo must arrive black. In the pushed HTML, no `<img>` should carry `filter:brightness(0)`.
 
 ---
 

@@ -164,6 +164,42 @@ function finishBoldMarks(html) {
     .replace(/\b(alt|title)="([^"]*\*\*[^"]*)"/g, (_, a, v) => `${a}="${v.replace(/\*\*/g, '')}"`)
 }
 
+/* A logo turned black or white with a CSS filter looks right here and in GHL's
+   editor, but Gmail, Outlook and most other inboxes drop `filter`, so the
+   client's own logo arrives instead: a white logo on a white page. Generate
+   Images bakes each recoloured logo as a transparent PNG (urls.logos, keyed
+   "colour|src"), and the welcome-flow email shows that PNG with no filter. */
+const LOGO_FILTERS = { black: 'brightness(0)', white: 'brightness(0) invert(1)' }
+const LOGO_FILTER_RE = /filter:\s*brightness\(0\)(\s+invert\(1\))?\s*(?=[;"])/
+
+function filteredLogo(tag) {
+  const f   = tag.match(LOGO_FILTER_RE)
+  const src = tag.match(/\bsrc="([^"]+)"/)?.[1]
+  if (!f || !src) return null
+  const color = f[1] ? 'white' : 'black'
+  return { color, src, key: `${color}|${src}` }
+}
+
+/** Every recoloured logo in the HTML, once each. */
+function filteredLogos(html) {
+  const found = new Map()
+  for (const tag of String(html || '').match(/<img\b[^>]*>/g) || []) {
+    const logo = filteredLogo(tag)
+    if (logo) found.set(logo.key, logo)
+  }
+  return [...found.values()]
+}
+
+/** Recoloured logos swapped for their baked PNGs, where one exists. */
+function swapBakedLogos(html, logos) {
+  if (!html || !logos) return html
+  return String(html).replace(/<img\b[^>]*>/g, tag => {
+    const logo  = filteredLogo(tag)
+    const baked = logo && logos[logo.key]
+    return baked ? tag.replace(`src="${logo.src}"`, `src="${baked}"`).replace(LOGO_FILTER_RE, 'filter:none') : tag
+  })
+}
+
 /** The same, over every string in a copy object. URLs are left alone. */
 function withBoldMarks(value, key = '') {
   if (typeof value === 'string') return /url$/i.test(key) ? value : renderBoldMarks(value)
@@ -4625,7 +4661,7 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
     console.log('[baseHtml] tplId:', tpl?.id, 'isHeroGenerated:', isHeroGenerated, 'tplUrls:', tplUrls, 'effectiveImages[4]:', effectiveImages?.[4], 'effectiveImages[5]:', effectiveImages?.[5])
     const effectiveCopy = generatedCopy ? withBoldMarks({ ...generatedCopy, headlineText: (generatedCopy.headlineText || '').replace(/\.$/, '') }) : generatedCopy
     const built = tpl.build({ client:selectedClient, copy:effectiveCopy, images:effectiveImages, headerStyle, imageStyle, footerData: effectiveFooterData, isHeroGenerated, isStoryGenerated, cardsGenerated, btnImgUrl: tplUrls.btn || null, introBtnImgUrl: tplUrls.introBtn || null, cardBtnImgUrl: tplUrls.cardBtn || null, stampImgUrl: tplUrls.sec || null, pinImgUrl: tplUrls.ter || null, gridImgUrl: ((tpl?.id === 33 || tpl?.id === 35 || tpl?.id === 36 || tpl?.id === 37 || tpl?.id === 38 || tpl?.id === 39 || tpl?.id === 41) ? tplUrls.sec : null) || null, iconImgUrls: tplUrls.icons || [], heroMobileImgUrl: tplUrls.heroMobile || null, btnMobileImgUrl: tplUrls.btnMobile || null, dayImgUrls: tpl?.id === 32 ? [tplUrls.sec || null, tplUrls.ter || null] : [], dayImgMobUrls: tpl?.id === 32 ? [tplUrls.card1 || null, tplUrls.card2 || null] : [], closingImgUrl: tpl?.id === 32 ? (tplUrls.closing || null) : null, ...editorProps })
-    return welcomeFlow ? finishBoldMarks(built) : built
+    return welcomeFlow ? swapBakedLogos(finishBoldMarks(built), tplUrls.logos) : built
   }, [active, welcomeFlow, selectedClient, generatedCopy, selectedImages, headerStyle, imageStyle, clientFooter, footerLogoColor, footerLogoSize, weekGenUrls, bakedImages, heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y, img5Scale, img5X, img5Y])
 
   // Keep store in sync so ApprovalPanel always has the latest HTML
@@ -6428,6 +6464,28 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
           btnMobile: btnMobileRes?.url || null,
           closing: closingRes?.url || null,
           icons: Array.isArray(iconRes) ? iconRes.map(r => r?.url || null) : null,
+        }
+        /* Generate runs on the live view, so baseHtml still carries the filters
+           to bake. The PNG is drawn at the logo's own shape, 240px tall at
+           most, and the email keeps its displayed size. */
+        if (welcomeFlow) {
+          const logos = await Promise.all(filteredLogos(baseHtml).map(async ({ color, src, key }) => {
+            const size = await new Promise(resolve => {
+              const img = new Image()
+              img.onload  = () => resolve(img.naturalWidth && img.naturalHeight ? { w: img.naturalWidth, h: img.naturalHeight } : null)
+              img.onerror = () => resolve(null)
+              img.src = src
+            })
+            if (!size) return null
+            const h = Math.min(240, size.h)
+            const w = Math.max(1, Math.round(size.w * h / size.h))
+            const res = await renderImage({
+              html: `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>*{margin:0;padding:0}html,body{background:transparent}</style></head><body><img src="${src}" style="display:block;width:${w}px;height:${h}px;filter:${LOGO_FILTERS[color]}"/></body></html>`,
+              width: w, height: h, transparent: true,
+            }).catch(() => null)  // a logo that will not bake keeps its filter; the rest still bakes
+            return res?.url ? [key, res.url] : null
+          }))
+          urls.logos = Object.fromEntries(logos.filter(Boolean))
         }
         console.log('[WeekGen] Calling setWeekGenUrls with:', urls)
         setWeekGenUrls(prev => {
