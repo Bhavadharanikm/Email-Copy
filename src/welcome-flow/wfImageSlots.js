@@ -30,7 +30,11 @@ function email2Days(copy) {
   return days.length || 2
 }
 
-const LAST_INDEX = 5   // the image list has six positions, 0 to 5
+/* The image list has eight positions, 0 to 7. Positions 6 and 7 are Email 1's
+   fourth and fifth stay cards, added after the story circles had taken 4 and
+   5. Every other email stops at 5. */
+const LAST_INDEX = 7
+const EMAIL2_LAST = 5
 
 export function wfImageSlots(week, copy) {
   switch (Number(week)) {
@@ -39,14 +43,19 @@ export function wfImageSlots(week, copy) {
       { index: 1, label: 'Stay card 1', desc: 'First featured stay' },
       { index: 2, label: 'Stay card 2', desc: 'Second featured stay' },
       { index: 3, label: 'Stay card 3', desc: 'Third featured stay' },
+      /* Only once the copy has a fourth or fifth stay. */
+      ...((copy?.propertyCards || []).filter(Boolean).length >= 4
+        ? [{ index: 6, label: 'Stay card 4', desc: 'Fourth featured stay' }] : []),
+      ...((copy?.propertyCards || []).filter(Boolean).length >= 5
+        ? [{ index: 7, label: 'Stay card 5', desc: 'Fifth featured stay' }] : []),
       { index: 4, label: 'Story, large circle', desc: 'The bigger of the two circles' },
       { index: 5, label: 'Story, small circle', desc: 'The smaller circle beside it' },
     ]
     case 2: {
-      const days = Math.min(email2Days(copy), LAST_INDEX)
+      const days = Math.min(email2Days(copy), EMAIL2_LAST)
       const out = [hero('The arch at the top')]
       for (let d = 1; d <= days; d++) out.push({ index: d, label: `Day ${d} photo`, desc: `Beside day ${d}'s moments` })
-      if (days + 1 <= LAST_INDEX) out.push({ index: days + 1, label: 'Closing photo', desc: 'Full width, before the last paragraph' })
+      if (days + 1 <= EMAIL2_LAST) out.push({ index: days + 1, label: 'Closing photo', desc: 'Full width, before the last paragraph' })
       return out
     }
     case 3: return [

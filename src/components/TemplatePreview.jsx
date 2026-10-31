@@ -1782,20 +1782,23 @@ function buildTemplateWeek1WF({ client, copy, images, footerData, isHeroGenerate
   img3Scale=1, img3X=0, img3Y=0,
   img4Scale=1, img4X=0, img4Y=0,
   img5Scale=1, img5X=0, img5Y=0,
+  img6Scale=1, img6X=0, img6Y=0,
+  img7Scale=1, img7X=0, img7Y=0,
   btnImgUrl = null, introBtnImgUrl = null, cardBtnImgUrl = null,
-  cardsGenerated = [false, false, false],
+  cardsGenerated = [false, false, false, false, false],
 }) {
   const heroObj = images?.[0]; const heroImg = heroObj?.url || ''
-  /* Cards cap at 3, so they only ever need Sub 1–3. That leaves slots 4 and 5
-     free for the story section's two circles. */
-  const cardImgs = [images?.[1]?.url || '', images?.[2]?.url || '', images?.[3]?.url || '']
+  /* Cards cap at 5. The first three use Sub 1–3 and the fourth and fifth
+     positions 6 and 7, because 4 and 5 were already the story circles. */
+  const cardImgs = [1, 2, 3, 6, 7].map(n => images?.[n]?.url || '')
   const storyA = images?.[4]?.url || ''
   const storyB = images?.[5]?.url || ''
   const cardTf = [
     wfCrop(img1X, img1Y, img1Scale),
     wfCrop(img2X, img2Y, img2Scale),
     wfCrop(img3X, img3Y, img3Scale),
-    wfCrop(img4X, img4Y, img4Scale),
+    wfCrop(img6X, img6Y, img6Scale),
+    wfCrop(img7X, img7Y, img7Scale),
   ]
 
   const body    = (copy.bodyText || '').replace(/\n/g, '<br>')
@@ -1848,7 +1851,7 @@ function buildTemplateWeek1WF({ client, copy, images, footerData, isHeroGenerate
   const cards = Array.isArray(copy.propertyCards) ? copy.propertyCards.filter(Boolean) : []
 
   /**
-   * One full-width card, stacked. Every count — 1, 2 or 3 — renders the same
+   * One full-width card, stacked. Every count, 1 to 5, renders the same
    * shape, so nothing depends on a media query. That matters: Gmail strips the
    * <style> block, and a 2-up grid would stay 2-up on a phone there. Full width
    * is correct everywhere with no stylesheet at all.
@@ -4524,6 +4527,13 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
   const [img5Scale, setImg5Scale] = useState(1)
   const [img5X,     setImg5X]     = useState(0)
   const [img5Y,     setImg5Y]     = useState(0)
+  /* Sub Images 6 and 7: Email 1's fourth and fifth stay cards. */
+  const [img6Scale, setImg6Scale] = useState(1)
+  const [img6X,     setImg6X]     = useState(0)
+  const [img6Y,     setImg6Y]     = useState(0)
+  const [img7Scale, setImg7Scale] = useState(1)
+  const [img7X,     setImg7X]     = useState(0)
+  const [img7Y,     setImg7Y]     = useState(0)
 
   /* Every Adjust Design value, by the name it is saved under. */
   const EDITOR_SETTERS = {
@@ -4536,6 +4546,8 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
     img3Scale: setImg3Scale, img3X: setImg3X, img3Y: setImg3Y,
     img4Scale: setImg4Scale, img4X: setImg4X, img4Y: setImg4Y,
     img5Scale: setImg5Scale, img5X: setImg5X, img5Y: setImg5Y,
+    img6Scale: setImg6Scale, img6X: setImg6X, img6Y: setImg6Y,
+    img7Scale: setImg7Scale, img7X: setImg7X, img7Y: setImg7Y,
   }
   /* The template whose saved positions have been applied. Mirroring waits for
      it, or the first render's defaults would be written over the saved ones. */
@@ -4550,6 +4562,8 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
     setImg3Scale(1); setImg3X(0); setImg3Y(0)
     setImg4Scale(1); setImg4X(0); setImg4Y(0)
     setImg5Scale(1); setImg5X(0); setImg5Y(0)
+    setImg6Scale(1); setImg6X(0); setImg6Y(0)
+    setImg7Scale(1); setImg7X(0); setImg7Y(0)
     if (tpl?.id === 10 || tpl?.id === 17) { setTextSize(38); setTextTop(32);  setTextLeft(24);  setLogoColor('original'); setLogoTop(32); setLogoRight(200); setLogoSize(40) }
     if (tpl?.id === 11) { setTextSize(40); setTextTop(14);  setTextLeft(52);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
     if (tpl?.id === 13) { setTextSize(52); setTextTop(32);  setTextLeft(36);  setLogoColor('white');    setLogoTop(28); setLogoRight(36);  setLogoSize(40) }
@@ -4588,12 +4602,12 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
       heroScale, heroX, heroY, textSize, textTop, textLeft,
       logoColor, logoTop, logoRight, logoSize, footerLogoColor, footerLogoSize,
       img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y,
-      img4Scale, img4X, img4Y, img5Scale, img5X, img5Y,
+      img4Scale, img4X, img4Y, img5Scale, img5X, img5Y, img6Scale, img6X, img6Y, img7Scale, img7X, img7Y,
     } })
   }, [welcomeFlow, editorReadyFor, tpl?.id, heroScale, heroX, heroY, textSize, textTop, textLeft,
       logoColor, logoTop, logoRight, logoSize, footerLogoColor, footerLogoSize,
       img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y,
-      img4Scale, img4X, img4Y, img5Scale, img5X, img5Y])
+      img4Scale, img4X, img4Y, img5Scale, img5X, img5Y, img6Scale, img6X, img6Y, img7Scale, img7X, img7Y])
 
   // ── Week template image generation ───────────────────────────────────────────
   /* Every template with a Generate Images pipeline. Emails 4 and 5 were built
@@ -4635,6 +4649,9 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
          to bake circles into that slot, so a stale one can still be sitting in
          weekGenUrls from before the grid replaced them. */
       const usesBakedSecTer = tpl?.id !== 32 && tpl?.id !== 33 && tpl?.id !== 35 && tpl?.id !== 36 && tpl?.id !== 37 && tpl?.id !== 38 && tpl?.id !== 39 && tpl?.id !== 41 && tpl?.id !== 42 && tpl?.id !== 43
+      /* Email 1's fourth and fifth stay cards sit at positions 6 and 7, after the story circles */
+      if (tpl?.id === 31 && tplUrls.card4) effectiveImages[6] = { url: tplUrls.card4, focalX: 50, focalY: 50 }
+      if (tpl?.id === 31 && tplUrls.card5) effectiveImages[7] = { url: tplUrls.card5, focalX: 50, focalY: 50 }
       /* Repeat Booking Emails 2 and 3 have stay cards in Sub 4 and 5 as well, baked as card4/card5 */
       if (tpl?.id === 42 || tpl?.id === 43) {
         if (tplUrls.card4) effectiveImages[4] = { url: tplUrls.card4, focalX: 50, focalY: 50 }
@@ -4643,7 +4660,7 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
       if (usesBakedSecTer && tplUrls.sec) effectiveImages[4] = { url: tplUrls.sec, focalX: 50, focalY: 50 }
       if (usesBakedSecTer && tplUrls.ter) effectiveImages[5] = { url: tplUrls.ter, focalX: 50, focalY: 50 }
     }
-    const editorProps = isEditable ? { heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y, img5Scale, img5X, img5Y } : {}
+    const editorProps = isEditable ? { heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y, img5Scale, img5X, img5Y, img6Scale, img6X, img6Y, img7Scale, img7X, img7Y } : {}
     /* Same list as isWeekTemplate — every template whose hero is baked. A template
        missing here renders its live hero over its own baked PNG: two headlines. */
     const isHeroGenerated = [10, 11, 13, 16, 17, 18, 19, 20, 23, 24, 25, 31, 32, 33, 34, 35, 36, 37, 38, 41, 42, 43].includes(tpl?.id) && !!tplUrls.hero
@@ -4652,7 +4669,7 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
     // ...and each stay photo into its own flat crop, so cardsGenerated[i] tells
     // the builder that images[i+1] is already cropped/zoomed and should render
     // as a plain <img> rather than re-applying position:absolute + a transform
-    const cardsGenerated = (tpl?.id === 31 || tpl?.id === 34) ? [!!tplUrls.card1, !!tplUrls.card2, !!tplUrls.card3]
+    const cardsGenerated = (tpl?.id === 31 || tpl?.id === 34) ? [!!tplUrls.card1, !!tplUrls.card2, !!tplUrls.card3, !!tplUrls.card4, !!tplUrls.card5]
       : (tpl?.id === 42 || tpl?.id === 43) ? [!!tplUrls.card1, !!tplUrls.card2, !!tplUrls.card3, !!tplUrls.card4, !!tplUrls.card5]
       : [false, false, false]
     const effectiveFooterData = clientFooter
@@ -4662,7 +4679,7 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
     const effectiveCopy = generatedCopy ? withBoldMarks({ ...generatedCopy, headlineText: (generatedCopy.headlineText || '').replace(/\.$/, '') }) : generatedCopy
     const built = tpl.build({ client:selectedClient, copy:effectiveCopy, images:effectiveImages, headerStyle, imageStyle, footerData: effectiveFooterData, isHeroGenerated, isStoryGenerated, cardsGenerated, btnImgUrl: tplUrls.btn || null, introBtnImgUrl: tplUrls.introBtn || null, cardBtnImgUrl: tplUrls.cardBtn || null, stampImgUrl: tplUrls.sec || null, pinImgUrl: tplUrls.ter || null, gridImgUrl: ((tpl?.id === 33 || tpl?.id === 35 || tpl?.id === 36 || tpl?.id === 37 || tpl?.id === 38 || tpl?.id === 39 || tpl?.id === 41) ? tplUrls.sec : null) || null, iconImgUrls: tplUrls.icons || [], heroMobileImgUrl: tplUrls.heroMobile || null, btnMobileImgUrl: tplUrls.btnMobile || null, dayImgUrls: tpl?.id === 32 ? [tplUrls.sec || null, tplUrls.ter || null] : [], dayImgMobUrls: tpl?.id === 32 ? [tplUrls.card1 || null, tplUrls.card2 || null] : [], closingImgUrl: tpl?.id === 32 ? (tplUrls.closing || null) : null, ...editorProps })
     return welcomeFlow ? swapBakedLogos(finishBoldMarks(built), tplUrls.logos) : built
-  }, [active, welcomeFlow, selectedClient, generatedCopy, selectedImages, headerStyle, imageStyle, clientFooter, footerLogoColor, footerLogoSize, weekGenUrls, bakedImages, heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y, img5Scale, img5X, img5Y])
+  }, [active, welcomeFlow, selectedClient, generatedCopy, selectedImages, headerStyle, imageStyle, clientFooter, footerLogoColor, footerLogoSize, weekGenUrls, bakedImages, heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y, img5Scale, img5X, img5Y, img6Scale, img6X, img6Y, img7Scale, img7X, img7Y])
 
   // Keep store in sync so ApprovalPanel always has the latest HTML
   useEffect(() => {
@@ -4920,6 +4937,8 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
     const img3Url    = selectedImages?.[3]?.url || selectedImages?.[3]?.thumbnailUrl || ''
     const img4Url    = selectedImages?.[4]?.url || selectedImages?.[4]?.thumbnailUrl || ''
     const img5Url    = selectedImages?.[5]?.url || selectedImages?.[5]?.thumbnailUrl || ''
+    const img6Url    = selectedImages?.[6]?.url || selectedImages?.[6]?.thumbnailUrl || ''
+    const img7Url    = selectedImages?.[7]?.url || selectedImages?.[7]?.thumbnailUrl || ''
     const logoUrl    = selectedClient?.logoUrl || ''
     const headline   = renderBoldMarks((generatedCopy?.headlineText || '').replace(/\.$/, ''))
     const clientName = selectedClient?.name || ''
@@ -5781,6 +5800,8 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     const week1wfCard1Html = isWFCards ? week1wfCardHtml(img1Url, img1Scale, img1X, img1Y) : null
     const week1wfCard2Html = isWFCards ? week1wfCardHtml(img2Url, img2Scale, img2X, img2Y) : null
     const week1wfCard3Html = isWFCards ? week1wfCardHtml(img3Url, img3Scale, img3X, img3Y) : null
+    const week1wfCard4Html = isWFCards ? week1wfCardHtml(img6Url, img6Scale, img6X, img6Y) : null
+    const week1wfCard5Html = isWFCards ? week1wfCardHtml(img7Url, img7Scale, img7X, img7Y) : null
     /* Repeat Booking Emails 2 and 3's stay photos: the same 600x320 crop as Email 1 WF's
        cards, one per stay type it shows, up to five (Sub 1-5). */
     const rbCardCount = Math.min(5, Array.isArray(generatedCopy?.propertyCards) ? generatedCopy.propertyCards.filter(c => c && (c.name || c.description)).length : 0)
@@ -6421,9 +6442,13 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
     // Repeat Booking Emails 2 and 3 only: their fourth and fifth stay photos
     const card4Thunk = () => isRBCards && rbCardHtmls[3]
       ? renderImage({ html: rbCardHtmls[3], width: 600, height: 320, transparent: false })
+      : isWFCards && week1wfCard4Html
+      ? renderImage({ html: week1wfCard4Html, width: 600, height: 320, transparent: false })
       : Promise.resolve(null)
     const card5Thunk = () => isRBCards && rbCardHtmls[4]
       ? renderImage({ html: rbCardHtmls[4], width: 600, height: 320, transparent: false })
+      : isWFCards && week1wfCard5Html
+      ? renderImage({ html: week1wfCard5Html, width: 600, height: 320, transparent: false })
       : Promise.resolve(null)
 
     const heroHtmlToUse = isWeek9 ? week9HeroHtml : isWeek8v2 ? week8v2HeroHtml : isWeek7v2 ? week7v2HeroHtml : isTest ? testHeroHtml : isWeek5 ? week5HeroHtml : isWeek6v2 ? week6HeroHtml : isWeek4v2b ? week4v2bHeroHtml : heroHtml
@@ -6970,7 +6995,8 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
                 const [color, darkBg, lightBg] = ({
                   1: ['#7c3aed', 'rgba(124,58,237,0.15)', '#f5f3ff'], 2: ['#db2777', 'rgba(219,39,119,0.15)', '#fdf2f8'],
                   3: ['#ea580c', 'rgba(234,88,12,0.15)', '#fff7ed'],  4: ['#0891b2', 'rgba(8,145,178,0.15)', '#ecfeff'],
-                  5: ['#16a34a', 'rgba(22,163,74,0.15)', '#f0fdf4'],
+                  5: ['#16a34a', 'rgba(22,163,74,0.15)', '#f0fdf4'],  6: ['#ca8a04', 'rgba(202,138,4,0.15)', '#fefce8'],
+                  7: ['#4f46e5', 'rgba(79,70,229,0.15)', '#eef2ff'],
                 })[sl.index]
                 const [x, setX, y, setY, sc, setSc] = ({
                   1: [img1X, setImg1X, img1Y, setImg1Y, img1Scale, setImg1Scale],
@@ -6978,6 +7004,8 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
                   3: [img3X, setImg3X, img3Y, setImg3Y, img3Scale, setImg3Scale],
                   4: [img4X, setImg4X, img4Y, setImg4Y, img4Scale, setImg4Scale],
                   5: [img5X, setImg5X, img5Y, setImg5Y, img5Scale, setImg5Scale],
+                  6: [img6X, setImg6X, img6Y, setImg6Y, img6Scale, setImg6Scale],
+                  7: [img7X, setImg7X, img7Y, setImg7Y, img7Scale, setImg7Scale],
                 })[sl.index]
                 return { key: `sub${sl.index}`, label: sl.label, color, bg: dark ? darkBg : lightBg, controls: [
                   { name: 'Left', min: -200, max: 200, step: 4, val: x,  set: setX,  unit: 'px' },

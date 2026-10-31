@@ -8,7 +8,7 @@
  *     template's slot after the stays, so it ends pointing at the button
  *     rather than at "our stays below". The Copy page's Intro CTA is written
  *     as a browsing button, so the CTA count is cards plus three
- *   - at most three stays: the template has three card photo slots
+ *   - at most five stays: the template has five card photo slots
  *   - one worked example, for an invented client. The original's three broke
  *     the prompt's own rules (guilt framing, "Awaits", quote marks and "right
  *     now" in CTAs, a question subject, a wrong code, the welcome line without
@@ -39,7 +39,7 @@ If word counts are given, follow them.
 2. CLIENT DETAILS from the brand board: website, contact details, footer copy. Where these and the brief disagree on a fact, the brief wins.
 
 3. THE REQUEST. Names the target audience (couples, adventure seekers, wellness travellers, milestone celebrators). Audience shapes which stays lead, their order, and what the Body Block emphasises. Not just word choice. Two things may also come with it:
-   - Featured stays. Where the request names them, write a card only for those, pulling every detail from the brief, and skip any named stay you cannot find there. Where the request says nothing, use the brief's own focus units. At most three cards: the template has three card photos.
+   - Featured stays. Where the request names them, write a card only for those, pulling every detail from the brief, and skip any named stay you cannot find there. Where the request says nothing, use the brief's own focus units. At most five cards: the template has five card photos.
    - A changed offer. Where the request states a code, a discount, or terms, use it and treat it as the current one. If the request and the brief disagree on the offer, the request wins, and say so in notes so somebody updates the brief.
 
 4. FEEDBACK, given first: the team's notes for this client, left on Email 1 or for every email. Follow the rules at the top of the feedback block. Feedback can change how something is written: wording, register, field length, which angle leads, what to stop saying, what to start saying. Apply all of it. Feedback cannot unlock a grounding rule: never invent a fact not in the brief or the request; card descriptions stay verbatim; guest and bath counts are copied exactly or left blank; no fabricated urgency; the offer terms appear with the code. If a note asks for any of those, do not do it, and quote it in notes. Where two notes conflict, the more recent wins; record both. List every note you acted on in notes.
@@ -101,7 +101,7 @@ Each variation fills the boxes of the Copy page, in this order.
 - sectionEyebrow (Section Eyebrow): 1-3 words. A small label introducing the property block.
 - sectionHeadline (Section Headline): 3-8 words. Names the section's job: there are stays below and here is how to think about them. A signpost, not a second brand statement. Do not restate the Section Eyebrow, do not describe the region, do not reach for a positioning line, and never negate a flaw. Good: "Four ways to stay" / "Take your pick" / "Three rooms, three different trips". Bad: "Elevated But Never Pretentious" / "Your Perfect Escape Awaits" / "Rugged Outside, Refined Within".
 - sectionSubhead (Section Subhead): one sentence, 6-10 words. Names the audience and the client naturally inside the sentence, and bridges into the cards.
-- propertyCards (Featured Stays): one per featured stay, at most three. name: exact from the brief. stats: bed count, bath count, guest count, exact from the brief, written "3 beds | 1 bath | 4 guests", blank where the brief does not state one. description: the brief's own language for that unit, verbatim, trimmed only as described above. ctaText: 2-3 words, identical on every card, never names the code.
+- propertyCards (Featured Stays): one per featured stay, at most five. name: exact from the brief. stats: bed count, bath count, guest count, exact from the brief, written "3 beds | 1 bath | 4 guests", blank where the brief does not state one. description: the brief's own language for that unit, verbatim, trimmed only as described above. ctaText: 2-3 words, identical on every card, never names the code.
 - bodyBlock2Title (Body Block Title): the closing nudge title. One sentence. A warm, present-tense observation. Gentle, with no invented urgency, and nothing implying the reader has been slow to act.
 - bodyBlock2 (Body Block): sits after the stays. 3 short paragraphs, 5-7 sentences in total, separated by a blank line. Follows the rhythm: short, then a longer payoff, then short. May reference the brief's general setting as scene-setting. May name the code and the saving; the terms already sit in the Intro Body. One sensory image of the stay, never a list of amenities. Ends on a short, warm line that leads into booking. Never mention "the button" or describe the email itself, and never point to the stays, which are above it.
 - closingLine (Closing Line): 1-2 sentences. Warm but direct. The last thing a trusted friend says before hanging up.
@@ -182,10 +182,10 @@ export const SCHEMA = {
 /** Copied word for word from the brief: never rewritten, checked against it. */
 export const verbatimPaths = (v) => (v.propertyCards || []).flatMap((_, i) => [`propertyCards.${i}.name`, `propertyCards.${i}.description`])
 
-/* Three card photo slots in the template: a fourth card would print without
+/* Five card photo slots in the template: a sixth card would print without
    one, so it is dropped rather than shown broken. */
 export function toVariation(v) {
-  return { ...v, propertyCards: (v.propertyCards || []).slice(0, 3) }
+  return { ...v, propertyCards: (v.propertyCards || []).slice(0, 5) }
 }
 
 /** The review layout, box for box with the Copy page. */

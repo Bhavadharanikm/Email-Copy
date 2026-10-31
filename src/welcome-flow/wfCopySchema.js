@@ -39,9 +39,9 @@ const WEEK1 = {
     note:      'Facts stay the same across all 3 variations; only the description shifts',
     itemLabel: 'Stay',
     addLabel:  'Add stay',
-    /* Capped at 3: each stay takes one sub-image slot, and the picker offers
-       Sub 1-3 for this template. */
-    max:       3,
+    /* Capped at 5: each stay takes one photo slot, Stay card 1-5 in the
+       picker. */
+    max:       5,
     blank:     { name: '', stats: '', description: '', ctaText: 'View Dates', ctaUrl: '' },
     fields: [
       { key: 'name',        label: 'Card Name',        hint: 'Exact from the brief, never invented or shortened' },
