@@ -60,6 +60,8 @@ export function useCopyGeneration() {
         // Apply brand data from Google Sheet immediately (arrives with the jobId)
         if (res.brandData?.found) {
           setClientFooter(res.brandData)
+          /* No website typed on the brief yet: the sheet's one fills it, so the copy's CTA gets it */
+          if (!useCampaignStore.getState().websiteUrl && res.brandData.websiteUrl) useCampaignStore.getState().setWebsiteUrl(res.brandData.websiteUrl)
           console.log('[useCopyGeneration] Brand data applied from sheet:', res.brandData)
         }
       } catch {

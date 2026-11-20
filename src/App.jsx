@@ -4,6 +4,7 @@ import Dashboard from './pages/Dashboard'
 import NewCampaign from './pages/NewCampaign'
 import ReviewCampaign from './pages/ReviewCampaign'
 import ContentCalendar from './pages/ContentCalendar'
+import SavedEmails from './pages/SavedEmails'
 import WFClients      from './welcome-flow/pages/WFClients'
 import WFClientDetail from './welcome-flow/pages/WFClientDetail'
 import WFBrief        from './welcome-flow/pages/WFBrief'
@@ -36,6 +37,7 @@ export default function App() {
       <Route element={<PrivateRoute><Layout /></PrivateRoute>}>
         <Route index element={<Dashboard />} />
         <Route path="campaign/new" element={<NewCampaign />} />
+        <Route path="campaign/saved" element={<SavedEmails />} />
         <Route path="campaign/:id/review" element={<ReviewCampaign />} />
         <Route path="calendar" element={<ContentCalendar />} />
         <Route path="welcome-flow" element={<WFClients />} />

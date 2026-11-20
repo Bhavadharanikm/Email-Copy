@@ -20,6 +20,9 @@ const INITIAL_STATE = {
   folderUrl: '',
   folderId:  '',
 
+  // Step 1 — the client's website: saved per client, and the CTA URL when the copy has none
+  websiteUrl: '',
+
   // Step 2 — free-text prompt sent directly to n8n
   prompt: '',
 
@@ -68,11 +71,38 @@ const INITIAL_STATE = {
   // Footer data fetched from brand board sheet
   clientFooter: null,
 
+  // Step 4 — which template the preview was on, and its Adjust Design values,
+  // so going back a step or reopening a saved email puts them back
+  previewTemplateId: null,
+  editorSettings:    null,
+
+  // The saved copy of this email in weekly_emails (weekly-data), once saved
+  weeklyEmailId:   null,
+  weeklyEmailCode: '',
+  weeklySavedAt:   null,
+
   // UI state — NOT persisted (always reset on page load)
   currentStep:  1,
   isGenerating: false,
   isSaving:     false,
   error:        null,
+}
+
+/* What a saved email keeps: the whole draft, minus UI flags and the record's
+   own id. The client's GHL key never goes into the database; it is looked up
+   again from the client list when the email is opened. */
+export const DRAFT_KEYS = [
+  'selectedClient', 'templateUrl', 'templateId', 'locationId', 'folderUrl', 'folderId', 'websiteUrl',
+  'prompt', 'variations', 'selectedVariation', 'generatedCopy', 'selectedImages',
+  'headerStyle', 'imageStyle', 'aiReasoning', 'aiRecommendDone', 'templateLabel',
+  'generatedUrls', 'imageGenHtml', 'approvalStatus', 'approvalNotes', 'ghlPushResult',
+  'clientFooter', 'previewTemplateId', 'editorSettings', 'currentStep',
+]
+export function pickDraft(state) {
+  const out = {}
+  for (const k of DRAFT_KEYS) if (state[k] !== undefined) out[k] = state[k]
+  if (out.selectedClient) { const { ghlApiKey, ...client } = out.selectedClient; out.selectedClient = client }
+  return out
 }
 
 export const useCampaignStore = create(
@@ -113,10 +143,12 @@ export const useCampaignStore = create(
         }))
       },
       setPrompt:         (prompt)   => set({ prompt }),
-      setVariations:     (variations) => set({
-        variations,
-        selectedVariation: 0,
-        generatedCopy: variations[0] || {},
+      setWebsiteUrl:     (websiteUrl) => set({ websiteUrl }),
+      /* A variation with no CTA URL links to the client's website. */
+      setVariations:     (variations) => set((s) => {
+        const site = (s.websiteUrl || '').trim()
+        const filled = site ? variations.map(v => (v && !String(v.ctaUrl || '').trim() ? { ...v, ctaUrl: site } : v)) : variations
+        return { variations: filled, selectedVariation: 0, generatedCopy: filled[0] || {} }
       }),
       pickVariation:     (index)    => set((s) => ({
         selectedVariation: index,
@@ -151,6 +183,19 @@ export const useCampaignStore = create(
 
       // Only called when user explicitly clicks "+ New Campaign"
       resetCampaign: () => set(INITIAL_STATE),
+
+      /* A saved email opened from Saved emails replaces the whole draft. */
+      loadSavedEmail: ({ id, code, updatedAt, state, renderedHtml, client }) => set({
+        ...INITIAL_STATE,
+        ...pickDraft(state || {}),
+        ...(client ? { selectedClient: client } : {}),
+        renderedHtml:    renderedHtml || state?.renderedHtml || '',
+        weeklyEmailId:   id,
+        weeklyEmailCode: code,
+        weeklySavedAt:   updatedAt || null,
+        currentStep:     state?.currentStep || 4,
+      }),
+      markSaved: ({ id, code, updatedAt }) => set({ weeklyEmailId: id, weeklyEmailCode: code, weeklySavedAt: updatedAt || new Date().toISOString() }),
     }),
     {
       name: 'hgm-campaign-v2',  // localStorage key (v2 clears old stale client config)

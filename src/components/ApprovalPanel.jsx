@@ -7,6 +7,7 @@ import { useState } from 'react'
 import { useCampaignStore } from '../store/campaignStore'
 import { pushHtmlToGHL, notifyChat, logToSheets } from '../lib/api'
 import { useTheme } from '../context/ThemeContext'
+import { useWeeklySave } from '../hooks/useWeeklySave'
 
 export default function ApprovalPanel() {
   const { theme } = useTheme()
@@ -16,6 +17,7 @@ export default function ApprovalPanel() {
   const [loading, setLoading] = useState(false)
   const [done, setDone]       = useState(false)
   const [previewUrl, setPreviewUrl] = useState('')
+  const { save } = useWeeklySave()
 
   const {
     selectedClient, generatedCopy, selectedImages, renderedHtml,
@@ -44,6 +46,9 @@ export default function ApprovalPanel() {
       const ghlResult = await pushHtmlToGHL({ client: selectedClient, renderedHtml, generatedCopy, templateId, locationId, folderId, templateLabel })
       setGhlPushResult(ghlResult)
       setPreviewUrl(folderUrl || templateUrl || ghlResult.previewUrl || '')
+      /* What went to GHL is saved too, so it can be found and reopened. A
+         failed save does not undo the push; the Save button shows why. */
+      await save({ status: 'pushed' })
       try {
         await notifyChat({ clientName: selectedClient.name, previewUrl: ghlResult.previewUrl, approvedBy: 'Team' })
       } catch (chatErr) {

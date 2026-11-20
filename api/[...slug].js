@@ -31,6 +31,7 @@ import { handler as wfClaudeCopy }       from '../netlify/functions/wf-claude-co
 import { handler as rbClaudeCopy }       from '../netlify/functions/rb-claude-copy-background.js'
 import { handler as rbSaveEmail }        from '../netlify/functions/rb-save-email.js'
 import { handler as rbData }             from '../netlify/functions/rb-data.js'
+import { handler as weeklyData }         from '../netlify/functions/weekly-data.js'
 import { handler as wfPushEmail }        from '../netlify/functions/wf-push-email.js'
 import { handler as wfEmails }           from '../netlify/functions/wf-emails.js'
 import { handler as campaignSuggestions } from '../netlify/functions/campaign-suggestions.js'
@@ -74,6 +75,7 @@ const HANDLERS = {
   'rb-claude-copy-background': rbClaudeCopy,
   'rb-save-email':       rbSaveEmail,
   'rb-data':             rbData,
+  'weekly-data':         weeklyData,
   'wf-push-email':       wfPushEmail,
   'wf-emails':           wfEmails,
   'wf-submit-feedback':  wfSubmitFeedback,

@@ -4434,15 +4434,22 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
      on the rendered view, where the point is to keep the bakes there are.
      Both default to the weekly campaign's behaviour, which is unchanged. */
   bakedImages = true, allowGenerate = true }) {
-  const [active, setActive]         = useState(0)
-  const [zoom,   setZoom]           = useState(1)
-  const [mobileView, setMobileView] = useState(false)
-  const { theme } = useTheme()
-  const dark = theme === 'dark'
   const { user } = useAuth()
   /* Decided by login.js from ADMIN_USERS and signed into the session token —
      not something the browser can grant itself. */
   const isAdmin = !!user?.isAdmin
+  /* A weekly email reopens on the template it was left on: going back a step,
+     reloading, or opening it from Saved emails. Same list as visibleTemplates. */
+  const [active, setActive]         = useState(() => {
+    if (welcomeFlow) return 0
+    const id = useCampaignStore.getState().previewTemplateId
+    const i  = id == null ? -1 : TEMPLATES.filter(t => !t.welcomeFlowOnly && !t.repeatBookingOnly && (!t.adminOnly || isAdmin)).findIndex(t => t.id === id)
+    return i >= 0 ? i : 0
+  })
+  const [zoom,   setZoom]           = useState(1)
+  const [mobileView, setMobileView] = useState(false)
+  const { theme } = useTheme()
+  const dark = theme === 'dark'
   /* A welcome-flow email's template is decided by the week picked on the brief,
      so show that one and nothing else — offering the others would only let
      someone render a Week 2 email with Week 1's template and push it. If the
@@ -4491,6 +4498,7 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
   // Sync selected template label to store so ApprovalPanel can use it for naming
   useEffect(() => {
     if (tpl?.label) setTemplateLabel(tpl.label.replace(/^[⭐🖼]\s*/, '').trim())
+    if (!welcomeFlow) useCampaignStore.setState({ previewTemplateId: tpl?.id ?? null })
   }, [active])  // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Hero editor — all week templates ─────────────────────────────────────────
@@ -4580,23 +4588,21 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
     if (tpl?.id === 42) { setTextSize(44); setTextTop(34); setTextLeft(52); setLogoColor('original'); setLogoTop(64); setLogoRight(200); setLogoSize(44) }
     // Repeat Booking Email 3's hero is Email 3 WF's, so it opens on Email 3 WF's defaults
     if (tpl?.id === 43) { setTextSize(44); setTextTop(34); setTextLeft(52); setLogoColor('original'); setLogoTop(64); setLogoRight(200); setLogoSize(44) }
-    /* A welcome flow email reopens with its sliders where they were left. The
-       positions were saved with the email and handed over through the store;
-       applied after the defaults above, and only for the template they were
-       made on. */
-    if (welcomeFlow) {
-      const saved = useCampaignStore.getState().editorSettings
-      if (saved && saved.tplId === tpl?.id) {
-        for (const [key, set] of Object.entries(EDITOR_SETTERS)) if (saved[key] !== undefined) set(saved[key])
-      }
+    /* An email reopens with its sliders where they were left: a welcome flow
+       email from its database row, handed over through the store; a weekly
+       one from its draft or its saved copy. Applied after the defaults above,
+       and only for the template they were made on. */
+    const saved = useCampaignStore.getState().editorSettings
+    if (saved && saved.tplId === tpl?.id) {
+      for (const [key, set] of Object.entries(EDITOR_SETTERS)) if (saved[key] !== undefined) set(saved[key])
     }
     setEditorReadyFor(tpl?.id ?? null)
   }, [tpl?.id])  // eslint-disable-line react-hooks/exhaustive-deps
 
-  /* Hand the current positions to the store as they change; the welcome flow
-     saves them with the email. Weekly campaigns do not keep them. */
+  /* Hand the current positions to the store as they change: the welcome flow
+     saves them with the email, the weekly draft keeps them and Save stores them. */
   useEffect(() => {
-    if (!welcomeFlow || editorReadyFor !== (tpl?.id ?? null)) return
+    if (editorReadyFor !== (tpl?.id ?? null)) return
     useCampaignStore.setState({ editorSettings: {
       tplId: tpl?.id ?? null,
       heroScale, heroX, heroY, textSize, textTop, textLeft,

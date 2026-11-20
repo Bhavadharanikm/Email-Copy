@@ -82,6 +82,7 @@ export default function Dashboard() {
         onStart={startNew}
         onWelcomeFlow={() => navigate('/welcome-flow')}
         onRepeatBooking={() => navigate('/repeat-booking')}
+        onSavedEmails={() => navigate('/campaign/saved')}
       />
 
       {/* Cards section */}

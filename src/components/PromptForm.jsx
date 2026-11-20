@@ -4,7 +4,7 @@
  */
 import { useState, useEffect, useRef } from 'react'
 import { useCampaignStore } from '../store/campaignStore'
-import { fetchClients, uploadLogo } from '../lib/api'
+import { fetchClients, uploadLogo, weeklyClient, saveWeeklyClient, fetchFooterData } from '../lib/api'
 import { authFetch } from '../lib/session'
 
 export default function PromptForm({ onGenerate, dark = false }) {
@@ -26,6 +26,7 @@ export default function PromptForm({ onGenerate, dark = false }) {
     selectedClient, setClient,
     templateUrl, setTemplateUrl, templateId, locationId,
     folderUrl, setFolderUrl, folderId,
+    websiteUrl, setWebsiteUrl,
     prompt, setPrompt,
     isGenerating, error, setError,
     setVariations, setStep,
@@ -39,6 +40,8 @@ export default function PromptForm({ onGenerate, dark = false }) {
     folderUrl:       s.folderUrl,
     setFolderUrl:    s.setFolderUrl,
     folderId:        s.folderId,
+    websiteUrl:      s.websiteUrl,
+    setWebsiteUrl:   s.setWebsiteUrl,
     prompt:          s.prompt,
     setPrompt:       s.setPrompt,
     isGenerating:    s.isGenerating,
@@ -49,6 +52,44 @@ export default function PromptForm({ onGenerate, dark = false }) {
   }))
 
   const [clientLoadError, setClientLoadError] = useState('')
+  /* '' | 'loading' | 'saved' | an error message: the folder link and website
+     kept for this client in weekly_clients. */
+  const [clientInfoMsg, setClientInfoMsg] = useState('')
+
+  /* The folder link and website saved for this client last time. The website
+     falls back to the brand sheet ("Email Branding & Components", column J)
+     until someone saves one here. */
+  async function loadClientInfo(client) {
+    const loc = client?.ghl?.locationId
+    if (!loc) return
+    setClientInfoMsg('loading')
+    try {
+      const { client: saved } = await weeklyClient(loc)
+      if (useCampaignStore.getState().selectedClient?.id !== client.id) return   // picked another client meanwhile
+      if (saved?.folderUrl) setFolderUrl(saved.folderUrl)
+      let site = saved?.websiteUrl || ''
+      if (!site) {
+        try { site = (await fetchFooterData({ clientName: client.name }))?.websiteUrl || '' } catch { /* no sheet row */ }
+      }
+      if (site && useCampaignStore.getState().selectedClient?.id === client.id) setWebsiteUrl(site)
+      setClientInfoMsg('')
+    } catch (e) {
+      setClientInfoMsg(`Couldn't load this client's saved folder and website: ${e.message}`)
+    }
+  }
+
+  /* Saved when the field is left, so typing does not write on every key. */
+  async function saveClientInfo(fields) {
+    const loc = selectedClient?.ghl?.locationId
+    if (!loc || !selectedClient?.name) return
+    try {
+      await saveWeeklyClient({ locationId: loc, clientName: selectedClient.name, ...fields })
+      setClientInfoMsg('saved')
+      setTimeout(() => setClientInfoMsg(m => (m === 'saved' ? '' : m)), 2500)
+    } catch (e) {
+      setClientInfoMsg(`Couldn't save for this client: ${e.message}`)
+    }
+  }
 
   useEffect(() => {
     fetchClients()
@@ -102,6 +143,12 @@ export default function PromptForm({ onGenerate, dark = false }) {
     setLogoMsg('')
     setClientLogoUrl(client.logoUrl || '')
     setPrompt(`Client Name: ${client.name}\nTheme: \nAudience: `)
+    /* The last client's folder, website and GHL location must not carry over:
+       setClient keeps a location already set, and a push goes to that one. */
+    useCampaignStore.setState({ locationId: client.ghl?.locationId || '' })
+    setFolderUrl('')
+    setWebsiteUrl('')
+    loadClientInfo(client)
   }
 
   async function handleLogoUpload(e) {
@@ -258,6 +305,7 @@ export default function PromptForm({ onGenerate, dark = false }) {
           type="text"
           value={folderUrl}
           onChange={(e) => setFolderUrl(e.target.value)}
+          onBlur={() => { if (folderId) saveClientInfo({ folderUrl, folderId }) }}
           disabled={isGenerating}
           placeholder="https://app.gohighlevel.com/v2/location/.../marketing/emails/all?folderId=..."
           style={{ ...inputStyle, opacity: isGenerating ? 0.5 : 1 }}
@@ -268,6 +316,33 @@ export default function PromptForm({ onGenerate, dark = false }) {
               ? <span style={{ color: '#34d399' }}>✓ Folder ID: <strong>{folderId}</strong></span>
               : <span style={{ color: '#f87171' }}>⚠ No folder ID found in this URL</span>
             }
+          </div>
+        )}
+      </div>
+
+      {/* Client website */}
+      <div>
+        <label style={labelStyle}>
+          Client Website{' '}
+          <span style={hintStyle}>the CTA links here when the copy has no link of its own</span>
+        </label>
+        <input
+          type="url"
+          value={websiteUrl}
+          onChange={(e) => setWebsiteUrl(e.target.value)}
+          onBlur={() => { if (/^https?:\/\/\S+\.\S+/i.test(websiteUrl.trim())) saveClientInfo({ websiteUrl: websiteUrl.trim() }) }}
+          disabled={isGenerating}
+          placeholder="https://www.example.com"
+          style={{ ...inputStyle, opacity: isGenerating ? 0.5 : 1 }}
+        />
+        {websiteUrl.trim() && !/^https?:\/\/\S+\.\S+/i.test(websiteUrl.trim()) && (
+          <div style={{ fontSize: 11, marginTop: 6, color: '#f87171' }}>⚠ Start with https://</div>
+        )}
+        {selectedClient && clientInfoMsg && (
+          <div style={{ fontSize: 11, marginTop: 6, color: clientInfoMsg === 'saved' ? '#34d399' : clientInfoMsg === 'loading' ? hintStyle.color : '#f87171' }}>
+            {clientInfoMsg === 'saved' ? '✓ Saved for this client, filled in next time'
+              : clientInfoMsg === 'loading' ? 'Loading this client\'s saved folder and website…'
+              : clientInfoMsg}
           </div>
         )}
       </div>

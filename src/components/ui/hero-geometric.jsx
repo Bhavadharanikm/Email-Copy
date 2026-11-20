@@ -1,7 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { IconDiamond, IconPlayerPlay, IconRoute, IconRepeat } from "@tabler/icons-react"
+import { IconDiamond, IconPlayerPlay, IconRoute, IconRepeat, IconSearch } from "@tabler/icons-react"
 import { useTheme } from "../../context/ThemeContext"
 
 function OutlineButton({ onClick, dark, accentColor, children }) {
@@ -20,7 +20,7 @@ function OutlineButton({ onClick, dark, accentColor, children }) {
   )
 }
 
-export default function HeroGeometric({ badge = "Hidden Gem Media", title1 = "Email Production", title2 = "Studio", onStart, onWelcomeFlow, onRepeatBooking }) {
+export default function HeroGeometric({ badge = "Hidden Gem Media", title1 = "Email Production", title2 = "Studio", onStart, onWelcomeFlow, onRepeatBooking, onSavedEmails }) {
   const { theme } = useTheme()
   const dark = theme === 'dark'
 
@@ -109,6 +109,13 @@ export default function HeroGeometric({ badge = "Hidden Gem Media", title1 = "Em
               <IconRepeat size={14} stroke={2} />
               Repeat Booking Flow
             </OutlineButton>
+
+            {onSavedEmails && (
+              <OutlineButton onClick={onSavedEmails} dark={dark} accentColor={accentColor}>
+                <IconSearch size={14} stroke={2} />
+                Saved Weekly Emails
+              </OutlineButton>
+            )}
           </motion.div>
 
         </div>

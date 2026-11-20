@@ -291,6 +291,13 @@ export const submitWfFeedback = (payload) =>
   post('/wf-submit-feedback', payload)
 
 // ── Welcome-flow client feedback marked fixed (shared project) ──
+// ── Weekly Email Campaign: saved clients and emails (weekly-data) ──
+export const weeklyClient       = (locationId) => get('/weekly-data', { kind: 'client', locationId })
+export const saveWeeklyClient   = (client)     => post('/weekly-data', { kind: 'client', client })
+export const weeklyEmails       = (q = '')     => get('/weekly-data', { kind: 'emails', q })
+export const weeklyEmail        = ({ id, code }) => get('/weekly-data', id ? { kind: 'email', id } : { kind: 'email', code })
+export const saveWeeklyEmail    = (payload)    => post('/weekly-data', { kind: 'email', ...payload })
+
 export const wfFeedbackFixedList = (clientName = '') => get('/wf-feedback-fixed', clientName ? { clientName } : {})
 export const wfMarkFeedbackFixed = ({ wfEmailId, clientName, emailNumber, noteText, fixed }) =>
   post('/wf-feedback-fixed', { wfEmailId, clientName, emailNumber, noteText, fixed })

@@ -3,12 +3,14 @@
  * Steps: 1 Prompt → 2 Copy → 3 Images → 4 Preview → 5 Approve
  */
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useCampaignStore } from '../store/campaignStore'
 import { useCopyGeneration } from '../hooks/useCopyGeneration'
+import { useWeeklySave } from '../hooks/useWeeklySave'
 import { logToSheets } from '../lib/api'
 
 import { motion } from 'framer-motion'
-import { IconSparkles } from '@tabler/icons-react'
+import { IconSparkles, IconDeviceFloppy, IconSearch } from '@tabler/icons-react'
 import PromptForm      from '../components/PromptForm'
 import CopyEditor      from '../components/CopyEditor'
 import ImagePicker     from '../components/ImagePicker'
@@ -63,6 +65,32 @@ function StepNav({ step, dark, left, right }) {
   )
 }
 
+/* Save, with where the email is saved and when. The first save gives it a
+   code, which Saved emails finds it by. */
+function SaveBar({ dark }) {
+  const { save, saving, error } = useWeeklySave()
+  const { code, savedAt, hasClient } = useCampaignStore((s) => ({
+    code: s.weeklyEmailCode, savedAt: s.weeklySavedAt, hasClient: !!s.selectedClient?.name,
+  }))
+  const muted = dark ? 'rgba(255,255,255,0.5)' : '#6b7280'
+  const when  = savedAt ? new Date(savedAt).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : ''
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, padding: '0 28px 16px', flexWrap: 'wrap' }}>
+      <button onClick={() => save()} disabled={saving || !hasClient}
+        title={hasClient ? 'Save this email so it can be found and reopened from Saved emails' : 'Pick a client first'}
+        className="btn-secondary"
+        style={{ ...darkBtn(dark), display: 'inline-flex', alignItems: 'center', gap: 6, opacity: saving || !hasClient ? 0.6 : 1 }}>
+        <IconDeviceFloppy size={15} stroke={2} /> {saving ? 'Saving…' : code ? 'Save changes' : 'Save email'}
+      </button>
+      <span style={{ fontSize: 13, color: error ? '#dc2626' : muted, fontFamily: 'Inter, sans-serif' }}>
+        {error ? error
+          : code ? <>Saved as <strong style={{ color: dark ? '#f59e0b' : '#1d4ed8', letterSpacing: '.04em' }}>{code}</strong> · {when}</>
+          : 'Not saved yet. Changes stay in this browser only until you save.'}
+      </span>
+    </div>
+  )
+}
+
 /* Title + subtitle block — rendered inside the content container */
 function StepHeading({ title1, title2, sub, dark }) {
   return (
@@ -102,6 +130,7 @@ const STEPS = [
 ]
 
 export default function NewCampaign() {
+  const navigate = useNavigate()
   const { generate } = useCopyGeneration()
   const { theme } = useTheme()
   const dark = theme === 'dark'
@@ -186,7 +215,9 @@ export default function NewCampaign() {
       </div>
 
       {/* ── Full-width nav row (back / badge / next) — always at page edges ── */}
-      {currentStep === 1 && <StepNav step="Step 1 of 5" dark={dark} />}
+      {currentStep === 1 && <StepNav step="Step 1 of 5" dark={dark}
+        right={<button onClick={() => navigate('/campaign/saved')} className="btn-secondary" style={{ ...darkBtn(dark), display: 'inline-flex', alignItems: 'center', gap: 6 }}><IconSearch size={15} stroke={2} /> Open a saved email</button>}
+      />}
       {currentStep === 2 && <StepNav step="Step 2 of 5" dark={dark}
         left={<button onClick={() => setStep(1)} className="btn-secondary" style={darkBtn(dark)}>← Back</button>}
         right={<button onClick={handlePickImages} style={{ ...primaryBtn(dark), display:'inline-flex', alignItems:'center', gap:6, padding:'9px 18px', borderRadius:10, fontSize:13, fontWeight:600, fontFamily:'Inter,sans-serif', cursor:'pointer' }}>Next: Pick Images →</button>}
@@ -202,6 +233,8 @@ export default function NewCampaign() {
       {currentStep === 5 && <StepNav step="Step 5 of 5" dark={dark}
         left={<button onClick={() => setStep(4)} className="btn-secondary" style={darkBtn(dark)}>← Back to Preview</button>}
       />}
+
+      {currentStep >= 2 && <SaveBar dark={dark} />}
 
       {/* ── Content container ── */}
       <div style={{ width: '100%', maxWidth: isWideStep ? '100%' : 1100, margin: '0 auto', padding: '0 28px 48px' }}>
