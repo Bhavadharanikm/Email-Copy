@@ -70,7 +70,7 @@ async function fetchBrandData(clientName) {
     const token = await getGoogleToken()
     if (!token) return null
     const res = await fetch(
-      `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(`${SHEET_NAME}!A:K`)}`,
+      `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(`${SHEET_NAME}!A:P`)}`,
       { headers: { Authorization: `Bearer ${token}` } }
     )
     const data = await res.json()
@@ -89,6 +89,11 @@ async function fetchBrandData(clientName) {
       tiktokUrl:      row[8] || '',
       websiteUrl:     row[9] || '',
       contactNumber:  row[10] || '',
+      eyebrowFont:    row[11] || '',
+      titleFont:      row[12] || '',
+      bodyFont:       row[13] || '',
+      buttonFont:     row[14] || '',
+      fontFileLink:   row[15] || '',
     }
   } catch (err) {
     console.warn('[wf-generate-copy] brand data lookup failed (non-fatal):', err.message)

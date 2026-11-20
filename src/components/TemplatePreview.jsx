@@ -53,6 +53,7 @@ import { rbImageSlots } from '../repeat-booking/rbImageSlots'
 import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
 import { recommendTemplate, analyzeImageFocal, htmlToImage, fetchFooterData, sendTestEmail } from '../lib/api'
+import { applyBrandFonts } from '../lib/brandFonts'
 
 /* ─────────────────────── shared email-client header ─────────────────────── */
 function emailClientHeader({ client, copy }) {
@@ -4684,7 +4685,8 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
     console.log('[baseHtml] tplId:', tpl?.id, 'isHeroGenerated:', isHeroGenerated, 'tplUrls:', tplUrls, 'effectiveImages[4]:', effectiveImages?.[4], 'effectiveImages[5]:', effectiveImages?.[5])
     const effectiveCopy = generatedCopy ? withBoldMarks({ ...generatedCopy, headlineText: (generatedCopy.headlineText || '').replace(/\.$/, '') }) : generatedCopy
     const built = tpl.build({ client:selectedClient, copy:effectiveCopy, images:effectiveImages, headerStyle, imageStyle, footerData: effectiveFooterData, isHeroGenerated, isStoryGenerated, cardsGenerated, btnImgUrl: tplUrls.btn || null, introBtnImgUrl: tplUrls.introBtn || null, cardBtnImgUrl: tplUrls.cardBtn || null, stampImgUrl: tplUrls.sec || null, pinImgUrl: tplUrls.ter || null, gridImgUrl: ((tpl?.id === 33 || tpl?.id === 35 || tpl?.id === 36 || tpl?.id === 37 || tpl?.id === 38 || tpl?.id === 39 || tpl?.id === 41) ? tplUrls.sec : null) || null, iconImgUrls: tplUrls.icons || [], heroMobileImgUrl: tplUrls.heroMobile || null, btnMobileImgUrl: tplUrls.btnMobile || null, dayImgUrls: tpl?.id === 32 ? [tplUrls.sec || null, tplUrls.ter || null] : [], dayImgMobUrls: tpl?.id === 32 ? [tplUrls.card1 || null, tplUrls.card2 || null] : [], closingImgUrl: tpl?.id === 32 ? (tplUrls.closing || null) : null, ...editorProps })
-    return welcomeFlow ? swapBakedLogos(finishBoldMarks(built), tplUrls.logos) : built
+    /* The client's own fonts (brand board columns L to P) go on last, over the finished email */
+    return applyBrandFonts(welcomeFlow ? swapBakedLogos(finishBoldMarks(built), tplUrls.logos) : built, effectiveFooterData)
   }, [active, welcomeFlow, selectedClient, generatedCopy, selectedImages, headerStyle, imageStyle, clientFooter, footerLogoColor, footerLogoSize, weekGenUrls, bakedImages, heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y, img5Scale, img5X, img5Y, img6Scale, img6X, img6Y, img7Scale, img7X, img7Y])
 
   // Keep store in sync so ApprovalPanel always has the latest HTML
@@ -4928,8 +4930,13 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
   }, [hctiTrigger])
 
   // Calls html2image.net first; falls back to Puppeteer + GHL upload
+  /* Read through a ref so a brand row arriving mid-bake doesn't change renderImage
+     and re-run the whole bake effect (it lists renderImage as a dependency). */
+  const clientFooterRef = useRef(clientFooter)
+  clientFooterRef.current = clientFooter
   const renderImage = useCallback(async ({ html, width, height, transparent }) => {
-    const page = welcomeFlow ? finishBoldMarks(html) : html
+    /* Every bake goes through here, so the client's fonts reach all baked text too */
+    const page = applyBrandFonts(welcomeFlow ? finishBoldMarks(html) : html, clientFooterRef.current)
     return await htmlToImage({ html: page, width, height, locationId, apiKey: selectedClient?.ghlApiKey, transparent })
   }, [locationId, selectedClient?.ghlApiKey, welcomeFlow])
 

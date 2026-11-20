@@ -60,34 +60,35 @@ function StepNav({ step, dark, left, right }) {
         {step}
       </motion.span>
 
-      <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>{right || <span />}</div>
+      <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 10 }}>{right || <span />}</div>
     </div>
   )
 }
 
-/* Save, with where the email is saved and when. The first save gives it a
-   code, which Saved emails finds it by. */
-function SaveBar({ dark }) {
+/* Save email, sitting in the nav row just before the Next button. The first
+   save gives the email a code, which Saved emails finds it by; the status
+   beside the button says when it was last saved. */
+function SaveButton({ dark }) {
   const { save, saving, error } = useWeeklySave()
   const { code, savedAt, hasClient } = useCampaignStore((s) => ({
     code: s.weeklyEmailCode, savedAt: s.weeklySavedAt, hasClient: !!s.selectedClient?.name,
   }))
   const muted = dark ? 'rgba(255,255,255,0.5)' : '#6b7280'
-  const when  = savedAt ? new Date(savedAt).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : ''
+  const when  = savedAt ? new Date(savedAt).toLocaleString([], { hour: 'numeric', minute: '2-digit' }) : ''
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, padding: '0 28px 16px', flexWrap: 'wrap' }}>
+    <>
+      <span style={{ fontSize: 12, color: error ? '#dc2626' : muted, fontFamily: 'Inter, sans-serif', textAlign: 'right', maxWidth: 260 }}>
+        {error ? error
+          : code ? <>Saved as <strong style={{ color: dark ? '#f59e0b' : '#1d4ed8', letterSpacing: '.04em' }}>{code}</strong> · {when}</>
+          : 'Not saved yet'}
+      </span>
       <button onClick={() => save()} disabled={saving || !hasClient}
-        title={hasClient ? 'Save this email so it can be found and reopened from Saved emails' : 'Pick a client first'}
+        title={hasClient ? 'Save this email so it can be found and reopened from Saved Weekly Emails. Until then it lives in this browser only.' : 'Pick a client first'}
         className="btn-secondary"
         style={{ ...darkBtn(dark), display: 'inline-flex', alignItems: 'center', gap: 6, opacity: saving || !hasClient ? 0.6 : 1 }}>
         <IconDeviceFloppy size={15} stroke={2} /> {saving ? 'Saving…' : code ? 'Save changes' : 'Save email'}
       </button>
-      <span style={{ fontSize: 13, color: error ? '#dc2626' : muted, fontFamily: 'Inter, sans-serif' }}>
-        {error ? error
-          : code ? <>Saved as <strong style={{ color: dark ? '#f59e0b' : '#1d4ed8', letterSpacing: '.04em' }}>{code}</strong> · {when}</>
-          : 'Not saved yet. Changes stay in this browser only until you save.'}
-      </span>
-    </div>
+    </>
   )
 }
 
@@ -220,21 +221,20 @@ export default function NewCampaign() {
       />}
       {currentStep === 2 && <StepNav step="Step 2 of 5" dark={dark}
         left={<button onClick={() => setStep(1)} className="btn-secondary" style={darkBtn(dark)}>← Back</button>}
-        right={<button onClick={handlePickImages} style={{ ...primaryBtn(dark), display:'inline-flex', alignItems:'center', gap:6, padding:'9px 18px', borderRadius:10, fontSize:13, fontWeight:600, fontFamily:'Inter,sans-serif', cursor:'pointer' }}>Next: Pick Images →</button>}
+        right={<><SaveButton dark={dark} /><button onClick={handlePickImages} style={{ ...primaryBtn(dark), display:'inline-flex', alignItems:'center', gap:6, padding:'9px 18px', borderRadius:10, fontSize:13, fontWeight:600, fontFamily:'Inter,sans-serif', cursor:'pointer' }}>Next: Pick Images →</button></>}
       />}
       {currentStep === 3 && <StepNav step="Step 3 of 5" dark={dark}
         left={<button onClick={() => setStep(2)} className="btn-secondary" style={darkBtn(dark)}>← Back</button>}
-        right={<button onClick={() => setStep(4)} style={{ ...primaryBtn(dark), display:'inline-flex', alignItems:'center', gap:6, padding:'9px 18px', borderRadius:10, fontSize:13, fontWeight:600, fontFamily:'Inter,sans-serif', cursor:'pointer' }}>Next: Preview →</button>}
+        right={<><SaveButton dark={dark} /><button onClick={() => setStep(4)} style={{ ...primaryBtn(dark), display:'inline-flex', alignItems:'center', gap:6, padding:'9px 18px', borderRadius:10, fontSize:13, fontWeight:600, fontFamily:'Inter,sans-serif', cursor:'pointer' }}>Next: Preview →</button></>}
       />}
       {currentStep === 4 && <StepNav step="Step 4 of 5" dark={dark}
         left={<button onClick={() => setStep(3)} className="btn-secondary" style={darkBtn(dark)}>← Back</button>}
-        right={<button onClick={handleApprovClick} style={{ ...primaryBtn(dark), display:'inline-flex', alignItems:'center', gap:6, padding:'9px 18px', borderRadius:10, fontSize:13, fontWeight:600, fontFamily:'Inter,sans-serif', cursor:'pointer' }}>Looks Good, Approve →</button>}
+        right={<><SaveButton dark={dark} /><button onClick={handleApprovClick} style={{ ...primaryBtn(dark), display:'inline-flex', alignItems:'center', gap:6, padding:'9px 18px', borderRadius:10, fontSize:13, fontWeight:600, fontFamily:'Inter,sans-serif', cursor:'pointer' }}>Looks Good, Approve →</button></>}
       />}
       {currentStep === 5 && <StepNav step="Step 5 of 5" dark={dark}
         left={<button onClick={() => setStep(4)} className="btn-secondary" style={darkBtn(dark)}>← Back to Preview</button>}
+        right={<SaveButton dark={dark} />}
       />}
-
-      {currentStep >= 2 && <SaveBar dark={dark} />}
 
       {/* ── Content container ── */}
       <div style={{ width: '100%', maxWidth: isWideStep ? '100%' : 1100, margin: '0 auto', padding: '0 28px 48px' }}>

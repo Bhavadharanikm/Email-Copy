@@ -71,6 +71,12 @@ async function fetchBrandData(clientName) {
       facebookUrl:    row[7]?.trim() || '',
       tiktokUrl:      row[8]?.trim() || '',
       websiteUrl:     row[9]?.trim() || '',
+      contactNumber:  row[10]?.trim() || '',
+      eyebrowFont:    row[11]?.trim() || '',
+      titleFont:      row[12]?.trim() || '',
+      bodyFont:       row[13]?.trim() || '',
+      buttonFont:     row[14]?.trim() || '',
+      fontFileLink:   row[15]?.trim() || '',
     }
   } catch {
     return null

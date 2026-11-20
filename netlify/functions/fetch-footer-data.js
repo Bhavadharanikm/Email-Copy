@@ -105,6 +105,11 @@ const rawHandler = async (event) => {
         tiktokUrl:      row[8]?.trim()  || '',  // Col I — TikTok
         websiteUrl:     row[9]?.trim()  || '',  // Col J — Website
         contactNumber:  row[10]?.trim() || '',  // Col K — Contact Number (phone)
+        eyebrowFont:    row[11]?.trim() || '',  // Col L — Eyebrow Font
+        titleFont:      row[12]?.trim() || '',  // Col M — Title Font
+        bodyFont:       row[13]?.trim() || '',  // Col N — Body Font
+        buttonFont:     row[14]?.trim() || '',  // Col O — Button Font
+        fontFileLink:   row[15]?.trim() || '',  // Col P — Font File Link (woff/css, for fonts not on Google Fonts)
       }),
     }
   } catch (err) {
