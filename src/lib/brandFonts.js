@@ -65,8 +65,15 @@ function genericFor(family) {
   if (MONO_HINTS.some(h => f.includes(h)))   return "'Courier New',monospace"
   if (SCRIPT_HINTS.some(h => f.includes(h))) return 'cursive'
   if (SANS_HINTS.some(h => f.includes(h)))   return 'Arial,sans-serif'
-  return 'Georgia,serif'
+  return "Georgia,'Times New Roman',serif"
 }
+
+/* The arrow after a button label (→) is outside the character ranges Google
+   Fonts serves, so it falls through to the next font in the stack. On the
+   Linux bake server "Georgia" maps to a substitute without an arrow and a
+   missing-glyph box is drawn instead, so the arrow always gets a sans face
+   that has it, on every system. */
+const ARROW_FALLBACK = (s) => s.replace(/(?<!sans-serif;">)(&rarr;|→)/g, '<span style="font-family:Arial,Helvetica,sans-serif;">$1</span>')
 
 const stackFor = (family) => `'${family}',${genericFor(family)}`
 
@@ -161,6 +168,7 @@ export function applyBrandFonts(html, fd) {
     const font = fonts[roleOf(tag.toLowerCase(), style)]
     return font ? `<${tag}${pre} style="${restyle(style, font)}"` : m
   })
+  out = ARROW_FALLBACK(out)
 
   if (!out.includes('<!--brand-fonts-->')) {
     const head = brandFontHead(fonts, fd)

@@ -331,7 +331,7 @@ function buildFooter(client, footerData = null, options = {}) {
     : 'brightness(0) invert(1)'
   const footerLogoBg = wfLogo && footerLogoFilter !== 'none' ? '' : `background-color:${bgRaw};`
   const logoHtml = logoUrl
-    ? `<div style="margin:0 0 20px;text-align:center"><img class="w5-footer-logo" src="${logoUrl}" alt="${name}" style="height:${fd.footerLogoSize || 40}px;width:auto;object-fit:contain;display:inline-block;filter:${footerLogoFilter};opacity:.8;${footerLogoBg}"/></div>`
+    ? `<div style="margin:0 0 20px;text-align:center"><img class="w5-footer-logo" src="${logoUrl}" alt="${name}" style="height:${fd.footerLogoSize || 56}px;width:auto;object-fit:contain;display:inline-block;filter:${footerLogoFilter};opacity:.8;${footerLogoBg}"/></div>`
     : `<div style="margin:0 0 20px;${sysName}font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:${textCol};font-family:Arial,sans-serif">${name}</div>`
 
   const contactParts = [
@@ -4514,7 +4514,7 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
   const [textLeft,    setTextLeft]    = useState(36)
   const [logoColor,        setLogoColor]        = useState('original') // 'original' | 'white' | 'black'
   const [footerLogoColor, setFooterLogoColor]  = useState('original') // 'original' | 'white' | 'black'
-  const [footerLogoSize,  setFooterLogoSize]   = useState(40)
+  const [footerLogoSize,  setFooterLogoSize]   = useState(56)   // bigger by default, so it rarely needs adjusting
   const [logoTop,     setLogoTop]     = useState(24)
   const [logoRight,   setLogoRight]   = useState(36)
   const [logoSize,    setLogoSize]    = useState(70)
@@ -5962,8 +5962,8 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
       ${heroImgUrl ? `<img src="${heroImgUrl}" style="position:absolute;top:0;left:0;width:544px;height:480px;object-fit:cover;${weeklyCrop('50% 50%', heroX, heroY, heroScale)}display:block;"/>` : ''}
       <div style="position:absolute;top:0;left:0;right:0;height:72%;background:linear-gradient(to bottom,rgba(0,0,0,0.52) 0%,rgba(0,0,0,0.16) 65%,rgba(0,0,0,0) 100%);"></div>
       <div style="position:absolute;top:0;left:0;right:0;padding:${textTop}px ${textLeft}px 0;line-height:normal;font-size:initial;text-align:center;">
-        <div style="font-family:'Lora',serif;font-size:${textSize}px;font-weight:700;color:#fff;line-height:1.0;text-shadow:0 2px 16px rgba(0,0,0,.3);">${w6Body}</div>
-        ${w6Last ? `<div style="font-family:'Lora',serif;font-style:italic;font-weight:400;font-size:${Math.round(textSize * 1.17)}px;color:#fff;line-height:1.0;text-shadow:0 2px 16px rgba(0,0,0,.3);">${w6Last}</div>` : ''}
+        <!-- Same markup as the live headline: the italic last word runs inline, so it wraps exactly as the preview does -->
+        <div style="font-family:'Lora',serif;font-size:${textSize}px;font-weight:700;color:#fff;line-height:1.08;text-shadow:0 2px 16px rgba(0,0,0,.3);">${w6Body}${w6Last ? ` <span style="font-family:'Lora',serif;font-style:italic;font-weight:400;font-size:${Math.round(textSize * 1.17)}px;">${w6Last}</span>` : ''}</div>
       </div>
     </div>
   </div>
@@ -7104,7 +7104,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
           {/* Divider + Reset */}
           <div style={{ height: 1, background: dark ? 'rgba(255,255,255,0.07)' : '#f0f1f3', margin: '12px 0 8px' }} />
           <button onClick={() => {
-            setHeroScale(1); setHeroX(0); setHeroY(0); setFooterLogoColor('original'); setFooterLogoSize(40)
+            setHeroScale(1); setHeroX(0); setHeroY(0); setFooterLogoColor('original'); setFooterLogoSize(56)
             setImg1Scale(1); setImg1X(0); setImg1Y(0); setImg2Scale(1); setImg2X(0); setImg2Y(0); setImg3Scale(1); setImg3X(0); setImg3Y(0); setImg4Scale(1); setImg4X(0); setImg4Y(0); setImg5Scale(1); setImg5X(0); setImg5Y(0)
             if (tpl?.id === 10 || tpl?.id === 17) { setTextSize(38); setTextTop(32);  setTextLeft(24);  setLogoColor('original'); setLogoTop(32); setLogoRight(200); setLogoSize(40) }
             if (tpl?.id === 11) { setTextSize(40); setTextTop(14);  setTextLeft(52);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }
