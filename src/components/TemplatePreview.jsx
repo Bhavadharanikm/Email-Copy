@@ -324,11 +324,12 @@ function buildFooter(client, footerData = null, options = {}) {
      filter recolours the whole box, so brightness(0) over that background
      turned the logo into a solid dark block. Other templates keep the old
      behaviour unchanged. */
-  const wfLogo = Boolean(options.wfLogoColor)
+  /* The colour picked is the colour used, in every template. (Weekly footers
+     used to pick black or white from the page background themselves, so the
+     White and Black buttons did nothing on a light footer.) */
   const footerLogoFilter = logoColorOpt === 'original' ? 'none'
-    : wfLogo ? (logoColorOpt === 'white' ? 'brightness(0) invert(1)' : 'brightness(0)')
-    : light ? 'brightness(0)'
-    : 'brightness(0) invert(1)'
+    : logoColorOpt === 'white' ? 'brightness(0) invert(1)'
+    : 'brightness(0)'
   /* Logo box (Adjust Design, off by default): a white panel behind the logo for
      the clients whose logo needs one. It sits on a wrapper, not on the image,
      so recolouring the logo never darkens the box (the old page-coloured box
