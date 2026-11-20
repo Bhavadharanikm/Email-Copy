@@ -154,7 +154,16 @@ export const useCampaignStore = create(
         selectedVariation: index,
         generatedCopy: { ...s.variations[index] },
       })),
-      setGeneratedCopy:  (copy)     => set({ generatedCopy: copy }),
+      /* Edits land in the chosen variation too, so step 2 and the preview never
+         show different copy, and a saved draft reopens with the edited text. */
+      setGeneratedCopy:  (copy)     => set((s) => ({
+        generatedCopy: copy,
+        variations: s.variations.map((v, i) => i === s.selectedVariation ? { ...v, ...copy } : v),
+      })),
+      updateVariation:   (index, field, value) => set((s) => ({
+        variations: s.variations.map((v, i) => i === index ? { ...v, [field]: value } : v),
+        ...(index === s.selectedVariation ? { generatedCopy: { ...s.generatedCopy, [field]: value } } : {}),
+      })),
       setSelectedImages: (images)   => set({ selectedImages: images }),
       setTemplateStyle:  ({ headerStyle, imageStyle, aiReasoning, boldedCopy }) =>
         set((s) => ({
@@ -185,15 +194,24 @@ export const useCampaignStore = create(
       resetCampaign: () => set(INITIAL_STATE),
 
       /* A saved email opened from Saved emails replaces the whole draft. */
-      loadSavedEmail: ({ id, code, updatedAt, state, renderedHtml, client }) => set({
+      loadSavedEmail: ({ id, code, updatedAt, state, renderedHtml, client }) => set(() => {
+        const draft = pickDraft(state || {})
+        /* Emails saved before edits were written back to the variation: the
+           preview's copy is the edited one, so put it into the chosen variation. */
+        const sel = draft.selectedVariation ?? 0
+        if (Array.isArray(draft.variations) && draft.variations[sel] && draft.generatedCopy && Object.keys(draft.generatedCopy).length) {
+          draft.variations = draft.variations.map((v, i) => i === sel ? { ...v, ...draft.generatedCopy } : v)
+        }
+        return {
         ...INITIAL_STATE,
-        ...pickDraft(state || {}),
+        ...draft,
         ...(client ? { selectedClient: client } : {}),
         renderedHtml:    renderedHtml || state?.renderedHtml || '',
         weeklyEmailId:   id,
         weeklyEmailCode: code,
         weeklySavedAt:   updatedAt || null,
         currentStep:     state?.currentStep || 4,
+        }
       }),
       markSaved: ({ id, code, updatedAt }) => set({ weeklyEmailId: id, weeklyEmailCode: code, weeklySavedAt: updatedAt || new Date().toISOString() }),
     }),

@@ -69,44 +69,27 @@ export default function CopyEditor() {
   const dark = theme === 'dark'
 
   const {
-    variations, selectedVariation, pickVariation,
+    variations, selectedVariation, pickVariation, updateVariation,
     generatedCopy, setGeneratedCopy, isGenerating,
   } = useCampaignStore(s => ({
     variations:        s.variations,
     selectedVariation: s.selectedVariation,
     pickVariation:     s.pickVariation,
+    updateVariation:   s.updateVariation,
     generatedCopy:     s.generatedCopy,
     setGeneratedCopy:  s.setGeneratedCopy,
     isGenerating:      s.isGenerating,
   }))
 
-  const [localVars, setLocalVars] = useState(null)
   const [showPanel, setShowPanel] = useState(false)
 
-  useEffect(() => {
-    if (variations.length > 0 && !localVars)
-      setLocalVars(variations.map(v => ({ ...v })))
-  }, [variations])
+  /* Edits go straight to the store's variations (and to the preview's copy when
+     it's the chosen one), so coming back to this step, or reopening a saved
+     email, shows exactly what was typed. A new generation closes the panel. */
+  useEffect(() => { if (isGenerating) setShowPanel(false) }, [isGenerating])
 
-  // Reset local state when variations change (new generation)
-  useEffect(() => {
-    setLocalVars(variations.map(v => ({ ...v })))
-    setShowPanel(false)
-  }, [variations])
-
-  function updateLocal(varIndex, field, value) {
-    setLocalVars(prev => {
-      const updated = prev.map((v, i) => i === varIndex ? { ...v, [field]: value } : v)
-      if (varIndex === selectedVariation)
-        setGeneratedCopy({ ...generatedCopy, [field]: value })
-      return updated
-    })
-  }
-
-  function selectVariation(i) {
-    pickVariation(i)
-    if (localVars?.[i]) setGeneratedCopy({ ...localVars[i] })
-  }
+  const updateLocal     = (varIndex, field, value) => updateVariation(varIndex, field, value)
+  const selectVariation = (i) => pickVariation(i)
 
   const accent      = dark ? '#f59e0b' : '#3b82f6'
   const outerBg     = dark ? '#0f0f0f' : '#f1f3f5'
@@ -121,7 +104,7 @@ export default function CopyEditor() {
 
   if (isGenerating) return <GeneratingSpinner dark={dark} />
 
-  const cols = localVars || variations
+  const cols = variations
 
   // ── Detect whether we have an AI Pick at index 0 ──────────────────────────
   const hasAiPick = variations.length >= 2 && variations[0]?.name === 'AI Pick'

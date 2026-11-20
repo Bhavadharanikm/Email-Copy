@@ -62,7 +62,7 @@ export default function SavedEmails() {
   const accent = dark ? '#f59e0b' : '#1d4ed8'
 
   return (
-    <div style={{ maxWidth: 1100, margin: '0 auto', padding: '28px 28px 64px' }}>
+    <div style={{ maxWidth: 1480, margin: '0 auto', padding: '28px 32px 64px' }}>
       <button onClick={() => navigate('/campaign/new')} className="btn-secondary"
         style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 20,
           ...(dark ? { background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.1)' } : {}) }}>
@@ -89,26 +89,26 @@ export default function SavedEmails() {
             <thead>
               <tr style={{ textAlign: 'left', color: muted, fontSize: 12, textTransform: 'uppercase', letterSpacing: '.06em' }}>
                 {['Code', 'Client', 'Template', 'Subject line', 'Status', 'Last saved', ''].map(h => (
-                  <th key={h} style={{ padding: '12px 14px', fontWeight: 600, borderBottom: `1px solid ${border}`, whiteSpace: 'nowrap' }}>{h}</th>
+                  <th key={h} style={{ padding: '14px 18px', fontWeight: 600, borderBottom: `1px solid ${border}`, whiteSpace: 'nowrap' }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {emails.map(e => (
                 <tr key={e.id} style={{ borderBottom: `1px solid ${border}` }}>
-                  <td style={{ padding: '12px 14px', fontWeight: 700, color: accent, letterSpacing: '.04em', fontVariantNumeric: 'tabular-nums' }}>{e.code}</td>
-                  <td style={{ padding: '12px 14px', whiteSpace: 'nowrap' }}>{e.clientName}</td>
-                  <td style={{ padding: '12px 14px', whiteSpace: 'nowrap', color: muted }}>{e.templateLabel || '—'}</td>
-                  <td style={{ padding: '12px 14px', maxWidth: 320 }}>{e.subjectLine || <span style={{ color: muted }}>No subject yet</span>}</td>
-                  <td style={{ padding: '12px 14px' }}>
-                    <span style={{ fontSize: 12, fontWeight: 600, padding: '3px 9px', borderRadius: 999,
+                  <td style={{ padding: '18px 18px', fontWeight: 700, color: accent, letterSpacing: '.04em', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>{e.code}</td>
+                  <td style={{ padding: '18px 18px', whiteSpace: 'nowrap' }}>{e.clientName}</td>
+                  <td style={{ padding: '18px 18px', whiteSpace: 'nowrap', color: muted }}>{e.templateLabel || '—'}</td>
+                  <td style={{ padding: '18px 18px', minWidth: 360, lineHeight: 1.5 }}>{e.subjectLine || <span style={{ color: muted }}>No subject yet</span>}</td>
+                  <td style={{ padding: '18px 18px', whiteSpace: 'nowrap' }}>
+                    <span style={{ fontSize: 12, fontWeight: 600, padding: '4px 11px', borderRadius: 999, whiteSpace: 'nowrap',
                       background: e.status === 'pushed' ? (dark ? 'rgba(52,211,153,0.15)' : '#dcfce7') : (dark ? 'rgba(255,255,255,0.07)' : '#f3f4f6'),
                       color: e.status === 'pushed' ? (dark ? '#34d399' : '#15803d') : muted }}>
                       {e.status === 'pushed' ? 'Pushed to GHL' : 'Draft'}
                     </span>
                   </td>
-                  <td style={{ padding: '12px 14px', whiteSpace: 'nowrap', color: muted }}>{when(e.updatedAt)}{e.updatedBy ? ` · ${who(e.updatedBy)}` : ''}</td>
-                  <td style={{ padding: '12px 14px', textAlign: 'right' }}>
+                  <td style={{ padding: '18px 18px', whiteSpace: 'nowrap', color: muted }}>{when(e.updatedAt)}{e.updatedBy ? ` · ${who(e.updatedBy)}` : ''}</td>
+                  <td style={{ padding: '18px 18px', textAlign: 'right' }}>
                     <button onClick={() => open(e)} disabled={!!opening}
                       style={{ padding: '7px 14px', borderRadius: 9, fontSize: 13, fontWeight: 600, cursor: opening ? 'default' : 'pointer', border: 'none',
                         background: dark ? '#f59e0b' : '#3b82f6', color: dark ? '#111827' : '#fff', opacity: opening && opening !== e.id ? 0.5 : 1 }}>
