@@ -84,8 +84,10 @@ export async function suggestCampaigns({ locationId, month }) {
   throw new Error('No suggestions after 5 minutes. Try again, and if it keeps happening check the function logs.')
 }
 
+/* Always A to Z, so every client list reads the same and a new client lands in its place. */
+const byName = (a, b) => String(a?.name || '').localeCompare(String(b?.name || ''), undefined, { sensitivity: 'base' })
 export const fetchClients = () =>
-  get('/clients')
+  get('/clients').then(list => Array.isArray(list) ? [...list].sort(byName) : list)
 
 // ── Claude copy generation ───────────────────────────────────────
 export const generateCopy = ({ client, prompt }) =>
