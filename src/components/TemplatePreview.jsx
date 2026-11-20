@@ -54,7 +54,6 @@ import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
 import { recommendTemplate, analyzeImageFocal, htmlToImage, fetchFooterData, sendTestEmail } from '../lib/api'
 import { applyBrandFonts } from '../lib/brandFonts'
-import { hideFromOutlook } from '../lib/outlookSafe'
 
 /* ─────────────────────── shared email-client header ─────────────────────── */
 function emailClientHeader({ client, copy }) {
@@ -4695,7 +4694,7 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
     const effectiveCopy = generatedCopy ? withBoldMarks({ ...generatedCopy, headlineText: (generatedCopy.headlineText || '').replace(/\.$/, '') }) : generatedCopy
     const built = tpl.build({ client:selectedClient, copy:effectiveCopy, images:effectiveImages, headerStyle, imageStyle, footerData: effectiveFooterData, isHeroGenerated, isStoryGenerated, cardsGenerated, btnImgUrl: tplUrls.btn || null, introBtnImgUrl: tplUrls.introBtn || null, cardBtnImgUrl: tplUrls.cardBtn || null, stampImgUrl: tplUrls.sec || null, pinImgUrl: tplUrls.ter || null, gridImgUrl: ((tpl?.id === 33 || tpl?.id === 35 || tpl?.id === 36 || tpl?.id === 37 || tpl?.id === 38 || tpl?.id === 39 || tpl?.id === 41) ? tplUrls.sec : null) || null, iconImgUrls: tplUrls.icons || [], heroMobileImgUrl: tplUrls.heroMobile || null, btnMobileImgUrl: tplUrls.btnMobile || null, dayImgUrls: tpl?.id === 32 ? [tplUrls.sec || null, tplUrls.ter || null] : [], dayImgMobUrls: tpl?.id === 32 ? [tplUrls.card1 || null, tplUrls.card2 || null] : [], closingImgUrl: tpl?.id === 32 ? (tplUrls.closing || null) : null, ...editorProps })
     /* The client's own fonts (brand board columns L to P) go on last, over the finished email */
-    return hideFromOutlook(applyBrandFonts(welcomeFlow ? swapBakedLogos(finishBoldMarks(built), tplUrls.logos) : built, effectiveFooterData))
+    return applyBrandFonts(welcomeFlow ? swapBakedLogos(finishBoldMarks(built), tplUrls.logos) : built, effectiveFooterData)
   }, [active, welcomeFlow, selectedClient, generatedCopy, selectedImages, headerStyle, imageStyle, clientFooter, footerLogoColor, footerLogoSize, footerLogoBox, weekGenUrls, bakedImages, heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y, img5Scale, img5X, img5Y, img6Scale, img6X, img6Y, img7Scale, img7X, img7Y])
 
   // Keep store in sync so ApprovalPanel always has the latest HTML
