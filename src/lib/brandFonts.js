@@ -10,7 +10,7 @@
  * runs once over the built HTML. It reads every inline style that sets a
  * font-family, decides which role the text plays, and swaps the family:
  *
- *   button   any <a> tag
+ *   button   any <a> tag, or a bold label that never wraps (the baked buttons)
  *   eyebrow  uppercase text up to 18px (the client name, section labels)
  *   title    display faces the templates use for headlines (Lora, Playfair,
  *            Lato, Dancing Script, Times), or bold text 18px and up
@@ -133,6 +133,8 @@ function roleOf(tag, style) {
   const wRaw   = (style.match(/font-weight:\s*(\d+|bold)/i) || [])[1]
   const weight = wRaw === 'bold' ? 700 : parseInt(wRaw, 10) || 400
   if (/text-transform:\s*uppercase/i.test(style) && size > 0 && size <= 18) return 'eyebrow'
+  /* Baked buttons put their label in a bold span that never wraps, not in a link */
+  if (weight >= 600 && /white-space:\s*nowrap/i.test(style) && !/text-transform:\s*uppercase/i.test(style)) return 'button'
   if (TITLE_FACES.test(fam)) return 'title'
   if (weight >= 600 && size >= 18) return 'title'
   return 'body'
