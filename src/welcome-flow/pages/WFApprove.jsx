@@ -24,6 +24,7 @@ import { useWelcomeFlowStore } from '../store/welcomeFlowStore'
 import { useWfTheme, WfCard, WfButton, WfStepNav, WfHoverTip } from '../components/wfUi'
 import { pushHtmlToGHL, notifyChat, wfPushEmail } from '../../lib/api'
 import { emailSig } from '../wfStage'
+import CopyButton from '../../components/CopyButton'
 
 export default function WFApprove() {
   const { clientId, emailId } = useParams()
@@ -238,13 +239,14 @@ export default function WFApprove() {
         <dl style={{ fontSize: 13.5, display: 'flex', flexDirection: 'column', gap: 8 }}>
           {[
             { label: 'Client',  value: client.name },
-            { label: 'Subject', value: copy.subjectLine },
-            { label: 'Preview', value: copy.previewText },
+            { label: 'Subject', value: copy.subjectLine, copy: true },
+            { label: 'Preview', value: copy.previewText, copy: true },
             { label: 'CTA',     value: copy.ctaText },
-          ].map(({ label, value }) => (
-            <div key={label} style={{ display: 'flex', gap: 8 }}>
+          ].map(({ label, value, copy: canCopy }) => (
+            <div key={label} style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
               <dt style={{ fontWeight: 600, color: t.muted, minWidth: 62 }}>{label}</dt>
-              <dd style={{ color: t.text }}>{value || 'Not set'}</dd>
+              <dd style={{ color: t.text, flex: 1 }}>{value || 'Not set'}</dd>
+              {canCopy && <CopyButton text={value} dark={t.dark} />}
             </div>
           ))}
         </dl>

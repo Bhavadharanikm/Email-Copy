@@ -329,9 +329,15 @@ function buildFooter(client, footerData = null, options = {}) {
     : wfLogo ? (logoColorOpt === 'white' ? 'brightness(0) invert(1)' : 'brightness(0)')
     : light ? 'brightness(0)'
     : 'brightness(0) invert(1)'
-  const footerLogoBg = wfLogo && footerLogoFilter !== 'none' ? '' : `background-color:${bgRaw};`
+  /* Logo box (Adjust Design, off by default): a white panel behind the logo for
+     the clients whose logo needs one. It sits on a wrapper, not on the image,
+     so recolouring the logo never darkens the box (the old page-coloured box
+     on the image itself turned into a solid black square). */
+  const logoBox = fd.footerLogoBox
+    ? `<span style="display:inline-block;background-color:#ffffff;padding:10px 16px;border-radius:6px;line-height:0;">`
+    : ''
   const logoHtml = logoUrl
-    ? `<div style="margin:0 0 20px;text-align:center"><img class="w5-footer-logo" src="${logoUrl}" alt="${name}" style="height:${fd.footerLogoSize || 56}px;width:auto;object-fit:contain;display:inline-block;filter:${footerLogoFilter};opacity:.8;${footerLogoBg}"/></div>`
+    ? `<div style="margin:0 0 20px;text-align:center">${logoBox}<img class="w5-footer-logo" src="${logoUrl}" alt="${name}" style="height:${fd.footerLogoSize || 56}px;width:auto;object-fit:contain;display:inline-block;filter:${footerLogoFilter};opacity:${fd.footerLogoBox ? 1 : .8};"/>${logoBox ? '</span>' : ''}</div>`
     : `<div style="margin:0 0 20px;${sysName}font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:${textCol};font-family:Arial,sans-serif">${name}</div>`
 
   const contactParts = [
@@ -4515,6 +4521,7 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
   const [logoColor,        setLogoColor]        = useState('original') // 'original' | 'white' | 'black'
   const [footerLogoColor, setFooterLogoColor]  = useState('original') // 'original' | 'white' | 'black'
   const [footerLogoSize,  setFooterLogoSize]   = useState(56)   // bigger by default, so it rarely needs adjusting
+  const [footerLogoBox,   setFooterLogoBox]    = useState(false) // white panel behind the footer logo, for the clients that need it
   const [logoTop,     setLogoTop]     = useState(24)
   const [logoRight,   setLogoRight]   = useState(36)
   const [logoSize,    setLogoSize]    = useState(70)
@@ -4549,7 +4556,7 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
     heroScale: setHeroScale, heroX: setHeroX, heroY: setHeroY,
     textSize: setTextSize, textTop: setTextTop, textLeft: setTextLeft,
     logoColor: setLogoColor, logoTop: setLogoTop, logoRight: setLogoRight, logoSize: setLogoSize,
-    footerLogoColor: setFooterLogoColor, footerLogoSize: setFooterLogoSize,
+    footerLogoColor: setFooterLogoColor, footerLogoSize: setFooterLogoSize, footerLogoBox: setFooterLogoBox,
     img1Scale: setImg1Scale, img1X: setImg1X, img1Y: setImg1Y,
     img2Scale: setImg2Scale, img2X: setImg2X, img2Y: setImg2Y,
     img3Scale: setImg3Scale, img3X: setImg3X, img3Y: setImg3Y,
@@ -4607,7 +4614,7 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
     useCampaignStore.setState({ editorSettings: {
       tplId: tpl?.id ?? null,
       heroScale, heroX, heroY, textSize, textTop, textLeft,
-      logoColor, logoTop, logoRight, logoSize, footerLogoColor, footerLogoSize,
+      logoColor, logoTop, logoRight, logoSize, footerLogoColor, footerLogoSize, footerLogoBox,
       img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y,
       img4Scale, img4X, img4Y, img5Scale, img5X, img5Y, img6Scale, img6X, img6Y, img7Scale, img7X, img7Y,
     } })
@@ -4680,14 +4687,14 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
       : (tpl?.id === 42 || tpl?.id === 43) ? [!!tplUrls.card1, !!tplUrls.card2, !!tplUrls.card3, !!tplUrls.card4, !!tplUrls.card5]
       : [false, false, false]
     const effectiveFooterData = clientFooter
-      ? { ...clientFooter, logoColor: footerLogoColor, footerLogoSize }
+      ? { ...clientFooter, logoColor: footerLogoColor, footerLogoSize, footerLogoBox }
       : clientFooter
     console.log('[baseHtml] tplId:', tpl?.id, 'isHeroGenerated:', isHeroGenerated, 'tplUrls:', tplUrls, 'effectiveImages[4]:', effectiveImages?.[4], 'effectiveImages[5]:', effectiveImages?.[5])
     const effectiveCopy = generatedCopy ? withBoldMarks({ ...generatedCopy, headlineText: (generatedCopy.headlineText || '').replace(/\.$/, '') }) : generatedCopy
     const built = tpl.build({ client:selectedClient, copy:effectiveCopy, images:effectiveImages, headerStyle, imageStyle, footerData: effectiveFooterData, isHeroGenerated, isStoryGenerated, cardsGenerated, btnImgUrl: tplUrls.btn || null, introBtnImgUrl: tplUrls.introBtn || null, cardBtnImgUrl: tplUrls.cardBtn || null, stampImgUrl: tplUrls.sec || null, pinImgUrl: tplUrls.ter || null, gridImgUrl: ((tpl?.id === 33 || tpl?.id === 35 || tpl?.id === 36 || tpl?.id === 37 || tpl?.id === 38 || tpl?.id === 39 || tpl?.id === 41) ? tplUrls.sec : null) || null, iconImgUrls: tplUrls.icons || [], heroMobileImgUrl: tplUrls.heroMobile || null, btnMobileImgUrl: tplUrls.btnMobile || null, dayImgUrls: tpl?.id === 32 ? [tplUrls.sec || null, tplUrls.ter || null] : [], dayImgMobUrls: tpl?.id === 32 ? [tplUrls.card1 || null, tplUrls.card2 || null] : [], closingImgUrl: tpl?.id === 32 ? (tplUrls.closing || null) : null, ...editorProps })
     /* The client's own fonts (brand board columns L to P) go on last, over the finished email */
     return applyBrandFonts(welcomeFlow ? swapBakedLogos(finishBoldMarks(built), tplUrls.logos) : built, effectiveFooterData)
-  }, [active, welcomeFlow, selectedClient, generatedCopy, selectedImages, headerStyle, imageStyle, clientFooter, footerLogoColor, footerLogoSize, weekGenUrls, bakedImages, heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y, img5Scale, img5X, img5Y, img6Scale, img6X, img6Y, img7Scale, img7X, img7Y])
+  }, [active, welcomeFlow, selectedClient, generatedCopy, selectedImages, headerStyle, imageStyle, clientFooter, footerLogoColor, footerLogoSize, footerLogoBox, weekGenUrls, bakedImages, heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y, img5Scale, img5X, img5Y, img6Scale, img6X, img6Y, img7Scale, img7X, img7Y])
 
   // Keep store in sync so ApprovalPanel always has the latest HTML
   useEffect(() => {
@@ -6975,6 +6982,18 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
                 />
               </div>
 
+              {/* Footer logo box: a white panel behind the logo, for the clients whose logo needs one */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8, marginTop: 2 }}>
+                <span style={{ fontSize: 10, fontWeight: 600, color: dark ? '#9ca3af' : '#6b7280' }}>Logo box</span>
+                <button onClick={() => setFooterLogoBox(v => !v)} title={footerLogoBox ? 'Remove the white panel behind the footer logo' : 'Put a white panel behind the footer logo'}
+                  style={{ padding: '4px 10px', borderRadius: 8, fontSize: 10, fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s',
+                    border: `1.5px solid ${footerLogoBox ? '#d97706' : (dark ? 'rgba(255,255,255,0.1)' : '#e5e7eb')}`,
+                    background: footerLogoBox ? (dark ? 'rgba(217,119,6,0.15)' : '#fffbeb') : (dark ? '#2d2d2d' : '#f9fafb'),
+                    color: footerLogoBox ? '#d97706' : (dark ? '#d1d5db' : '#374151') }}>
+                  {footerLogoBox ? 'On' : 'Off'}
+                </button>
+              </div>
+
               {/* Footer logo color tint */}
               <div style={{ fontSize: 10, fontWeight: 600, color: dark ? '#9ca3af' : '#6b7280', marginBottom: 6, marginTop: 2 }}>Footer color tint</div>
               <div style={{ display: 'flex', gap: 5 }}>
@@ -7104,7 +7123,7 @@ ${useLoraFont ? '<link href="https://fonts.googleapis.com/css2?family=Lora:wght@
           {/* Divider + Reset */}
           <div style={{ height: 1, background: dark ? 'rgba(255,255,255,0.07)' : '#f0f1f3', margin: '12px 0 8px' }} />
           <button onClick={() => {
-            setHeroScale(1); setHeroX(0); setHeroY(0); setFooterLogoColor('original'); setFooterLogoSize(56)
+            setHeroScale(1); setHeroX(0); setHeroY(0); setFooterLogoColor('original'); setFooterLogoSize(56); setFooterLogoBox(false)
             setImg1Scale(1); setImg1X(0); setImg1Y(0); setImg2Scale(1); setImg2X(0); setImg2Y(0); setImg3Scale(1); setImg3X(0); setImg3Y(0); setImg4Scale(1); setImg4X(0); setImg4Y(0); setImg5Scale(1); setImg5X(0); setImg5Y(0)
             if (tpl?.id === 10 || tpl?.id === 17) { setTextSize(38); setTextTop(32);  setTextLeft(24);  setLogoColor('original'); setLogoTop(32); setLogoRight(200); setLogoSize(40) }
             if (tpl?.id === 11) { setTextSize(40); setTextTop(14);  setTextLeft(52);  setLogoColor('white');    setLogoTop(40); setLogoRight(36);  setLogoSize(44) }

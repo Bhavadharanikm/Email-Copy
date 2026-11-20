@@ -19,6 +19,7 @@ import { emailSig } from '../../welcome-flow/wfStage'
 import { pushHtmlToGHL, notifyChat, rbSaveEmail } from '../../lib/api'
 import { rbEmail } from '../rbEmails'
 import { useRbEmail, rbPath, RBMissing } from '../components/rbShared'
+import CopyButton from '../../components/CopyButton'
 
 export default function RBApprove() {
   const navigate = useNavigate()
@@ -152,15 +153,16 @@ export default function RBApprove() {
           {[
             { label: 'Client',   value: client.name },
             { label: 'Template', value: `${client.name} - ${templateLabel}` },
-            { label: 'Subject',  value: copy.subjectLine },
-            { label: 'Preview',  value: copy.previewText },
+            { label: 'Subject',  value: copy.subjectLine, copy: true },
+            { label: 'Preview',  value: copy.previewText, copy: true },
             { label: 'Code',     value: copy.codeDisplay },
             { label: 'CTA',      value: copy.ctaText && `${copy.ctaText}${copy.ctaUrl ? ` → ${copy.ctaUrl}` : ''}` },
             { label: 'Folder',   value: client.folderId || 'None set: it lands in the location’s top level' },
-          ].map(({ label, value }) => (
-            <div key={label} style={{ display: 'flex', gap: 8 }}>
+          ].map(({ label, value, copy: canCopy }) => (
+            <div key={label} style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
               <dt style={{ fontWeight: 600, color: t.muted, minWidth: 70 }}>{label}</dt>
-              <dd style={{ color: t.text, wordBreak: 'break-word' }}>{value || 'Not set'}</dd>
+              <dd style={{ color: t.text, wordBreak: 'break-word', flex: 1 }}>{value || 'Not set'}</dd>
+              {canCopy && <CopyButton text={value} dark={t.dark} />}
             </div>
           ))}
         </dl>

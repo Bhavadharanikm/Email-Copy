@@ -8,30 +8,7 @@ import { useCampaignStore } from '../store/campaignStore'
 import { pushHtmlToGHL, notifyChat, logToSheets } from '../lib/api'
 import { useTheme } from '../context/ThemeContext'
 import { useWeeklySave } from '../hooks/useWeeklySave'
-
-/* Copies one line (the subject or preview text) to the clipboard. */
-function CopyButton({ text, dark }) {
-  const [state, setState] = useState('idle')   // idle | copied | failed
-  async function copy() {
-    try {
-      await navigator.clipboard.writeText(text || '')
-      setState('copied')
-    } catch {
-      setState('failed')
-    }
-    setTimeout(() => setState('idle'), 1600)
-  }
-  return (
-    <button onClick={copy} disabled={!text} title={text ? 'Copy to clipboard' : 'Nothing to copy'}
-      style={{ flexShrink: 0, padding: '4px 10px', borderRadius: 7, fontSize: 12, fontWeight: 600, fontFamily: 'Inter, sans-serif',
-        cursor: text ? 'pointer' : 'default', opacity: text ? 1 : 0.5,
-        background: state === 'copied' ? (dark ? 'rgba(52,211,153,0.18)' : '#dcfce7') : (dark ? 'rgba(255,255,255,0.08)' : '#f3f4f6'),
-        color: state === 'copied' ? (dark ? '#34d399' : '#15803d') : state === 'failed' ? '#dc2626' : (dark ? 'rgba(255,255,255,0.8)' : '#374151'),
-        border: `1px solid ${dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)'}` }}>
-      {state === 'copied' ? 'Copied' : state === 'failed' ? 'Select and copy' : 'Copy'}
-    </button>
-  )
-}
+import CopyButton from './CopyButton'
 
 export default function ApprovalPanel() {
   const { theme } = useTheme()
@@ -175,13 +152,14 @@ export default function ApprovalPanel() {
         <dl style={{ fontSize: 15, display: 'flex', flexDirection: 'column', gap: 8 }}>
           {[
             { label: 'Client',  value: selectedClient?.name },
-            { label: 'Subject', value: generatedCopy.subjectLine },
-            { label: 'Preview', value: generatedCopy.previewText },
+            { label: 'Subject', value: generatedCopy.subjectLine, copy: true },
+            { label: 'Preview', value: generatedCopy.previewText, copy: true },
             { label: 'CTA',     value: generatedCopy.ctaText },
-          ].map(({ label, value }) => (
-            <div key={label} style={{ display: 'flex', gap: 8 }}>
+          ].map(({ label, value, copy }) => (
+            <div key={label} style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
               <dt style={{ fontWeight: 600, color: dark ? 'rgba(255,255,255,0.45)' : '#6b7280', minWidth: 60 }}>{label}</dt>
-              <dd style={{ color: dark ? 'rgba(255,255,255,0.8)' : '#111827' }}>{value || 'Not set'}</dd>
+              <dd style={{ color: dark ? 'rgba(255,255,255,0.8)' : '#111827', flex: 1 }}>{value || 'Not set'}</dd>
+              {copy && <CopyButton text={value} dark={dark} />}
             </div>
           ))}
         </dl>
