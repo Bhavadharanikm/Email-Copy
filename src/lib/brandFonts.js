@@ -95,6 +95,20 @@ export function brandFontsFrom(fd) {
 
 const slug = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '')
 
+/* The client-fonts bucket names files "<base64 client>/<base64 font>--<weight>.ext",
+   so a file is matched to its family by the decoded name as well as the raw one. */
+function decodeB64(s) {
+  try {
+    const padded = s.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - s.length % 4) % 4)
+    return typeof atob === 'function' ? atob(padded) : Buffer.from(padded, 'base64').toString('utf8')
+  } catch { return '' }
+}
+function fileNames(path) {
+  const file = decodeURIComponent(path.split('/').pop() || '')
+  const stem = file.replace(/\.[a-z0-9]+$/i, '').split('--')[0]
+  return [slug(file), slug(decodeB64(stem))].filter(Boolean)
+}
+
 /* Column P: one or more links, separated by spaces, commas or new lines. */
 function fileLinks(fd) {
   return String(fd?.fontFileLink || '').split(/[\s,]+/).map(s => s.trim()).filter(s => /^https?:\/\//i.test(s))
@@ -114,8 +128,9 @@ export function brandFontHead(fonts, fd) {
     const ext  = (path.match(/\.(woff2|woff|ttf|otf|css)$/i) || [])[1]?.toLowerCase()
     if (!ext) continue
     if (ext === 'css') { out.push(`<link rel="stylesheet" href="${url}"/>`); continue }
-    const file   = slug(path.split('/').pop())
-    const family = families.find(f => file.includes(slug(f))) || families.find(f => !covered.has(f))
+    const names  = fileNames(path)
+    const file   = names[0]
+    const family = families.find(f => names.some(n => n.includes(slug(f)))) || families.find(f => !covered.has(f))
     if (!family) continue
     const weight = /bold|700/.test(file) ? 700 : /light|300/.test(file) ? 300 : 400
     const style  = /italic|oblique/.test(file) ? 'italic' : 'normal'
