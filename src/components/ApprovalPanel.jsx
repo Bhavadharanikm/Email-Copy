@@ -9,6 +9,7 @@ import { pushHtmlToGHL, notifyChat, logToSheets } from '../lib/api'
 import { useTheme } from '../context/ThemeContext'
 import { useWeeklySave } from '../hooks/useWeeklySave'
 import CopyButton from './CopyButton'
+import OutlookWarning from './OutlookWarning'
 
 export default function ApprovalPanel() {
   const { theme } = useTheme()
@@ -164,6 +165,8 @@ export default function ApprovalPanel() {
           ))}
         </dl>
       </div>
+
+      <OutlookWarning html={renderedHtml} dark={dark} style={{ marginTop: 0 }} />
 
       {/* Notes */}
       <div>

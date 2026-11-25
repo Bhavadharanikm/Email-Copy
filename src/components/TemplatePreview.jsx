@@ -259,6 +259,15 @@ function wfButtonText(color) {
   return (0.299 * r + 0.587 * g + 0.114 * b) > 150 ? '#1a1a1a' : '#ffffff'
 }
 
+/* HTML width/height for a logo drawn at height h, so Windows Outlook (which
+   ignores CSS sizing on images) shows it at the same size as everyone else. */
+function logoSizeAttr(fd, h, maxW) {
+  const d = fd?.footerLogoDims
+  if (!d?.w || !d?.h) return ''
+  const w = Math.min(maxW, Math.round(h * d.w / d.h))
+  return ` width="${w}" height="${Math.round(w * d.h / d.w)}"`
+}
+
 function buildFooter(client, footerData = null, options = {}) {
   const fd          = footerData || {}
   const bgRaw       = options.bgOverride || fd.bgColor || options.defaultBg  || '#1c1c1c'
@@ -1689,7 +1698,7 @@ ${(() => {
     : `<span style="font-family:Arial,sans-serif;font-size:${Math.round(logoSize*0.38)}px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:${logoColor==='black'?'#000':'#fff'};">${client?.name||''}</span>`
   return `<div style="line-height:0;font-size:0;background-color:${pageBg};">
     ${isHeroGenerated && heroImg
-      ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;outline:none;"><img src="${heroImg}" alt="" style="width:600px;max-width:100%;display:block;border:0;"/></a>`
+      ? `<a href="${copy.ctaUrl||'#'}" style="display:block;text-decoration:none;border:none;outline:none;"><img src="${heroImg}" alt="" width="600" style="width:600px;max-width:100%;display:block;border:0;"/></a>`
       : `<div style="position:relative;width:100%;height:680px;overflow:hidden;background:#1a1a1a;">
           ${heroImg ? `<img src="${heroImg}" alt="" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;${weeklyCrop(heroFp, heroX, heroY, heroScale)}display:block;"/>` : `<div style="position:absolute;inset:0;background:#2a2a2a;"></div>`}
           <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.35) 0%,rgba(0,0,0,0) 35%,rgba(0,0,0,0) 48%,rgba(0,0,0,0.55) 75%,rgba(0,0,0,0.72) 100%);"></div>
@@ -3420,7 +3429,7 @@ function buildTemplateWeek7WF({ client, copy, images, footerData, isHeroGenerate
 
   const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
   const logoBlock = logoUrl
-    ? `<img src="${logoUrl}" alt="${client?.name || ''}" style="height:${logoSize}px;width:auto;max-width:220px;display:inline-block;border:0;outline:none;filter:${logoFilter};"/>`
+    ? `<img src="${logoUrl}" alt="${client?.name || ''}"${logoSizeAttr(footerData, logoSize, 220)} style="height:${logoSize}px;width:auto;max-width:220px;display:inline-block;border:0;outline:none;filter:${logoFilter};"/>`
     : `<div style="font-family:Arial,sans-serif;font-size:18px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:${textCol};">${client?.name || ''}</div>`
 
   /* One button, drawn twice. Baked PNG when Generate Images has run, otherwise
@@ -3591,7 +3600,7 @@ function buildTemplateWeek8WF({ client, copy, images, footerData, isHeroGenerate
 
   const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
   const logoBlock = logoUrl
-    ? `<img src="${logoUrl}" alt="${client?.name || ''}" style="height:${logoSize}px;width:auto;max-width:220px;display:block;border:0;outline:none;filter:${logoFilter};"/>`
+    ? `<img src="${logoUrl}" alt="${client?.name || ''}"${logoSizeAttr(footerData, logoSize, 220)} style="height:${logoSize}px;width:auto;max-width:220px;display:block;border:0;outline:none;filter:${logoFilter};"/>`
     : `<div style="font-family:Arial,sans-serif;font-size:18px;line-height:24px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:${textCol};">${client?.name || ''}</div>`
 
   const iconKeys = wfPickIcons(points)
@@ -3769,7 +3778,7 @@ function buildTemplateWeek9WF({ client, copy, images, footerData,
 
   const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
   const logoBlock = logoUrl
-    ? `<img src="${logoUrl}" alt="${client?.name || ''}" style="height:${logoSize}px;width:auto;max-width:220px;display:inline-block;border:0;outline:none;filter:${logoFilter};"/>`
+    ? `<img src="${logoUrl}" alt="${client?.name || ''}"${logoSizeAttr(footerData, logoSize, 220)} style="height:${logoSize}px;width:auto;max-width:220px;display:inline-block;border:0;outline:none;filter:${logoFilter};"/>`
     : `<div style="font-family:Arial,sans-serif;font-size:18px;line-height:24px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:${textCol};">${client?.name || ''}</div>`
 
   const iconKeys = wfPickIcons(points)
@@ -3936,7 +3945,7 @@ function buildTemplateRB1({ client, copy, images, footerData, isHeroGenerated = 
 
   const logoFilter = logoColor === 'white' ? 'brightness(0) invert(1)' : logoColor === 'black' ? 'brightness(0)' : 'none'
   const logoBlock = logoUrl
-    ? `<img src="${logoUrl}" alt="${client?.name || ''}" style="height:${logoSize}px;width:auto;max-width:220px;display:inline-block;border:0;outline:none;filter:${logoFilter};"/>`
+    ? `<img src="${logoUrl}" alt="${client?.name || ''}"${logoSizeAttr(footerData, logoSize, 220)} style="height:${logoSize}px;width:auto;max-width:220px;display:inline-block;border:0;outline:none;filter:${logoFilter};"/>`
     : `<div style="font-family:Arial,sans-serif;font-size:18px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:${textCol};">${client?.name || ''}</div>`
 
   const ctaBtnHtml = (label, imgUrl) => imgUrl

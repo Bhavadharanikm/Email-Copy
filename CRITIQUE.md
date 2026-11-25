@@ -495,6 +495,12 @@ Outlook on Windows renders with Word, not a browser engine. Two consequences:
   `<!--[if !mso]><!-- --> … <!--<![endif]-->`, which Word skips, plus `mso-hide:all`.
 - The studio reads the client logo's proportions once (`logoDims`) and the footer
   `<img>` carries matching `width`/`height` attributes. Browsers keep using the CSS.
+- Same treatment for the Week 7/8/9 welcome-flow and Repeat Booking Email 1 header
+  logos (`logoSizeAttr`), and the Week 8 baked hero now carries `width="600"`.
+- Guard: `outlookIssues` (src/lib/outlookCheck.js) scans the final HTML on every
+  Approve page (weekly, welcome flow, repeat booking) and lists unsized images,
+  unguarded hidden images and still-live positioned images in a red card
+  (`OutlookWarning`). It warns; it does not block the push.
 Emails pushed before this keep the old HTML until opened and pushed again.
 
 ### How to check

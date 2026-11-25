@@ -20,6 +20,7 @@ import { pushHtmlToGHL, notifyChat, rbSaveEmail } from '../../lib/api'
 import { rbEmail } from '../rbEmails'
 import { useRbEmail, rbPath, RBMissing } from '../components/rbShared'
 import CopyButton from '../../components/CopyButton'
+import OutlookWarning from '../../components/OutlookWarning'
 
 export default function RBApprove() {
   const navigate = useNavigate()
@@ -167,6 +168,8 @@ export default function RBApprove() {
           ))}
         </dl>
       </WfCard>
+
+      <OutlookWarning html={email.renderedHtml} dark={t.dark} />
 
       {!email.renderedHtml && (
         <WfCard style={{ padding: 16, marginTop: 14, borderColor: 'rgba(180,83,9,0.35)' }}>

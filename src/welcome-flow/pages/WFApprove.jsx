@@ -25,6 +25,7 @@ import { useWfTheme, WfCard, WfButton, WfStepNav, WfHoverTip } from '../componen
 import { pushHtmlToGHL, notifyChat, wfPushEmail } from '../../lib/api'
 import { emailSig } from '../wfStage'
 import CopyButton from '../../components/CopyButton'
+import OutlookWarning from '../../components/OutlookWarning'
 
 export default function WFApprove() {
   const { clientId, emailId } = useParams()
@@ -251,6 +252,8 @@ export default function WFApprove() {
           ))}
         </dl>
       </WfCard>
+
+      <OutlookWarning html={email.renderedHtml} dark={t.dark} />
 
       {!email.renderedHtml && (
         <WfCard style={{ padding: 16, marginTop: 14, borderColor: 'rgba(180,83,9,0.35)' }}>
