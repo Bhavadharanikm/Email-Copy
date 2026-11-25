@@ -338,8 +338,15 @@ function buildFooter(client, footerData = null, options = {}) {
   const logoBox = fd.footerLogoBox
     ? `<span style="display:inline-block;background-color:#ffffff;padding:10px 16px;border-radius:6px;line-height:0;">`
     : ''
+  /* HTML width/height as well as CSS: Outlook on Windows ignores CSS sizing on
+     images and showed the logo at the file's full size. Browsers keep using the
+     CSS (height set, width auto), so nothing changes elsewhere. */
+  const footerLogoH    = fd.footerLogoSize || 56
+  const footerLogoAttr = fd.footerLogoDims?.w && fd.footerLogoDims?.h
+    ? ` width="${Math.round(footerLogoH * fd.footerLogoDims.w / fd.footerLogoDims.h)}" height="${footerLogoH}"`
+    : ''
   const logoHtml = logoUrl
-    ? `<div style="margin:0 0 20px;text-align:center">${logoBox}<img class="w5-footer-logo" src="${logoUrl}" alt="${name}" style="height:${fd.footerLogoSize || 56}px;width:auto;object-fit:contain;display:inline-block;filter:${footerLogoFilter};opacity:${fd.footerLogoBox ? 1 : .8};"/>${logoBox ? '</span>' : ''}</div>`
+    ? `<div style="margin:0 0 20px;text-align:center">${logoBox}<img class="w5-footer-logo" src="${logoUrl}" alt="${name}"${footerLogoAttr} style="height:${footerLogoH}px;width:auto;object-fit:contain;display:inline-block;filter:${footerLogoFilter};opacity:${fd.footerLogoBox ? 1 : .8};"/>${logoBox ? '</span>' : ''}</div>`
     : `<div style="margin:0 0 20px;${sysName}font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:${textCol};font-family:Arial,sans-serif">${name}</div>`
 
   const contactParts = [
@@ -4524,6 +4531,20 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
   const [footerLogoColor, setFooterLogoColor]  = useState('original') // 'original' | 'white' | 'black'
   const [footerLogoSize,  setFooterLogoSize]   = useState(56)   // bigger by default, so it rarely needs adjusting
   const [footerLogoBox,   setFooterLogoBox]    = useState(false) // white panel behind the footer logo, for the clients that need it
+  /* The logo's own proportions, so the footer can carry HTML width/height
+     attributes: Outlook on Windows ignores CSS sizing on images and showed the
+     logo at the file's full size. Read once per client logo. */
+  const [logoDims, setLogoDims] = useState(null)
+  useEffect(() => {
+    const src = selectedClient?.logoUrl || ''
+    setLogoDims(null)
+    if (!src) return
+    let live = true
+    const img = new Image()
+    img.onload = () => { if (live && img.naturalWidth && img.naturalHeight) setLogoDims({ w: img.naturalWidth, h: img.naturalHeight }) }
+    img.src = src
+    return () => { live = false }
+  }, [selectedClient?.logoUrl])
   const [logoTop,     setLogoTop]     = useState(24)
   const [logoRight,   setLogoRight]   = useState(36)
   const [logoSize,    setLogoSize]    = useState(70)
@@ -4689,14 +4710,14 @@ export default function TemplatePreview({ pulseGenBtn = false, welcomeFlow = fal
       : (tpl?.id === 42 || tpl?.id === 43) ? [!!tplUrls.card1, !!tplUrls.card2, !!tplUrls.card3, !!tplUrls.card4, !!tplUrls.card5]
       : [false, false, false]
     const effectiveFooterData = clientFooter
-      ? { ...clientFooter, logoColor: footerLogoColor, footerLogoSize, footerLogoBox }
+      ? { ...clientFooter, logoColor: footerLogoColor, footerLogoSize, footerLogoBox, footerLogoDims: logoDims }
       : clientFooter
     console.log('[baseHtml] tplId:', tpl?.id, 'isHeroGenerated:', isHeroGenerated, 'tplUrls:', tplUrls, 'effectiveImages[4]:', effectiveImages?.[4], 'effectiveImages[5]:', effectiveImages?.[5])
     const effectiveCopy = generatedCopy ? withBoldMarks({ ...generatedCopy, headlineText: (generatedCopy.headlineText || '').replace(/\.$/, '') }) : generatedCopy
     const built = tpl.build({ client:selectedClient, copy:effectiveCopy, images:effectiveImages, headerStyle, imageStyle, footerData: effectiveFooterData, isHeroGenerated, isStoryGenerated, cardsGenerated, btnImgUrl: tplUrls.btn || null, introBtnImgUrl: tplUrls.introBtn || null, cardBtnImgUrl: tplUrls.cardBtn || null, stampImgUrl: tplUrls.sec || null, pinImgUrl: tplUrls.ter || null, gridImgUrl: ((tpl?.id === 33 || tpl?.id === 35 || tpl?.id === 36 || tpl?.id === 37 || tpl?.id === 38 || tpl?.id === 39 || tpl?.id === 41) ? tplUrls.sec : null) || null, iconImgUrls: tplUrls.icons || [], heroMobileImgUrl: tplUrls.heroMobile || null, btnMobileImgUrl: tplUrls.btnMobile || null, dayImgUrls: tpl?.id === 32 ? [tplUrls.sec || null, tplUrls.ter || null] : [], dayImgMobUrls: tpl?.id === 32 ? [tplUrls.card1 || null, tplUrls.card2 || null] : [], closingImgUrl: tpl?.id === 32 ? (tplUrls.closing || null) : null, ...editorProps })
     /* The client's own fonts (brand board columns L to P) go on last, over the finished email */
     return hideFromOutlook(applyBrandFonts(welcomeFlow ? swapBakedLogos(finishBoldMarks(built), tplUrls.logos) : built, effectiveFooterData))
-  }, [active, welcomeFlow, selectedClient, generatedCopy, selectedImages, headerStyle, imageStyle, clientFooter, footerLogoColor, footerLogoSize, footerLogoBox, weekGenUrls, bakedImages, heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y, img5Scale, img5X, img5Y, img6Scale, img6X, img6Y, img7Scale, img7X, img7Y])
+  }, [active, welcomeFlow, selectedClient, generatedCopy, selectedImages, headerStyle, imageStyle, clientFooter, footerLogoColor, footerLogoSize, footerLogoBox, logoDims, weekGenUrls, bakedImages, heroScale, heroX, heroY, textSize, textTop, textLeft, logoColor, logoTop, logoRight, logoSize, img1Scale, img1X, img1Y, img2Scale, img2X, img2Y, img3Scale, img3X, img3Y, img4Scale, img4X, img4Y, img5Scale, img5X, img5Y, img6Scale, img6X, img6Y, img7Scale, img7X, img7Y])
 
   // Keep store in sync so ApprovalPanel always has the latest HTML
   useEffect(() => {
