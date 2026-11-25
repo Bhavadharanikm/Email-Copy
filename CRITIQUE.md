@@ -33,6 +33,7 @@ shape — *Symptom → What we did → Why it broke → Fix → How to check*. K
 | Two side-by-side photos baked at unequal widths (one wide, one narrow) | [15. Strip table with no cell widths](#15-side-by-side-photos-bake-at-unequal-widths) |
 | Weekly photo goes black at the edge when moved, or a weekly hero will not move at all | [16. Pixel shift instead of panning inside the photo](#16-weekly-photos-show-black-when-moved) |
 | Logo is black in the studio and GHL but white (original) in the test email | [17. CSS filter dropped by inboxes](#17-logo-colour-reverts-in-the-test-email) |
+| In Outlook on Windows only: hero shows twice side by side, or the footer logo is huge | [18. Word ignores display:none and CSS image sizes](#18-hero-twice-or-giant-logo-in-windows-outlook) |
 
 ---
 
@@ -470,6 +471,36 @@ again and they are pushed again.
 ### How to check
 Set a white logo to black, Generate Images, push, then send a test email to Gmail. The
 logo must arrive black. In the pushed HTML, no `<img>` should carry `filter:brightness(0)`.
+
+---
+
+## 18. Hero twice, or giant logo, in Windows Outlook
+
+### Symptom
+Welcome flow Email 8 (Nov 2026, Arca Boutique Hotel and The Preserve): clients reading
+in Outlook on Windows see the hero twice side by side, and the footer logo at many times
+its size. The same email is right on a Mac, in Gmail, and on phones.
+
+### Why it broke
+Outlook on Windows renders with Word, not a browser engine. Two consequences:
+- Emails 2, 3, 5, 6 and 8 carry a hidden mobile hero (Email 3 also a button) with
+  `display:none`, shown by a `@media` rule. Word ignores both, so it draws desktop and
+  mobile copies in a row.
+- The footer logo was sized only in CSS (`height:56px;width:auto`). Word ignores CSS
+  sizing on images and uses the file's own size. The social icons were fine because
+  they carry HTML `width`/`height` attributes.
+
+### Fix
+- `hideFromOutlook` (src/lib/outlookSafe.js) wraps every `display:none` image in
+  `<!--[if !mso]><!-- --> … <!--<![endif]-->`, which Word skips, plus `mso-hide:all`.
+- The studio reads the client logo's proportions once (`logoDims`) and the footer
+  `<img>` carries matching `width`/`height` attributes. Browsers keep using the CSS.
+Emails pushed before this keep the old HTML until opened and pushed again.
+
+### How to check
+In the rendered HTML, every `display:none` image sits inside the conditional comment
+and the footer logo `<img>` has `width="…" height="…"`. Only a Windows Outlook inbox
+proves it (Outlook for Mac and the web app render like a browser).
 
 ---
 
